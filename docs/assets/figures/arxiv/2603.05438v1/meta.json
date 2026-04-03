@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-001.webp",
+      "caption": "Figure 8. Dcompact architecture. The proposed Dcompact is based on MM-DiT [19], a DiT [55] variant designed for multimodal input processing. The architecture consists of two parallel processing streams: one for compact latent tokens z and another for target latent tokens zψ , which are fused through self attention over the concatenated token sequence. For the overall depiction of CompACT, we refer to Fig. 2 in the main paper.",
+      "page": 15,
+      "index": 1,
+      "width": 350,
+      "height": 535
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-002.webp",
+      "caption": "Figure 15. Additional qualitative results of navigation planning with the proposed CompACT. Among candidates, worst two action sequences and best action sequences are presented together.",
+      "page": 21,
+      "index": 2,
+      "width": 994,
+      "height": 925
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-003.webp",
+      "caption": "Figure 16. Additional qualitative results of action-conditioned video generation. Red and green boxes indicate incorrect and correct end-effector positions, respectively.",
+      "page": 22,
+      "index": 3,
+      "width": 594,
+      "height": 1281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-004.webp",
+      "caption": "Table 9. Training hyperparameters for CompACT.",
+      "page": 14,
+      "index": 4,
+      "width": 437,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-005.webp",
+      "caption": "Figure 1. Overview of the proposed latent world model formulation (Sec. 3.1). (a) An image tokenizer is first trained with a reconstruction objective to map an input image into compact latent tokens z. (Fig. 2 and Sec. 3.2). (b) Using the learned tokenizer, latent world model fϕ(zt,at) is trained to model the conditional distribution of the future state pϕ(zt+1|zt,at), where we adopt masked generative modeling (Sec. 3.3). (c) At test time, the learned latent world model is used for decision-time planning: An optimization procedure (e.g., MPC with CEM) searches over actions a0:H−1 to minimize the distance between the predicted final state and a goal image.",
+      "page": 3,
+      "index": 5,
+      "width": 1010,
+      "height": 417
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-006.webp",
+      "caption": "Figure 2. A tokenizer architecture detail. During training, only the latent resampler and Dcompact are updated. Eψ produces masked target tokens (training only), while Dψ is used only during inference for pixel level reconstruction.",
+      "page": 4,
+      "index": 6,
+      "width": 475,
+      "height": 329
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-007.webp",
+      "caption": "Figure 11. World model fϕ architecture for manipulation. For manipulation tasks, the world model is formulated as a block-causal transformer that enables parallel prediction of multiple future frames conditioned on historical timesteps. Action tokens are used to condition the prediction head (AdaLN + linear layer) that unmasks latent tokens at each future timestep.",
+      "page": 17,
+      "index": 7,
+      "width": 1044,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-008.webp",
+      "caption": "Figure 14. Plot for ATE, planning latency, and memory peak usage on RECON [60]. Latency and memory usage is mesaured for single trajectory optimization, using a single RTX 6000 ADA GPU.",
+      "page": 20,
+      "index": 8,
+      "width": 469,
+      "height": 369
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-009.webp",
+      "caption": "Figure 13. Attention visualization for compact latent tokens in latent resampler. Brighter the color, higher the attention score.",
+      "page": 20,
+      "index": 9,
+      "width": 466,
+      "height": 923
+    },
+    {
+      "url": "assets/figures/arxiv/2603.05438v1/fig-010.webp",
+      "caption": "Figure 10. World model fϕ architecture for navigation. For navigation tasks, the world model is formulated as an action-conditioned generative model that autoregressively generates the next frame. The model follows the CDiT architecture proposed in NWM [3], where actions are conditioned via adaptive layer normalization and history frames are conditioned via cross-attention.",
+      "page": 16,
+      "index": 10,
+      "width": 350,
+      "height": 535
+    }
+  ]
+}

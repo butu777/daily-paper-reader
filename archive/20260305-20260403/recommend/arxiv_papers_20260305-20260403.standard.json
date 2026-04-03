@@ -1,0 +1,919 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-04-03T15:48:49.319457+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 20,
+    "deep_cap": 6,
+    "deep_selected": 14,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2603.09774v1",
+      "source": "arxiv",
+      "title": "World2Mind: Cognition Toolkit for Allocentric Spatial Reasoning in Foundation Models",
+      "abstract": "Achieving robust spatial reasoning remains a fundamental challenge for current Multimodal Foundation Models (MFMs). Existing methods either overfit statistical shortcuts via 3D grounding data or remain confined to 2D visual perception, limiting both spatial reasoning accuracy and generalization in unseen scenarios. Inspired by the spatial cognitive mapping mechanisms of biological intelligence, we propose World2Mind, a training-free spatial intelligence toolkit. At its core, World2Mind leverages 3D reconstruction and instance segmentation models to construct structured spatial cognitive maps, empowering MFMs to proactively acquire targeted spatial knowledge regarding interested landmarks and routes of interest. To provide robust geometric-topological priors, World2Mind synthesizes an Allocentric-Spatial Tree (AST) that uses elliptical parameters to model the top-down layout of landmarks accurately. To mitigate the inherent inaccuracies of 3D reconstruction, we introduce a three-stage reasoning chain comprising tool invocation assessment, modality-decoupled cue collection, and geometry-semantics interwoven reasoning. Extensive experiments demonstrate that World2Mind boosts the performance of frontier models, such as GPT-5.2, by 5%~18%. Astonishingly, relying solely on the AST-structured text, purely text-only foundation models can perform complex 3D spatial reasoning, achieving performance approaching that of advanced multimodal models.",
+      "authors": [
+        "Shouwei Ruan",
+        "Bin Wang",
+        "Zhenyu Wu",
+        "Qihui Zhu",
+        "Yuxiang Zhang",
+        "Hang Su",
+        "Yubin Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-03-10T15:12:14+00:00",
+      "link": "https://arxiv.org/pdf/2603.09774v1",
+      "tags": [
+        "query:AI 3D"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Spatial intelligence toolkit using 3D reconstruction for spatial reasoning",
+      "llm_evidence_cn": "利用3D重建进行空间推理的空间智能工具包",
+      "llm_evidence": "利用3D重建进行空间推理的空间智能工具包",
+      "canonical_evidence": "利用3D重建进行空间推理的空间智能工具包",
+      "llm_tldr_en": "Introduces World2Mind, a toolkit that uses 3D reconstruction to enhance spatial reasoning in foundation models.",
+      "llm_tldr_cn": "推出World2Mind工具包，通过3D重建和空间认知地图增强大模型的空间智能与推理能力。",
+      "llm_tldr": "推出World2Mind工具包，通过3D重建和空间认知地图增强大模型的空间智能与推理能力。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.11911v1",
+      "source": "arxiv",
+      "title": "InSpatio-WorldFM: An Open-Source Real-Time Generative Frame Model",
+      "abstract": "We present InSpatio-WorldFM, an open-source real-time frame model for spatial intelligence. Unlike video-based world models that rely on sequential frame generation and incur substantial latency due to window-level processing, InSpatio-WorldFM adopts a frame-based paradigm that generates each frame independently, enabling low-latency real-time spatial inference. By enforcing multi-view spatial consistency through explicit 3D anchors and implicit spatial memory, the model preserves global scene geometry while maintaining fine-grained visual details across viewpoint changes. We further introduce a progressive three-stage training pipeline that transforms a pretrained image diffusion model into a controllable frame model and finally into a real-time generator through few-step distillation. Experimental results show that InSpatio-WorldFM achieves strong multi-view consistency while supporting interactive exploration on consumer-grade GPUs, providing an efficient alternative to traditional video-based world models for real-time world simulation.",
+      "authors": [
+        "InSpatio Team",
+        "Xiaoyu Zhang",
+        "Weihong Pan",
+        "Zhichao Ye",
+        "Jialin Liu",
+        "Yipeng Chen",
+        "Nan Wang",
+        "Xiaojun Xiang",
+        "Weijian Xie",
+        "Yifu Wang",
+        "Haoyu Ji",
+        "Siji Pan",
+        "Zhewen Le",
+        "Jing Guo",
+        "Xianbin Liu",
+        "Donghui Shen",
+        "Ziqiang Zhao",
+        "Haomin Liu",
+        "Guofeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-12T13:28:50+00:00",
+      "link": "https://arxiv.org/pdf/2603.11911v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "real-time generative frame model for spatial intelligence",
+      "llm_evidence_cn": "用于空间智能的实时生成式帧模型",
+      "llm_evidence": "用于空间智能的实时生成式帧模型",
+      "canonical_evidence": "用于空间智能的实时生成式帧模型",
+      "llm_tldr_en": "A real-time generative model for spatial intelligence that maintains 3D consistency across viewpoints.",
+      "llm_tldr_cn": "一种用于空间智能的实时生成模型，在不同视角间保持3D一致性。",
+      "llm_tldr": "一种用于空间智能的实时生成模型，在不同视角间保持3D一致性。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.22212v1",
+      "source": "arxiv",
+      "title": "Omni-WorldBench: Towards a Comprehensive Interaction-Centric Evaluation for World Models",
+      "abstract": "Video--based world models have emerged along two dominant paradigms: video generation and 3D reconstruction. However, existing evaluation benchmarks either focus narrowly on visual fidelity and text--video alignment for generative models, or rely on static 3D reconstruction metrics that fundamentally neglect temporal dynamics. We argue that the future of world modeling lies in 4D generation, which jointly models spatial structure and temporal evolution. In this paradigm, the core capability is interactive response: the ability to faithfully reflect how interaction actions drive state transitions across space and time. Yet no existing benchmark systematically evaluates this critical dimension. To address this gap, we propose Omni--WorldBench, a comprehensive benchmark specifically designed to evaluate the interactive response capabilities of world models in 4D settings. Omni--WorldBench comprises two key components: Omni--WorldSuite, a systematic prompt suite spanning diverse interaction levels and scene types; and Omni--Metrics, an agent-based evaluation framework that quantifies world modeling capabilities by measuring the causal impact of interaction actions on both final outcomes and intermediate state evolution trajectories. We conduct extensive evaluations of 18 representative world models across multiple paradigms. Our analysis reveals critical limitations of current world models in interactive response, providing actionable insights for future research. Omni-WorldBench will be publicly released to foster progress in interactive 4D world modeling.",
+      "authors": [
+        "Meiqi Wu",
+        "Zhixin Cai",
+        "Fufangchen Zhao",
+        "Xiaokun Feng",
+        "Rujing Dang",
+        "Bingze Song",
+        "Ruitian Tian",
+        "Jiashu Zhu",
+        "Jiachen Lei",
+        "Hao Dou",
+        "Jing Tang",
+        "Lei Sun",
+        "Jiahong Wu",
+        "Xiangxiang Chu",
+        "Zeming Liu",
+        "Kaiqi Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-23T17:10:29+00:00",
+      "link": "https://arxiv.org/pdf/2603.22212v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "4D generation and interaction-centric world models",
+      "llm_evidence_cn": "4D生成与以交互为中心的世界模型",
+      "llm_evidence": "4D生成与以交互为中心的世界模型",
+      "canonical_evidence": "4D生成与以交互为中心的世界模型",
+      "llm_tldr_en": "A benchmark for evaluating 4D world models focusing on spatial and temporal dynamics.",
+      "llm_tldr_cn": "一个评估4D世界模型空间结构与时间演化交互能力的基准。",
+      "llm_tldr": "一个评估4D世界模型空间结构与时间演化交互能力的基准。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.27573v1",
+      "source": "arxiv",
+      "title": "SPREAD: Spatial-Physical REasoning via geometry Aware Diffusion",
+      "abstract": "Automated 3D scene generation is pivotal for applications spanning virtual reality, digital content creation, and Embodied AI. While computer graphics prioritizes aesthetic layouts, vision and robotics demand scenes that mirror real-world complexity which current data-driven methods struggle to achieve due to limited unstructured training data and insufficient spatial and physical modeling. We propose SPREAD, a diffusion-based framework that jointly learns spatial and physical relationships through a graph transformer, explicitly conditioning on posed scene point clouds for geometric awareness. Moreover, our model integrates differentiable guidance for collision avoidance, relational constraint, and gravity, ensuring physically coherent scenes without sacrificing relational context. Our experiments on 3D-FRONT and ProcTHOR datasets demonstrate state-of-the-art performance in spatial-relational reasoning and physical metrics. Moreover, \\ours{} outperforms baselines in scene consistency and stability during pre- and post-physics simulation, proving its capability to generate simulation-ready environments for embodied AI agents.",
+      "authors": [
+        "Minzhang Li",
+        "Kuixiang Shao",
+        "Xuebing Li",
+        "Yuyang Jiao",
+        "Yinuo Bai",
+        "Hengan Zhou",
+        "Sixian Shen",
+        "Jiayuan Gu",
+        "Jingyi Yu"
+      ],
+      "primary_category": "cs.GR",
+      "categories": [
+        "cs.GR"
+      ],
+      "published": "2026-03-29T08:15:17+00:00",
+      "link": "https://arxiv.org/pdf/2603.27573v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "spatial-physical reasoning and 3D scene generation",
+      "llm_evidence_cn": "空间物理推理与3D场景生成",
+      "llm_evidence": "空间物理推理与3D场景生成",
+      "canonical_evidence": "空间物理推理与3D场景生成",
+      "llm_tldr_en": "A diffusion framework for 3D scene generation that ensures physical coherence and geometric awareness.",
+      "llm_tldr_cn": "一种用于3D场景生成的扩散框架，确保物理连贯性和几何感知。",
+      "llm_tldr": "一种用于3D场景生成的扩散框架，确保物理连贯性和几何感知。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.29090v1",
+      "source": "arxiv",
+      "title": "HCLSM: Hierarchical Causal Latent State Machines for Object-Centric World Modeling",
+      "abstract": "World models that predict future states from video remain limited by flat latent representations that entangle objects, ignore causal structure, and collapse temporal dynamics into a single scale. We present HCLSM, a world model architecture that operates on three interconnected principles: object-centric decomposition via slot attention with spatial broadcast decoding, hierarchical temporal dynamics through a three-level engine combining selective state space models for continuous physics, sparse transformers for discrete events, and compressed transformers for abstract goals, and causal structure learning through graph neural network interaction patterns. HCLSM introduces a two-stage training protocol where spatial reconstruction forces slot specialization before dynamics prediction begins. We train a 68M-parameter model on the PushT robotic manipulation benchmark from the Open X-Embodiment dataset, achieving 0.008 MSE next-state prediction loss with emerging spatial decomposition (SBD loss: 0.0075) and learned event boundaries. A custom Triton kernel for the SSM scan delivers 38x speedup over sequential PyTorch. The full system spans 8,478 lines of Python across 51 modules with 171 unit tests. Code: https://github.com/rightnow-ai/hclsm",
+      "authors": [
+        "Jaber Jaber",
+        "Osama Jaber"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-03-31T00:11:29+00:00",
+      "link": "https://arxiv.org/pdf/2603.29090v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "object-centric world modeling and continuous physics",
+      "llm_evidence_cn": "以物体为中心的世界建模与连续物理",
+      "llm_evidence": "以物体为中心的世界建模与连续物理",
+      "canonical_evidence": "以物体为中心的世界建模与连续物理",
+      "llm_tldr_en": "A hierarchical world model using state space models for physics and causal structure.",
+      "llm_tldr_cn": "一种利用状态空间模型处理物理动态和因果结构的层次化世界模型。",
+      "llm_tldr": "一种利用状态空间模型处理物理动态和因果结构的层次化世界模型。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.05438v1",
+      "source": "arxiv",
+      "title": "Planning in 8 Tokens: A Compact Discrete Tokenizer for Latent World Model",
+      "abstract": "World models provide a powerful framework for simulating environment dynamics conditioned on actions or instructions, enabling downstream tasks such as action planning or policy learning. Recent approaches leverage world models as learned simulators, but its application to decision-time planning remains computationally prohibitive for real-time control. A key bottleneck lies in latent representations: conventional tokenizers encode each observation into hundreds of tokens, making planning both slow and resource-intensive. To address this, we propose CompACT, a discrete tokenizer that compresses each observation into as few as 8 tokens, drastically reducing computational cost while preserving essential information for planning. An action-conditioned world model that occupies CompACT tokenizer achieves competitive planning performance with orders-of-magnitude faster planning, offering a practical step toward real-world deployment of world models.",
+      "authors": [
+        "Dongwon Kim",
+        "Gawon Seo",
+        "Jinsung Lee",
+        "Minsu Cho",
+        "Suha Kwak"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2026-03-05T18:00:02+00:00",
+      "link": "https://arxiv.org/pdf/2603.05438v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "latent world model for planning",
+      "llm_evidence_cn": "用于规划的潜空间世界模型",
+      "llm_evidence": "用于规划的潜空间世界模型",
+      "canonical_evidence": "用于规划的潜空间世界模型",
+      "llm_tldr_en": "A compact tokenizer for world models to enable efficient real-time action planning.",
+      "llm_tldr_cn": "一种用于世界模型的高效分词器，旨在实现实时的动作规划。",
+      "llm_tldr": "一种用于世界模型的高效分词器，旨在实现实时的动作规划。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.08546v1",
+      "source": "arxiv",
+      "title": "Interactive World Simulator for Robot Policy Training and Evaluation",
+      "abstract": "Action-conditioned video prediction models (often referred to as world models) have shown strong potential for robotics applications, but existing approaches are often slow and struggle to capture physically consistent interactions over long horizons, limiting their usefulness for scalable robot policy training and evaluation. We present Interactive World Simulator, a framework for building interactive world models from a moderate-sized robot interaction dataset. Our approach leverages consistency models for both image decoding and latent-space dynamics prediction, enabling fast and stable simulation of physical interactions. In our experiments, the learned world models produce interaction-consistent pixel-level predictions and support stable long-horizon interactions for more than 10 minutes at 15 FPS on a single RTX 4090 GPU. Our framework enables scalable demonstration collection solely within the world models to train state-of-the-art imitation policies. Through extensive real-world evaluation across diverse tasks involving rigid objects, deformable objects, object piles, and their interactions, we find that policies trained on world-model-generated data perform comparably to those trained on the same amount of real-world data. Additionally, we evaluate policies both within the world models and in the real world across diverse tasks, and observe a strong correlation between simulated and real-world performance. Together, these results establish the Interactive World Simulator as a stable and physically consistent surrogate for scalable robotic data generation and faithful, reproducible policy evaluation.",
+      "authors": [
+        "Yixuan Wang",
+        "Rhythm Syed",
+        "Fangyu Wu",
+        "Mengchao Zhang",
+        "Aykut Onol",
+        "Jose Barreiros",
+        "Hooshang Nayyeri",
+        "Tony Dear",
+        "Huan Zhang",
+        "Yunzhu Li"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-03-09T16:13:32+00:00",
+      "link": "https://arxiv.org/pdf/2603.08546v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "interactive world simulator for physical interactions",
+      "llm_evidence_cn": "用于物理交互的交互式世界模拟器",
+      "llm_evidence": "用于物理交互的交互式世界模拟器",
+      "canonical_evidence": "用于物理交互的交互式世界模拟器",
+      "llm_tldr_en": "Builds interactive world models that capture physically consistent interactions for robot training.",
+      "llm_tldr_cn": "构建交互式世界模型，捕捉机器人训练中物理一致的交互过程。",
+      "llm_tldr": "构建交互式世界模型，捕捉机器人训练中物理一致的交互过程。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.13215v1",
+      "source": "arxiv",
+      "title": "Out of Sight, Out of Mind? Evaluating State Evolution in Video World Models",
+      "abstract": "Evolutions in the world, such as water pouring or ice melting, happen regardless of being observed. Video world models generate \"worlds\" via 2D frame observations. Can these generated \"worlds\" evolve regardless of observation? To probe this question, we design a benchmark to evaluate whether video world models can decouple state evolution from observation. Our benchmark, STEVO-Bench, applies observation control to evolving processes via instructions of occluder insertion, turning off the light, or specifying camera \"lookaway\" trajectories. By evaluating video models with and without camera control for a diverse set of naturally-occurring evolutions, we expose their limitations in decoupling state evolution from observation. STEVO-Bench proposes an evaluation protocol to automatically detect and disentangle failure modes of video world models across key aspects of natural state evolution. Analysis of STEVO-Bench results provide new insight into potential data and architecture bias of present-day video world models. Project website: https://glab-caltech.github.io/STEVOBench/. Blog: https://ziqi-ma.github.io/blog/2026/outofsight/",
+      "authors": [
+        "Ziqi Ma",
+        "Mengzhan Liufu",
+        "Georgia Gkioxari"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-13T17:51:14+00:00",
+      "link": "https://arxiv.org/pdf/2603.13215v1",
+      "tags": [
+        "keyword:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Evaluating state evolution and physical consistency in video world models",
+      "llm_evidence_cn": "评估视频世界模型中的状态演变和物理一致性",
+      "llm_evidence": "评估视频世界模型中的状态演变和物理一致性",
+      "canonical_evidence": "评估视频世界模型中的状态演变和物理一致性",
+      "llm_tldr_en": "Proposes STEVO-Bench to evaluate if video world models can maintain physical state evolution without observation.",
+      "llm_tldr_cn": "提出STEVO-Bench基准，评估视频世界模型在无观测情况下维持物理状态演化的能力。",
+      "llm_tldr": "提出STEVO-Bench基准，评估视频世界模型在无观测情况下维持物理状态演化的能力。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.14811v1",
+      "source": "arxiv",
+      "title": "Ego to World: Collaborative Spatial Reasoning in Embodied Systems via Reinforcement Learning",
+      "abstract": "Understanding the world from distributed, partial viewpoints is a fundamental challenge for embodied multi-agent systems. Each agent perceives the environment through an ego-centric view that is often limited by occlusion and ambiguity. To study this problem, we introduce the Ego-to-World (E2W) benchmark, which evaluates a vision-language model's ability to fuse heterogeneous viewpoints across three tasks: (i) global counting, (ii) relational location reasoning, and (iii) action-oriented grasping that requires predicting view-specific image coordinates. To address this setting, we propose CoRL, a two-stage framework that combines Chain-of-Thought supervised fine-tuning with reinforcement learning using Group-Relative Policy Optimization. Its core component, the Cross-View Spatial Reward (CVSR), provides dense task-aligned feedback by linking reasoning steps to visual evidence, ensuring coherent cross-view entity resolution, and guiding the model toward correct final predictions. Experiments on E2W show that CoRL consistently surpasses strong proprietary and open-source baselines on both reasoning and perception-grounding metrics, while ablations further confirm the necessity of each CVSR component. Beyond that, CoRL generalizes to external spatial reasoning benchmarks and enables effective real-world multi-robot manipulation with calibrated multi-camera rigs, demonstrating cross-view localization and successful grasp-and-place execution. Together, E2W and CoRL provide a principled foundation for learning world-centric scene understanding from distributed, ego-centric observations, advancing collaborative embodied AI.",
+      "authors": [
+        "Heng Zhou",
+        "Li Kang",
+        "Yiran Qin",
+        "Xiufeng Song",
+        "Ao Yu",
+        "Zilu Zhang",
+        "Haoming Song",
+        "Kaixin Xu",
+        "Yuchen Fan",
+        "Dongzhan Zhou",
+        "Xiaohong Liu",
+        "Ruimao Zhang",
+        "Philip Torr",
+        "Lei Bai",
+        "Zhenfei Yin"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "published": "2026-03-16T04:27:53+00:00",
+      "link": "https://arxiv.org/pdf/2603.14811v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "spatial reasoning in embodied systems",
+      "llm_evidence_cn": "具身系统中的空间推理",
+      "llm_evidence": "具身系统中的空间推理",
+      "canonical_evidence": "具身系统中的空间推理",
+      "llm_tldr_en": "A benchmark and RL framework for collaborative spatial reasoning in embodied agents.",
+      "llm_tldr_cn": "针对具身智能体协作空间推理的基准测试和强化学习框架。",
+      "llm_tldr": "针对具身智能体协作空间推理的基准测试和强化学习框架。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.14948v1",
+      "source": "arxiv",
+      "title": "Bridging Scene Generation and Planning: Driving with World Model via Unifying Vision and Motion Representation",
+      "abstract": "End-to-end autonomous driving aims to generate safe and plausible planning policies from raw sensor input. Driving world models have shown great potential in learning rich representations by predicting the future evolution of a driving scene. However, existing driving world models primarily focus on visual scene representation, and motion representation is not explicitly designed to be planner-shared and inheritable, leaving a schism between the optimization of visual scene generation and the requirements of precise motion planning. We present WorldDrive, a holistic framework that couples scene generation and real-time planning via unifying vision and motion representation. We first introduce a Trajectory-aware Driving World Model, which conditions on a trajectory vocabulary to enforce consistency between visual dynamics and motion intentions, enabling the generation of diverse and plausible future scenes conditioned on a specific trajectory. We transfer the vision and motion encoders to a downstream Multi-modal Planner, ensuring the driving policy operates on mature representations pre-optimized by scene generation. A simple interaction between motion representation, visual representation, and ego status can generate high-quality, multi-modal trajectories. Furthermore, to exploit the world model's foresight, we propose a Future-aware Rewarder, which distills future latent representation from the frozen world model to evaluate and select optimal trajectories in real-time. Extensive experiments on the NAVSIM, NAVSIM-v2, and nuScenes benchmarks demonstrate that WorldDrive achieves leading planning performance among vision-only methods while maintaining high-fidelity action-controlled video generation capabilities, providing strong evidence for the effectiveness of unifying vision and motion representation for robust autonomous driving.",
+      "authors": [
+        "Xingtai Gui",
+        "Meijie Zhang",
+        "Tianyi Yan",
+        "Wencheng Han",
+        "Jiahao Gong",
+        "Feiyang Tan",
+        "Cheng-zhong Xu",
+        "Jianbing Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-16T07:59:39+00:00",
+      "link": "https://arxiv.org/pdf/2603.14948v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "driving world model unifying vision and motion",
+      "llm_evidence_cn": "统一视觉与运动表示的驾驶世界模型",
+      "llm_evidence": "统一视觉与运动表示的驾驶世界模型",
+      "canonical_evidence": "统一视觉与运动表示的驾驶世界模型",
+      "llm_tldr_en": "Couples scene generation and real-time planning by unifying vision and motion representations in world models.",
+      "llm_tldr_cn": "通过统一世界模型中的视觉和运动表示，将场景生成与实时规划结合。",
+      "llm_tldr": "通过统一世界模型中的视觉和运动表示，将场景生成与实时规划结合。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.21315v1",
+      "source": "arxiv",
+      "title": "FluidWorld: Reaction-Diffusion Dynamics as a Predictive Substrate for World Models",
+      "abstract": "World models learn to predict future states of an environment, enabling planning and mental simulation. Current approaches default to Transformer-based predictors operating in learned latent spaces. This comes at a cost: O(N^2) computation and no explicit spatial inductive bias. This paper asks a foundational question: is self-attention necessary for predictive world modeling, or can alternative computational substrates achieve comparable or superior results? I introduce FluidWorld, a proof-of-concept world model whose predictive dynamics are governed by partial differential equations (PDEs) of reaction-diffusion type. Instead of using a separate neural network predictor, the PDE integration itself produces the future state prediction. In a strictly parameter-matched three-way ablation on unconditional UCF-101 video prediction (64x64, ~800K parameters, identical encoder, decoder, losses, and data), FluidWorld is compared against both a Transformer baseline (self-attention) and a ConvLSTM baseline (convolutional recurrence). While all three models converge to comparable single-step prediction loss, FluidWorld achieves 2x lower reconstruction error, produces representations with 10-15% higher spatial structure preservation and 18-25% more effective dimensionality, and critically maintains coherent multi-step rollouts where both baselines degrade rapidly. All experiments were conducted on a single consumer-grade PC (Intel Core i5, NVIDIA RTX 4070 Ti), without any large-scale compute. These results establish that PDE-based dynamics, which natively provide O(N) spatial complexity, adaptive computation, and global spatial coherence through diffusion, are a viable and parameter-efficient alternative to both attention and convolutional recurrence for world modeling.",
+      "authors": [
+        "Fabien Polly"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-03-22T16:49:43+00:00",
+      "link": "https://arxiv.org/pdf/2603.21315v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "physics-based predictive world models",
+      "llm_evidence_cn": "基于物理方程的预测性世界模型",
+      "llm_evidence": "基于物理方程的预测性世界模型",
+      "canonical_evidence": "基于物理方程的预测性世界模型",
+      "llm_tldr_en": "A world model using reaction-diffusion PDEs for spatial inductive bias.",
+      "llm_tldr_cn": "一种利用反应扩散偏微分方程提供空间归纳偏置的世界模型。",
+      "llm_tldr": "一种利用反应扩散偏微分方程提供空间归纳偏置的世界模型。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.25887v1",
+      "source": "arxiv",
+      "title": "World Reasoning Arena",
+      "abstract": "World models (WMs) are intended to serve as internal simulators of the real world that enable agents to understand, anticipate, and act upon complex environments. Existing WM benchmarks remain narrowly focused on next-state prediction and visual fidelity, overlooking the richer simulation capabilities required for intelligent behavior. To address this gap, we introduce WR-Arena, a comprehensive benchmark for evaluating WMs along three fundamental dimensions of next world simulation: (i) Action Simulation Fidelity, the ability to interpret and follow semantically meaningful, multi-step instructions and generate diverse counterfactual rollouts; (ii) Long-horizon Forecast, the ability to sustain accurate, coherent, and physically plausible simulations across extended interactions; and (iii) Simulative Reasoning and Planning, the ability to support goal-directed reasoning by simulating, comparing, and selecting among alternative futures in both structured and open-ended environments. We build a task taxonomy and curate diverse datasets designed to probe these capabilities, moving beyond single-turn and perceptual evaluations. Through extensive experiments with state-of-the-art WMs, our results expose a substantial gap between current models and human-level hypothetical reasoning, and establish WR-Arena as both a diagnostic tool and a guideline for advancing next-generation world models capable of robust understanding, forecasting, and purposeful action. The code is available at https://github.com/MBZUAI-IFM/WR-Arena.",
+      "authors": [
+        "PAN Team",
+        "Qiyue Gao",
+        "Kun Zhou",
+        "Jiannan Xiang",
+        "Zihan Liu",
+        "Dequan Yang",
+        "Junrong Chen",
+        "Arif Ahmad",
+        "Cong Zeng",
+        "Ganesh Bannur",
+        "Xinqi Huang",
+        "Zheqi Liu",
+        "Yi Gu",
+        "Yichi Yang",
+        "Guangyi Liu",
+        "Zhiting Hu",
+        "Zhengzhong Liu",
+        "Eric Xing"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-26T20:22:52+00:00",
+      "link": "https://arxiv.org/pdf/2603.25887v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "benchmark for evaluating world models and physical plausibility",
+      "llm_evidence_cn": "评估世界模型与物理合理性的基准",
+      "llm_evidence": "评估世界模型与物理合理性的基准",
+      "canonical_evidence": "评估世界模型与物理合理性的基准",
+      "llm_tldr_en": "A comprehensive benchmark for world models focusing on action fidelity and physical plausibility.",
+      "llm_tldr_cn": "一个针对世界模型的综合基准，侧重于动作保真度和物理合理性。",
+      "llm_tldr": "一个针对世界模型的综合基准，侧重于动作保真度和物理合理性。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2603.25981v1",
+      "source": "arxiv",
+      "title": "Policy-Guided World Model Planning for Language-Conditioned Visual Navigation",
+      "abstract": "Navigating to a visually specified goal given natural language instructions remains a fundamental challenge in embodied AI. Existing approaches either rely on reactive policies that struggle with long-horizon planning, or employ world models that suffer from poor action initialization in high-dimensional spaces. We present PiJEPA, a two-stage framework that combines the strengths of learned navigation policies with latent world model planning for instruction-conditioned visual navigation. In the first stage, we finetune an Octo-based generalist policy, augmented with a frozen pretrained vision encoder (DINOv2 or V-JEPA-2), on the CAST navigation dataset to produce an informed action distribution conditioned on the current observation and language instruction. In the second stage, we use this policy-derived distribution to warm-start Model Predictive Path Integral (MPPI) planning over a separately trained JEPA world model, which predicts future latent states in the embedding space of the same frozen encoder. By initializing the MPPI sampling distribution from the policy prior rather than from an uninformed Gaussian, our planner converges faster to high-quality action sequences that reach the goal. We systematically study the effect of the vision encoder backbone, comparing DINOv2 and V-JEPA-2, across both the policy and world model components. Experiments on real-world navigation tasks demonstrate that PiJEPA significantly outperforms both standalone policy execution and uninformed world model planning, achieving improved goal-reaching accuracy and instruction-following fidelity.",
+      "authors": [
+        "Amirhosein Chahe",
+        "Lifeng Zhou"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-03-26T23:47:49+00:00",
+      "link": "https://arxiv.org/pdf/2603.25981v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "latent world model planning for navigation",
+      "llm_evidence_cn": "用于导航的潜空间世界模型规划",
+      "llm_evidence": "用于导航的潜空间世界模型规划",
+      "canonical_evidence": "用于导航的潜空间世界模型规划",
+      "llm_tldr_en": "Combines navigation policies with latent world models for instruction-conditioned visual navigation.",
+      "llm_tldr_cn": "结合导航策略与潜空间世界模型，实现受指令引导的视觉导航。",
+      "llm_tldr": "结合导航策略与潜空间世界模型，实现受指令引导的视觉导航。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.01765v1",
+      "source": "arxiv",
+      "title": "DriveDreamer-Policy: A Geometry-Grounded World-Action Model for Unified Generation and Planning",
+      "abstract": "Recently, world-action models (WAM) have emerged to bridge vision-language-action (VLA) models and world models, unifying their reasoning and instruction-following capabilities and spatio-temporal world modeling. However, existing WAM approaches often focus on modeling 2D appearance or latent representations, with limited geometric grounding-an essential element for embodied systems operating in the physical world. We present DriveDreamer-Policy, a unified driving world-action model that integrates depth generation, future video generation, and motion planning within a single modular architecture. The model employs a large language model to process language instructions, multi-view images, and actions, followed by three lightweight generators that produce depth, future video, and actions. By learning a geometry-aware world representation and using it to guide both future prediction and planning within a unified framework, the proposed model produces more coherent imagined futures and more informed driving actions, while maintaining modularity and controllable latency. Experiments on the Navsim v1 and v2 benchmarks demonstrate that DriveDreamer-Policy achieves strong performance on both closed-loop planning and world generation tasks. In particular, our model reaches 89.2 PDMS on Navsim v1 and 88.7 EPDMS on Navsim v2, outperforming existing world-model-based approaches while producing higher-quality future video and depth predictions. Ablation studies further show that explicit depth learning provides complementary benefits to video imagination and improves planning robustness.",
+      "authors": [
+        "Yang Zhou",
+        "Xiaofeng Wang",
+        "Hao Shao",
+        "Letian Wang",
+        "Guosheng Zhao",
+        "Jiangnan Shao",
+        "Jiagang Zhu",
+        "Tingdong Yu",
+        "Zheng Zhu",
+        "Guan Huang",
+        "Steven L. Waslander"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2026-04-02T08:33:18+00:00",
+      "link": "https://arxiv.org/pdf/2604.01765v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "geometry-grounded world-action model for driving",
+      "llm_evidence_cn": "基于几何落地的驾驶世界动作模型",
+      "llm_evidence": "基于几何落地的驾驶世界动作模型",
+      "canonical_evidence": "基于几何落地的驾驶世界动作模型",
+      "llm_tldr_en": "Integrates depth generation and motion planning into a geometry-grounded world model for autonomous driving.",
+      "llm_tldr_cn": "将深度生成和运动规划集成到自动驾驶的几何落地世界模型中。",
+      "llm_tldr": "将深度生成和运动规划集成到自动驾驶的几何落地世界模型中。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2603.17333v1",
+      "source": "arxiv",
+      "title": "Grid Spatial Understanding: A Dataset for Textual Spatial Reasoning over Grids, Embodied Settings, and Coordinate Structures",
+      "abstract": "We introduce GSU, a text-only grid dataset to evaluate the spatial reasoning capabilities of LLMs over 3 core tasks: navigation, object localization, and structure composition. By forgoing visual inputs, isolating spatial reasoning from perception, we show that while most models grasp basic grid concepts, they struggle with frames of reference relative to an embodied agent and identifying 3D shapes from coordinate lists. We also find that exposure to a visual modality does not provide a generalizable understanding of 3D space that VLMs are able to utilize for these tasks. Finally, we show that while the very latest frontier models can solve the provided tasks (though harder variants may still stump them), fully fine-tuning a small LM or LORA fine-tuning a small LLM show potential to match frontier model performance, suggesting an avenue for specialized embodied agents.",
+      "authors": [
+        "Risham Sidhu",
+        "Julia Hockenmaier"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-03-18T03:57:30+00:00",
+      "link": "https://arxiv.org/pdf/2603.17333v1",
+      "tags": [
+        "query:AI 3D"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "textual spatial reasoning and 3D shapes",
+      "llm_evidence_cn": "文本空间推理与3D形状",
+      "llm_evidence": "文本空间推理与3D形状",
+      "canonical_evidence": "文本空间推理与3D形状",
+      "llm_tldr_en": "A dataset evaluating LLM spatial reasoning over grids and 3D coordinate structures.",
+      "llm_tldr_cn": "一个评估大模型在网格和3D坐标结构上空间推理能力的文本数据集。",
+      "llm_tldr": "一个评估大模型在网格和3D坐标结构上空间推理能力的文本数据集。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2604.01346v1",
+      "source": "arxiv",
+      "title": "Safety, Security, and Cognitive Risks in World Models",
+      "abstract": "World models -- learned internal simulators of environment dynamics -- are rapidly becoming foundational to autonomous decision-making in robotics, autonomous vehicles, and agentic AI. Yet this predictive power introduces a distinctive set of safety, security, and cognitive risks. Adversaries can corrupt training data, poison latent representations, and exploit compounding rollout errors to cause catastrophic failures in safety-critical deployments. World model-equipped agents are more capable of goal misgeneralisation, deceptive alignment, and reward hacking precisely because they can simulate the consequences of their own actions. Authoritative world model predictions further foster automation bias and miscalibrated human trust that operators lack the tools to audit.   This paper surveys the world model landscape; introduces formal definitions of trajectory persistence and representational risk; presents a five-profile attacker capability taxonomy; and develops a unified threat model extending MITRE ATLAS and the OWASP LLM Top 10 to the world model stack. We provide an empirical proof-of-concept on trajectory-persistent adversarial attacks (GRU-RSSM: A_1 = 2.26x amplification, -59.5% reduction under adversarial fine-tuning; stochastic RSSM proxy: A_1 = 0.65x; DreamerV3 checkpoint: non-zero action drift confirmed). We illustrate risks through four deployment scenarios and propose interdisciplinary mitigations spanning adversarial hardening, alignment engineering, NIST AI RMF and EU AI Act governance, and human-factors design. We argue that world models must be treated as safety-critical infrastructure requiring the same rigour as flight-control software or medical devices.",
+      "authors": [
+        "Manoj Parmar"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-04-01T19:57:33+00:00",
+      "link": "https://arxiv.org/pdf/2604.01346v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "risks in world models for robotics",
+      "llm_evidence_cn": "机器人世界模型的风险",
+      "llm_evidence": "机器人世界模型的风险",
+      "canonical_evidence": "机器人世界模型的风险",
+      "llm_tldr_en": "An analysis of safety and security risks inherent in autonomous world models.",
+      "llm_tldr_cn": "分析了自主世界模型在安全性、可靠性及认知方面存在的风险。",
+      "llm_tldr": "分析了自主世界模型在安全性、可靠性及认知方面存在的风险。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.17420v1",
+      "source": "arxiv",
+      "title": "From Digital Twins to World Models:Opportunities, Challenges, and Applications for Mobile Edge General Intelligence",
+      "abstract": "The rapid evolution toward 6G and beyond communication systems is accelerating the convergence of digital twins and world models at the network edge. Traditional digital twins provide high-fidelity representations of physical systems and support monitoring, analysis, and offline optimization. However, in highly dynamic edge environments, they face limitations in autonomy, adaptability, and scalability. This paper presents a systematic survey of the transition from digital twins to world models and discusses its role in enabling edge general intelligence (EGI). First, the paper clarifies the conceptual differences between digital twins and world models and highlights the shift from physics-based, centralized, and system-centric replicas to data-driven, decentralized, and agent-centric internal models. This discussion helps readers gain a clear understanding of how this transition enables more adaptive, autonomous, and resource-efficient intelligence at the network edge. The paper reviews the design principles, architectures, and key components of world models, including perception, latent state representation, dynamics learning, imagination-based planning, and memory. In addition, it examines the integration of world models and digital twins in wireless EGI systems and surveys emerging applications in integrated sensing and communications, semantic communication, air-ground networks, and low-altitude wireless networks. Finally, this survey provides a systematic roadmap and practical insights for designing world-model-driven edge intelligence systems in wireless and edge computing environments. It also outlines key research challenges and future directions toward scalable, reliable, and interoperable world models for edge-native agentic AI.",
+      "authors": [
+        "Jie Zheng",
+        "Dusit Niyato",
+        "Changyuan Zhao",
+        "Jiawen Kang",
+        "Jiacheng Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-03-18T06:54:49+00:00",
+      "link": "https://arxiv.org/pdf/2603.17420v1",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "transition from digital twins to world models",
+      "llm_evidence_cn": "从数字孪生到世界模型的演进",
+      "llm_evidence": "从数字孪生到世界模型的演进",
+      "canonical_evidence": "从数字孪生到世界模型的演进",
+      "llm_tldr_en": "A survey on transitioning digital twins to world models for edge intelligence.",
+      "llm_tldr_cn": "探讨从数字孪生向世界模型演进以实现边缘智能的综述论文。",
+      "llm_tldr": "探讨从数字孪生向世界模型演进以实现边缘智能的综述论文。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-03-04-709519-v1",
+      "source": "biorxiv",
+      "title": "A minimal visual world model predicts exploration of naturalistic landscapes in flies",
+      "abstract": "Animals, including small insects, can explore complex natural environments to locate resources and potential mates. How a miniaturized nervous system extracts actionable structure from complex visual scenes to guide effective exploration remains incompletely understood.\n\nTo bridge the gap between behavioristic experimental control and ethological realism, we combined a virtual-reality flight assay with naturalistic three-dimensional environments based on high-resolution satellite imagery of real-world landscapes. Flies that had never experienced natural environments exhibited individually stable, non-random exploration patterns and preferred flying over vegetated and elevated terrain while avoiding water-like features, indicative of a minimalistic world model for ecologically relevant terrain selection. Flight paths were characterized by saccadic turns, which we analyzed in relation to visual scene components, including brightness, color composition, optic flow, elevation, and contrast. Using multivariable regression modeling, we identified a hierarchy of visual cues influencing saccade frequency, amplitude, and directionality, and mapped the retinal areas most strongly gating saccadic decision-making. We discovered individual differences in motion-sensitivity thresholds that predict stable individual exploration-exploitation phenotypes. indicating a population-level bet-hedging strategy to increase terrain coverage and resource encounter rates. Individuality-based probabilistic decision-making simulations, utilizing our hierarchical visual models, successfully replicated exploration behavior, with the predicted dispersal and trajectory statistics matching the empirical data and demonstrating generality even for visual assays not included in the training dataset. Our work links individual visual decision rules to efficient exploration mechanisms of large-scale natural landscapes, potentially inspiring neural circuit theory, ecological prediction frameworks, vision-based pest control, and energy-efficient autonomous system design.",
+      "authors": [
+        "Mathejczyk, T. F.",
+        "Linneweber, G. A."
+      ],
+      "primary_category": "neuroscience",
+      "categories": [
+        "neuroscience"
+      ],
+      "published": "2026-03-06T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.03.04.709519v1.full.pdf",
+      "tags": [
+        "keyword:AI 3D",
+        "query:AI 3D"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Biological visual world model for 3D environment exploration",
+      "llm_evidence_cn": "用于三维环境探索的生物视觉世界模型",
+      "llm_evidence": "用于三维环境探索的生物视觉世界模型",
+      "canonical_evidence": "用于三维环境探索的生物视觉世界模型",
+      "llm_tldr_en": "Uses a minimal visual world model to predict how flies explore complex 3D naturalistic landscapes.",
+      "llm_tldr_cn": "利用极简视觉世界模型预测苍蝇在复杂3D自然景观中的探索行为。",
+      "llm_tldr": "利用极简视觉世界模型预测苍蝇在复杂3D自然景观中的探索行为。",
+      "llm_tags": [
+        "query:ai-3d:composite"
+      ],
+      "matched_query_tag": "query:ai-3d:composite",
+      "matched_query_text": "Papers central to 世界模型、物理AI、空间智能及3D/4D重建与生成相关论文检索, especially work that connects or combines: p; find world model, physics AI, and spatial intelligence related papers.",
+      "matched_requirement_id": "req-composite-ai-3d",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2603.26323v1",
+      "source": "arxiv",
+      "title": "From Human Cognition to Neural Activations: Probing the Computational Primitives of Spatial Reasoning in LLMs",
+      "abstract": "As spatial intelligence becomes an increasingly important capability for foundation models, it remains unclear whether large language models' (LLMs) performance on spatial reasoning benchmarks reflects structured internal spatial representations or reliance on linguistic heuristics. We address this question from a mechanistic perspective by examining how spatial information is internally represented and used. Drawing on computational theories of human spatial cognition, we decompose spatial reasoning into three primitives, relational composition, representational transformation, and stateful spatial updating, and design controlled task families for each. We evaluate multilingual LLMs in English, Chinese, and Arabic under single pass inference, and analyze internal representations using linear probing, sparse autoencoder based feature analysis, and causal interventions. We find that task relevant spatial information is encoded in intermediate layers and can causally influence behavior, but these representations are transient, fragmented across task families, and weakly integrated into final predictions. Cross linguistic analysis further reveals mechanistic degeneracy, where similar behavioral performance arises from distinct internal pathways. Overall, our results suggest that current LLMs exhibit limited and context dependent spatial representations rather than robust, general purpose spatial reasoning, highlighting the need for mechanistic evaluation beyond benchmark accuracy.",
+      "authors": [
+        "Jiyuan An",
+        "Liner Yang",
+        "Mengyan Wang",
+        "Luming Lu",
+        "Weihua An",
+        "Erhong Yang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-03-27T11:42:36+00:00",
+      "link": "https://arxiv.org/pdf/2603.26323v1",
+      "tags": [
+        "query:AI 3D"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "probing spatial intelligence and reasoning in LLMs",
+      "llm_evidence_cn": "探究大语言模型中的空间智能与推理",
+      "llm_evidence": "探究大语言模型中的空间智能与推理",
+      "canonical_evidence": "探究大语言模型中的空间智能与推理",
+      "llm_tldr_en": "Investigates the internal spatial representations and reasoning primitives within large language models.",
+      "llm_tldr_cn": "从机制角度研究大语言模型内部的空间表示和推理原语。",
+      "llm_tldr": "从机制角度研究大语言模型内部的空间表示和推理原语。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2603.27183v1",
+      "source": "arxiv",
+      "title": "Communicating about Space: Language-Mediated Spatial Integration Across Partial Views",
+      "abstract": "Humans build shared spatial understanding by communicating partial, viewpoint-dependent observations. We ask whether Multimodal Large Language Models (MLLMs) can do the same, aligning distinct egocentric views through dialogue to form a coherent, allocentric mental model of a shared environment. To study this systematically, we introduce COSMIC, a benchmark for Collaborative Spatial Communication. In this setting, two static MLLM agents observe a 3D indoor environment from different viewpoints and exchange natural-language messages to solve spatial queries. COSMIC contains 899 diverse scenes and 1250 question-answer pairs spanning five tasks. We find a consistent capability hierarchy, MLLMs are most reliable at identifying shared anchor objects across views, perform worse on relational reasoning, and largely fail at building globally consistent maps, performing near chance, even for the frontier models. Moreover, we find thinking capability yields consistent gains in anchor grounding, but is insufficient for higher-level spatial communication. To contextualize model behavior, we additionally collect 250 human-human dialogues. Humans achieve 95% aggregate accuracy, leaving significant room for improvement for even the best performing model Gemini-3-Pro-Thinking which achieves 72% aggregate accuracy. Moreover, human conversations become increasingly specific as partners converge on a shared mental model, whereas model dialogues continue to explore new possibilities rather than converging, consistent with a limited ability to build and maintain a robust shared mental model. Our code and data is available at https://github.com/ankursikarwar/Cosmic",
+      "authors": [
+        "Ankur Sikarwar",
+        "Debangan Mishra",
+        "Sudarshan Nikhil",
+        "Ponnurangam Kumaraguru",
+        "Aishwarya Agrawal"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-28T08:01:50+00:00",
+      "link": "https://arxiv.org/pdf/2603.27183v1",
+      "tags": [
+        "query:AI 3D"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "spatial integration and mental models in MLLMs",
+      "llm_evidence_cn": "多模态大模型中的空间整合与心理模型",
+      "llm_evidence": "多模态大模型中的空间整合与心理模型",
+      "canonical_evidence": "多模态大模型中的空间整合与心理模型",
+      "llm_tldr_en": "Evaluates how multimodal models align partial views to form coherent spatial mental models.",
+      "llm_tldr_cn": "评估多模态模型如何对齐局部视图以形成连贯的空间心理模型。",
+      "llm_tldr": "评估多模态模型如何对齐局部视图以形成连贯的空间心理模型。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2603.27183v2",
+      "source": "arxiv",
+      "title": "Communicating about Space: Language-Mediated Spatial Integration Across Partial Views",
+      "abstract": "Humans build shared spatial understanding by communicating partial, viewpoint-dependent observations. We ask whether Multimodal Large Language Models (MLLMs) can do the same, aligning distinct egocentric views through dialogue to form a coherent, allocentric mental model of a shared environment. To study this systematically, we introduce COSMIC, a benchmark for Collaborative Spatial Communication. In this setting, two static MLLM agents observe a 3D indoor environment from different viewpoints and exchange natural-language messages to solve spatial queries. COSMIC contains 899 diverse scenes and 1250 question-answer pairs spanning five tasks. We find a capability hierarchy, MLLMs are most reliable at identifying shared anchor objects across views, perform worse on relational reasoning, and largely fail at building globally consistent maps, performing near chance, even for frontier models. Moreover, we find thinking capability yields gains in anchor grounding, but is insufficient for higher-level spatial communication. To contextualize model behavior, we collect 250 human-human dialogues. Humans achieve 95% aggregate accuracy, while the best model, Gemini-3-Pro-Thinking, reaches 72%, leaving substantial room for improvement. Moreover, human conversations grow more precise as partners align on a shared spatial understanding, whereas MLLMs keep exploring without converging, suggesting limited capacity to form and sustain a robust shared mental model throughout the dialogue. Our code and data is available at https://github.com/ankursikarwar/Cosmic.",
+      "authors": [
+        "Ankur Sikarwar",
+        "Debangan Mishra",
+        "Sudarshan Nikhil",
+        "Ponnurangam Kumaraguru",
+        "Aishwarya Agrawal"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-03-28T08:01:50+00:00",
+      "link": "https://arxiv.org/pdf/2603.27183v2",
+      "tags": [
+        "query:AI 3D"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "spatial integration across partial views in MLLMs",
+      "llm_evidence_cn": "多模态大模型跨局部视图的空间整合",
+      "llm_evidence": "多模态大模型跨局部视图的空间整合",
+      "canonical_evidence": "多模态大模型跨局部视图的空间整合",
+      "llm_tldr_en": "Introduces a benchmark to study collaborative spatial communication and mental model formation in MLLMs.",
+      "llm_tldr_cn": "引入基准研究多模态大模型中的协作空间通信和心理模型形成。",
+      "llm_tldr": "引入基准研究多模态大模型中的协作空间通信和心理模型形成。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2604.00558v1",
+      "source": "arxiv",
+      "title": "STAR: Mitigating Cascading Errors in Spatial Reasoning via Turn-point Alignment and Segment-level DPO",
+      "abstract": "Structured spatial navigation is a core benchmark for Large Language Models (LLMs) spatial reasoning. Existing paradigms like Visualization-of-Thought (VoT) are prone to cascading errors in complex topologies. To solve this, we propose STAR, a two-stage framework grounded on topological anchors, and introduce the RedMaze-23K dataset with human-inspired turnpoint annotations. The first stage uses supervised fine-tuning to help models internalize spatial semantics and prune redundant paths. The second adopts Spatial-aware Segment-level Direct Preference Optimization (SDPO) to refine self-correction in long-horizon navigation. Experiments show STAR achieves state-of-the-art performance among open-source models: its 32B variant outperforms DeepSeek-V3 (29.27% vs. 25.00%) and reaches 82.4% of GPT-4's performance.",
+      "authors": [
+        "Pukun Zhao",
+        "Longxiang Wang",
+        "Chen Chen",
+        "Peicheng Wang",
+        "Fanqing Zhou",
+        "Runze Li",
+        "Haojian Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-01T07:02:37+00:00",
+      "link": "https://arxiv.org/pdf/2604.00558v1",
+      "tags": [
+        "query:AI 3D"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "spatial reasoning and navigation",
+      "llm_evidence_cn": "空间推理与导航",
+      "llm_evidence": "空间推理与导航",
+      "canonical_evidence": "空间推理与导航",
+      "llm_tldr_en": "A framework to mitigate cascading errors in LLM spatial reasoning for navigation.",
+      "llm_tldr_cn": "一种旨在减少大语言模型在空间导航推理中级联误差的框架。",
+      "llm_tldr": "一种旨在减少大语言模型在空间导航推理中级联误差的框架。",
+      "llm_tags": [
+        "query:ai-3d"
+      ],
+      "matched_query_tag": "query:ai-3d",
+      "matched_query_text": "find world model, physics AI, and spatial intelligence related papers",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09774v1/fig-001.webp",
+      "caption": "Figure 3. Complete reasoning trace under World2Mind.",
+      "page": 4,
+      "index": 1,
+      "width": 473,
+      "height": 367
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09774v1/fig-002.webp",
+      "caption": "Table 1. Main results on the VSI-Bench [34] benchmark (Tiny subset).",
+      "page": 3,
+      "index": 2,
+      "width": 1031,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09774v1/fig-003.webp",
+      "caption": "Table 2. Results on the MindCube-Tiny [18] benchmark.",
+      "page": 3,
+      "index": 3,
+      "width": 496,
+      "height": 250
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09774v1/fig-004.webp",
+      "caption": "Figure 1. Overview of foundation models performing allocentric spatial reasoning via the proposed World2Mind toolkit. Given egocentric video or multi-view observations, the model first assesses the necessity of tool invocation and subsequently passes key parameters (e.g., instances of interest) to World2Mind to drive the generation of spatial cognitive maps. World2Mind integrates an efficient pipeline for 3D reconstruction and semantic-geometry alignment, returning the required structured spatial knowledge through targeted projection and rendering mechanisms. Furthermore, the model conducts geometry-semantics interwoven reasoning based on both the raw visual observations and the geometric cues provided by World2Mind, ultimately yielding highly reliable answers.",
+      "page": 2,
+      "index": 4,
+      "width": 936,
+      "height": 350
+    }
+  ]
+}

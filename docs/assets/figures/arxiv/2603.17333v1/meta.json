@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-001.webp",
+      "caption": "Table 5: Distribution of Spatial Relations, Colors, and Shapes in the Structure Composition task",
+      "page": 15,
+      "index": 1,
+      "width": 407,
+      "height": 560
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-002.webp",
+      "caption": "Table 4: Structure Composition results for Plain, Dict, and Set Representations",
+      "page": 14,
+      "index": 2,
+      "width": 946,
+      "height": 466
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-003.webp",
+      "caption": "Figure 1: The GSU Dataset tasks and settings visualized for clarity (note that the models do NOT receive these visuals and instead receive a textual version of the environment shown in Appendix E). The grey arrows indicate the heading, i.e. direction that the embodied agent is facing. In the Navigation task, they remain aligned with +Y in the Cardinal setting and rotate to reflect the last direction of travel in the Egocentric setting, which affects the direction of the second step and the final coordinates. For the Object Localization task, we show how different headings affect the spatial relations between the target and the reference. For the Structure Composition task, we show the 3 structure categories that models may be asked to describe.",
+      "page": 3,
+      "index": 3,
+      "width": 879,
+      "height": 366
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-004.webp",
+      "caption": "Table 10: Navigation task results. We compare 0- and 1-shot prompting on base text-only LLMs, similarly sized VLMs (represented with light blue backgrounds), and a larger LLM variant of the overall best performing model, as well as a fully fine-tuned LM. We report the accuracies out of 1 for the final coordinates and their distance from the true coordinates for the Follower setting and the accuracy out of 1 of the generated instruction for the Instructor setting. The best results for each experiment are bolded while the best in each section are underlined.",
+      "page": 17,
+      "index": 4,
+      "width": 971,
+      "height": 437
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-005.webp",
+      "caption": "Figure 3: GSU Dataset Tasks and Settings",
+      "page": 12,
+      "index": 5,
+      "width": 375,
+      "height": 659
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-006.webp",
+      "caption": "Table 15: 1-shot vs Few-shot Structure Composition: Comparison over 1-shot performance with reasoning vs Few-Shot without",
+      "page": 20,
+      "index": 6,
+      "width": 608,
+      "height": 207
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-007.webp",
+      "caption": "Table 14: Object Localization spatial overlap, Os, scores across the Egocentric and Allocentric settings, as well various headings and distractor settings. VLM counterparts are in light blue backgrounds, best results overall are bolded and best results in generation setting are underlined.",
+      "page": 20,
+      "index": 7,
+      "width": 750,
+      "height": 459
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-008.webp",
+      "caption": "Table 1: 3 GSU task results across 3 model categories (prompted LLMs and VLMs , prompted frontier models,",
+      "page": 5,
+      "index": 8,
+      "width": 948,
+      "height": 449
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-009.webp",
+      "caption": "Table 8: The distance off scores for each of the Navigation experiments in Table 1.",
+      "page": 16,
+      "index": 9,
+      "width": 704,
+      "height": 405
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-010.webp",
+      "caption": "Table 9: 1-shot vs Few-shot Navigation: Comparison over 1-shot performance with reasoning vs Few-Shot without reasoning examples",
+      "page": 16,
+      "index": 10,
+      "width": 483,
+      "height": 267
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17333v1/fig-011.webp",
+      "caption": "Table 6: BART-base and Flan-T5-large Navigation Ablations",
+      "page": 16,
+      "index": 11,
+      "width": 937,
+      "height": 202
+    }
+  ]
+}

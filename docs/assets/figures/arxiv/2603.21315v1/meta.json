@@ -1,0 +1,214 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-001.webp",
+      "caption": "Table 7: Full hyperparameter specification.",
+      "page": 26,
+      "index": 1,
+      "width": 871,
+      "height": 1038
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-002.webp",
+      "caption": "Figure 15: JEPA-style latent prediction stability. Cosine similarity between the model’s autonomous latent rollout and the target encoder’s representation of the true future, over 19 steps on Moving MNIST (N=500 sequences). The FLUIDWORLD PDE substrate trained with a JEPA-style latent objective maintains cosine similarity ≥ 0.827 through step 19, indicating that the PDE dynamics produce stable internal predictions even without any pixel-level supervision. Compare with the Pixel and Random models (near zero, Table 5).",
+      "page": 21,
+      "index": 2,
+      "width": 817,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-003.webp",
+      "caption": "Figure 22: Four-panel energy conservation analysis. The PDE substrate with RMSNorm maintains bounded energy; without RMSNorm, energy diverges exponentially (×7,467 over 200 steps). Highfrequency components decay to 10−8 by step 200.",
+      "page": 30,
+      "index": 3,
+      "width": 817,
+      "height": 589
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-004.webp",
+      "caption": "Figure 21: Energy trajectories from multiple initial conditions. Regardless of initialization (uniform, random, structured gradient), energy converges to the same attractor E∗ ≈ 8,640 within ∼50 steps, confirming bounded attractor dynamics.",
+      "page": 30,
+      "index": 4,
+      "width": 809,
+      "height": 326
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-005.webp",
+      "caption": "Figure 18: Spatial heatmaps of the BeliefField at successive integration steps, starting from a nearuniform initialization (ϵ = 10−4). Within 10 steps, distinct spatial clusters emerge deterministically. The process is sensitive to initial conditions (different seeds produce different patterns) but fully reproducible given identical seeds.",
+      "page": 29,
+      "index": 5,
+      "width": 818,
+      "height": 451
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-006.webp",
+      "caption": "Figure 20: Phase diagram across 225 (D,∆t) configurations. The trained operating point (D ≈ 0.25, ∆t = 0.1) is firmly in the super-critical regime. The only sub-critical region occurs at ∆t ≈ 0.02, where dynamics are effectively frozen.",
+      "page": 29,
+      "index": 6,
+      "width": 817,
+      "height": 250
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-007.webp",
+      "caption": "Table 5: Training regime comparison on Moving MNIST. Three training objectives applied to the same FLUIDWORLD architecture (∼801K parameters), evaluated after 30 epochs (Random baseline uses untrained weights). †The “JEPA-style” column refers to FLUIDWORLD trained with a latent prediction objective inspired by LeCun’s JEPA framework [18]: the pixel decoder is removed from the loss and replaced by a target-encoder (EMA) + VICReg objective. This is not Meta’s I-JEPA or V-JEPA architecture. Latent cosine similarity is the primary discriminating metric: it measures whether the model’s internal rollout tracks the true future state in representation space.",
+      "page": 22,
+      "index": 7,
+      "width": 831,
+      "height": 1119
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-008.webp",
+      "caption": "Figure 3: Training dynamics comparison (three-way). (a) Reconstruction loss: PDE and ConvLSTM converge to 2× lower error than Transformer. (b) Prediction loss: all three converge to comparable values. (c) Spatial Std: PDE maintains the highest spatial structure throughout training. (d) Effective Rank: PDE uses the most representational dimensions. All models have ∼800K parameters, identical data and losses.",
+      "page": 10,
+      "index": 8,
+      "width": 808,
+      "height": 588
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-009.webp",
+      "caption": "Figure 8: Fair ablation: edge/freq losses collapse at equal training. Both models trained from scratch for 30 epochs on the same data. The Laplacian-only model (blue) produces the characteristic oscillatory recovery. The edge/freq model (red) collapses entirely: SSIM= 0.013 at step 1 versus 0.778 for Laplacian-only (t = −180.7, p = 0.00). Compare with Figure 12, which shows the unfair comparison (30 vs. 60 epochs) where the edge/freq model avoids collapse but loses the oscillatory pattern.",
+      "page": 14,
+      "index": 9,
+      "width": 814,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-010.webp",
+      "caption": "Figure 28: Feature-space analysis of the pixel-trained model. Spatial feature maps show clear semantic encoding of object positions and boundaries. 0 of 128 channels are dead, effective rank is 19.5, confirming healthy representational diversity.",
+      "page": 33,
+      "index": 10,
+      "width": 817,
+      "height": 438
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-011.webp",
+      "caption": "Figure 11: Complementary evidence for autopoietic recovery. (a) Individual rollout traces (80 shown, light blue) overlaid with the population mean (dark blue). The red dashed line shows typical Transformer behavior (monotonic exponential decay). The PDE model’s recovery at steps 8–9 is clearly visible across individual sequences, not an artifact of averaging. (b) Distribution of recovery magnitudes across 500 rollouts. 66.8% of rollouts show measurable recovery (> 0.01 SSIM improvement after minimum). (c) Step-by-step SSIM values with comparison to null model. Green-shaded rows indicate steps where the PDE exceeds the exponential-decay null, providing direct evidence of self-repair.",
+      "page": 18,
+      "index": 11,
+      "width": 808,
+      "height": 245
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-012.webp",
+      "caption": "Figure 10: SSIM heatmap across all 500 rollouts. Rows are sequences, columns are rollout steps. Green = high SSIM, red = low. The vertical green band at steps 8–9 appears across all sequences, not just a few. Sequences are sorted by the step of minimum SSIM.",
+      "page": 18,
+      "index": 12,
+      "width": 809,
+      "height": 459
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-013.webp",
+      "caption": "Table 6: FluidWorld in the context of the JEPA research program. Y. LeCun’s 2022 cognitive architecture blueprint2 identified several open challenges. Meta FAIR’s V-JEPA 2 tackles large-scale video understanding; FLUIDWORLD explores complementary directions (rollout stability, self-repair, physics-grounded dynamics) at a much smaller scale. The two approaches are not in competition but address different parts of the same research agenda.",
+      "page": 23,
+      "index": 13,
+      "width": 909,
+      "height": 443
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-014.webp",
+      "caption": "Figure 16: Non-linear velocity encoding in JEPA-style representations. Linear probes (left bars) versus MLP probes (right bars) on frozen BeliefField features. The JEPA-style model is the only one whose velocity R2 increases with a non-linear probe (from 0.29 to 0.60, ∆ = +0.31), while Pixel and Random both decrease. This confirms that the PDE with a JEPA-style objective encodes dynamics in a distributed, non-linearly accessible form, consistent with abstract representations. Linear probes systematically underestimate the JEPA-style model’s encoding of physical dynamics.",
+      "page": 23,
+      "index": 14,
+      "width": 817,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-015.webp",
+      "caption": "Figure 1: FLUIDWORLD architecture overview. Top row: The prediction pipeline. An input frame xt (64×64 pixels) is encoded by three PDE-based layers that use Laplacian diffusion to extract spatial features. These features are written into a persistent BeliefField, a 16×16 latent state that accumulates temporal context. The BeliefField evolves via internal PDE dynamics to predict the next state, which the decoder converts back to pixels. During autoregressive rollout, each prediction becomes the next input (purple arrow). Bottom row: Key components. The Laplacian kernel ([1,−2, 1]) provides spatial information propagation at O(N) cost without attention. The BeliefField combines GRUgated writing with PDE evolution and Titans persistent memory. Biologically-inspired mechanisms (lateral inhibition, Hebbian diffusion, synaptic fatigue) promote diverse, structured representations. The entire model uses ∼801K parameters (Table 1).",
+      "page": 4,
+      "index": 15,
+      "width": 783,
+      "height": 307
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-016.webp",
+      "caption": "Figure 12: Ablation: Laplacian smoothing enables oscillatory self-repair. Mean SSIM over 19 autoregressive steps (N=500) for two configurations of the same architecture: Laplacian-only (blue, 30 epochs) and Laplacian + edge/freq losses (red, 60 epochs). The Laplacian-only model exhibits the characteristic oscillatory recovery: a sharp SSIM increase from 0.287 to 0.508 between steps 6 and 9 (green shaded region), the dynamical signature of error accumulation followed by diffusion-mediated dissipation. Adding edge-sharpening and frequency losses suppresses this oscillation: the model instead shows a gradual monotonic rise from its minimum. The two models display qualitatively different dynamics, confirming that Laplacian diffusion is the mechanism producing the autopoietic oscillatory pattern. This figure shows the unfair comparison (30 vs. 60 epochs). In the fair comparison (both 30 epochs from scratch), the edge/freq model collapses entirely (SSIM= 0.013 at step 1; see §6.4).",
+      "page": 19,
+      "index": 16,
+      "width": 817,
+      "height": 397
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-017.webp",
+      "caption": "Figure 9: Statistical evidence for autopoietic recovery. Top left: mean SSIM over 19 autoregressive steps (N =500 rollouts, 95% CI shaded). The red dashed line is an exponential-decay null model fitted on steps 1–5. Between steps 6 and 12, the PDE model exceeds the null (green shaded), peaking at +0.217 above at step 9. Bottom left: MSE trajectory: a sharp spike at step 4 (0.181) dissipates to 0.050 by step 8, mirroring the SSIM recovery. Right: summary statistics. Recovery appears in 66.8% of rollouts (p < 10−49).",
+      "page": 17,
+      "index": 17,
+      "width": 816,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-018.webp",
+      "caption": "Figure 27: Visualization of the BeliefField’s internal state during temporal evolution. The spatial field accumulates structure from successive frames, forming a persistent predictive representation that carries forward through PDE integration.",
+      "page": 32,
+      "index": 18,
+      "width": 816,
+      "height": 768
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-019.webp",
+      "caption": "Figure 26: Memory persistence test. An object is shown for 10 frames, occluded for 20 frames, then revealed. Titans-augmented model achieves SSIM recovery of 0.6 (vs 0.05 for PDE-only). Memory activity |M | increases during occlusion (0.018 to 0.035), indicating active information retention despite absent visual input.",
+      "page": 32,
+      "index": 19,
+      "width": 815,
+      "height": 278
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-020.webp",
+      "caption": "Figure 6: Autoregressive rollout comparison at step 8,000. Ground truth (top row) versus predictions from FLUIDWORLD (PDE), Transformer, and ConvLSTM, all at ∼800K parameters. The PDE maintains recognizable spatial structure through h=3 while both baselines collapse to mean-color patches or texture noise by h=2. UCF-101, 64×64.",
+      "page": 12,
+      "index": 20,
+      "width": 814,
+      "height": 394
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-021.webp",
+      "caption": "Table 2: Quantitative comparison at step 8,000 on UCF-101 (64×64). All three models have ∼800K parameters, identical decoder, losses, and data. While single-step metrics are comparable across architectures, FLUIDWORLD achieves 2× lower reconstruction error and produces spatially richer representations. The critical difference emerges in multi-step rollouts (see §6.2).",
+      "page": 9,
+      "index": 21,
+      "width": 946,
+      "height": 378
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-022.webp",
+      "caption": "Figure 24: Recovery dynamics after 50% corruption of the BeliefField. Three modalities are shown: channel zeroing (instant recovery), Gaussian noise (3-step recovery), and spatial masking (7-step recovery). In all cases the system returns to its pre-corruption trajectory.",
+      "page": 31,
+      "index": 22,
+      "width": 820,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-023.webp",
+      "caption": "Figure 25: Resilience across corruption intensities (10%–90%). Residual MSE remains flat (≈ 0.034) up to 50% corruption, then increases monotonically but without discontinuity. No “cliff effect” at any corruption level.",
+      "page": 31,
+      "index": 23,
+      "width": 654,
+      "height": 206
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-024.webp",
+      "caption": "Figure 23: Numerical stability across integration timesteps. Oscillatory instabilities appear when ∆t > 0.10, confirming the CFL-like stability bound for the discrete Laplacian operator.",
+      "page": 31,
+      "index": 24,
+      "width": 649,
+      "height": 276
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-025.webp",
+      "caption": "Figure 13: The PDE self-repairs after deliberate state corruption. Top: Ground truth (rows 1, 3, 5) and model predictions (rows 2, 4, 6) across 19 autoregressive steps. At step 5 (green border), the BeliefField internal state is deliberately corrupted via spatial shuffling. The predictions immediately degrade (steps 6–7, visible as scrambled patterns), but the PDE’s Laplacian diffusion progressively smooths the corruption and restores coherent predictions by steps 9–11. Bottom: SSIM curves comparing normal rollout (blue) against three corruption types applied at step 6: Gaussian noise (red), channel zeroing (orange), and spatial shuffling (purple). All corrupted trajectories show an initial SSIM drop followed by partial recovery (green shaded zone). This self-repair is impossible for standard Transformers and ConvLSTMs, whose predictions degrade permanently after state corruption. The Laplacian acts as an “immune system”: high-frequency corruption is smoothed away while low-frequency structure (object identity, position) is preserved.",
+      "page": 20,
+      "index": 25,
+      "width": 817,
+      "height": 738
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21315v1/fig-026.webp",
+      "caption": "Figure 2: How Laplacian diffusion enables self-repair. Top row (a–d): The heat equation analogy. A concentrated energy spike (a) spreads via diffusion (b) until reaching equilibrium (c). The Laplacian kernel [1,−2, 1] (d) computes the difference between a position and its neighbors; this single operation drives all spatial propagation in FLUIDWORLD. Bottom row (e–h): Application to prediction errors. A clean prediction (e) accumulates noise during autoregressive rollout (f). The Laplacian smooths away high-frequency errors (g), recovering coherent spatial structure. Panel (h) summarizes why this matters: Transformers have no diffusion mechanism (errors compound), ConvLSTMs have only local kernels (slow dissipation), but FLUIDWORLD’s Laplacian provides global error correction at every integration step.",
+      "page": 5,
+      "index": 26,
+      "width": 817,
+      "height": 353
+    }
+  ]
+}

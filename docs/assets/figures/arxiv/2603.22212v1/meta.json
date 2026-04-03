@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.22212v1/fig-001.webp",
+      "caption": "Figure 3: Omni-WorldSuite examples across three interaction levels. Left: Examples from the General Scene domain. Right: Examples from the Task-Oriented Scene domain, including optics/camera trajectories, game, physics/common sense, autonomous driving, and embodied AI. Each example pairs a first-frame grounding (and trajectory, when applicable) with an action prompt, with red boxes indicating interaction-relevant entities.",
+      "page": 6,
+      "index": 1,
+      "width": 824,
+      "height": 451
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22212v1/fig-002.webp",
+      "caption": "Figure 1: Overview of Omni-WorldBench. Left: Omni-WorldSuite defines three levels of interactions, each specified by an initial frame and a prompt. Right: Omni-Metrics comprises an evaluation pipeline that measures interaction effect fidelity, generated video quality, camera-object controllability, and spatiotemporal causal coherence, and then employs an MLLM to adaptively fuse these signals into the final AgenticScore.",
+      "page": 2,
+      "index": 2,
+      "width": 822,
+      "height": 289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22212v1/fig-003.webp",
+      "caption": "Figure 4: Statistics of Omni-WorldSuite. (a) Overall Distributions; (b–g) Distributions of core principles; (h) prompt counts by interaction level; (i–k) word clouds of objects, actions, and scenes. NM (Newtonian Mechanics), FM (Fluid Mechanics), MP (Material Properties), WO (Waves and Optics), MC (Momentum and Collision), TP (Thermodynamics and Phase Transition), EC (Energy Conversion and Conservation); SEK (Scene/Event Knowledge), OFK (Object Function Knowledge), HAK (Human Action Knowledge); C2B (Condition-to-Behavior), A2M (Action-to-Motion), C2O (Collision-to-Outcome); TFS (Tracking / Follow Shot), OAS (Orbit / Arc Shot), HHS (Handheld / Shaky); ART (Axial Round-Trip Motion), ODC (Optical / Dynamic Consistency Closure), SCC (Spiral / Composite Closure), CDR (Curved / Diagonal Return Motion), PCP (Planar Closed-Path Motion), ORC (Orbital / Rotational Closure), UNC (Uncategorized); MKC (Mechanical / Kinematic Constraints), CSS (Contact & Support Stability), OAC (Occlusion & Accessibility Constraints), CL (Containment & Leakage), GFSC (Geometric Fit & Size Compatibility), DMC (Deformation & Material Constraints).",
+      "page": 7,
+      "index": 3,
+      "width": 826,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22212v1/fig-004.webp",
+      "caption": "Figure 6: Camera-Controlled Interaction Comparison. Qualitative Comparison of Generated Videos from Different Models under the Same Prompt, First-Frame, and Camera Trajectory Condition.",
+      "page": 14,
+      "index": 4,
+      "width": 820,
+      "height": 658
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22212v1/fig-005.webp",
+      "caption": "Figure 5: Non-camera-controlled Interaction Comparison. Qualitative comparison of generated videos from different models under the same prompt and first-frame condition. Representative frames illustrate differences in interaction effect fidelity, motion dynamics, and scene coherence during the throwing action.",
+      "page": 13,
+      "index": 5,
+      "width": 816,
+      "height": 1139
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22212v1/fig-006.webp",
+      "caption": "Figure 2: Omni-WorldSuite Construction Pipeline and Analysis. (a) Dataset-grounded prompt generation. Prompts are generated from open-source data using first-frame and camera-motion cues, refined through VLM captioning, and finally verified by human annotators. (b) Conceptdriven prompt generation. Prompts are derived from interaction prototypes using LLM/VLM-based generation and human curation, together with generated or edited first frames. (c) Suite taxonomy across indoor scenes, including diffusion (Diff.), sliding, and building-related (Buil.) scenarios; outdoor scenes, including natural, projectile motion (Proj.), and urban scenarios (Urban); and taskoriented settings, including robotics (Robot), autonomous driving (Driv.), and gaming (Game). (d) Coverage comparison by prompt modality and capability axes. Abbr.: Traj (camera trajectory); AD (autonomous driving), EAI (embodied AI); PP (physical principles); LCC (loop-closure consistency); Cau. (causality); CS (common sense); Inter. (Interaction).",
+      "page": 4,
+      "index": 6,
+      "width": 811,
+      "height": 367
+    }
+  ]
+}
