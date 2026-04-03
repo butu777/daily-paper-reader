@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01433v1/fig-001.webp",
+      "caption": "Figure 1: 28 GHz context-aware channel sounder.",
+      "page": 3,
+      "index": 1,
+      "width": 414,
+      "height": 291
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01433v1/fig-002.webp",
+      "caption": "Figure 2: Visualization of RF heatmap segmentation using a registered digital twin.",
+      "page": 4,
+      "index": 2,
+      "width": 814,
+      "height": 551
+    }
+  ]
+}

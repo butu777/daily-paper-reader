@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28955v1/fig-001.webp",
+      "caption": "TABLE IV: Diffusion policy success rates (%) on 8 CALVIN tasks after 800 iterations of model-based PPO fine-tuning. DPPO columns report environment steps required to match DiWA performance (lower = more sample-efficient).",
+      "page": 6,
+      "index": 1,
+      "width": 1052,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28955v1/fig-002.webp",
+      "caption": "Fig. 4: Behavioral cloning evaluation curves across all eight CALVIN tasks. WAM (orange) consistently reaches higher success rates than DiWA (blue) and converges faster on most tasks.",
+      "page": 6,
+      "index": 2,
+      "width": 1038,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28955v1/fig-003.webp",
+      "caption": "Fig. 1: (a) Standard world models predict only future observations, treating actions solely as conditioning inputs. (b) Our World-Action Model adds an inverse dynamics head that jointly predicts observations and actions during training. (c) The action-aware world model serves as a learned simulator for offline policy fine-tuning via PPO.",
+      "page": 2,
+      "index": 3,
+      "width": 1052,
+      "height": 427
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28955v1/fig-004.webp",
+      "caption": "Fig. 2: WAM architecture. Observations xt are encoded and produce posterior zt, which is regularized toward the prior ẑt via KL divergence. The inverse dynamics head predicts actions ât from consecutive encoder embeddings, cascading action-aware structure through the posterior to the prior. The decoder reconstructs observations x̂t and a reward estimator provides task-completion signals for policy fine-tuning.",
+      "page": 3,
+      "index": 4,
+      "width": 527,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28955v1/fig-005.webp",
+      "caption": "Fig. 3: Qualitative comparison of imagined rollouts on the CALVIN benchmark. We visualize predicted frames at selected timesteps from both static and gripper cameras. Compared to DreamerV2, our WAM produces more realistic future state predictions across the entire rollout horizon.",
+      "page": 4,
+      "index": 5,
+      "width": 1052,
+      "height": 779
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28955v1/fig-006.webp",
+      "caption": "TABLE III: Behavioral Cloning (BC) success rates (%) on 8 CALVIN manipulation tasks. Both methods use identical diffusion policy architectures and training procedures; the only difference is the world model used for feature extraction.",
+      "page": 5,
+      "index": 6,
+      "width": 468,
+      "height": 281
+    }
+  ]
+}

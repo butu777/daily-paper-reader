@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24393v1/fig-001.webp",
+      "caption": "Table 2: Performance comparison of various MLLM backbones with and without 3D-MIX on GR00T-style VLA architecture across SIMPLER and LIBERO benchmarks.",
+      "page": 7,
+      "index": 1,
+      "width": 877,
+      "height": 598
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24393v1/fig-002.webp",
+      "caption": "Figure 1: Overview of nine VGGT fusion schemes evaluated in our pilot study. Each scheme integrates VGGTderived 3D geometric features into the VLA pipeline at a different location or via a different mechanism, ranging from early token-level injection to training-time alignment and cross-attention fusion.",
+      "page": 3,
+      "index": 2,
+      "width": 946,
+      "height": 458
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24393v1/fig-003.webp",
+      "caption": "Table 3: Performance comparison of various MLLM backbones with and without 3D-MIX on π-style VLA architecture across SIMPLER and LIBERO benchmarks.",
+      "page": 8,
+      "index": 3,
+      "width": 877,
+      "height": 333
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24393v1/fig-004.webp",
+      "caption": "Figure 3: Ablation study results. Each subfigure corresponds to one ablation experiment: (a) VGGT Frozen vs. Trainable. (b) 3D Information Sensitivity. (c) Sparse Layer Fusion Depth (π-style).",
+      "page": 8,
+      "index": 4,
+      "width": 945,
+      "height": 185
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24393v1/fig-005.webp",
+      "caption": "Table 1: Comparison of nine VGGT fusion schemes on the SIMPLER (out-of-domain, real-to-sim) and LIBERO (in-domain, multi-task) benchmarks.",
+      "page": 4,
+      "index": 5,
+      "width": 979,
+      "height": 291
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24393v1/fig-006.webp",
+      "caption": "Figure 2: Integration of 3D-MIX into GR00T-style and π-style VLA Architectures",
+      "page": 5,
+      "index": 6,
+      "width": 946,
+      "height": 233
+    }
+  ]
+}

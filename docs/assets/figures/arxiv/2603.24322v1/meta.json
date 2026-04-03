@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24322v1/fig-001.webp",
+      "caption": "Table 1. Comparison of the state-of-the-art in Cityscapes→ACDC domain adaptation on the ACDC test set. The best results are presented in bold.",
+      "page": 6,
+      "index": 1,
+      "width": 1026,
+      "height": 530
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24322v1/fig-002.webp",
+      "caption": "Table 2. Comparison of the state-of-the-art in Cityscapes→ACDC domain adaptation on the ACDC val set. The best results are presented in bold.",
+      "page": 6,
+      "index": 2,
+      "width": 1026,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24322v1/fig-003.webp",
+      "caption": "Figure 3. The qualitative comparison between our method and existing state-of-the-art methods based on DeepLabV2, DAFormer, and HRDA on the ACDC val. Compared with the existing state-of-the-art UDA method (e.g., Refign, CMA, VBLC, ACSegFormer), our method achieves better performance under the same backbone. Importantly, our method, based on HRDA, achieves the best performance, with predictions closely matching the ground truth, validating the effectiveness of our method.",
+      "page": 8,
+      "index": 3,
+      "width": 1034,
+      "height": 271
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24322v1/fig-004.webp",
+      "caption": "Figure 2. The framework of our designed Heuristic Semantic Class Mining (HeuSCM). First, a Gaussian Mixture VAE (GM-VAE) encodes high-dimensional semantic states into latent features zst . Our SKFEN processes zst to distill key features reflecting the model’s learning status. Conditioned on these features, ClassGen outputs ranked classes (sorted in descending order of informational value). These rankings guide the generation of mixed image and mixed label pairs, which optimize the segmentation model via SegLoss. Concurrently, we maximize the objective JF (π) to jointly optimize the copied GM-VAE encoder, SKFEN, and ClassGen.",
+      "page": 4,
+      "index": 4,
+      "width": 1027,
+      "height": 250
+    }
+  ]
+}

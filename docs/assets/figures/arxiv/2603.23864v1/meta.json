@@ -1,0 +1,118 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-001.webp",
+      "caption": "Fig. 3: Distribution and examples of QA categories in the S3-Bench. This figure illustrates the statistical distribution of different QA categories alongside representative examples. The benchmark primarily comprises three question types: (1) Ego-centric, requiring understanding based on the current camera position; (2) Spatial relation, assessing the comprehension of the scene’s spatial information; and (3) Temporal dependency, involving streaming queries that rely on preceding context.",
+      "page": 6,
+      "index": 1,
+      "width": 612,
+      "height": 206
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-002.webp",
+      "caption": "Table 15: Detailed results on BLINK. (*) denotes that the model is not trained on our data.",
+      "page": 25,
+      "index": 2,
+      "width": 710,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-003.webp",
+      "caption": "Fig. 7: Single round QA pair samples of S3-Bench.",
+      "page": 26,
+      "index": 3,
+      "width": 658,
+      "height": 485
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-004.webp",
+      "caption": "Fig. 1: Overview of the S3-Bench and AMF-VLM. Unlike traditional offline methods that answer questions post-video, our S3-Bench targets streaming spatial understanding with timestamp-specific, ego-centric, and temporally dependent queries. The figure outlines the AMF-VLM pipeline and presents its performance comparison with baselines on S3-Eval.",
+      "page": 2,
+      "index": 4,
+      "width": 606,
+      "height": 406
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-005.webp",
+      "caption": "Table 1: Categories and examples of S3-Bench QA pairs. Tasks span three domains: Ego-centric, Spatial Relation, and Temporal Dependency. Each entry specifies the task, answer format (Numerical/Multiple Choice), and a question template.",
+      "page": 7,
+      "index": 5,
+      "width": 725,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-006.webp",
+      "caption": "Table 6: Results on standard spatial benchmarks. Our method achieves competitive offline performance. The baseline prior to training on our dataset (*) highlights the consistent transfer gains provided by our constructed data.",
+      "page": 14,
+      "index": 6,
+      "width": 378,
+      "height": 393
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-007.webp",
+      "caption": "Table 11: Blind testing of baselines across all S3-Eval simulation part. (*) indicates models also trained on our data. (†) indicates streaming inference modification.",
+      "page": 23,
+      "index": 7,
+      "width": 739,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-008.webp",
+      "caption": "Table 2: Performance comparison of baselines across all S3-Eval simulation part. (*) indicates models also trained on our data. (†) indicates that the model is modified as streaming inference.",
+      "page": 12,
+      "index": 8,
+      "width": 735,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-009.webp",
+      "caption": "Fig. 8: Temporal dependency QA pair samples of S3-Bench.",
+      "page": 27,
+      "index": 9,
+      "width": 673,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-010.webp",
+      "caption": "Fig. 9: Samples of meshes of the simulation part of S3-Bench, with the related diverse planned trajectories.",
+      "page": 27,
+      "index": 10,
+      "width": 653,
+      "height": 596
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-011.webp",
+      "caption": "Table 13: Detailed module ablation study.",
+      "page": 24,
+      "index": 11,
+      "width": 710,
+      "height": 680
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-012.webp",
+      "caption": "Table 12: Blind testing of baselines across all S3-Eval real part. (*) indicates models also trained on our data. (†) indicates streaming inference modification.",
+      "page": 24,
+      "index": 12,
+      "width": 704,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-013.webp",
+      "caption": "Fig. 4: AMF-VLM architecture. Visual features are extracted via a vision encoder, optionally supplemented by a spatial encoder. For efficient streaming, recent frames are densely sampled while long-term history is sparsely retained and compressed via memory folding. Finally, the model outputs either an exploration action, a direct answer, or a memory update summary.",
+      "page": 9,
+      "index": 13,
+      "width": 610,
+      "height": 209
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23864v1/fig-014.webp",
+      "caption": "Fig. 2: S3 Benchmark data construction pipeline. Simulated digital assets are filtered and rendered into videos via geometry-guided path planning. Next, object bounding boxes and frame-level visibility are extracted to generate template-based QA pairs, which are then rewritten for linguistic diversity.",
+      "page": 5,
+      "index": 14,
+      "width": 681,
+      "height": 182
+    }
+  ]
+}

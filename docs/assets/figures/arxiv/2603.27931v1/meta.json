@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27931v1/fig-001.webp",
+      "caption": "Fig. 1: Off-road scenes exhibit diverse challenges, including irregular and uneven terrain, ambiguous boundaries between similar surfaces, strong light reflections, and severe occlusion by vegetation.",
+      "page": 1,
+      "index": 1,
+      "width": 512,
+      "height": 443
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27931v1/fig-002.webp",
+      "caption": "Fig. 4: Qualitative comparison on RUGD highlighting rare and thin structures. Compared to GA-Nav, CSTR better preserves small objects and narrow regions while maintaining coherent terrain boundaries.",
+      "page": 6,
+      "index": 2,
+      "width": 529,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27931v1/fig-003.webp",
+      "caption": "Fig. 5: Qualitative comparison on RELLIS-3D under visually ambiguous terrain transitions. CSTR produces more coherent region interiors and smoother class boundaries around obstacles and vegetation compared to GA-Nav.",
+      "page": 6,
+      "index": 3,
+      "width": 529,
+      "height": 452
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27931v1/fig-004.webp",
+      "caption": "Fig. 6: Quantitative robustness evaluation on RUGD with noisy ground truth. CSTR exhibits smaller performance degradation than GA-Nav under increasing label noise.",
+      "page": 7,
+      "index": 4,
+      "width": 529,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27931v1/fig-005.webp",
+      "caption": "Fig. 2: Overall framework of our CSTR. Multi-scale backbone features are compressed into a compact bottleneck token T0 and refined by Global–Local Token Refinement (GLTR). Boundary-Guided Correction extracts fine-scale structural cues, which are selectively consulted via a Gated Cross-Scale Interaction (GCS) to recover thin or ambiguous structures efficiently.",
+      "page": 3,
+      "index": 5,
+      "width": 1076,
+      "height": 727
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27931v1/fig-006.webp",
+      "caption": "TABLE I: Comparison on RUGD and RELLIS-3D. We report per-group IoU (%), mean IoU (mIoU ↑), and average accuracy (aAcc ↑). Asterisks (*) denote transformer-based methods. Best per dataset in bold, second best underlined.",
+      "page": 5,
+      "index": 6,
+      "width": 960,
+      "height": 781
+    }
+  ]
+}

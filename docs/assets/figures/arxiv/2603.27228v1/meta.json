@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-001.webp",
+      "caption": "Figure 9. Qualitative ablation of Geometry-Guided Gradient Scaling. Best viewed zoomed in.",
+      "page": 11,
+      "index": 1,
+      "width": 932,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-002.webp",
+      "caption": "Figure 10. Qualitative comparisons on single-weather scenes (haze, rain, snow).",
+      "page": 15,
+      "index": 2,
+      "width": 1014,
+      "height": 1246
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-003.webp",
+      "caption": "Figure 4. Qualitative results on rainy scenes. Best viewed zoomed in.",
+      "page": 7,
+      "index": 3,
+      "width": 1018,
+      "height": 242
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-004.webp",
+      "caption": "Figure 5. Qualitative results on snowy scenes. Best viewed zoomed in.",
+      "page": 7,
+      "index": 4,
+      "width": 1014,
+      "height": 260
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-005.webp",
+      "caption": "Table 11. Quantitative comparisons on H+R scenes. The best and second-best scores are color-encoded for clarity.",
+      "page": 13,
+      "index": 5,
+      "width": 1031,
+      "height": 240
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-006.webp",
+      "caption": "Table 13. Quantitative comparisons on R+S scenes. The best and second-best scores are color-encoded for clarity.",
+      "page": 13,
+      "index": 6,
+      "width": 1031,
+      "height": 201
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-007.webp",
+      "caption": "Table 12. Quantitative comparisons on H+S scenes. The best and second-best scores are color-encoded for clarity.",
+      "page": 13,
+      "index": 7,
+      "width": 1031,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-008.webp",
+      "caption": "Figure 6. Qualitative results on hybrid-weather scenes (haze, rain, and snow). Best viewed zoomed in.",
+      "page": 8,
+      "index": 8,
+      "width": 1014,
+      "height": 313
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-009.webp",
+      "caption": "Figure 2. Overview of NimbusGS. Starting from a geometry initialization, transient particle effects are separated as per-view residuals. CSM estimates an extinction field from which transmission and airlight are derived, blended with the scene rendering and residuals to reproduce the degradations. This self-supervised process guides the Gaussian representation toward a clean and consistent reconstruction.",
+      "page": 4,
+      "index": 9,
+      "width": 1010,
+      "height": 483
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-010.webp",
+      "caption": "Table 9. Model complexity and runtime comparison under the H+R+S setting. Params., Memory, Training, and FPS denote parameter count, training memory usage, training time, and rendering speed, respectively.",
+      "page": 12,
+      "index": 10,
+      "width": 489,
+      "height": 255
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-011.webp",
+      "caption": "Table 10. Quantitative comparisons on the additional Stump and Wine scenes. The three blocks correspond to the H+R, H+S,",
+      "page": 12,
+      "index": 11,
+      "width": 492,
+      "height": 723
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27228v1/fig-012.webp",
+      "caption": "Figure 11. Qualitative comparisons on hybrid-weather scenes (H+R, H+S, R+S, H+R+S). Best viewed zoomed in.",
+      "page": 16,
+      "index": 12,
+      "width": 1014,
+      "height": 1075
+    }
+  ]
+}

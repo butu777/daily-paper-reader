@@ -1,0 +1,747 @@
+Title: Geo$^\textbf{2}$: Geometry-Guided Cross-view Geo-Localization and Image Synthesis
+
+URL Source: https://arxiv.org/pdf/2603.25819v1
+
+Published Time: Mon, 30 Mar 2026 00:07:00 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# Geo 2: Geometry-Guided Cross-view Geo-Localization and Image Synthesis 
+
+## Yancheng Zhang 1 Xiaohan Zhang 2 Guangyu Sun 1 Zonglin Lyu 1 Safwan Wshah 2 Chen Chen 11Institute of Artificial Intelligence, University of Central Florida, 2University of Vermont 
+
+> {yczhang,guangyu.sun,zonglin.lyu,chen.chen }@ucf.edu
+
+## , {xiaohan.zhang,safwan.wshah }@uvm.edu 
+
+## Abstract 
+
+Cross-view geo-spatial learning consists of two impor-tant tasks: Cross-View Geo-Localization (CVGL) and Cross-View Image Synthesis (CVIS), both of which rely on establishing geometric correspondences between ground and aerial views. Recent Geometric Foundation Models (GFMs) have demonstrated strong capabilities in extract-ing generalizable 3D geometric features from images, but their potential in cross-view geo-spatial tasks remains un-derexplored. In this work, we present Geo 2, a unified frame-work that leverages Geo metric priors from GFMs (e.g., VGGT) to jointly perform Geo -spatial tasks, CVGL and bidirectional CVIS. Despite the 3D reconstruction abil-ity of GFMs, directly applying them to CVGL and CVIS remains challenging due to the large viewpoint gap be-tween ground and aerial imagery. We propose GeoMap, which embeds ground and aerial features into a shared 3D-aware latent space, effectively reducing cross-view dis-crepancies for localization. This shared latent space nat-urally bridges cross-view image synthesis in both direc-tions. To exploit this, we propose GeoFlow, a flow-matching model conditioned on geometry-aware latent embeddings. We further introduce a consistency loss to enforce latent alignment between the two synthesis directions, ensuring bidirectional coherence. Extensive experiments on stan-dard benchmarks, including CVUSA, CVACT, and VIGOR, demonstrate that Geo 2 achieves state-of-the-art perfor-mance in both localization and synthesis, highlighting the effectiveness of 3D geometric priors for cross-view geo-spatial learning. Our source code can be accessed through https://fobow.github.io/geo2.github.io/. 
+
+## 1. Introduction 
+
+Cross-view geo-spatial learning primarily comprises Cross-View Geo-Localization (CVGL) and Cross-View Image Synthesis (CVIS). CVGL aims to determine the location of a query ground image by matching it against a database of geo-tagged images. CVIS, on the other hand, aims to syn-thesize a corresponding view from another view, such as generating a satellite view from a ground view (Ground-to-Satellite or G2S) or a ground view from a satellite view (Satellite-to-Ground or S2G). In summary, both tasks focus on learning consistent feature representations across differ-ent views, facilitating more accurate geo-localization and higher-quality image synthesis. A key challenge in cross-view geo-spatial tasks is the significant appearance and geometric gap between images from different views, such as ground and satellite per-spectives. Extracting and aligning geometric characteris-tics from these views is therefore crucial. For example, in CVGL, GeoDTR [53, 54] introduces a geometric lay-out extractor to capture structural information from both ground and satellite images, leading to notable performance improvements. Similarly, in CVIS, many methods incor-porate explicit geometric cues, including height estima-tion [22], geometric projection [46], and volume density modeling [26]. These geometric features effectively en-hance the quality of the synthesized image pairs. Despite the fact that both CVGL and CVIS benefit from geometric guidance, most existing works treat these two tasks separately. Furthermore, the geometry information used in these methods often relies on customized mod-ules [53, 54] or predefined geometric transformations [29]. While such components can capture geometric hints to some extent, they are typically tailored for individual tasks, which limits their generalizability. As a result, CVGL and bi-directional CVIS are rarely able to benefit from each other in a unified framework. For example, BEV estimation has been shown to improve ground-to-satellite synthesis [2], but it is difficult to extend this approach to the reverse direc-tion. A more generalizable geometric prior is therefore cru-cial for allowing CVGL and bidirectional CVIS to mutually enhance each other. Recently, Geometric Foundation Models (GFMs) such as DUSt3R [38], MASt3R [15], and VGGT [36] have demonstrated strong capabilities in 3D understanding and reconstruction. These models can extract generalizable ge-ometric attributes from multi-view or even single-view im-ages, making them highly adaptable to diverse visual set-tings. AerialMegaDepth [35] further fine-tunes MASt3R  
+
+> arXiv:2603.25819v1 [cs.CV] 26 Mar 2026 (a) (b)
+> (c) Figure 1. Illustration of directly using VGGT on satellite (a) and ground (c) images, leading to incorrect reconstructed shown in (b).
+
+and DUSt3R on aerial and ground imagery, improving cross-view reconstruction in the challenging aerial-ground domain. This suggests that GFMs are not only effective for traditional 3D tasks, but also hold promise for cross-view applications. However, the potential of GFMs in cross-view geo-spatial learning remains largely underexplored. As shown in Figure 1, effectively leveraging GFMs for cross-view geo-spatial tasks is non-trivial. For example, na¨ ıvely applying VGGT to cross-view image pairs often results in inaccurate geometry, due to the substantial viewpoint dif-ferences between ground and satellite imagery. To address the above-mentioned challenges, we propose Geo 2, a geometry-guided framework that integrates 3D pri-ors into cross-view geo-spatial tasks. The key idea of Geo 2 is to embed ground and satellite images into a shared geometry-aware latent space, which incorporates geome-try priors from VGGT and bridges CVGL and CVIS, en-abling consistent cross-view understanding and generation. Geo 2 supports joint learning of CVGL and bidirectional CVIS, i.e ., ground-to-aerial and aerial-to-ground, without re-training . Specifically, for the CVGL task, we propose GeoMap, a dual-branch model that encodes ground and satellite images separately into geometry-aware features. Given the inherent similarity between CVGL and CVIS, these geometry-aware features naturally facilitate the geo-metric consistency for the CVIS task. Accordingly, we pro-pose GeoFlow for bidirectional image synthesis. Our con-tributions can be summarized as follows: • We propose Geo 2, a novel framework that incorporates 3D priors from Geometric Foundation Models to jointly perform Cross-View Geo-Localization (CVGL) and bidi-rectional Cross-View Image Synthesis (CVIS). • We introduce GeoMap, a dual-branch model that aligns ground and satellite views in a shared geometry-aware la-tent space, improving cross-view embedding alignment for both localization and image synthesis. • We propose GeoFlow, a flow-matching model that nat-urally supports bi-directional generation, conditioned on the geometry-aware features from GeoMap. We further introduce a consistency loss to improve geometric con-                                    
+
+> Table 1. Comparison of representative cross-view geo-spatial learning methods on supported tasks and geometric priors.
+> Method CVGL CVIS Bi-dir Joint Geometric Prior
+> GeoDTR+ [54] ✓✗✗✗GLE [54] Sample4Geo [8] ✓✗✗✗✗
+> RGCIS [45] ✗✓✓✗SAIG [60] Sat2Density [26] ✗✓✗✗Volume Density CDE [33] ✓✓✗✓SAFA [29]
+> Ours ✓✓✓✓VGGT [36]
+
+sistency between the two synthesis directions. • We conduct extensive experiments on multiple cross-view benchmarks [19, 42, 58], demonstrating that Geo 2
+
+achieves outstanding performance on both localization and synthesis tasks, validating the effectiveness of our geometry-guided design. 
+
+## 2. Related Work 
+
+Cross-View Geo-Spatial Learning. The goal of Cross-View Learning is to model the correlation between the ground view (i.e., street-view images) and the overhead view (i.e., satellite imagery). There are mainly two tasks, Cross-View Image Synthesis (CVIS) and Cross-View Geo-Localization (CVGL) [41]. CVGL aims to localize a query ground image by matching against a geo-tagged satellite database. Prior CVGL studies [29, 30, 33, 47, 53] attempt to tackle the drastic view changes by adopting polar transfor-mation, which assumes center-alignment between satellite and ground images. To break such a strong prior, recent methods [44, 54, 59] have investigated extracting cross-view geometric correspondence features by using an atten-tion mechanism. Moreover, several works [3, 8, 58] also adopt hard sample mining mechanisms to further guide the model to differentiate similar visual contextual information in different locations. CVIS, on the other hand, targets to synthesize one view from another view (i.e., Aerial-to-Ground or A2G), or vice versa (G2A). Earlier studies explored additional semantic priors to enhance the structure of ground view synthesis results [28, 32, 43, 49]. More recent works further lever-aged the auxiliary information, such as height and depth es-timation [22, 31], volume estimation [5, 26], BEV estima-tion [2, 46], and the help of CVGL models [33, 45], to tackle this challenging problem. However, most of the prior stud-ies are not inherently invertible, preventing these methods to generalize on bi-directional synthesis, for example, both A2G and G2A synthesis. Note that GCCDiff [17] also stud-ies bi-directional CVIS. However, GCCDiff requires sepa-rate training for G2A and A2G synthesis, unlike our Geo 2
+
+which only requires either A2G or G2A training to achieve bi-directional synthesis. 
+
+Geometric Foundation Models. Inspired by the success of foundation models in language and 2D vision [1, 4], Geometric Foundation Models (GFMs) have emerged as VGGT GeoFlow 
+
+…
+
+> Encoder Encoder
+> Decoder
+> S2G Synthesis
+> (Inference Only)
+> G2S Synthesis
+> (Trainable)
+
+𝐼 !
+
+𝐼 "
+
+"𝐼 "
+
+"𝐼 ! 
+
+> Ground Emb.
+> Satellite Emb.
+> Source View Target View
+
+𝑥 "
+
+DiT 
+
+DDT 
+
+Head  
+
+> Cross -View Geo -Localization Cross -View Image -Synthesis
+
+GeoMap 
+
+> Conv.
+> Cross Attn.
+> Cross Attn.
+
+𝑓 !
+
+𝑓 "
+
+𝑥 !Figure 2. Overview of the Geo 2 framework. We first extract geometric features from ground and satellite images using VGGT. These dense features are then embedded into a shared geometry-aware latent space as detailed in Sec. 3.2. The resulting embeddings, f g and f s,are used for both CVGL and CVIS. While Geo 2 supports bidirectional image synthesis, it only requires training in the ground-to-satellite (G2S) direction. As detailed in Sec. 3.3, only ground images are needed as input during inference for G2S generation, and vice versa. 
+
+a promising solution for end-to-end 3D geometry predic-tion [6], which has wide application in downstream tasks like novel view synthesis [11, 55]. By pre-training on large-scale multi-view datasets, GFMs such as DUSt3R [38], MASt3R [16], and VGGT [36] are able to predict gen-eralizable geometric attributes such as depth, point maps, and camera poses in a single forward pass. To improve reconstruction quality in more challenging scenarios like the aerial-ground domain, AerialMegaDepth [35] fine-tunes DUSt3R on aerial-ground imagery. GFMs have demon-strated the ability to reconstruct accurate geometric repre-sentations in multi-view settings [16, 35, 38]. Moreover, their dense features remain robust under sparse-view or even single-view conditions, where input images have lit-tle or no overlap [36]. However, how to leverage these ro-bust geometric features for cross-view geo-spatial learning remains largely unexplored. As shown in Table 1, most prior works treat CVGL and CVIS as separate tasks. In this paper, we propose Geo 2, a unified framework that jointly addresses both. To the best of our knowledge, we are the first to leverage the rich ge-ometric representations from Geometric Foundation Mod-els (GFMs) [16, 36, 38] for cross-view geo-spatial learn-ing. As illustrated in Figure 1, directly feeding GFMs with cross-view image pairs often results in inaccurate geomet-ric features due to large viewpoint differences and ground image distortions. To effectively extract usable geome-try priors, we introduce GeoMap, a dual-branch model that processes ground and satellite images separately, as shown in Figure 3. GeoMap embeds the two views into a shared geometry-aware latent space, enforcing cross-view embedding alignment and improving CVGL. For CVIS, prior methods typically focus on single-direction synthesis (e.g., satellite-to-ground) [2, 5, 33, 46, 48]. These meth-ods are based on GANs or diffusion models with strong assumptions, such as polar transformation [2, 33], which are not easily reversible. In contrast, we introduce flow matching [18] to model transformations between aerial and ground domains. This enables bi-directional synthesis from single-direction training, offering higher flexibility and data (a) (b) 
+
+> (c)
+
+Figure 3. Illustration of VGGT reconstructions for (a) the ground view and (b) the satellite view, showing strong geometric align-ment (e.g., buildings and overall layout). The ground view recon-struction is obtained from four perspective crops, illustrated in (c). 
+
+efficiency than existing methods. Note that prior efforts such as CDE [28] and RGCIS [45] also explored the combination of CVGL and CVIS. How-ever, our approach differs fundamentally. CDE focuses on single-direction A2G synthesis, where a GAN and a SAFA [29] backbone are jointly trained. RGCIS relies on a frozen CVGL model to guide generation without mutual op-timization. In contrast, Geo 2 jointly optimizes CVGL and bidirectional CVIS within a shared 3D-aware representation space, forming a coupled framework that unifies localiza-tion and generation for cross-view learning. 
+
+## 3. Methodology 
+
+We present an overview of Geo 2 in Figure 2. Section 3.1 provides a high-level description of the framework. In Sec-tion 3.2, we introduce GeoMap, which embeds both ground and satellite features into a shared latent space for improved geo-localization. Section 3.3 leverages these latent embed-dings for direction image synthesis. Finally, Section 3.4 presents a joint training framework in which CVGL and CVIS mutually reinforce each other. 
+
+3.1. Geo 2 Overview 
+
+In this section, we first formulate the two cross-view geo-spatial tasks, CVGL and CVIS. We then present an overview of the Geo 2 workflow. 
+
+Cross-view Geo-localization. This task focuses on re-trieving a satellite image from a set of candidates given a ground-level image. Formally, the input consists of N
+
+ground-satellite image pairs {Igi , I si }Ni=1 , where Ig and Is
+
+denote ground and satellite images, respectively. Discrim-inative latent representations fg and fs are typically ex-tracted from Ig and Is by a localization model. Given a ground query image Igq with index q, the goal of CVGL is to retrieve the best matching satellite reference image 
+
+Isb , where q, b ∈ { 1, . . . , N }, and a correct match is indi-cated when b = q. The objective can be formulated as: 
+
+b = argmin i∈{ 1,...,N } ∥f gq − f si ∥2.
+
+Cross-view Image Synthesis. This task focuses on gen-erating a satellite view image ˆIs from a given ground-level image Ig . In this work, we address bidirectional im-age synthesis, where we also consider the reverse direc-tion—generating a ground-level image ˆIg from a satellite image Is. For simplicity, we refer to ground-to-satellite generation as G2S and satellite-to-ground as S2G. The ob-jective of CVIS is to minimize the discrepancy between the generated image and the corresponding ground-truth image. This is commonly expressed as an L2 reconstruction loss: 
+
+Lrec = ∥ ˆI − I∥2 where ˆI and I represent the generated and reference images, respectively, in either direction. 
+
+Workflow. As illustrated in Figure 2, Geo 2 is a unified framework designed to jointly address the two tasks of CVGL and CVIS with geometric guidance from Geomet-ric Foundation Models (GFMs). Given a pair of ground and satellite images, we first map them into a shared geometry-aware latent space using GeoMap. The resulting embed-dings are directly used for the CVGL task, where retrieval is performed by computing the similarity between ground and satellite embeddings. The architecture of GeoMap and the embedding process are detailed in Section 3.2. Importantly, the shared latent space also facilitates bidi-rectional image synthesis. To exploit this, we introduce a flow-matching model, described in Section 3.3, which is conditioned on the geometry-aware latent embeddings. The flow model is reversible and supports both ground-to-satellite and satellite-to-ground generation. Finally, in Sec-tion 3.4, we present a joint training scheme where CVGL and CVIS are optimized together. This allows the two tasks to mutually reinforce each other during fine-tuning, further improving overall performance. 
+
+3.2. Geo-localization with GeoMap 
+
+While GFMs provide strong geometric priors, it remains largely unexplored how such information can benefit cross-view geo-spatial tasks like CVGL. Directly feeding ground-satellite image pairs into GFMs often fails to produce geometry-consistent features due to the large viewpoint gap between ground and aerial imagery [35]. To address E2P 
+
+> 𝐼 !
+> 𝐼 "
+> Conv.
+> Pool
+> 𝑓 !
+> 𝑓 "
+> ℒ#$
+> CNN
+> CNN
+> Conv.
+> 𝑞 "
+> Cross Attn.
+> Cross Attn.
+> Norm.
+> Pool
+> Cross Attn.
+> Cross Attn.
+> Norm.
+> 𝑞 !
+> 𝑡 !
+> 𝑡 "
+> VGGT
+> VGGT
+> Ground Feature Extraction
+> Satellite Feature Extraction
+
+Figure 4. Overview of GeoMap pipeline. Ground and satellite images are individually processed via two separate branches. 
+
+this, we propose GeoMap, a dual-branch model that maps ground and satellite images into a shared latent space, ef-fectively integrating geometric priors from GFMs. 
+
+Geometric Feature Extraction. Given ground images Ig
+
+and satellite images Is, we first extract geometry-aware fea-tures tg and ts using VGGT [36]. Since satellite images can be treated as single-perspective inputs, they can be di-rectly processed by VGGT, as ts = VGGT( Is) , where 
+
+ts ∈ RC×H1×W1 , and C is the feature dimension. While VGGT is capable of handling multi-view input images, di-rectly applying it to ground images is challenging. This is because, in the CVGL task, ground images are often panora-mas represented in equiangular format and lie in spherical coordinates, which introduce significant camera distortions. These distortions degrade the quality of the extracted fea-tures, as VGGT is primarily trained on perspective imagery. To this end, we apply an equiangular-to-perspective (E2P) transformation to convert the ground image into multiple perspective crops, as shown in Figure 3, 
+
+{IP i}Vi=1 = E2P( Ig ), (1) which results in a set of V perspective views that densely cover the horizontal field of view. Further details on the coordinate transformation from spherical to perspective are provided in the Supplementary. These V perspective views are then fed into VGGT in a multi-view inference setup to produce the feature tg ∈ RV ×C×H1×W1 . Finally, we embed the geometry features tg and ts into a shared latent space. 
+
+Feature Embedding. The retrieval in CVGL is typically performed using embeddings of dimension D, which re-quires aggregating information from the high-dimensional features tg and ts. To achieve this, we extract feature maps with the target dimension D by applying a convolu-tional layer to the VGGT features. Specifically, we obtain 
+
+ts′ = Conv (ts), where ts′ ∈ RD×H′  
+
+> 1×W′
+> 1
+
+. Similarly, for the ground image, we get tg ′ ∈ RV ×D×H′  
+
+> 1×W′
+> 1
+
+, where V is the number of perspective crops and remains unchanged. In parallel, a pretrained CNN is used to extract se-mantic features from the original satellite and ground im-ages. These features are flattened into token sequences 
+
+qs ∈ RD×N1 and qg ∈ RD×N2 , respectively. We also flat-ten ts′ and tg ′ along the spatial dimensions to obtain dense GT     
+
+> 𝑓 !
+> 𝑓 "ℒ#$
+> RAE
+> encoder
+> GeoMap
+> ℒ!"
+> GeoMap
+> 𝐼 !$𝐼 "
+> RAE
+> decoder
+> Flow
+> Matching
+> Condition 𝑐
+> DiT
+> 𝑥 %
+> 𝑡
+> 𝑐 𝑥 %
+> 𝑡
+> 𝑣 %
+> DDT Head
+
+Figure 5. Overview of our GeoFlow pipeline. The latent repre-sentation ( f g if ground-to-satellite synthesis or fs if satellite-to-ground synthesis) is input as condition C.
+
+tokens of the same dimension D. The semantic tokens qs
+
+and qg are treated as query tokens and aggregate informa-tion from ts′ and tg ′ via cross-attention. For the satellite branch, this is formulated as, 
+
+out s = Attn( qs, t s′, t s′). (2) The final satellite embedding f s is obtained by applying average pooling followed by normalization on out s. The ground embedding f g is computed in the same manner. These representations, f s and f g , lie in a shared geometry-aware latent space and encode both semantic and geomet-ric information, which are used as the final embeddings for cross-view geo-localization. Optimization is guided by the InfoNCE loss [25, 27] LGL , with training details described in Section 3.4. 
+
+3.3. Cross-view Image Synthesis with GeoFlow 
+
+The target of Cross-View Image Synthesis (CVIS) is to gen-erate satellite images from given corresponding ground im-ages, or vice versa. Existing methods typically frame the problem as a conditional generation problem [5, 22, 31, 33, 46]. We argue that CVIS is better framed as a domain translation problem by leveraging the flow matching [18] framework, leading to a more versatile training and infer-ence pipeline. The overview of our GeoFlow pipeline is presented in Figure 5. 
+
+Single Directional Training. Consider a pair of satel-lite and ground image Ig and Is, we took the pretrained RAE [57] to encode the image into latent space, denoting as xg and xs, respectively. We define the probability path by applying the optimal transport displacement interpola-tion [20], such that, 
+
+xt = (1 − t) × xg + t × xs, (3) where t ∈ [0 , 1] . Following the principle of flow match-ing [18], we train a Network Gθ to predict the vector field 
+
+v = xs − xg . Thus, the loss is defined as, 
+
+LIG = ∥Gθ (xt, t, c ) − v∥2, (4) where c is the learned embedding from our GeoMap (Sec-tion 3.1) as an auxiliary condition. We employ lightweight DiTs [56] with DDT heads [39] as the backbone of Gθ . To better align the auxiliary condition c, we use a consistency loss LKL on fg and fs, detailed in Section 3.4. 
+
+Bi-Directional Synthesis: An advantage of our Geo 2 is to achieve bi-directional synthesis without retraining. Mathe-matically, the trained Gθ defines an ODE function. To solve this equation, we can apply the following integral, 
+
+xs = xg +
+
+Z 10
+
+Gθ (xt, t, c ) dt. (5) By simply reversing the direction of the integral, 
+
+xg = xs +
+
+Z 01
+
+Gθ (xt, t, c ) dt 
+
+= xs −
+
+Z 10
+
+Gθ (xt, t, c ) dt, 
+
+(6) in this way, we can generate ground images from satellite images through Equation (6), even if the model has never been trained in this direction. 
+
+3.4. Joint Training 
+
+As mentioned in Section 3.2 and Section 3.3, both GeoMap and GeoFlow leverages the embeddings fs and fg in the shared geometry-aware latent space. In this section, we present our joint training strategy where CVGL and CVIS can mutually benefit each other, as shown in Algorithm 1. 
+
+Algorithm 1: Joint Cross-View Training 
+
+Input : Ground-Satellite Image Pairs, {Ig , I s}
+
+Output : GeoMap model Mβ and GeoFlow model Gθ .Initialize model parameters β and θ.
+
+for epoch = 1 to T1 do 
+
+f g , f s ← Mβ (Ig , I s) // Extract embeddings 
+
+Compute LGL // InfoNCE loss 
+
+β ← β − η1 ∇β LGL // Update model parameters 
+
+for epoch = 1 to T3 do 
+
+c ← f g ; f g , f s ← Mβ (Ig , I s) // RAE omitted 
+
+xs ← xg + R 10 Gθ (xt, t, c ) dt // Generate image 
+
+Compute LIG // Generation loss 
+
+θ ← θ − η2 ∇θ LGL 
+
+if not epoch < T 2 then 
+
+Compute LKL // Consistency loss 
+
+β ← β − η3 ∇β (LGL + αLKL )
+
+return Mβ and Gθ
+
+We use Mβ to denote GeoMap model parameterized by 
+
+β, and Gθ for GeoFlow model parameterized by θ. We use both task-specific and joint objectives to optimize the models. Specifically, in the first stage, we froze the CNN and VGGT backbones in GeoMap, and use LGL to opti-mize only Mβ for T1 epochs. The trained Mβ can embed ground and satellite images in a geometry-aware shared la-tent space. In stage two, we first train the GeoFlow model 
+
+Gθ for T2 epochs. Then, with both trained GeoMap and Ge-oFlow models, we jointly fine-tune Mβ and Gθ for T3 − T2epochs with an additional consistency loss LKL . We pro-vide more details on the losses below. 
+
+Task Specific Optimization. The CVGL task is often optimized via the contrastive loss LGL , such as triplet loss [53, 54] and InfoNCE loss [8, 25, 27]. We train our GeoMap with the InfoNCE loss. Given a ground embed-dings f g and a batch of N satellite embeddings {f si }Ni=1 , in which only f s 
+
+> +
+
+matches the ground query, we have, 
+
+LGL = − log exp  f g · f s
+
+> +
+
+/τ PNi=1 exp ( f g · f si /τ ) , (7) where τ is the hyperparameter controlling the softness of the distribution. Under LGL , a positive example f s 
+
+> +
+
+is effec-tively contrasted by N − 1 negative examples in the batch, which optimize the similarity of matching pairs. For CVIS, we use the L2 loss described in Section 3.3. 
+
+Joint Optimization. Since the geometry-aware shared latent space of ground and satellite embeddings benefits both CVGL and CVIS, it is natural to jointly optimize Ge-oMap and GeoFlow to enhance the consistency of this latent space. Therefore, after task specific training, we fine-tune GeoMap and GeoFlow together with a consistency loss, 
+
+LKL = KL( f g ∥ f s) + KL( f s ∥ f g ), (8) where we align the distribution of f g and f s more explicitly. We empirically find the consistency loss improve both re-trieval accuracy and bidirectional generation quality. More results can be found in Section 4. 
+
+## 4. Experiments 
+
+Datasets and Baselines: To demonstrate the effective-ness of Geo 2, we benchmark on three popular datasets, CVUSA [42], CVACT [19], and VIGOR [58] on both CVIGL and CVIS tasks. CVUSA [42] contains 35,532 training panoramic ground and satellite image pairs and 8,884 testing pairs, sparsely sampled from the United States of America. CVACT [19] provides similar number of training and validation (CVACT val) pairs as the CVUSA dataset. Moreover, it provides a challenging testing set (CVACT test), which contains 92,802 ground and satellite pairs. The training, validation, and testing sets of CVACT are densely collected from Canberra, Australia, and geo-graphically split. VIGOR [58] incorporates a many-to-one configuration which collects ground panoramas and satel-lite images from 4 cities in the U.S, namely, New York, Chicago, Seattle, and San Francisco, resulting in 90,618 ground panoramas and 105,124 satellite images. Further-more, VIGOR provides the same-area evaluation and the cross-area evaluation. In which the same-area protocol stands for training and testing on all 4 cities, and the cross-area protocol means training on 2 cities (New York and Seattle) and testing on the other 2 cities (Chicago and San 
+
+Table 2. Comparison of cross-view geo-localization performance on the VIGOR dataset under same-area and cross-area settings. We report recall rates (%) and hit rate (%) at different top-K re-trieval thresholds. The best results are shown in bold and the second-best results are underlined.                                                                                               
+
+> Dataset Approach R@1 R@5 R@10 R@1% Hit Rate SAFA †[29] 33.93 58.42 68.12 98.24 36.87 TransGeo [59] 61.48 87.54 91.88 99.56 73.09 VIGOR SAIG-D [60] 65.23 88.08 -99.68 74.11 Same-GeoDTR [53] 56.51 80.37 86.21 99.25 61.76 area GeoDTR+ [54] 59.01 81.77 87.10 99.07 67.41 Sample4Geo [8] 77.86 95.66 97.21 99.61 89.82 PanoBEV [47] 82.18 97.10 98.17 99.70 -Ours 81.59 96.53 98.62 99.68 90.35
+> SAFA †[29] 8.20 19.59 26.36 77.61 8.85 TransGeo [59] 18.99 38.24 46.91 88.94 21.21 VIGOR SAIG-D [60] 33.05 55.94 -94.64 36.71 Cross-GeoDTR [53] 30.02 52.67 61.45 94.40 30.19 area GeoDTR+ [54] 36.01 59.06 67.22 94.95 39.40 Sample4Geo [8] 61.70 83.50 88.00 98.17 69.87 PanoBEV [47] 72.19 88.68 91.68 98.56 -Ours 66.71 87.34 91.02 98.25 72.13
+
+Francisco). For more implementation details and parameter settings, please refer to our supplementary material. 
+
+Evaluation Metrics: To evaluate Geo 2, we independently benchmark its performance on CVIS and CVIGL tasks. By following existing CVIS works [5, 17, 26, 50], we adopt Structure Similarity Index Measure (SSIM), Peak Signal-to-Noise Ratio (PSNR), LPIPS [51], and FID score [10]. For the CVIGL task, we adopt the Recall accuracy at Top-K (R@K), which evaluates if the ground truth of the query ground image is measured at the top K retrieved results from the satellite reference set. Conventionally, K is chosen to be 
+
+1, 5, 10 , and 1% . For the VIGOR dataset, we also evalu-ate the hit rate, which measures whether the top-1 retrieved satellite image covers the query ground image location. 
+
+4.1. Quantitative Comparison on CVGL 
+
+Quantitative comparisons between our Geo 2 and existing state-of-the-art on three cross-view geo-localization bench-marks are summarized in Table 3 and Table 2. While per-formance on CVUSA [42] is already near saturation, our method still pushes the boundary further. However, the ad-vantages of Geo 2 are most pronounced on the more dif-ficult benchmarks. On the CVACT validation set and the CVACT testing set, Geo 2 demonstrates a significant perfor-mance gain, 2.46% on CVACT Val and 1.40% on CVACT Test on R@1 accuracy. Furthermore, on the challenging VIGOR [58] dataset, comparing with the well-established Sample4Geo [8] baseline, we improve R@1 by 3.73% in the Same-Area setting and by a significant 5.01% in the challenging Cross-Area setting. These results validate our hypothesis: incorporating geometric foundation mod-els provides critical 3D spatial priors, resulting in feature representations that remain robust even when the visual ap-Table 3. Comparison of cross-view geo-localization performance on CVUSA and CVACT datasets in recall at top-K retrieves (R@K). The best results are shown in bold and the second-best results are underlined. † indicates Polar Transformation is applied. 
+
+Approach CVUSA CVACT Val CVACT Test 
+
+R@1 R@5 R@10 R@1% R@1 R@5 R@10 R@1% R@1 R@5 R@10 R@1% LPN [40] 85.79 95.38 96.98 99.41 79.99 90.63 92.56 - - - - -SAFA † [29] 89.84 96.93 98.14 99.64 81.03 92.80 94.84 - - - - -TransGeo [59] 94.08 98.36 99.04 99.77 84.95 94.14 95.78 98.37 - - - -GeoDTR [53] 93.76 98.47 99.22 99.85 85.43 94.81 96.11 98.26 62.96 87.35 90.70 98.61 GeoDTR † [53] 95.43 98.86 99.34 99.86 86.21 95.44 96.72 98.77 64.52 88.59 91.96 98.74 SAIG-D † [60] 96.34 99.10 99.50 99.86 89.06 96.11 97.08 98.89 67.49 89.39 92.30 96.80 Sample4Geo [8] 98.68 99.68 99.78 99.87 90.35 96.61 97.53 98.78 71.51 92.42 94.45 98.70 PanoBEV [47] 98.71 99.70 99.78 99.86 91.90 97.23 97.84 98.84 73.68 93.53 95.11 98.81 Ours 98.83 99.72 99.79 99.91 94.36 97.41 97.97 99.05 75.08 94.89 95.77 99.01 
+
+pearance changes drastically between training and testing. To further benchmark the generalization of Geo 2, we ex-periment with it on the cross-dataset test, which includes two sub-tasks: 1) training on CVUSA [42] and testing on CVACT [19] (CVUSA → CVACT), and vice versa (CVACT 
+
+→ CVUSA). As shown in Table 4, Geo 2 illustrates a strong generalization capability in the cross-dataset test. Notably, on CVACT → CVUSA, Geo 2 achieves a score of 55 .14% 
+
+on R@1, leading a 10.19% leap from Sample4Geo [8]. On CVUSA → CVACT, Geo 2 also achieves 63 .17% , which is comparable with the existing state-of-the-art. To conclude, the quantitative experiments on all three datasets show the superior performance of our Geo 2 on same-area, cross-area, and cross-dataset evaluations. The results demonstrate the advantage of the geometric foundation models, not only im-proving the discrimination of the feature representations but also enhancing the generalization of Geo 2 on unseen data. 
+
+4.2. Quantitative Comparison on CVIS 
+
+As discussed in Section 3.3, our Geo 2 cannot only achieve cross-view geo-localization but also can perform Cross-View Image Synthesis (CVIS). In this section, we eval-uate the CVIS performance of Geo 2 on CVUSA [42], CVACT [19], and VIGOR [58] datasets. Since the unique-ness of our Geo 2 that can perform bi-directional synthe-sis without re-training , we conduct evaluation on both Ground-to-Satellite (G2S) and Satellite-to-Ground (S2G). The results are summarized in Table 5 and Table 6, re-spectively. Note that Geo 2 can perform significantly bet-ter than existing methods on the CVACT dataset on all the evaluation metrics, especially FID scores, which decrease from 36.48 to 31.72. Geo 2 also achieves outstanding per-formance on the other two datasets. For example, Geo 2 has a FID score of 30.09 on the VIGOR dataset, while bringing the LPIPS down to 0.594. On the S2G task, Geo 2 is not as good as it is on the G2S task. However, it still achieves the best FID score on the CVACT and CVUSA dataset, while keeping the other scores comparable to the baseline meth-ods. In summary, the evaluation results reveal the superi-
+
+Table 4. Comparison of cross-view geo-localization performance on cross-dataset benchmarks. CVUSA → CVACT stands for train-ing on CVUSA and testing on CVACT. CVACT → CVUSA stands for training on CVACT and testing on CVUSA. The best results are shown in bold and the second-best results are underlined.                                                                            
+
+> Dataset Approach R@1 R@5 R@10 R@1% SAFA [29] 30.40 52.93 62.29 85.82 TransGeo [59] 37.81 61.57 69.86 89.14 CVUSA SAIG-D [60] 15.29 33.07 42.14 72.95
+> ↓GeoDTR [53] 43.72 66.99 74.61 91.83 CVACT GeoDTR+ [54] 60.16 79.97 84.67 94.48 Sample4Geo [8] 56.62 77.79 87.02 94.69 PanoBEV [47] 67.79 84.06 87.96 95.05 Ours 63.17 82.53 87.88 95.09
+> SAFA [29] 21.45 36.55 43.79 69.83 TransGeo [59] 17.45 32.49 40.48 69.14 CVACT SAIG-D [60] 18.97 35.60 44.28 75.33
+> ↓GeoDTR [53] 29.85 49.25 57.11 82.47 CVUSA GeoDTR+ [54] 52.56 73.08 79.82 94.80 Sample4Geo [8] 44.95 64.36 72.10 90.65 PanoBEV [47] 44.10 70.68 75.86 95.31 Ours 55.14 73.58 80.03 95.33
+
+ority of Geo 2 on the cross-view image synthesis task. It also demonstrates the flexibility of Geo 2 that can perform bi-directional synthesis without re-training. We attribute the performance improvement to the introduction of geometric foundation models that inject 3D priors into the flow match-ing process and also the rich latent representation from the RAE [57] encoder and decoder. For more experiments and analysis, please refer to our supplementary material. 
+
+4.3. Qualitative Visualization 
+
+We visualize synthesized results on CVUSA [42], CVACT [19], and VIGOR [58], in Figure 6, Figure 7, and Figure 8, respectively. We randomly select 3 sam-ples for each dataset and include diverse scenarios, such as urban, suburban, and rural areas. For each sample, we present both Ground-to-Satellite (G2S) and Satellite-to-Ground (S2G) synthesized images. As we can see in Fig-ure 6, our Geo 2 can synthesize geometrically-matching and high quality satellite images and ground images. Specifi-Table 5. Comparison of Ground-to-Satellite image synthesis performance on CVUSA, CVACT, and VIGOR datasets. We report FID [9], LPIPS [51], PSNR and SSIM scores. The best results are shown in bold .                                                                                      
+
+> Approach CVUSA CVACT VIGOR
+> FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)X-Seq [28] 161.16 0.706 11.97 0.084 190.12 0.661 12.41 0.042 ----Aerial Diff [14] 136.18 0.855 10.06 0.103 127.29 0.878 10.24 0.108 123.16 0.831 11.49 0.141 GPG2A [2] 58.80 0.691 12.13 0.135 63.50 0.690 11.98 0.116 70.19 0.695 11.81 0.159 ControlNet [50] 32.45 0.650 12.63 0.149 62.21 0.682 11.95 0.115 53.27 0.666 10.38 0.170 Skydiffusion [46] 29.18 0.635 14.58 0.168 36.48 0.645 12.85 0.118 45.29 0.661 11.69 0.186
+> Ours 33.68 0.534 13.83 0.167 31.72 0.552 14.62 0.162 30.09 0.594 11.33 0.127
+
+Table 6. Comparison of Satellite-to-Ground image synthesis performance on CVUSA, CVACT, and VIGOR datasets. We report FID [9], LPIPS [51], PSNR and SSIM scores. The best results are shown in bold .                                                                 
+
+> Approach CVUSA CVACT VIGOR
+> FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)Sat2Density [26] 41.43 0.4163 14.66 0.358 47.09 0.3339 16.38 0.482 47.98 0.3488 11.21 0.229 ControlNet [50] 51.48 0.5158 10.91 0.148 49.41 0.4563 11.66 0.229 53.29 0.4051 10.59 0.191 CrossViewDiff [5] 23.67 0.4412 12.00 0.371 41.94 0.3661 12.41 0.412 26.57 0.3414 13.68 0.268 Ours 29.05 0.4871 12.94 0.317 27.77 0.4833 13.57 0.457 22.90 0.4690 12.64 0.380 CVUSA
+> GT Satellite GT Ground G2S Result S2G Result
+
+Figure 6. Visualization of Generated images from Geo 2 on CVUSA dataset. From left to right are the ground truth satel-lite image, the ground truth ground image, the Ground-to-Satellite generated image, and the Satellite-to-Ground generated image. CVACT    
+
+> GT Satellite GT Ground G2S Result S2G Result
+
+Figure 7. Visualization of Generated images from Geo 2 on CVACT dataset. The order is the same as Figure 6. 
+
+cally, by comparing the first and third example in Figure 6, our model can accurately capture the road orientation and the positions of the side objects, such as trees and grass-land. Figure 7 illustrates more complex scenarios in urban and suburban areas, for example, in the third row, our Geo 2
+
+successfully captures the curvature of the road and is recon-structed in the synthesized satellite image. The most chal-lenging cases arise from the VIGOR dataset, which includes VIGOR    
+
+> GT Satellite GT Ground G2S Result S2G Result
+
+Figure 8. Visualization of Generated images from Geo 2 on VIGOR dataset. The order is the same as Figure 6. 
+
+complex scenarios. Surprisingly, our model also captures both the high-level structural information and low-level de-tails. For instance, in the first example, Geo 2 reconstructs the correct building layout in both G2S and S2G results. In the second example, Geo 2 successfully models the store on the right side of the road and the trees on the left side of the road. In summary, the qualitative visualization illustrates the outstanding image synthesis quality. For more qualita-tive results, please refer to our supplementary material. 
+
+## 5. Conclusion 
+
+In this paper, we present Geo 2, a geometry-guided frame-work that unifies cross-view geo-spatial tasks. We first pro-pose GeoMap, a dual-branch model that embeds ground and satellite images into a shared geometry-aware latent space. These embeddings are directly used for CVGL and further serve as conditioning inputs for bidirectional CVIS in our GeoFlow module. We introduce a joint training strategy, al-lowing the two tasks to mutually benefit. Geo 2 explores 3D geometric priors from GFMs as a new and effective means of bridging CVGL and CVIS, offering a promising direction for unified cross-view geo-spatial learning. Acknowledgments : This work was supported by Intelli-gence Advanced Research Projects Activity (IARPA) via Department of Interior/Interior Business Center (DOI/IBC) contract number 140D0423C0074. The U.S. Government is authorized to reproduce and distribute reprints for Govern-mental purposes, notwithstanding any copyright annotation thereon. Disclaimer: The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorse-ments, either expressed or implied, of IARPA, DOI/IBC, or the U.S. Government. 
+
+## References 
+
+[1] Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ah-mad, Ilge Akkaya, Florencia Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et al. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 ,2023. 2 [2] Ahmad Arrabi, Xiaohan Zhang, Waqas Sultani, Chen Chen, and Safwan Wshah. Cross-view meets diffusion: Aerial im-age synthesis with geometry and text guidance. In 2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) , pages 5356–5366. IEEE, 2025. 1, 2, 3, 8, 5 [3] Sudong Cai, Yulan Guo, Salman Khan, Jiwei Hu, and Gongjian Wen. Ground-to-aerial image geo-localization with a hard exemplar reweighting triplet loss. In Proceedings of the IEEE/CVF International Conference on Computer Vi-sion (ICCV) , 2019. 2 [4] Jiaqi Chen, Zeyu Yang, and Li Zhang. Semantic segment anything, 2023. 2 [5] Yuankun Chen, Dazhong Rong, and Yi Li. Crossviewdiff: A cross-view diffusion model for satellite-to-ground image synthesis. In International Conference on Artificial Neural Networks , pages 287–302. Springer, 2024. 2, 3, 5, 6, 8 [6] Wenyan Cong, Yiqing Liang, Yancheng Zhang, Ziyi Yang, Yan Wang, Boris Ivanovic, Marco Pavone, Chen Chen, Zhangyang Wang, and Zhiwen Fan. E3d-bench: A bench-mark for end-to-end 3d geometric foundation models. arXiv preprint arXiv:2506.01933 , 2025. 3 [7] Quan Dao, Hao Phung, Trung Tuan Dao, Dimitris NMetaxas, and Anh Tran. Self-corrected flow distillation for consistent one-step and few-step image generation. In Pro-ceedings of the AAAI Conference on Artificial Intelligence ,pages 2654–2662, 2025. 6 [8] Fabian Deuser, Konrad Habel, and Norbert Oswald. Sam-ple4geo: Hard negative sampling for cross-view geo-localisation. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 16847–16856, 2023. 2, 6, 7, 1, 3, 5 [9] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. Gans trained by a two time-scale update rule converge to a local nash equilib-rium. In Advances in Neural Information Processing Sys-tems . Curran Associates, Inc., 2017. 8 [10] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. Gans trained by a two time-scale update rule converge to a local nash equilib-rium. Advances in neural information processing systems ,30, 2017. 6 [11] Bernhard Kerbl, Georgios Kopanas, Thomas Leimk¨ uhler, and George Drettakis. 3d gaussian splatting for real-time radiance field rendering. ACM Trans. Graph. , 42(4):139:1– 139:14, 2023. 3 [12] Diederik P. Kingma and Max Welling. Auto-Encoding Vari-ational Bayes. In 2nd International Conference on Learning Representations, ICLR 2014, Banff, AB, Canada, April 14-16, 2014, Conference Track Proceedings , 2014. 3 [13] Nikita Kornilov, Petr Mokrov, Alexander Gasnikov, and Alexander Korotin. Optimal flow matching: Learning straight trajectories in just one step. Advances in Neural In-formation Processing Systems , 37:104180–104204, 2024. 6 [14] Divya Kothandaraman, Tianyi Zhou, Ming Lin, and Dinesh Manocha. Aerial diffusion: Text guided ground-to-aerial view synthesis from a single image using diffusion models. In SIGGRAPH Asia 2023 Technical Communications , pages 1–4. 2023. 8, 2 [15] Vincent Leroy, Yohann Cabon, and J´ erˆ ome Revaud. Ground-ing image matching in 3d with mast3r. In European Confer-ence on Computer Vision , pages 71–91. Springer, 2024. 1 [16] Vincent Leroy, Yohann Cabon, and J´ erˆ ome Revaud. Ground-ing image matching in 3d with mast3r. In European Confer-ence on Computer Vision , pages 71–91. Springer, 2024. 3 [17] Tao Jun Lin, Wenqing Wang, Yujiao Shi, Akhil Perincherry, Ankit Vora, and Hongdong Li. Geometry-guided cross-view diffusion for one-to-many cross-view image synthesis. arXiv preprint arXiv:2412.03315 , 2024. 2, 6 [18] Yaron Lipman, Ricky TQ Chen, Heli Ben-Hamu, Maximil-ian Nickel, and Matt Le. Flow matching for generative mod-eling. arXiv preprint arXiv:2210.02747 , 2022. 3, 5 [19] Liu Liu and Hongdong Li. Lending orientation to neural networks for cross-view geo-localization. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 5624–5633, 2019. 2, 6, 7 [20] Xingchao Liu, Chengyue Gong, and Qiang Liu. Flow straight and fast: Learning to generate and transfer data with rectified flow. arXiv preprint arXiv:2209.03003 , 2022. 5 [21] Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feicht-enhofer, Trevor Darrell, and Saining Xie. A convnet for the 2020s. In Proceedings of the IEEE/CVF conference on com-puter vision and pattern recognition , pages 11976–11986, 2022. 1, 3 [22] Xiaohu Lu, Zuoyue Li, Zhaopeng Cui, Martin R Oswald, Marc Pollefeys, and Rongjun Qin. Geometry-aware satellite-to-ground image synthesis for urban areas. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 859–867, 2020. 1, 2, 5 [23] Zonglin Lyu and Chen Chen. Tlb-vfi: Temporal-aware latent brownian bridge diffusion for video frame interpolation. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2025. 4 [24] Zonglin Lyu, Ming Li, Jianbo Jiao, and Chen Chen. Frame interpolation with consecutive brownian bridge diffusion. In 
+
+Proceedings of the 32nd ACM International Conference on Multimedia , 2024. 4 [25] Aaron van den Oord, Yazhe Li, and Oriol Vinyals. Repre-sentation learning with contrastive predictive coding. arXiv preprint arXiv:1807.03748 , 2018. 5, 6 [26] Ming Qian, Jincheng Xiong, Gui-Song Xia, and Nan Xue. Sat2density: Faithful density learning from satellite-ground image pairs. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 3683–3692, 2023. 1, 2, 6, 8, 5 [27] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning transferable visual models from natural language supervi-sion. In International conference on machine learning , pages 8748–8763. PmLR, 2021. 5, 6 [28] Krishna Regmi and Ali Borji. Cross-view image synthesis using conditional gans. In Proceedings of the IEEE con-ference on Computer Vision and Pattern Recognition , pages 3501–3510, 2018. 2, 3, 8, 5 [29] Yujiao Shi, Liu Liu, Xin Yu, and Hongdong Li. Spatial-aware feature aggregation for image based cross-view geo-localization. Advances in Neural Information Processing Systems , 32:10090–10100, 2019. 1, 2, 3, 6, 7 [30] Yujiao Shi, Xin Yu, Dylan Campbell, and Hongdong Li. Where am i looking at? joint location and orientation es-timation by cross-view matching. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2020. 2 [31] Yujiao Shi, Dylan Campbell, Xin Yu, and Hongdong Li. Geometry-guided street-view panorama synthesis from satellite imagery. IEEE Transactions on Pattern Analysis and Machine Intelligence , 44(12):10009–10022, 2022. 2, 5 [32] Hao Tang, Dan Xu, Nicu Sebe, Yanzhi Wang, Jason J Corso, and Yan Yan. Multi-channel attention selection gan with cas-caded semantic guidance for cross-view image translation. In Proceedings of the IEEE/CVF conference on computer vi-sion and pattern recognition , pages 2417–2426, 2019. 2 [33] Aysim Toker, Qunjie Zhou, Maxim Maximov, and Laura Leal-Taix´ e. Coming down to earth: Satellite-to-street view synthesis for geo-localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 6488–6497, 2021. 2, 3, 5 [34] Test-Time Training. Ttt3r: 3d reconstruction as test-time training. 3 [35] Khiem Vuong, Anurag Ghosh, Deva Ramanan, Srinivasa Narasimhan, and Shubham Tulsiani. Aerialmegadepth: Learning aerial-ground reconstruction and view synthesis. In 
+
+Proceedings of the Computer Vision and Pattern Recognition Conference , pages 21674–21684, 2025. 1, 3, 4 [36] Jianyuan Wang, Minghao Chen, Nikita Karaev, Andrea Vedaldi, Christian Rupprecht, and David Novotny. Vggt: Vi-sual geometry grounded transformer. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 5294–5306, 2025. 1, 2, 3, 4, 6 [37] Qianqian Wang, Yifei Zhang, Aleksander Holynski, Alexei A Efros, and Angjoo Kanazawa. Continuous 3d per-ception model with persistent state. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 10510–10522, 2025. 3 [38] Shuzhe Wang, Vincent Leroy, Yohann Cabon, Boris Chidlovskii, and Jerome Revaud. Dust3r: Geometric 3d vi-sion made easy. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 20697– 20709, 2024. 1, 3 [39] Shuai Wang, Zhi Tian, Weilin Huang, and Limin Wang. Ddt: Decoupled diffusion transformer. arXiv preprint arXiv:2504.05741 , 2025. 5, 2 [40] Tingyu Wang, Zhedong Zheng, Chenggang Yan, Jiyong Zhang, Yaoqi Sun, Bolun Zheng, and Yi Yang. Each part matters: Local patterns facilitate cross-view geo-localization. IEEE Transactions on Circuits and Systems for Video Technology , pages 1–1, 2021. 7, 2 [41] Daniel Wilson, Xiaohan Zhang, Waqas Sultani, and Safwan Wshah. Image and object geo-localization. International Journal of Computer Vision , 132(4):1350–1392, 2024. 2 [42] Scott Workman, Richard Souvenir, and Nathan Jacobs. Wide-area image geolocalization with aerial reference im-agery. In Proceedings of the IEEE International Conference on Computer Vision , pages 3961–3969, 2015. 2, 6, 7 [43] Songsong Wu, Hao Tang, Xiao-Yuan Jing, Haifeng Zhao, Jianjun Qian, Nicu Sebe, and Yan Yan. Cross-view panorama image synthesis. IEEE Transactions on Multimedia , 2022. 2 [44] Hongji Yang, Xiufan Lu, and Yingying Zhu. Cross-view geo-localization with layer-to-layer transformer. In Ad-vances in Neural Information Processing Systems , pages 29009–29020. Curran Associates, Inc., 2021. 2 [45] Hongji Yang, Yiru Li, and Yingying Zhu. Retrieval-guided cross-view image synthesis. arXiv preprint arXiv:2411.19510 , 2024. 2, 3 [46] Junyan Ye, Jun He, Weijia Li, Zhutao Lv, Jinhua Yu, Haote Yang, and Conghui He. Skydiffusion: Street-to-satellite im-age synthesis with diffusion models and bev paradigm. arXiv preprint arXiv:2408.01812 , 2024. 1, 2, 3, 5, 8 [47] Junyan Ye, Zhutao Lv, Weijia Li, Jinhua Yu, Haote Yang, Huaping Zhong, and Conghui He. Cross-view image geo-localization with panorama-bev co-retrieval network. In 
+
+European Conference on Computer Vision , pages 74–90. Springer, 2024. 2, 6, 7 [48] Junyan Ye, Zhutao Lv, Weijia Li, Jinhua Yu, Haote Yang, Huaping Zhong, and Conghui He. Cross-view image geo-localization with panorama-bev co-retrieval network, 2024. 3[49] Menghua Zhai, Zachary Bessinger, Scott Workman, and Nathan Jacobs. Predicting ground-level scene layout from aerial imagery. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , 2017. 2 [50] Lvmin Zhang, Anyi Rao, and Maneesh Agrawala. Adding conditional control to text-to-image diffusion models. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 3836–3847, 2023. 6, 8, 2 [51] Richard Zhang, Phillip Isola, Alexei A Efros, Eli Shecht-man, and Oliver Wang. The unreasonable effectiveness of deep features as a perceptual metric. In Proceedings of the IEEE conference on computer vision and pattern recogni-tion , pages 586–595, 2018. 6, 8 [52] Richard Zhang, Phillip Isola, Alexei A Efros, Eli Shechtman, and Oliver Wang. The unreasonable effectiveness of deep features as a perceptual metric. In CVPR , 2018. 4 [53] Xiaohan Zhang, Xingyu Li, Waqas Sultani, Yi Zhou, and Safwan Wshah. Cross-view geo-localization via learn-ing disentangled geometric layout correspondence. arXiv preprint arXiv:2212.04074 , 2022. 1, 2, 6, 7 [54] Xiaohan Zhang, Xingyu Li, Waqas Sultani, Chen Chen, and Safwan Wshah. Geodtr+: toward generic cross-view geolo-calization via geometric disentanglement. IEEE Transac-tions on Pattern Analysis and Machine Intelligence , 2024. 1, 2, 6, 7 [55] Yancheng Zhang, Guangyu Sun, and Chen Chen. EGGS: Exchangeable 2d/3d gaussian splatting for geometry-appearance balanced novel view synthesis. In The Thirty-ninth Annual Conference on Neural Information Processing Systems , 2025. 3 [56] Boyang Zheng, Nanye Ma, Shengbang Tong, and Saining Xie. Diffusion transformers with representation autoen-coders. arXiv preprint arXiv:2510.11690 , 2025. 5, 2 [57] Boyang Zheng, Nanye Ma, Shengbang Tong, and Saining Xie. Diffusion transformers with representation autoen-coders. arXiv preprint arXiv:2510.11690 , 2025. 5, 7, 2, 3[58] Sijie Zhu, Taojiannan Yang, and Chen Chen. Vigor: Cross-view image geo-localization beyond one-to-one retrieval. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition , pages 3640–3649, 2021. 2, 6, 7[59] Sijie Zhu, Mubarak Shah, and Chen Chen. Transgeo: Trans-former is all you need for cross-view image geo-localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 1162–1171, 2022. 2, 6, 7, 3 [60] Yingying Zhu, Hongji Yang, Yuxin Lu, and Qiang Huang. Simple, effective and general: A new back-bone for cross-view image geo-localization. arXiv preprint arXiv:2302.01572 , 2023. 2, 6, 7 Geo 2: Geometry-Guided Cross-view Geo-Localization and Image Synthesis 
+
+# Supplementary Material 
+
+We provide additional details about the design and param-eter settings of Geo 2, along with extended quantitative and qualitative results. The supplementary material is organized as follows: • Section 6 Implementation Details. We describe the model architecture, experimental environment, and train-ing parameters in more detail. • Section 7 Evaluation Protocol and Baselines. We elab-orate on the evaluation protocols used in the same-area, cross-area, and cross-dataset settings. More detailed de-scriptions of the baselines are also provided. • Section 8 Ablation Analysis. We present additional abla-tion results for our joint training framework as described in Algorithm 1, as well as an analysis of different pre-trained backbones. • Section 9 E2P Transformation. Since GFMs such as VGGT typically require perspective inputs, we explain how equirectangular panoramas are converted into per-spective views. • Section 10 Discussion of PSNR and SSIM. We provide a detailed discussion on the limitations of using PSNR and SSIM to evaluate the quality of synthesized images. • Section 11 Discussion on Bi-directional Synthesis. We discuss the bi-directional synthesis process in detail. • Section 12 CVGL Augmentation with Synthesized Im-ages. We explore the downstream task of applying our Geo 2 to augment the training of existing cross-view geo-localization models. • Section 13 Robustness of VGGT on Different Angles. 
+
+We discuss how the VGGT model is robust to ground im-age angle changes. • Section 14 Efficiency Analysis We analyze the efficiency of our Geo 2.• Section 15 Qualitative Comparison. We provide addi-tional qualitative results for the CVIS task. 
+
+## 6. Implementation Details 
+
+In this section, we provide more details about our hyperpa-rameter settings, experimental environment, and model ar-chitecture. We will open-source our code upon acceptance. 
+
+Experiment Setup. For CVGL, we set the temperature in the InfoNCE loss LGL to τ = 0 .07 , a value commonly used in previous works [8, 53, 54]. The embedding dimension for both ground and satellite features is set to 1024 , following prior work [8]. During joint cross-view training, we train GeoMap for T1 = 50 epochs, and GeoFlow for T2 = 500 
+
+epochs. We then jointly fine-tune both models for an ad-ditional 50 epochs using the consistency loss LKL . The learning rates are set to η1, η 3 = 1 e−4 for GeoMap, and 
+
+η2 = 2 e−4 for GeoFlow. GeoFlow is trained on images with a resolution of 256 × 256 . We use a batch size of 128 for joint training. All experiments are conducted on NVIDIA A100 GPUs. The architectures of GeoMap and GeoFlow are described below. 
+
+GeoMap Implementation Details. We use two pre-trained backbones to extract geometry and appearance features from the input ground and satellite images. For geometry features, we use VGGT [36], and for appearance features, we use the ConvNeXt [21] backbone from Sample4Geo [8]. Both the VGGT and ConvNeXt backbones are kept frozen during training, and only the convolutional and attention layers in the GeoMap head are learnable. GeoMap is also compatible with other backbone architectures, and we pro-vide preliminary results with alternative backbones in Sec-tion 8. We emphasize that the key of Geo 2 is leverag-ing geometric priors to embed ground and satellite images into a geometry-aware latent space, which facilitates cross-view geo-spatial tasks. Although we use VGGT and Sam-ple4Geo as backbones in our implementation, Geo 2 is not restricted to these two architectures. For satellite images, we use the dense feature map from VGGT’s DPT head, where the feature ts ∈ RC×H1×W1
+
+has channel dimension C = 256 and spatial dimensions 
+
+H1, W 1 = 518 . A convolutional layer is used to downsam-ple ts to ts′ ∈ RD×H′  
+
+> 1×W′
+> 1
+
+, where D = 1024 is the em-bedding dimension. We then extract the appearance feature using ConvNeXt, qs ∈ RD×H2×W2 , where D = 1024 and 
+
+H2, W 2 = 12 . The downsampled VGGT feature ts′ and the ConvNeXt feature qs are flattened along the spatial dimen-sions and treated as tokens of dimension 1024 . We use qs as the query token and perform cross-attention, with the num-ber of heads set to 16 . The attention output is mapped to the final embedding f s ∈ R1024 via mean pooling followed by Layer Normalization. We note that GeoMap uses two branches to process ground and satellite images separately. The ground branch is mostly symmetric to the satellite branch. The only dif-ference is that, for ground images, the ConvNeXt features 
+
+qg ∈ RD×H2×W2 have spatial dimensions H2 = 4 and 
+
+W2 = 24 . Additionally, since we split the ground images into four perspective views to extract the VGGT features, the ground features tg ∈ RV ×C×H1×W1 include an addi-tional view dimension V = 4 . We defer the details about the perspective transformation to Section 9. The convolu-tional layer is applied to each view independently, and the four-view downsampled ground features are concatenated along the width dimension. Cross-attention is computed in Table 7. Panorama-to-satellite configuration across VIGOR, CVUSA, and CVACT datasets.                         
+
+> Dataset #Ground Image Ground Image Res. #Satellite Image Satellite Image Res. Vertical FOV Ground Crop Res.
+> CVUSA 44,416 1232 ×224 44,416 750 ×750 ∼90 ◦224 ×224 CVACT 128,334 1664 ×832 128,334 1200 ×1200 180 ◦416 ×416 VIGOR 105,214 2048 ×1024 90,618 640 ×640 180 ◦512 ×512
+
+the same way as in the satellite branch. 
+
+GeoFlow Implementation Details. The backbone of our GeoFlow follows that of RAE [57], which adopts DiT [56] with a DDT [39] head. We use the pretrained RAE encoder (DINOv2-B) and decoder to encode images into the latent space and decode the latent representation back into image space. Specifically, the image is encoded into a representa-tion of size 16 × 16 × 768 , with the patch size set to 1. The depth of DiT is 28, and the hidden size is 1152. The DDT head consists of two layers with a hidden size of 2048. Both DiT and DDT use 16 attention heads. The model is trained end-to-end using the loss LIG .
+
+## 7. Evaluation Protocol and Baselines 
+
+7.1. Evaluation Protocol 
+
+In Table 7, we provide more detailed information about the datasets used for training and evaluation. Both CVUSA and CVACT provide one-to-one ground-to-satellite matches, i.e., only one positive satellite image serves as the refer-ence for each ground query. VIGOR, on the other hand, offers one-to-many ground-to-satellite matches, where mul-tiple satellite images are considered positive references for each ground query. The VIGOR dataset is split into four cities: Chicago, New York, San Francisco, and Seattle. Fol-lowing prior works [8, 53, 54], our evaluation for CVGL is conducted under three different settings: same-area, cross-dataset, and cross-area. In the same-area setting, the train-ing and testing data are from the same geographical area. In the cross-dataset setting, we train the model on CVUSA and evaluate on CVACT, or vice versa. In the cross-area setting, we train on New York and Seattle from VIGOR and evaluate on Chicago and San Francisco. The cross-dataset and cross-area settings better reflect the generalizability of geo-localization models. 
+
+7.2. Choice of Baselines 
+
+Cross-View Geo-Localization. We choose LPN [40], SAFA [29], TransGeo [59], GeoDTR [53], SAIG-D [60], and Sample4Geo [8] to provide a comprehensive com-parison against the state-of-the-art in cross-view geo-localization. These methods represent a clear progression, from early deep learning approaches (LPN and SAFA) to more recent high-performing techniques. Specifically, we include TransGeo to benchmark against early transformer-based methods in this domain, and GeoDTR and SAIG-D to compare against models that incorporate more advanced at-                             
+
+> Table 8. Albaltion of CVGL task on CVACT dataset. “+Geome-try” denotes model incorporating geometry features from VGGT are used. “ +LKL ” denotes model finetuned with consistency loss.
+> Dataset Approach R@1 R@5 R@10 R@1% CVACT Val Baseline 90.53 96.61 97.53 98.78 +Geometry 93.81 97.02 97.77 98.92 +LKL 94.36 97.41 97.97 99.05 CVACT Test Baseline 71.51 92.42 94.45 98.70 +Geometry 74.37 93.24 95.02 98.86 +LKL 75.08 94.89 95.77 99.01
+
+tention and alignment mechanisms. Finally, Sample4Geo serves as the most contemporary and challenging bench-mark, allowing us to validate the performance of our pro-posed method against the latest standard. 
+
+Satellite-to-Ground Synthesis. Sat2Density [26], Con-trolNet [50], and CrossViewDiff [5] are selected to pro-vide a comprehensive comparison against state-of-the-art methods in satellite-to-ground cross-view image synthesis. We include Sat2Density and CrossViewDiff as they are re-cent methods that directly address satellite-to-ground im-age generation, establishing relevant domain-specific base-lines. The inclusion of ControlNet enables us to evalu-ate whether our Geo 2 method offers advantages in fidelity and accuracy over a general-purpose conditional diffusion framework adapted to this task. 
+
+Ground-to-Satellite Synthesis. We select X-Seq [28], AerialDiff [14], GPG2A [2], ControlNet [50], and SkyDif-fusion [46] to provide a comprehensive evaluation against state-of-the-art methods in ground-to-satellite image syn-thesis. We include specialized cross-view methods such as X-Seq, GPG2A, AerialDiff, and SkyDiffusion to establish strong baselines. Additionally, the inclusion of ControlNet helps assess the benefit of our specialized approach over general-purpose conditional generation frameworks, ensur-ing a robust validation of Geo 2.
+
+## 8. Ablation Analysis 
+
+In this section, we validate the effectiveness of the geomet-ric prior and the joint training strategy used in Geo 2.
+
+Joint Training. As shown in Table 8, we first evaluate the effectiveness of the proposed methods on the CVGL task. Our baseline is the pre-trained Sample4Geo [8] model, which does not incorporate any geometric prior. GeoMap introduces geometric priors from VGGT into the baseline model, enhancing the geometric information in both ground Table 9. Albaltion of CVIS task on CVACT dataset. “+Geome-try” denotes model incorporating geometry features from VGGT. “+LKL ” denotes model finetuned with consistency loss. G2S is ground-to-satellite synthesis, and S2G is satellite-to-ground syn-thesis.                              
+
+> Direction Approach FID ( ↓)LPIPS ( ↓)PSNR ( ↑)SSIM ( ↑)G2S Baseline 37.51 0.613 13.17 0.143 +Geometry 33.02 0.568 14.08 0.155 +LKL 31.72 0.552 14.62 0.162 S2G Baseline 33.41 0.573 11.08 0.377 +Geometry 30.86 0.511 11.93 0.408 +LKL 27.77 0.483 13.57 0.457
+
+and satellite embeddings. This leads to improved retrieval accuracy on both the validation and test splits of the CVACT dataset. By fine-tuning GeoMap with the consistency loss 
+
+LKL during joint CVGL-CVIS training (Algorithm 1), the retrieval accuracy is further improved. Similarly, we analyze the effectiveness of our proposed method on the CVIS task in Table 9. The baseline in this case is a Flow Matching model without any additional con-ditioning. By conditioning the Flow Matching model on the geometry-aware embeddings from GeoMap, we observe that both ground-to-satellite (G2S) and satellite-to-ground (S2G) synthesis improve by a noticeable margin. Adding the consistency loss further improves generation quality, es-pecially in the S2G direction. Most importantly, the con-sistency loss LKL effectively aligns the ground and satel-lite embeddings. These consistent, geometry-aware embed-dings are shown to mutually benefit both the CVGL and CVIS tasks. 
+
+Different Backbones. In Geo 2, we adopt multiple back-bones to extract features. Specifically, in GeoMap, we use VGGT [36] to extract geometric features, and a pretrained ConvNeXt [21] model from Sample4Geo [8] to extract se-mantic features. In GeoFlow, we use a pretrained DINOv2-B-based RAE encoder/decoder [57]. In this section, we an-alyze the potential impact of using different backbones. As shown in Table 10, we compare the performance of the CVGL task when using different semantic backbones. Specifically, we replace Sample4Geo with TransGeo [59], while keeping all other components unchanged. We eval-uate geo-localization performance on the VIGOR dataset under both the same-area and cross-area settings. Although using a stronger backbone generally improves performance, the geometric prior introduced by GeoMap consistently en-hances retrieval accuracy even when used with the Trans-Geo backbone. This demonstrates the general applicability of incorporating geometric information into CVGL models. For the geometry backbone, potential alternatives in-clude DUSt3R, MASt3R, and AerialMegaDepth [16, 35, 38]. However, these methods are based on pairwise reg-istration and rely on a process called global alignment FOV= 2𝜋 (a) Equirectangular Panorama FOV= !               
+
+> "
+> −𝜋 0𝜋
+> 𝜃 =−3𝜋
+> 4𝜃 =−𝜋
+> 4𝜃 =𝜋
+> 4𝜃 =3𝜋
+> 4
+> (b) Perspective Crops
+
+Figure 9. Illustration of the Equirectangular-to-Perspective trans-formation. Perspective-view crops are obtained by placing cam-eras with different yaw angles θ.Table 10. Ablation on different backbones on VIGOR dataset. Ours † denotes GeoMap with TransGeo as the semantic backbone, and ours denotes GeoMap with Sample4Geo as backbone.                                               
+
+> Dataset Approach R@1 R@5 R@10 R@1% Hit Rate Same-area TransGeo 61.48 87.54 91.88 99.56 73.09 Sample4Geo 77.86 95.66 97.21 99.61 89.82 Ours †68.33 91.06 93.14 99.59 76.34 Ours 81.59 96.53 98.62 99.68 90.35 Cross-area TransGeo 18.99 38.24 46.91 88.94 21.21 Sample4Geo 61.70 83.50 88.00 98.17 69.87 Ours †29.56 46.71 51.35 91.22 30.07 Ours 66.71 87.34 91.02 98.25 72.13
+
+to align multiple input views [38]. Global alignment is known to be time-consuming [36, 38], which makes it dif-ficult to incorporate these methods into cross-view training tasks. Designing efficient GFMs is an active research direc-tion [34, 37], and incorporating improved GFM backbones could potentially boost the performance of Geo 2. Simi-larly, it is possible to replace the RAE encoder/decoder with VAE-based [12] counterparts. However, we remark that the core focus of Geo 2 is to explore the potential of geometric priors in cross-view tasks, rather than designing new GFMs or autoencoders. Therefore, we leave the exploration of al-ternative GFMs and autoencoders as future work. 
+
+## 9. E2P Transformation 
+
+The Equirectangular-to-Perspective (EP2) transformation is important because most GFMs are trained exclusively on perspective images [16, 36–38]. In cross-view datasets, however, the ground images are equirectangular panoramas. As illustrated in Figure 10 (b), directly cropping panora-mas and feeding them into GFMs often leads to inaccu-rate geometry. In contrast, with the Equirectangular-to-Perspective transformation, GFMs can reconstruct reliable geometry even when the perspective crops have no overlap, as shown in Figure 10 (a). In this section, we provide more details about how ground panoramas are transformed into perspective-view crops, as shown in Figure 9. Given a ground panorama with width W and height H, pixels (u, v ) are represented in equirectangular coordinates, where u ∈ [0 , W − 1] and 
+
+v ∈ [0 , H − 1] . For ground panoramas, each rectangu-lar pixel (u, v ) can also be represented by a spherical co-ordinate (λ, ϕ ), where λ ∈ [−π, π ] is the longitude and 
+
+ϕ ∈ [− π 
+
+> 2
+
+, π 
+
+> 2
+
+] is the latitude. The conversion between (u, v )
+
+and (λ, ϕ ) is given by: 
+
+u = W
+
+2π (λ + π), v = Hvrange 
+
+ vrange 
+
+2 − φ
+
+
+
+where vrange is the vertical FOV of the panoramas. The values of the parameters differ between datasets and are de-tailed in Table 7. To transform the ground panorama into perspective-view crops, we split the spherical coordinates along the horizon-tal direction. To align with the VGGT input, we define each perspective-view crop as an image captured by a simple pin-hole camera, where the horizontal and vertical FOVs are set to π 
+
+> 2
+
+. Accordingly, we split the longitude λ ∈ [−π, π ] into four non-overlapping crops, i.e., [−π, − π 
+
+> 2
+
+], [− π 
+
+> 2
+
+, 0] , [0 , π 
+
+> 2
+
+],and [ π 
+
+> 2
+
+, π ]. Each crop corresponds to a camera defined by the yaw θ (horizontal rotation) and pitch ϕ (vertical rota-tion). Since we only need to split the longitude, we set the pitch for all crops to 0 and set the yaw to the center of each crop, i.e., − 3π 
+
+> 4
+
+, − π 
+
+> 4
+
+, π 
+
+> 4
+
+, and 3π 
+
+> 4
+
+, as illustrated in Figure 9 (b). For each camera, given the yaw θ and pitch ϕ, the rota-tion matrix can be computed as follows: 
+
+Ry (θ) = 
+
+
+
+cos θ 0 sin θ
+
+0 1 0
+
+− sin θ 0 cos θ
+
+ ,Rx(ϕ) = 
+
+
+
+1 0 00 cos ϕ − sin ϕ
+
+0 sin ϕ cos ϕ
+
+ .
+
+Given the rotation matrices above, the final rotation ma-trix of each camera is defined as R = Rx(ϕ)Ry (θ). With the rotation matrix, we show how pixels in the perspec-tive view (x, y ) are mapped to pixels in the equirectangular coordinates (u, v ). For each pixel in the perspective view 
+
+(x, y ), a ray r from the pinhole camera can be defined as: 
+
+r(x, y ) = 
+
+
+
+x tan 
+
+ fh
+
+> 2
+
+
+
+y tan 
+
+ fv
+
+> 2
+
+
+
+1
+
+ .(a) Reconstruction with E2P Transformation 
+
+> (b) Reconstruction without E2P Transformation
+> Figure 10. Illustration of (a) accurate reconstruction from perspec-tive crops, and (b) inaccurate reconstruction from directly cropped panoramas without E2P transformation.
+
+where the FOVs fh and fv are set to π 
+
+> 2
+
+, as mentioned above. To map the ray r to spherical coordinates, we first normalize it and then apply the rotation as: 
+
+d = R r
+
+∥r∥ .
+
+where d = ( dx, d y , d z ) is a unit vector in 3D space, which can be converted into spherical coordinates by: 
+
+λ = arctan 2( dx, d z ), φ = arcsin( dy ).
+
+The spherical coordinates (λ, ϕ ) can be easily converted into the equirectangular coordinates (u, v ), as mentioned above. Finally, we note that since the converted coordinates 
+
+(u, v ) are not necessarily integers, bilinear sampling is used to compute the final pixel value at (x, y ) in the perspective view. 
+
+## 10. Discussion of PSNR and SSIM 
+
+As reported in Tables 5 and 6, our Geo 2 attains competi-tive performance across most evaluation metrics, though its PSNR and SSIM scores are relatively lower. This behav-ior is expected and aligns with extensive prior findings that PSNR and SSIM scores correlate poorly with perceptual fi-delity in generative tasks [52]. Recent studies in video inter-polation [23, 24] further demonstrate that these pixel-based metrics fail to reflect structural or semantic correctness. In cross-view image synthesis, the limitation is even more pronounced because the target view is not strictly pixel-aligned with the input. As a result, small variations PSNR:11.42  
+
+> SSIM:0.152
+> PSNR:11.21
+> SSIM:0.133
+> Ground Truth
+> Satellite
+> Input Ground
+> Ours Synthesized
+> Satellite
+> GPG2A Synthesized
+> Satellite
+
+Figure 11. Visualization of two satellite images generated from the same ground image from our Geo 2 and GPG2A [2], respectively, on the VIGOR dataset. Although the results demonstrate similar PSNR and SSIM values, our generated satellite image is more vi-sually and geometrically similar to the ground truth satellite image than GPG2A’s result. From left to right are the ground truth satel-lite image, GPG2A’s generated satellite image, our Geo 2’s gener-ated satellite image, and the input ground image. 
+
+in object color (e.g., buildings and roads), transient ob-jects (e.g., vehicles and pedestrians), and sky appearance disproportionately penalize PSNR and SSIM scores de-spite preserving geometric structure. To illustrate this ef-fect, Figure 11 shows two ground-to-satellite synthesized results from GPG2A [2] and our Geo 2, respectively, from the VIGOR dataset. As observed from this figure, our Geo 2
+
+produces a more geometrically consistent and semantically faithful satellite image compared to the ground truth than GPG2A. However, their PSNR and SSIM values are close to each other. This confirms that these metrics are insufficient indicators of cross-view synthesis quality and motivates our use of perceptual and structure-oriented measures. To further demonstrate this point, we conduct an experi-ment to visualize the change in SSIM and PSNR values with respect to increasing amounts of Gaussian noise and verti-cal pixel shift, as shown in Figure 12. As we can observe, with the increase in noise and the number of shifted pix-els, both SSIM and PSNR decrease drastically. However, the degraded images still maintain strong geometric and vi-sual similarity to the ground truth image, again validating that SSIM and PSNR are not the best choices for evaluating image synthesis quality. 
+
+## 11. Discussion on Bi-directional Synthesis 
+
+As discussed in Section 3.3, our GeoFlow only needs to train once, while it can perform both ground-to-satellite and satellite-to-ground synthesis, differentiat-ing itself from existing works, such as X-fork [28], GPG2A [2], CrossViewDiff [5], SkyDiffusion [46], and Sat2Density [26]. In Section 3.3, we explained the mecha-(a) Ground Truth    
+
+> SSIM: 0.841
+> PSNR: 33.98
+> Shift 10 pixel
+> SSIM: 0.312
+> PSNR: 14.79
+> (c) Adding Vertical -shift
+> (b) Adding Noise
+> Shift 3 pixel
+> SSIM: 0.632
+> PSNR: 20.46
+> Sigma=0.02 Sigma=0.2
+> SSIM: 0. 136
+> PSNR: 14.56
+
+Figure 12. Visualization of the change of the PSNR and SSIM values with respect to the different levels of noise and vertical pixel shift. 
+
+nism to reverse the process in sampling without re-training. In this section, we further explain that training in two direc-tions (ground-to-satellite and satellite-to-ground) is equiva-lent to each other. Recall that the vector field v = xs − xg ,which is pointing to the satellite direction. Consider another vector field v′ = xg − xs, which is pointing to the ground direction. In fact, v and v′ have the same magnitude but point in exact opposite directions. Recall that our loss LIG 
+
+is defined as, 
+
+LIG = ∥Gθ (xt, t, c ) − v∥2.
+
+Thus, this indicates that training with either v or v′ results in the same Gθ but to predict opposite directions. Conse-quently, it is simple to invert the predicted vector field from 
+
+Gθ to have an estimation of both directions with a single model. For instance, if training with v′ instead of v, one can rewrite the equation as, 
+
+xg = xs +
+
+Z 10
+
+G′ 
+
+> θ
+
+(xt, t, c ) dt, 
+
+and, 
+
+xs = xg −
+
+Z 10
+
+G′ 
+
+> θ
+
+(xt, t, c ) dt, 
+
+where G′ 
+
+> θ
+
+(xt, t, c ) is the new model which is trained to pre-dict v′. One can easily reverse the equations in Section 3.3 to the equations above to obtain the predicted ground and satellite images, respectively. 
+
+## 12. CVGL Augmentation with Synthesized Im-ages 
+
+To further explore the downstream tasks that our proposed Geo 2 can benefit, following prior studies [2], we adopt Sam-ple4Geo [8] as a baseline and augment the training set with our generated images. The results are summarized in Ta-ble 11, which illustrates that our Geo 2 can further improve Table 11. Evaluation of augmenting Cross-View Geo-Localization methods by using generated images from the proposed Geo 2 on CVACT [19] Val and CVACT Test sets. 
+
+CVACT Val CVACT Test 
+
+Approach R@1 R@5 R@10 R@1% R@1 R@5 R@10 R@1% Baseline 90.35 96.61 97.53 98.78 71.51 92.42 94.45 98.70 Baseline + Augmentation 91.56 96.94 97.71 98.83 72.83 93.15 94.74 98.81 5𝑡ℎ 𝜃 = 𝜋 /4 𝜃 = 𝜋 /4 (reorder) 
+
+𝜃 = 𝜋 /8 𝜃 = 0  
+
+> Figure 13. VGGT [36] reconstructions on VIGOR images under varying orientation angles and input orders. Table 12. Ablation study of different base navigation angle θon CVACT Val set.
+
+θ R@1 R@5 R@1% 
+
+π / 4 94.36 97.41 99.05 
+
+π / 8 94.25 97.42 99.05 0 94.31 97.43 99.04 CVGL performance of Sample4Geo [8](Baseline) on both CVACT [19] Val and challenging CVACT Test sets. 
+
+## 13. Robustness of VGGT on Different Angles 
+
+As shown in Fig. 13, different input orders produce almost identical output, and different base navigation angles θ pro-duce similar reconstructions. To further demonstrate this, we ablate on base navigation angles as shown in Table 12, which shows that different angles yield similar performance on the CVACT Val set. 
+
+## 14. Efficiency Analysis 
+
+We first examine the efficiency of our GeoMap module. The computation cost of it depends on the number of input views for VGGT [36]. As shown in Tab. 13, since ground views are four times satellite views, the cost is quadrupled. We then analyze the efficiency of our GeoFlow module by vary-
+
+> Table 13. Efficiency (in GFLOPS) and number of Parameters of our Geo 2.
+
+Module Sat. Grd. #Params Conv Module 45 31 88M VGGT 1387 5548 942M GeoMap 40 158 43M 
+
+> Table 14. Ablation on ODE steps on CVACT Val set.
+
+Steps FPS GFLOPs S2G FID/LPIP G2S FID/LPIP 2 3.21 1143 29.09 0.4896 39.69 0.5594 5 1.38 2857 27.82 0.4831 33.65 0.5530 10 0.71 5715 27.77 0.4833 31.72 0.5520 ing the steps of its ODE solver. The results are summarized in Table 14. In the main paper, we use a 10-step ODE solver. However, as shown in Table 14, sampling steps can be re-duced, where 5 steps preserve synthesis quality and 2 steps are fast with only minor degradation. Moreover, distilled [7] and one-step flow-matching models [13] can be used in our framework for higher efficiency. Similarly, using a smaller VGGT (e.g., the upcoming 200M variant) can also reduce computational cost. However, these optimizations are or-thogonal to our work. 
+
+## 15. More Qualitative Visualization 
+
+In this section, we provide more visualizations of CVGL on the CVACT dataset in Figure 14, where our method gener-ally achieves more accurate retrieval. We also provide ad-ditional qualitative CVIS results of Geo 2 on the CVUSA, CVACT, and VIGOR datasets in Figure 15, Figure 16, and Figure 17, respectively. These visualizations further demonstrate that the GeoFlow module enables our model to synthesize both satellite-view and ground-view images that preserve global scene geometry while producing re-alistic textures consistent with the target domain. Across diverse environments, Geo 2 successfully captures appear-ance and structural correspondences between satellite and ground views, corroborating the observations discussed in the main manuscript. 1𝑠𝑡 2𝑛𝑑 3𝑟𝑑 4𝑡ℎ 5𝑡ℎ Ground Query 
+
+> Sample4Geo Ours Sample4Geo Ours Sample4Geo Ours Sample4Geo Ours
+
+Figure 14. More Visualizations of Top-5 Retrieval Results from the CVACT Dataset. We compare the top-5 retrieval results of our method with the Sample4Geo [8] baseline. The query ground images are shown on the left, and the retrieval results are shown on the right. CVUSA 
+
+# GT Satellite  GT Ground  G2S Result  S2G Result Figure 15. More Visualization of Generated images from Geo 2 on CVUSA dataset. From left to right are the ground truth satellite image, the ground truth ground image, the Ground-to-Satellite generated image, and the Satellite-to-Ground generated image. CVACT 
+
+# GT Satellite  GT Ground  G2S Result  S2G Result Figure 16. More Visualization of Generated images from Geo 2 on CVACT dataset. From left to right are the ground truth satellite image, the ground truth ground image, the Ground-to-Satellite generated image, and the Satellite-to-Ground generated image. VIGOR 
+
+# GT Satellite  GT Ground  G2S Result  S2G Result Figure 17. More Visualization of Generated images from Geo 2 on VIGOR dataset. From left to right are the ground truth satellite image, the ground truth ground image, the Ground-to-Satellite generated image, and the Satellite-to-Ground generated image.

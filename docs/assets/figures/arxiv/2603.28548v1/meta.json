@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-001.webp",
+      "caption": "Fig. 5: Qualitative comparison on layout-conditioned 3D scene generation.",
+      "page": 11,
+      "index": 1,
+      "width": 716,
+      "height": 571
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-002.webp",
+      "caption": "Fig. 9: Qualitative ablation on object bounding boxes. Seen2Scene achieves comparable completion quality without object bounding box conditioning.",
+      "page": 21,
+      "index": 2,
+      "width": 719,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-003.webp",
+      "caption": "Fig. 4: 3D scene completion. Seen2Scene can complete large-scale scenes by generating geometry for unobserved regions across multiple chunks, guided by partial scan conditions injected into the ControlNet branch. Results are shown on ScanNet++ [67] and ARKitScenes [3].",
+      "page": 10,
+      "index": 3,
+      "width": 716,
+      "height": 792
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-004.webp",
+      "caption": "Fig. 8: Qualitative ablation on real data. Training the model only on 3DFRONT [20], or with limited categories, or without label synonym augmentation, reduces the model’s generalization ability to diverse object layouts, like “clothes on an office chair.”",
+      "page": 14,
+      "index": 4,
+      "width": 716,
+      "height": 815
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-005.webp",
+      "caption": "Fig. 11: Prompt template for LLM-based label augmentation. The placeholders {n}, {label}, and {n_per_type} are filled at runtime for each category.",
+      "page": 23,
+      "index": 5,
+      "width": 583,
+      "height": 600
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-006.webp",
+      "caption": "Fig. 3: Qualitative comparison on 3D scan completion. Given real-world partial depth scans from ScanNet++ [67] and ARKitScenes [3], Seen2Scene learns realistic, high-fidelity priors from incomplete real-scan data to produce much more complete, detailed geometry than baselines.",
+      "page": 8,
+      "index": 6,
+      "width": 712,
+      "height": 690
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-007.webp",
+      "caption": "Fig. 2: Overview of Seen2Scene. We introduce visibility-guided flow matching for modeling the distribution of TSDF partial scans. (a) Partial scan TSDF patches v are encoded by a masked sparse VAE (Eτ ,Dτ ) into latent representations z, masking out unknown regions unseen by the camera. (b) A sparse transformer Gψ conditioned on 3D layout boxes B is trained with masked flow matching on surface and empty region tokens. (c) We fine-tune Gψ for scan completion by injecting partial scan inputs vp via ControlNet [70]. (d) Gψ can also be flexibly adapted for text or layout-conditioned 3D scene generation from scratch.",
+      "page": 4,
+      "index": 7,
+      "width": 725,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-008.webp",
+      "caption": "Fig. 6: Text to scene. Given a text description, Seen2Scene generates a 3D object layout first via an LLM and then synthesizes high-fidelity scene geometry from scratch conditioned on the layout.",
+      "page": 12,
+      "index": 8,
+      "width": 720,
+      "height": 343
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-009.webp",
+      "caption": "Fig. 14: Detailed VLM prompts for evaluating perceptual quality of generated 3D scene chunks.",
+      "page": 27,
+      "index": 9,
+      "width": 583,
+      "height": 937
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28548v1/fig-010.webp",
+      "caption": "Fig. 12: Architecture of Seen2Scene. (a) A masked sparse VAE encodes partial TSDF patches into compact geometry latents via sparse convolutional downsampling, with category and TSDF reconstruction heads in the decoder. (b) A sparse DiT generates geometry latents from Gaussian noise via flow matching, conditioned on CLIPencoded layout embeddings and timestep information.",
+      "page": 24,
+      "index": 10,
+      "width": 677,
+      "height": 439
+    }
+  ]
+}

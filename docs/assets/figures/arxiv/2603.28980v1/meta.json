@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-001.webp",
+      "caption": "Figure 4. 3D Scene Generation. We provide visual example of generated novel-view panoramas on the left side. The details of the initial panorama are well preserved and previously unseen regions are filled in. On the right side we show novel-view renderings of the reconstructed scenes indicating the 3D consistency of the generated panoramas.",
+      "page": 6,
+      "index": 1,
+      "width": 1036,
+      "height": 607
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-002.webp",
+      "caption": "Figure 9. Auto-regressive steps. We perform a number of auto-regressive steps to generate novel-view panoramas from the initial panorama to the left and right for several examples. From the generated panoramas, we visualize the forward-facing view to highlight the generated details. A single step corresponds to a step length of 0.25m.",
+      "page": 15,
+      "index": 2,
+      "width": 1034,
+      "height": 781
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-003.webp",
+      "caption": "Figure 5. Comparison with Baselines. Given a high quality input panorama, we observe that our approach achieves consistent scene generation while showing significantly more details and sharpness in the rendered novel view images in comparison to the baselines.",
+      "page": 7,
+      "index": 3,
+      "width": 1036,
+      "height": 985
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-004.webp",
+      "caption": "Figure 8. Impact of Multi-View Panoramas We depict the effect of using various options of panorama input for MapAnything and found that the auto-regressive expansion and sampling yield the most complete and accurate outputs.",
+      "page": 13,
+      "index": 4,
+      "width": 489,
+      "height": 522
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-005.webp",
+      "caption": "Figure 6. Single vs multiple panoramas to 3DGS. The multi panorama input to the 3DGS reconstruction consistently fills in the unobserved regions in the initial panorama without sacrificing the quality of the input panorama.",
+      "page": 8,
+      "index": 5,
+      "width": 441,
+      "height": 314
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-006.webp",
+      "caption": "Table 1. Quantitative Evaluation. We compare our approach to the baseline methods for three different datasets on common image metrics. We observe that our approach yields significant improvements on all metrics and datasets.",
+      "page": 8,
+      "index": 6,
+      "width": 488,
+      "height": 543
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-007.webp",
+      "caption": "Figure 2. Method overview. a) Our model generates a new panoramic image from a previously unobserved viewpoint based on a given input panorama. To ensure high quality, we utilize a pre-trained diffusion model with expanded multi-view attention that is instrumental for jointly denoising the high-resolution cubefaces of the newly generated novel-view panorama. b) Our ability to generate novel-view panoramas enables auto-regressive scene generation in all directions of the scene yielding a set of high quality, consistent panoramas that effectively complete the representation of the 3D scene. c) The generated panoramas are processed with the feed-forward reconstruction model, i.e. MapAnything. The output pointcloud serves as the initialization of a custom 3D Gaussian Splatting reconstruction enabling high quality novel view synthesis of the generated 3D scene.",
+      "page": 4,
+      "index": 7,
+      "width": 1018,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-008.webp",
+      "caption": "Figure 12. User study form. Participants fill out this randomized form and cast a single vote per category.",
+      "page": 17,
+      "index": 8,
+      "width": 496,
+      "height": 875
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-009.webp",
+      "caption": "Table 2. User study results. n = 10 participants cast votes on the most visually appealing, most accurate geometry and most details categories for 15 video comparisons, yielding 150 votes per category in total.",
+      "page": 12,
+      "index": 9,
+      "width": 456,
+      "height": 421
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-010.webp",
+      "caption": "Figure 3. Dataset Samples. The dataset generated with Infinigen consists of a diverse set of high quality synthetic panoramas of indoor and outdoor scenes. For every panorama, we rendered a pair from a novel viewpoint enabling the training of the multiview panorama generation model. All panoramas are aligned to the horizontal line.",
+      "page": 5,
+      "index": 10,
+      "width": 491,
+      "height": 372
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-011.webp",
+      "caption": "Figure 11. Input panoramas used for testing.",
+      "page": 16,
+      "index": 11,
+      "width": 1026,
+      "height": 527
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28980v1/fig-012.webp",
+      "caption": "Figure 10. Multi-view panoramas pairs generated with Infinigen.",
+      "page": 16,
+      "index": 12,
+      "width": 1026,
+      "height": 680
+    }
+  ]
+}

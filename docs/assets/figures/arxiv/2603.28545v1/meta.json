@@ -1,0 +1,158 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-001.webp",
+      "caption": "Table 2 All 20 ManipArena tasks. Execution Reasoning tasks have visually unambiguous goals—the challenge is precise motor execution. Semantic Reasoning tasks require resolving semantic ambiguity before acting. MobileManipulation tasks require long-horizon navigation and manipulation.",
+      "page": 6,
+      "index": 1,
+      "width": 985,
+      "height": 617
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-002.webp",
+      "caption": "Figure 8 Real2Sim environment construction. The physical workspace is reconstructed via 3D Gaussian Splatting, task objects are generated with Hunyuan3D, and the simulation runs on IsaacLab with trajectory-level alignment to real-robot data.",
+      "page": 11,
+      "index": 2,
+      "width": 944,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-003.webp",
+      "caption": "Figure 10 (a) Basket position robustness on pick_items_into_basket: DreamZero is nearly position-invariant (−8%) while VLA models degrade −44% to −57%. (b) Category performance breakdown: OneModel’s advantage over Single concentrates on semantic tasks (+16%).",
+      "page": 15,
+      "index": 3,
+      "width": 790,
+      "height": 310
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-004.webp",
+      "caption": "Table 1 Comparison of ManipArena with existing benchmarks. Prior works are either simulator-centric or lack standardized real-world evaluation. ManipArena uniquely provides a comprehensive, standardized framework bridging simulation and real-world deployment with reasoning-intensive tasks and multi-level generalization.",
+      "page": 2,
+      "index": 4,
+      "width": 977,
+      "height": 274
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-005.webp",
+      "caption": "Figure 4 The training diversity of three hierarchical levels.",
+      "page": 7,
+      "index": 5,
+      "width": 785,
+      "height": 645
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-006.webp",
+      "caption": "Table 7 56-dimensional state/action specification for tabletop tasks. All modalities are recorded at 20Hz from the follow (robot) arms.",
+      "page": 29,
+      "index": 6,
+      "width": 832,
+      "height": 409
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-007.webp",
+      "caption": "Table 6 Evaluation generalization design per task. Tasks are categorized by whether T9–T10 introduce true OOD objects or test configuration robustness within the training distribution.",
+      "page": 29,
+      "index": 7,
+      "width": 988,
+      "height": 199
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-008.webp",
+      "caption": "Figure 7 Data sample distributions across these same 4 units.",
+      "page": 10,
+      "index": 8,
+      "width": 870,
+      "height": 494
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-009.webp",
+      "caption": "Table 4 Baseline evaluation on 15 tabletop tasks. Score: total out of 100 (10 trials × 10 pts). SR: success rate (≥9/trial). Best per task in bold.",
+      "page": 14,
+      "index": 9,
+      "width": 790,
+      "height": 423
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-010.webp",
+      "caption": "Figure 1 Representative examples from each task category.",
+      "page": 3,
+      "index": 10,
+      "width": 986,
+      "height": 579
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-011.webp",
+      "caption": "Figure 12 Model capability boundaries across five core dimensions. DreamZero dominates coarse manipulation and spatial robustness; OneModel leads on semantic understanding and precision; π0.5-Single excels at sequential reasoning.",
+      "page": 18,
+      "index": 11,
+      "width": 864,
+      "height": 404
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-012.webp",
+      "caption": "Table 5 Full diversity specification per task. Dim = number of explicitly controlled diversity dimensions. Traj = number of training trajectories (from open-source release).",
+      "page": 28,
+      "index": 12,
+      "width": 988,
+      "height": 1188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-013.webp",
+      "caption": "Figure 5 Typical diversity designs.",
+      "page": 8,
+      "index": 13,
+      "width": 852,
+      "height": 498
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-014.webp",
+      "caption": "Figure 2 Three types of reasoning tasks in ManipArena.",
+      "page": 4,
+      "index": 14,
+      "width": 984,
+      "height": 479
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-015.webp",
+      "caption": "Figure 11 OOD degradation on two representative tasks. Top: sort_headphone—VLA collapses at compound OOD (−95%/−100%) while DreamZero degrades gracefully (−33%). Bottom: put_spoon—OneModel shows severe degradation (−68%) while π0.5 paradoxically improves (+11%), driven by a bimodal T9/T10 pattern where success depends entirely on spatial configuration.",
+      "page": 17,
+      "index": 15,
+      "width": 886,
+      "height": 406
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-016.webp",
+      "caption": "Figure 9 Statistics of sub-task decompositions for each task.",
+      "page": 12,
+      "index": 16,
+      "width": 886,
+      "height": 591
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-017.webp",
+      "caption": "Figure 6 Robot platform and evaluation environment. (a) Tabletop setup: bimanual 6-DOF follower arms inside the green-screen enclosure with fixed studio lighting (LED panel + softbox). A face camera captures the global workspace; wrist-mounted cameras on each arm provide close-up views. Master arms (foreground) are used for teleoperated data collection. (b) Mobile setup: Quanta X1 with mecanum-wheel omnidirectional base, height-adjustable lifting column, and bimanual ARX arms with wrist cameras, operating within a ∼3m × 3 m green-screen enclosure.",
+      "page": 9,
+      "index": 17,
+      "width": 986,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-018.webp",
+      "caption": "Figure 13 Per-trial score heatmap across 15 tasks. DreamZero’s pick_items row is uniformly green (9/10 perfect), while press_button is uniformly red. VLA models show higher variance—task-dependent patterns with sharp within-task fluctuations driven by spatial configuration sensitivity.",
+      "page": 20,
+      "index": 18,
+      "width": 864,
+      "height": 1339
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28545v1/fig-019.webp",
+      "caption": "Figure 3 The overall statistics of ManipArena including the average trajectories of each task, the episode length, the sub-task count and other statistics.",
+      "page": 5,
+      "index": 19,
+      "width": 806,
+      "height": 823
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-001.webp",
+      "caption": "Table 2. Performance comparison on XVR-Eval (%). Results include closed-source models, open-source models (zero-shot and + XVR), and baselines.",
+      "page": 6,
+      "index": 1,
+      "width": 900,
+      "height": 432
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-002.webp",
+      "caption": "Figure 11. Point Correspondence task example. The question asks which point in the target image corresponds to a marked point in the reference images.",
+      "page": 25,
+      "index": 2,
+      "width": 698,
+      "height": 1266
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-003.webp",
+      "caption": "Figure 12. Directional Correspondence task example. The question asks which arrow in the target image points in the same direction as arrows in the reference images.",
+      "page": 26,
+      "index": 3,
+      "width": 1036,
+      "height": 1071
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-004.webp",
+      "caption": "Figure 6. Task generation pipeline for XVR. The pipeline branches into geometry-based generation (top) for tasks using 3D geometric information and metadata-based generation (bottom) for tasks using trajectory annotations. Geometry-based generation processes general domain data (I,P,X ) through 3D-to-2D projection and visibility checking to create Point, Directional, Spatial, and Viewpoint tasks. Metadata-based generation processes robotic domain data (I, T ,M) through temporal and camera metadata extraction to create Temporal, Cross-View, Directional View, and Language-Conditioned tasks. Both pipelines converge at QA assembly to produce final question-answer pairs.",
+      "page": 15,
+      "index": 4,
+      "width": 1036,
+      "height": 481
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-005.webp",
+      "caption": "Figure 9. Spatial Verification example from XVR-Eval. The task requires identifying which view contains a marker placed at an inconsistent 3D location compared to the others. Only Qwen3-VL-2B-XVR (Ours) correctly identifies the spatially inconsistent view, demonstrating the effectiveness of explicit cross-view relation supervision.",
+      "page": 21,
+      "index": 5,
+      "width": 518,
+      "height": 938
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-006.webp",
+      "caption": "Figure 16. Directional View Localization task example. The question asks which camera view lies in a specified direction (e.g., left, right) relative to the reference camera.",
+      "page": 30,
+      "index": 6,
+      "width": 829,
+      "height": 1037
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-007.webp",
+      "caption": "Figure 4. Visualization of the three manipulation tasks and their camera-view configurations used for VLA transfer evaluation.",
+      "page": 7,
+      "index": 7,
+      "width": 496,
+      "height": 579
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-008.webp",
+      "caption": "Figure 3. Generalization to external spatial benchmarks (MindCube-Tiny and RoboSpatial-Home). Training on XVR improves Qwen3-VL2B across all tasks, with the largest gains in Compatibility (+7.6%) and Among (+7.0%).",
+      "page": 7,
+      "index": 8,
+      "width": 1036,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-009.webp",
+      "caption": "Figure 15. Viewpoint Localization task example. The question asks which camera view corresponds to a specific spatial position marked in 3D space.",
+      "page": 29,
+      "index": 9,
+      "width": 672,
+      "height": 1266
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-010.webp",
+      "caption": "Table 3. Taxonomy of cross-view reasoning tasks, summarized with their formal definitions and representative QA prototypes.",
+      "page": 14,
+      "index": 10,
+      "width": 937,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-011.webp",
+      "caption": "Table 4. XVR Dataset Statistics (103,576 samples, 447,811 images)",
+      "page": 18,
+      "index": 11,
+      "width": 568,
+      "height": 850
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-012.webp",
+      "caption": "Figure 10. Additional experiments on XVR-Eval. (a) Baseline evaluation across Qwen3-VL model scales (2B, 8B, 30B-A3B) and spatial reasoning models: SpatialOM-3B (SO), SpatialMLLM-3B (SM), and RoboBrain2.0-32B (RB). (b) Impact of XVR training on Qwen3-VL-2B and 8B. (c) Scaling behavior of XVR training data (100k, 300k, 500k samples) on Qwen3-VL-2B.",
+      "page": 23,
+      "index": 12,
+      "width": 1036,
+      "height": 217
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-013.webp",
+      "caption": "Figure 14. Temporal Verification task example. The question asks which image was captured at a different timestamp compared to others.",
+      "page": 28,
+      "index": 13,
+      "width": 1036,
+      "height": 914
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-014.webp",
+      "caption": "Figure 5. Transfer to Embodied Tasks: RoboCasa VLA Performance. Fine-tuning on XVR improves Qwen3-VL-2B performance on RoboCasa manipulation tasks, showing effective transfer of spatial reasoning skills to robotic action prediction.",
+      "page": 8,
+      "index": 14,
+      "width": 496,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-015.webp",
+      "caption": "Table 5. XVR-Eval task distribution and random baseline accuracy.",
+      "page": 19,
+      "index": 15,
+      "width": 640,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-016.webp",
+      "caption": "Figure 7. Source data distribution for XVR. Top row (Raw Distribution): Original distribution of data sources before task generation. General domain: 18,409 scenes from WildRGB-D. Robotic domain: 35,717 trajectories from DROID, RoboSet, Agibot, MobileAloha, and FMB. Bottom row (Source Distribution): Distribution after filtering and task generation. General domain: 51,788 samples (visibility-based filtering affects category proportions). Robotic domain: 51,788 samples (DROID and FMB limited to Temporal Verification due to inconsistent camera metadata; RoboSet and Agibot support all robotic tasks).",
+      "page": 17,
+      "index": 16,
+      "width": 1028,
+      "height": 815
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-017.webp",
+      "caption": "Figure 18. Language-Conditioned Localization task example. The question asks which camera view matches a natural language spatial description (e.g., ”wrist-mounted camera”).",
+      "page": 32,
+      "index": 17,
+      "width": 829,
+      "height": 904
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-018.webp",
+      "caption": "Figure 13. Spatial Verification task example. The question asks which marked point across multiple images breaks spatial alignment.",
+      "page": 27,
+      "index": 18,
+      "width": 829,
+      "height": 1048
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-019.webp",
+      "caption": "Table 7. Training hyperparameters for VLA policy learning.",
+      "page": 24,
+      "index": 19,
+      "width": 782,
+      "height": 459
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-020.webp",
+      "caption": "Table 6. Training hyperparameters for XVR fine-tuning of Qwen3-VL-2B-Instruct.",
+      "page": 24,
+      "index": 20,
+      "width": 522,
+      "height": 500
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-021.webp",
+      "caption": "Figure 17. Cross-Scenario Localization task example. The question asks which camera view in one scenario matches the viewpoint of a reference image from another scenario.",
+      "page": 31,
+      "index": 21,
+      "width": 926,
+      "height": 1266
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27967v1/fig-022.webp",
+      "caption": "Figure 8. Cross-Scenario Localization example from XVR-Eval. The task requires identifying the corresponding viewpoint across two different scenarios. Only Qwen3-VL-2B-XVR (Ours) and Gemini-Robotics-ER-1.5 correctly predict the answer.",
+      "page": 20,
+      "index": 22,
+      "width": 518,
+      "height": 856
+    }
+  ]
+}

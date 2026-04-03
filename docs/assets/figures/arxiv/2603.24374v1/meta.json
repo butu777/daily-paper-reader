@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-001.webp",
+      "caption": "Fig 4 Tracks of 100km storm cores generated in 2022, overlaid on MISO phases derived from the 1998–2023 climatological cycle.",
+      "page": 11,
+      "index": 1,
+      "width": 987,
+      "height": 502
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-002.webp",
+      "caption": "Fig 2 Temperature dependence and thermal scaling of extreme precipitation over India and its major sub-regions during the summer season. Temperature dependence of extreme precipitation intensity is shown using CMORPH precipitation and ERA5 2 m temperature data at 0.25° resolution, where the 99th, 99.5th, and 99.9th percentile average precipitation intensities are plotted as a function of daily mean temperature (1 °C bins) for A. All-India, B. Northeast India (NEI), C. Central India (CI), and D. North-West India (NWI). Shaded backgrounds indicate characteristic temperature regimes—Weak, Fast, and Decreasing—highlighting nonlinear shifts in extreme rainfall behavior with temperature. Also shown is the spatial distribution of thermal scaling of summer extreme rainfall at 2° resolution, illustrating E. the percentage change in rainfall intensity during 1998–2023, F. the percentage change in daily mean 2 m air temperature, and G. the percentage change in rainfall intensity with temperature, emphasizing the sensitivity of extreme rainfall to thermal variations over the same period.",
+      "page": 7,
+      "index": 2,
+      "width": 941,
+      "height": 939
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-003.webp",
+      "caption": "Table 1. Percentage occurrence of HERES of different sizes across the four quadrants of LPS with 5-degree radius",
+      "page": 13,
+      "index": 3,
+      "width": 968,
+      "height": 332
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-004.webp",
+      "caption": "Fig 6 Schematic represents of the algorithmic workflow to cluster and tracks ERE storms.",
+      "page": 17,
+      "index": 4,
+      "width": 976,
+      "height": 569
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-005.webp",
+      "caption": "Fig 5. LPS tracks and ERE storm density relative to the LPS center under different MISO phases. A. Tracks of all low pressure systems (LPSs) generated during 1998 to 2023 over the Indian core monsoon region. B. Composite of all LPS six hourly center points obtained during the analysis, overlaid with the spatial density of 100 km ERE storms within a 15° radius centered on the LPS. C. Same as (B) but overlaid with six hourly accumulated rainfall from CMORPH at 0.25° resolution. D. Frequency density map of LPSs and HERES over the monsoon core region. The color bar indicates the normalized density of LPS center points at 2° resolution. Higher intensity denotes a larger number of LPS centers passing through a given grid cell. The numbers indicate the total HERES associated with LPSs during 1998 to 2023. E. Same as (B) but for the MISO active phase over land, primarily over central India. F. Same as (B), but for the MISO break phase.",
+      "page": 12,
+      "index": 5,
+      "width": 987,
+      "height": 620
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-006.webp",
+      "caption": "Fig 3 Bivariate and tri-variate frequency distributions of 99.9th percentile rainfall events over Central India in relation to MISO phase and thermodynamic conditions. (A) Bivariate distribution of events as a function of MISO phase (x-axis) and daily mean temperature (y-axis), with color shading indicating the event count in each bin. (B) Same as A, but with daily mean total column water vapor (TCWV) on the y-axis. (C) Tri-variate distribution illustrating the joint relationship between MISO phase, daily mean TCWV, and daily mean temperature, where color intensity (or point density) represents the frequency of event occurrences within each threedimensional bin.",
+      "page": 9,
+      "index": 6,
+      "width": 897,
+      "height": 733
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24374v1/fig-007.webp",
+      "caption": "Fig 1 Spatial distribution and characteristics of rainfall intensity, duration, and observations across datasets over India. A. Hourly spatial distribution of rainfall intensity and percentage occurrence across different datasets. B.-F. Duration and percentage occurrence of rainfall events exceeding thresholds of 0.1 mm h⁻¹, 1 mm h⁻¹, 10 mm h⁻¹, 20 mm h⁻¹, and 30 mm h⁻¹, respectively, across the datasets. G. Daily spatial distribution of rainfall intensity and percentage occurrence across different datasets. H. Spatial distribution of IMD hourly rain gauge stations used in this study, shown over India, with boxed areas indicating selected subregions for detailed analysis. The study period spans 1998–2006.",
+      "page": 5,
+      "index": 7,
+      "width": 1014,
+      "height": 637
+    }
+  ]
+}

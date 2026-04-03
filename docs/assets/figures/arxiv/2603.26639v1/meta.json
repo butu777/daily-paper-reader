@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-001.webp",
+      "caption": "Fig. 2: Overview of the Geometry-Aware Framework for spatial reasoning. It augments a VLM with an additional geometry branch. A pretrained geometric tokenizer extracts geometry tokens FG from the input video, which are fused with standard vision tokens FV by a fusion module to form F . The VLM answers the query based on the fused evidence together with the text tokens F P. Snow and flame icons denote frozen and trainable components, respectively. This paradigm serves as our baseline. Our key observation is that naive fusion under standard fine-tuning can leave FG underutilized, which motivates GeoSR to make geometry really matter for spatial reasoning.",
+      "page": 6,
+      "index": 1,
+      "width": 710,
+      "height": 421
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-002.webp",
+      "caption": "Fig. 4: Visualization of the static spatial reasoning results on VSI-Bench [41].",
+      "page": 21,
+      "index": 2,
+      "width": 712,
+      "height": 966
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-003.webp",
+      "caption": "Fig. 3: Overview of the proposed strategies in GeoSR. (a) Geometry-Unleashing Masking suppresses appearance shortcuts during training by masking a subset of vision tokens FV. For static settings, the mask is sampled randomly. For dynamic settings, bottleneck tokens B first attend to text tokens F P to obtain FB, which then attend to geometry tokens FG to produce question-relevant geometry evidence ZG and a relevance score used for TopK masking. (b) Geometry-Guided Fusion redistributes the compact evidence ZG back to token-level geometry features (if applicable) and applies a learned gate α to control the contributions of masked vision features F̃V and geometry features F̃G, producing fused tokens F for the VLM backbone.",
+      "page": 7,
+      "index": 3,
+      "width": 716,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-004.webp",
+      "caption": "Fig. 5: Visualization of the dynamic spatial reasoning results on DSR-Bench [53].",
+      "page": 22,
+      "index": 4,
+      "width": 712,
+      "height": 1018
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-005.webp",
+      "caption": "Fig. 1: Geometry injection can be underutilized and even harmful for spatial reasoning. We compare three variants: w/o Geo. (removing the geometry branch), w/ Geo. (injecting geometry tokens via naive fusion with standard fine-tuning), and Ours. The plots reveal a counterintuitive yet reproducible pattern: in static scenes, w/ Geo. brings only marginal gains over w/o Geo., whereas in dynamic videos, w/ Geo. can even underperform the w/o Geo. baseline. This suggests that VLMs often fall back to appearance-driven shortcuts in 2D visual tokens and treat geometry as a dispensable side signal. These observations motivate GeoSR (Ours), which compels models to use geometry as actionable evidence and yields consistent improvements across both static and dynamic spatial reasoning.",
+      "page": 3,
+      "index": 5,
+      "width": 710,
+      "height": 337
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-006.webp",
+      "caption": "Fig. 6: Example illustrating ambiguity in the benchmark. The question asks for a speed comparison between the elephant and the person, but the visual evidence is ambiguous from a geometric perspective. The ground-truth answer is “(1) The latter is faster. (2) The former is faster.” However, in the video segment from 13.0s to 19.0s, it is difficult to determine which one is faster, since the person and the elephant appear to move at similar speeds.",
+      "page": 23,
+      "index": 6,
+      "width": 712,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-007.webp",
+      "caption": "Fig. 7: Example illustrating ambiguity in the benchmark. The question asks about the relative spatial relation among the table and the two cartoon characters, and the ground-truth answer states that “No, during some moments, the table is not between them and is located behind the character at [102,28,364,319].” However, in the video segment from 8.5s to 11.0s, this relation remains difficult to judge. Although the purple character moves toward the table, the character is partially occluded by it, making it unclear whether the table is indeed behind the character.",
+      "page": 23,
+      "index": 7,
+      "width": 712,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-008.webp",
+      "caption": "Table 4: Ablations on GeoSR components for dynamic spatial reasoning.",
+      "page": 13,
+      "index": 8,
+      "width": 725,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26639v1/fig-009.webp",
+      "caption": "Table 3: Ablations on GeoSR components for static spatial reasoning.",
+      "page": 13,
+      "index": 9,
+      "width": 725,
+      "height": 223
+    }
+  ]
+}

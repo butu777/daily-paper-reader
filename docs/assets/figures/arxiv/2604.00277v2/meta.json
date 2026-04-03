@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00277v2/fig-001.webp",
+      "caption": "Figure 2: EBM identification of exotic potential dynamics. (a) Ground-truth potential Ve(x, y). (b) EBM energy E(x, y) accurately recovering the landscape ringgeometry. (c) True vector field. (d) Reconstructed field with true and EBM trajectories. EBM dynamics are consistent with the true vector field and reliably recover nonlinear, rotational components.",
+      "page": 10,
+      "index": 1,
+      "width": 462,
+      "height": 384
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00277v2/fig-002.webp",
+      "caption": "Figure 3: Expansiveness radius. Maximal radius of expansiveness given the data X . The radii have similar magnitude for both the (a) multi-well potential Vm(x, y) and the (b) exotic potential Ve(x, y).",
+      "page": 11,
+      "index": 2,
+      "width": 719,
+      "height": 356
+    }
+  ]
+}

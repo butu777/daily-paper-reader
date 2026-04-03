@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-001.webp",
+      "caption": "Figure 10: Visual description of all tasks used from RoboMimic (Row 1) and Maniskill (Row 2).",
+      "page": 30,
+      "index": 1,
+      "width": 1012,
+      "height": 721
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-002.webp",
+      "caption": "Figure 9: The distribution of world model’s prediction error on the data selected by different exploration methods in MiniGrid.",
+      "page": 29,
+      "index": 2,
+      "width": 805,
+      "height": 905
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-003.webp",
+      "caption": "Figure 5: Verification the robustness of WAV on Robomimic and ManiSkill. Correlation with Oracle ranking. We evaluate how well each method orders informative samples by computing Spearman rank correlations between the method’s assigned scores and Oracle scores on RoboMimic and ManiSkill environments. Higher correlation indicates closer agreement with the Oracle’s ranking.",
+      "page": 10,
+      "index": 3,
+      "width": 934,
+      "height": 255
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-004.webp",
+      "caption": "Figure 12: Qualitative comparison of world model predictions across different methods on Robomimic Lift.",
+      "page": 42,
+      "index": 4,
+      "width": 1014,
+      "height": 785
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-005.webp",
+      "caption": "Figure 8: Verification score vs. ground-truth error. Our method exhibits a strong monotonic alignment with true error, whereas baselines show scattered distributions and frequent misranking.",
+      "page": 28,
+      "index": 5,
+      "width": 360,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-006.webp",
+      "caption": "Figure 11: Qualitative comparison of world-model rollouts under diverse interaction actions (Part I–II). Gold borders denote ground-truth next observations; green and red borders indicate correct and incorrect predictions, respectively. Across both task sets, our method better preserves action-dependent state changes—notably for structured interactions such as Toggle and Swap—than exploration-based baselines.",
+      "page": 40,
+      "index": 6,
+      "width": 912,
+      "height": 786
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-007.webp",
+      "caption": "Figure 2: Decomposing world model verification into state plausibility and action reachability.",
+      "page": 4,
+      "index": 7,
+      "width": 995,
+      "height": 339
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-008.webp",
+      "caption": "Table 4: Hyperparameters for inverse dynamics and action decoding.",
+      "page": 32,
+      "index": 8,
+      "width": 558,
+      "height": 345
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-009.webp",
+      "caption": "Figure 7: Downstream policy performance on RoboMimic and ManiSkill using learned world models. On average, our method achieves 18% higher average reward than the strongest baseline. Error bars denote the standard error over 3 seeds.",
+      "page": 12,
+      "index": 9,
+      "width": 1006,
+      "height": 465
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01985v1/fig-010.webp",
+      "caption": "Figure 4: Evaluation of world model learning with WAV on MiniGrid. (Left) Action prediction accuracy of Sparse IDM and Vanilla IDM. Sparse IDM achieves better out-of-distribution generalization under limited data. (Mid) Correlation with Oracle ranking. We measure how well each method ranks informative samples using Spearman and Kendall correlations between method-assigned scores and Oracle scores. (Right) Comparison of acquisition strategies. Our proposed WAV outperforms standard baselines and approaches Oracle performance by prioritizing interaction-rich transitions.",
+      "page": 9,
+      "index": 10,
+      "width": 1001,
+      "height": 254
+    }
+  ]
+}

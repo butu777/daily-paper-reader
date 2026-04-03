@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29090v1/fig-001.webp",
+      "caption": "Figure 2: Spatial broadcast decoder output. Top row: per-slot alpha heatmaps (ownership probability). Bottom row: slot overlays on input frame. Left: segmentation map (argmax over slots). Different colors indicate different slot assignments, showing emerging spatial decomposition.",
+      "page": 7,
+      "index": 1,
+      "width": 826,
+      "height": 187
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29090v1/fig-002.webp",
+      "caption": "Figure 3: Event detection across four episodes. Blue = event probability over time. Red dashed = detected event boundaries. The model learns to fire at moments of state transition (2–3 per episode).",
+      "page": 8,
+      "index": 2,
+      "width": 826,
+      "height": 702
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29090v1/fig-003.webp",
+      "caption": "Figure 1: HCLSM architecture. Five layers process video into structured world states. The spatial broadcast decoder (SBD, dashed) provides the reconstruction signal that drives slot specialization during Stage 1 training.",
+      "page": 4,
+      "index": 3,
+      "width": 531,
+      "height": 548
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29090v1/fig-004.webp",
+      "caption": "Figure 4: Slot state trajectories projected to 2D via PCA. Circles = start, squares = end. Different colors = different slots. Trajectories show structured temporal dynamics with slot-specific evolution paths.",
+      "page": 9,
+      "index": 4,
+      "width": 582,
+      "height": 467
+    }
+  ]
+}

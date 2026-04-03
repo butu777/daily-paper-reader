@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25686v1/fig-001.webp",
+      "caption": "Fig. 5: Focus at different zoom levels. We visualize similarity maps between streetview patch tokens and the satellite [CLS] embedding (blue = low similarity, red = high similarity) across three zoom levels. At the coarsest level, high similarity concentrates on far-away regions, whereas at finer zoom levels it shifts toward nearby objects and road/building details, indicating that the model learns to exploit different scale-specific visual cues.",
+      "page": 11,
+      "index": 1,
+      "width": 725,
+      "height": 310
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25686v1/fig-002.webp",
+      "caption": "Fig. 1: Two paradigms for cross-view geo-localization. (a) Retrieval-based approaches maintain a large GPS-tagged reference database and use a contrastively trained encoder to perform nearest-neighbor search at query time. (b) Autoregressive geo-localization (ours) replaces global retrieval with sequential, coarse-to-fine zoom-in decisions over multi-scale satellite imagery, dramatically reducing dependence on exhaustive database search.",
+      "page": 2,
+      "index": 2,
+      "width": 725,
+      "height": 429
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25686v1/fig-003.webp",
+      "caption": "Fig. 3: Dataset examples. Street-view samples from our cross-view image localization corpus illustrating the two defining characteristics: (i) limited FoV typical of first-person and dash-cam capture; and (ii) broad diversity across time of day, seasonal appearance, weather, scene type , and capture platforms . This variability-together with viewpoint changes, occlusions, and motion blur-widens the appearance gap to overhead imagery and makes cross-view matching more challenging.",
+      "page": 7,
+      "index": 3,
+      "width": 725,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25686v1/fig-004.webp",
+      "caption": "Fig. 2: Coverage mismatch. In the street-view image (a), the stadium and its distinctive gate are clearly visible. In the satellite crop (b) from the same region, this landmark falls outside of the patch, illustrating how small tiles can miss critical cues present in the street-view. Images sourced from Google Street View and Google Maps [8, 9].",
+      "page": 3,
+      "index": 4,
+      "width": 725,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25686v1/fig-005.webp",
+      "caption": "Fig. 6: Results. Qualitative visualization of our model’s auto-regressive localization. The first column shows the input street-view query. The subsequent columns (Lvl 1- 4) display the satellite map at each sequential zoom step. On each map, the model’s predicted patch is highlighted by the grid overlay, the ground truth (GT) location is marked with a red dot, and the 50m success radius is shown as a white dotted circle.",
+      "page": 13,
+      "index": 5,
+      "width": 725,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25686v1/fig-006.webp",
+      "caption": "Fig. 4: Overview of Just Zoom In. (a) Image encoding. A shared, off-the-shelf vision encoder maps the street-view image Ig and the multi-scale satellite maps {Mt} to global representation tokens eg and et, single token per image. (b) Autoregressive action modeling. The image tokens, interleaved with previously chosen action tokens, are fed to a causal transformer that predicts a distribution over the next zoom-in action at at each step. (c) Sample / zoom-in sequence. Beginning from M0, the model selects the most probable patch, zooms to obtain Mt+1, and iterates until a terminal patch MN ; the center of MN is taken as the location estimate.",
+      "page": 8,
+      "index": 6,
+      "width": 725,
+      "height": 252
+    }
+  ]
+}

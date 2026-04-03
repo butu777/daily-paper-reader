@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27995v1/fig-001.webp",
+      "caption": "TABLE I COMPARISON WITH STATE-OF-THE-ART METHODS ON THE NUSCENES-NIGHT VAL SET. MODELS ARE GROUPED BY BACKBONE (RESNET AND V2-99) FOR A FAIR COMPARATIVE ANALYSIS. BOLD INDICATES THE BEST RESULT.",
+      "page": 8,
+      "index": 1,
+      "width": 1062,
+      "height": 379
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27995v1/fig-002.webp",
+      "caption": "Fig. 2. Details of the query-guided domain discrepancy mitigation (QDDM) module. QDDM leverages 3D object queries to align source and target features at the object level. It combines adversarial training and contrastive learning with dynamically updated global representation, promoting robust and consistent cross-domain 3D object detection.",
+      "page": 6,
+      "index": 2,
+      "width": 1062,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27995v1/fig-003.webp",
+      "caption": "Fig. 1. Overview of the proposed UniDA3D. UniDA3D first synthesizes nighttime, rainy, and foggy multi-view images to assist training. A domain-adaptive teacher–student self-training pipeline is employed to transfer knowledge from the source domain to the target domains. UniDA3D is further equipped with a query-guided domain discrepancy mitigation (QDDM) module to align object-level features across domains at both batch and global scales.",
+      "page": 4,
+      "index": 3,
+      "width": 1062,
+      "height": 558
+    }
+  ]
+}

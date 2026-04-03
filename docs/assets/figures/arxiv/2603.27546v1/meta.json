@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-001.webp",
+      "caption": "Figure 3: Illustration of anomalous patch configurations used for performance assessment.",
+      "page": 15,
+      "index": 1,
+      "width": 947,
+      "height": 324
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-002.webp",
+      "caption": "Figure 5: RGB detection results for selected frames.",
+      "page": 21,
+      "index": 2,
+      "width": 880,
+      "height": 1057
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-003.webp",
+      "caption": "Table 6: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and Fréchet α̃ for Config. 1 (3 patches). Each cell reports avg. over 100 replicates in the order DCART / SPLADE / TV.",
+      "page": 47,
+      "index": 3,
+      "width": 944,
+      "height": 964
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-004.webp",
+      "caption": "Figure 6: DCART (256 x 256) and DPLS (111 x 121) on cropped image",
+      "page": 22,
+      "index": 4,
+      "width": 852,
+      "height": 302
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-005.webp",
+      "caption": "Figure 2: Illustration of the workings of Algorithm 2.",
+      "page": 10,
+      "index": 5,
+      "width": 756,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-006.webp",
+      "caption": "Figure 8: Application of Algorithm 2 to the fibre systems dataset.",
+      "page": 50,
+      "index": 6,
+      "width": 946,
+      "height": 610
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-007.webp",
+      "caption": "Figure 1: Illustration of the two-stage intelligent subsampling procedure detailed in Algorithm 1.",
+      "page": 8,
+      "index": 7,
+      "width": 943,
+      "height": 313
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-008.webp",
+      "caption": "Table 4: Comparison of DPLS-SAD and SPLADE across grid sizes, jump sizes, and SAR ρ for Config. 1 (3 patches). Each cell reports average over 100 replicates in the order DPLS-SAD / SPLADE.",
+      "page": 19,
+      "index": 8,
+      "width": 944,
+      "height": 890
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-009.webp",
+      "caption": "Table 3: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and SAR ρ for Config. 2 (5 patches). Each cell reports average over 100 replicates in the order DCART / SPLADE / TV.",
+      "page": 17,
+      "index": 9,
+      "width": 944,
+      "height": 931
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-010.webp",
+      "caption": "Table 7: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and Fréchet α̃ for Config. 2 (5 patches). Each cell reports avg. over 100 replicates in the order DCART / SPLADE / TV.",
+      "page": 48,
+      "index": 10,
+      "width": 944,
+      "height": 994
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27546v1/fig-011.webp",
+      "caption": "Table 2: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and SAR ρ for Config. 1 (Fig 3a). Each cell reports average over 100 replicates in the order DCART / SPLADE / TV.",
+      "page": 16,
+      "index": 11,
+      "width": 944,
+      "height": 931
+    }
+  ]
+}

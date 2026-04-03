@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27437v1/fig-001.webp",
+      "caption": "Table 3. Evaluation on VSI-Bench. Dark orange cells denote the best open-source result in each column, while light orange cells denote the second-best open-source result. Group-wise ranks within proprietary and open-source model blocks are highlighted in purple,",
+      "page": 7,
+      "index": 1,
+      "width": 990,
+      "height": 432
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27437v1/fig-002.webp",
+      "caption": "Figure 2. Architecture of SpatialStack. A standard VLM backbone is coupled with a multi-view geometry encoder whose layer-wise features are processed by layer-specific projectors and sequentially injected into the LLM decoder, progressively integrating geometric cues. Explanation of the similarity heatmaps on the left is provided in Sec. 3. This multi-level injection preserves both fine-grained geometric structure and high-level spatial context, supporting more reliable low-level understanding and high-level reasoning.",
+      "page": 3,
+      "index": 2,
+      "width": 826,
+      "height": 517
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27437v1/fig-003.webp",
+      "caption": "Table 4. Comparison on CV-Bench. Built on Qwen2.5, SpatialStack-4B outperforms its base model alongside VG-LLM and Cambrian-S. Scaling to Qwen3.5, SpatialStack-5B further improves upon its baseline to set a new state-of-the-art.",
+      "page": 8,
+      "index": 3,
+      "width": 487,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27437v1/fig-004.webp",
+      "caption": "Figure 4. Effect of Geometry Injection Layers on Spatial Tasks. Deeper layers improve high-level tasks, while low-level tasks peak at layer 11 and decline at deeper layers, suggesting a trade-off between fine-grained perception and higher-level reasoning.",
+      "page": 5,
+      "index": 4,
+      "width": 486,
+      "height": 289
+    }
+  ]
+}

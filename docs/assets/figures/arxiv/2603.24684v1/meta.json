@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24684v1/fig-001.webp",
+      "caption": "Fig. 4. Qualitative comparison of the assembled 3D digital twin. Left: The baseline fails to establish a metric space, resulting in floating, unscaled, and overlapping artifacts. Right: With geometric grounding, our method produces a physically plausible, Manhattan-aligned, and tightly registered object-centric scene without subsurface penetration.",
+      "page": 6,
+      "index": 1,
+      "width": 1052,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24684v1/fig-002.webp",
+      "caption": "Fig. 1. Comparison of scenarios. Left image: Output result of digital twin. Middle: Traditional fusion reconstruction method, in which objects (such as a bottle) share the geometric structure with the environment, thus unable to achieve physical independence. Right image: Our digital twin model based on objects, in which the objects are structurally independent and are physically operable meshes.",
+      "page": 2,
+      "index": 2,
+      "width": 1076,
+      "height": 243
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24684v1/fig-003.webp",
+      "caption": "TABLE III QUANTITATIVE ABLATION OF SEMANTIC AND GEOMETRIC CONSISTENCY SHOWS THE NOVEL VIEW SEMANTIC SYNTHESIS IOU (NVSS-IOU) FOR THE FULL PIPELINE COMPARED TO THREE ABLATED VARIANTS.",
+      "page": 7,
+      "index": 3,
+      "width": 529,
+      "height": 525
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24684v1/fig-004.webp",
+      "caption": "Fig. 2. Our proposed pipeline for semantic and geometrically grounded object-centric scene reconstruction. Stream A (Top) reconstructs the global metric geometry via VLM-aided scale recovery. Stream B (Bottom) generates high-fidelity object meshes from optimal 2D views. Stage C (Right) fuses these streams through a geometrically grounded hierarchical registration process, enforcing physical plausibility and geometric constraints to produce a refined digital twin.",
+      "page": 3,
+      "index": 4,
+      "width": 1076,
+      "height": 683
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24684v1/fig-005.webp",
+      "caption": "TABLE II GEOMETRIC REGISTRATION METRICS AND MESH COMPLEXITY. WE REPORT THE TRICP ROOT MEAN SQUARE ERROR (RMSE), SAM3D-TO-WORLD SCALE FACTOR (s), AND TOPOLOGICAL COMPLEXITY (VERTICES AND FACES) OF THE GENERATED MESHES FOR ALL 12 TRACKED OBJECTS IN THE SCENE.",
+      "page": 5,
+      "index": 5,
+      "width": 529,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24684v1/fig-006.webp",
+      "caption": "Fig. 3. Visual progression of our 3D fusion framework compared to the baseline. From left to right: (1) The original Input Frame captured from the sequence. (2) The dense, unscaled Point Cloud reconstructed by Pi-Long. (3) Our Mesh, demonstrating that after scale recovery and geometries-aware registration, the lifted object meshes perfectly align within the physical 2D bounding box (red) when projected back to the camera view. (4) The naive SAM3D Mesh baseline, which fails to establish a coherent metric space, resulting in severe misalignment or absence within the ground truth bounding box when re-rendered.",
+      "page": 5,
+      "index": 6,
+      "width": 860,
+      "height": 525
+    }
+  ]
+}

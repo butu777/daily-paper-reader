@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26018v1/fig-001.webp",
+      "caption": "Fig. 1. Overview of GeoReFormer, a geometry-aware query-based transformer for joint 3D lane segment detection and topology estimation from multi-view cameras",
+      "page": 1,
+      "index": 1,
+      "width": 475,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26018v1/fig-002.webp",
+      "caption": "Fig. 3. Qualitative comparison of lane detection on the OpenLane-V2 benchmark. From left to right: ground truth, GeoReFormer, LaneSegNet and TopoLogic. The dotted ellipses show missing features correctly captured by GeoReFormer.",
+      "page": 6,
+      "index": 2,
+      "width": 1052,
+      "height": 531
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26018v1/fig-003.webp",
+      "caption": "Fig. 2. Architecture of GeoReFormer. Multi-view images are lifted to BEV features and decoded from fixed geometric prios obtained via SpatiallyStratified K-Medoids. The decoder integrates bounded polyline refinement and per-query gated topology aggregation (TopoFFN). Prediction heads produce lane geometry and relational topology.",
+      "page": 3,
+      "index": 3,
+      "width": 967,
+      "height": 443
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26018v1/fig-004.webp",
+      "caption": "Fig. 6. Interpretability comparison between GeoReFormer and LaneSegNet. Selected geometric priors and learned reference points are shown in blue, with corresponding detections highlighted (centerlines in orange, pedestrian crossings in yellow). GeoReFormer priors exhibit consistent geometric roles across scenes, while LaneSegNet queries produce heterogeneous detections. Each column corresponds to a different scene.",
+      "page": 8,
+      "index": 4,
+      "width": 1052,
+      "height": 288
+    }
+  ]
+}

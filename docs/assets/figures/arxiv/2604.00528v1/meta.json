@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00528v1/fig-001.webp",
+      "caption": "Figure 1: (1) Top: Previous methods rely on preprocessed 3D point clouds, degrading the task into proposal matching. (2) Bottom: Our TAB operates directly on RGB-D streams. Through an iterative Think-Act-Build process, the agent reconstructs the target object.",
+      "page": 2,
+      "index": 1,
+      "width": 826,
+      "height": 198
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00528v1/fig-002.webp",
+      "caption": "Table 1: 3D Visual Grounding results on ScanRefer. \"w/o PC\" denotes methods that do not rely on 3D point clouds as input. † means results with two stage training.",
+      "page": 7,
+      "index": 2,
+      "width": 822,
+      "height": 427
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00528v1/fig-003.webp",
+      "caption": "Table 2: 3D Visual Grounding results on Nr3D (w/o GT object class). \"w/o PC\" denotes methods that do not rely on 3D point clouds as input.",
+      "page": 8,
+      "index": 3,
+      "width": 822,
+      "height": 284
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00528v1/fig-004.webp",
+      "caption": "Figure 2: The \"Think, Act, Build (TAB)\" framework. Guided by an expert 3D-VG Skill, the VLM agent reasons about the task, invokes visual tools, and reconstructs the target.",
+      "page": 4,
+      "index": 4,
+      "width": 824,
+      "height": 415
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00528v1/fig-005.webp",
+      "caption": "Figure 4: Qualitative comparison of different components in TAB.",
+      "page": 9,
+      "index": 5,
+      "width": 417,
+      "height": 352
+    }
+  ]
+}

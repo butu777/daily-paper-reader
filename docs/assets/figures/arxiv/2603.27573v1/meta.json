@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-001.webp",
+      "caption": "Figure 1. Illustration of SPREAD, a diffusion-based framework for generating physically plausible 3D scenes with rich object interactions. (A) SPREAD synthesizes detailed object-level layouts with natural spatial and physical interactions, going beyond coarse layout arrangements. (B) SPREAD faithfully adheres to provided spatial and physical graph priors, G. (C) SPREAD can provide simulationready environments for embodied AI agents.",
+      "page": 2,
+      "index": 1,
+      "width": 1025,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-002.webp",
+      "caption": "Figure 7. Comparison of relational complexity between our pre-processed dataset (left) and the original 3D-FRONT dataset (right). The sample from our dataset (left) contains a richer variety of indoor objects and exhibits complex, fine-grained spatial-physical relationships. In contrast, the sample from 3D-FRONT (right) lacks such fine-grained object interactions, particularly with small objects, highlighting the relational sparsity inherent in the original dataset that our preprocessing pipeline aims to address",
+      "page": 14,
+      "index": 2,
+      "width": 1036,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-003.webp",
+      "caption": "Figure 2. Overview of SPREAD. We propose SPREAD, a diffusion-based framework for generating physically plausible 3D scenes, which integrates relational constraints through spatial (Gρ) and physical graphs (Gκ) while leveraging geometric perception via Perceiver Layers. The model employs graph-attention guided diffusion to jointly optimize physical plausibility and spatial relations during generation, producing realistic scenes with natural object interactions.",
+      "page": 3,
+      "index": 3,
+      "width": 982,
+      "height": 326
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-004.webp",
+      "caption": "Figure 5. Guidance Ablation. Results showing effect of different guidance terms. Each major row compares results before (top) and after (bottom) adding a specific guidance. Columns show different scenes. Red circles highlight issues such as collisions, floating, or incorrect spatial relations before guidance; green circles show improvements after applying guidance, with zoom-in views for clarity.",
+      "page": 8,
+      "index": 4,
+      "width": 1006,
+      "height": 730
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-005.webp",
+      "caption": "Figure 6. User Study. Our method dominated with 88.6% of the votes, above ATISS with 0.9%, InstructScene with 4.4%, and DiffuScene with 6.1%, indicating that our method better preserves physical consistency and scene rationality.",
+      "page": 8,
+      "index": 5,
+      "width": 466,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-006.webp",
+      "caption": "Figure 9. User Study UI. Based on the generated scene and the scene after physical simulation, which were available for detailed inspection via a zoom function, participants were asked to choose the pair exhibiting greater physical consistency and scene rationality.",
+      "page": 17,
+      "index": 6,
+      "width": 1036,
+      "height": 1087
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-007.webp",
+      "caption": "Table 1. Quantitative comparison. Our method matches baseline FID on 3D-FRONT while setting new state-of-the-art on ProcTHOR: it dramatically reduces mesh collisions, achieves the highest graph recall (GRecall), minimizes average support distance (ASD), and delivers the greatest scene stability under Isaac Sim.",
+      "page": 5,
+      "index": 7,
+      "width": 898,
+      "height": 183
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-008.webp",
+      "caption": "Figure 3. Comparative Generation and Simulation Results. Visual comparison of scene layouts produced by our method versus three baseline approaches, shown before (left) and after (right) physics simulation.",
+      "page": 5,
+      "index": 8,
+      "width": 1036,
+      "height": 398
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27573v1/fig-009.webp",
+      "caption": "Figure 8. Additional Qualitative results. The gallery displays 8 randomly selected samples, demonstrating the diversity and physical plausibility of the generated 3D scenes.",
+      "page": 16,
+      "index": 9,
+      "width": 1036,
+      "height": 1192
+    }
+  ]
+}

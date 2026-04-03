@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24541v1/fig-001.webp",
+      "caption": "Figure 7. Side-by-side comparison shows that our model successfully corrects the semantically important region while preserving edits in various scenarios (pedestrians, road signs, other vehicles, etc.).",
+      "page": 6,
+      "index": 1,
+      "width": 1015,
+      "height": 741
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24541v1/fig-002.webp",
+      "caption": "Figure 1. SEGAR system pipeline overview. In Stage I, we train a Vista-based generative stylizer to take three condition frames (t ∈ [1, 3]) and output future frames with desired augmented edits (t ∈ [4, 12]). In Stage II, the generative stylizer finetuned with LoRA takes the augmented future frame and the corresponding real-world observation as inputs, and outputs a corrected frame in which safety-critical regions are aligned with reality while augmented edits are preserved. In this example, a car that appears in frames 10–12 is absent from the initial prediction because it was not visible in the three condition frames. The corrected output faithfully restores the car while retaining the augmented appearance of non-critical regions.",
+      "page": 2,
+      "index": 2,
+      "width": 1029,
+      "height": 361
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24541v1/fig-003.webp",
+      "caption": "Figure 8. More demos showing how the correction stage corrects safety-critical regions of the image, such as cars or pedestrians.",
+      "page": 7,
+      "index": 3,
+      "width": 1031,
+      "height": 1204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24541v1/fig-004.webp",
+      "caption": "Figure 3. Example training target for Stage I training. The three frames in the top row are condition frames, whose clean latents are injected into the denoising process via dynamic prior injection [4]. The remaining nine future frames are generated using VACE with desired visual augmentations.",
+      "page": 3,
+      "index": 4,
+      "width": 496,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24541v1/fig-005.webp",
+      "caption": "Figure 5. Visualization of latent representations for the real observation before (top) and after (bottom) masking (masked regions inpainted in gray), showing that spatial structure is preserved in the latent space (right) and validating the use of mask downsampling for region-specific loss computation.",
+      "page": 4,
+      "index": 5,
+      "width": 490,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24541v1/fig-006.webp",
+      "caption": "Figure 6. Side-by-side comparison for a sequence of future predictions and their corresponding corrected images.",
+      "page": 5,
+      "index": 6,
+      "width": 496,
+      "height": 842
+    }
+  ]
+}

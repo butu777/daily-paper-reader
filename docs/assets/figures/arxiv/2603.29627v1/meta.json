@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-001.webp",
+      "caption": "Fig. 1: Overview of the Semantic Zone Based Map Management",
+      "page": 2,
+      "index": 1,
+      "width": 1042,
+      "height": 328
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-002.webp",
+      "caption": "Fig. 6: Token generation throughput with respect to robot’s position during the experiment.",
+      "page": 7,
+      "index": 2,
+      "width": 503,
+      "height": 338
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-003.webp",
+      "caption": "Fig. 7: Token generation latency with respect to robot’s position during the experiment.",
+      "page": 7,
+      "index": 3,
+      "width": 503,
+      "height": 330
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-004.webp",
+      "caption": "TABLE II: VLM token generation throughput (TPS) and latency comparison.",
+      "page": 7,
+      "index": 4,
+      "width": 1006,
+      "height": 184
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-005.webp",
+      "caption": "Fig. 5: Distributions of VLM token generation throughput and end-to-end latency (Semantic + gemma3:4b).",
+      "page": 7,
+      "index": 5,
+      "width": 1019,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-006.webp",
+      "caption": "Fig. 2: Overview of semantic zone-based keyframe management. The Semantic Zone Manager uses the estimated pose to determine the current zone and to form an active keyframe list. The Memory Manager enforces MemoryThr by maintaining an active zone list and an unload zone list, ensuring strict compliance with the memory limit before loading new keyframes from the map database.",
+      "page": 3,
+      "index": 6,
+      "width": 1040,
+      "height": 350
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29627v1/fig-007.webp",
+      "caption": "Fig. 3: Memory usage comparison between (a) Basic + VLM and (b) Semantic + VLM.",
+      "page": 5,
+      "index": 7,
+      "width": 502,
+      "height": 623
+    }
+  ]
+}

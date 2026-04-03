@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-001.webp",
+      "caption": "Figure 3. Continual test-time adaptation (TTA) performance on KITTI Fog across different severities. The plots show the evolution of mAP@50 over adaptation steps for (a) 50m, (b) 75m, and (c) 150m fog distances. Our method (blue) achieves the fastest and most stable improvement, maintaining superior accuracy throughout adaptation.",
+      "page": 6,
+      "index": 1,
+      "width": 519,
+      "height": 771
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-002.webp",
+      "caption": "Figure 1. Adaptation Performance Across Fog Severities. Additive method [15] excels under moderate shifts but struggle under severe corruption, while subtractive method [33] shows the opposite pattern. Our CD-Buffer achieves consistent performance across all severities by adaptively balancing both strategies.",
+      "page": 2,
+      "index": 2,
+      "width": 496,
+      "height": 346
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-003.webp",
+      "caption": "Table 1. Quantitative results of object detection under various adverse weather conditions. Performance (mAP@50) is reported for KITTI → KITTI (fog, rain) and Cityscapes → Cityscapes Foggy scenarios with different corruption severities. The proposed method (Ours) achieves the best or comparably high performance in most cases, while other methods show inconsistent trends depending on severity. In contrast, our method maintains robust and stable performance across diverse weather severities.",
+      "page": 7,
+      "index": 3,
+      "width": 1036,
+      "height": 195
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-004.webp",
+      "caption": "Figure 5. Visualization of continual TTA process on KITTI fog with cyclic severity transitions (50m → 75m → 150m, repeated 10 times). Our method maintains consistently superior performance across all cycles, demonstrating both rapid adaptation within each severity level and robustness to various severity.",
+      "page": 14,
+      "index": 4,
+      "width": 1036,
+      "height": 527
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-005.webp",
+      "caption": "Figure 4. Effect of key hyperparameters on TTA performance:(a) regularization weight λreg and (b) pruning ratio ρtarget.",
+      "page": 8,
+      "index": 5,
+      "width": 496,
+      "height": 263
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-006.webp",
+      "caption": "Table 3. Continual test-time adaptation (TTA) results for the KITTI → KITTI fog scenario. This experiment simulates progressive domain shift where fog severity gradually increases (50 m → 75 m → 150 m). Each model continuously adapts over 10 rounds, using outputs from one severity level as initialization for the next. The results demonstrate the robustness of each method under incremental domain changes, with Ours consistently achieving superior or stable performance across all adaptation rounds and the highest overall average mAP@50.",
+      "page": 8,
+      "index": 6,
+      "width": 1036,
+      "height": 206
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-007.webp",
+      "caption": "Figure 2. Overview of the proposed CD-Buffer framework. We compute feature-level domain discrepancy Dc by comparing target and pre-computed source statistics. This metric drives two complementary buffers: the Subtractive Buffer suppresses severely shifted channels via discrepancy-weighted regularization on learnable mask scores, while the Additive Buffer provides adaptive compensation through lightweight convolutions with inverse soft masking, where aggressively suppressed channels receive stronger compensation. Both buffers are unified by feature alignment loss, enabling differentiated adaptation where severely shifted features are both suppressed and compensated, while stable features undergo minimal intervention.",
+      "page": 4,
+      "index": 7,
+      "width": 1036,
+      "height": 398
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-008.webp",
+      "caption": "Figure 9. Qualitative results on Cityscapes fog and ACDC. Object detection results visualized with bounding boxes. For Cityscapes, we show fog severities (0.02, 0.01), and for ACDC, we present diverse conditions including fog, snow, rain, and night. We compare ground truth (GT), Direct Test (source model without adaptation), and our CD-Buffer results, demonstrating effective adaptation across all conditions.",
+      "page": 17,
+      "index": 8,
+      "width": 1036,
+      "height": 316
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-009.webp",
+      "caption": "Figure 8. Qualitative results on KITTI rain. Object detection results visualized with bounding boxes across different rain severities (200mm, 100mm, 75mm). We compare ground truth (GT), Direct Test (source model without adaptation), and our CD-Buffer results, demonstrating effective adaptation across all severity levels.",
+      "page": 16,
+      "index": 9,
+      "width": 1036,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26092v1/fig-010.webp",
+      "caption": "Figure 7. Qualitative results on KITTI fog. Object detection results visualized with bounding boxes across different fog severities (50m, 75m, 150m). We compare ground truth (GT), Direct Test (source model without adaptation), and our CD-Buffer results, demonstrating effective adaptation across all severity levels.",
+      "page": 16,
+      "index": 10,
+      "width": 1036,
+      "height": 475
+    }
+  ]
+}

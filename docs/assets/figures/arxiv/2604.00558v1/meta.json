@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00558v1/fig-001.webp",
+      "caption": "Fig. 1: Strategic Navigation Heuristics: Traditional Sequential Exploration vs. Human-inspired Turn-point Anchoring",
+      "page": 1,
+      "index": 1,
+      "width": 520,
+      "height": 481
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00558v1/fig-002.webp",
+      "caption": "Fig. 2: Framework of STAR. STAR adopts a two-stage paradigm: Stage 1 utilizes Supervised Fine-Tuning (SFT) on RedMaze23K to ground static spatial understanding, while Stage 2 employs Spatial-aware Direct Preference Optimization (SDPO) to refine dynamic decision-making via segment-level alignment. This progression systematically enhances accuracy and robustness by mitigating reasoning drift at critical topological anchors.",
+      "page": 3,
+      "index": 2,
+      "width": 1068,
+      "height": 558
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00558v1/fig-003.webp",
+      "caption": "Fig. 5: Qualitative Comparison of Reasoning Paradigms in Structured Spatial Navigation. We illustrate the divergence in decision-making logic between three paradigms: (1) CoT (left) relies on purely textual decomposition but frequently fails to ground spatial relationships in complex junctions, leading to invalid moves (e.g., colliding with obstacles). (2) VoT (middle) introduces step-wise textual analysis to find the shortest path; however, it lacks explicit visual anchoring, making it vulnerable to cascading errors during long-horizon reasoning. (3) Ours (STAR) (right) implements Topological Anchoring, where the model is required to confirm its current position by re-visualizing the traversed path and marking its status with a visual icon at each critical turn-point. This structural feedback loop ensures that the model internalizes the maze’s topological constraints, effectively mitigating reasoning drift and ensuring policy consistency from origin to destination.",
+      "page": 8,
+      "index": 3,
+      "width": 1020,
+      "height": 714
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00558v1/fig-004.webp",
+      "caption": "Fig. 6: Mechanics of Spatial-aware Segment-level DPO (SDPO). This figure illustrates the construction of preference pairs by isolating reasoning divergence. (Left) Positive Session (Chosen): The model maintains strict consistency between its textual instructions and visual state updates, correctly navigating through topological anchors to reach the destination. (Right) Negative Session (Reject): While the initial step is correct (prefix-correct), the reasoning drift occurs at Step 2. The failure is characterized by three critical dimensions: (i) Logical Inconsistency: The instruction ”move left” contradicts the generated visual map; (ii) Constraint Violation: The model attempts to ”step over obstacles,” violating the maze’s physical boundaries; (iii) Structural Corruption: The visualization logic collapses, leading to an erroneous map representation. SDPO targets this specific segment for penalty to prevent error propagation.",
+      "page": 9,
+      "index": 4,
+      "width": 958,
+      "height": 729
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00558v1/fig-005.webp",
+      "caption": "TABLE I: Performance Comparison on RedMaze-23K Benchmark Across Model Scales and Training Stages. Metric abbreviations: RP.CR (Route Planning Completion Rate), RP.SR (Route Planning Success Rate), NS.Acc (Next-Step Accuracy), TC.Acc (Turnpoint Comprehension Accuracy), RU.Acc (Rule Understanding Accuracy). The best open-source results are underlined.",
+      "page": 5,
+      "index": 5,
+      "width": 970,
+      "height": 350
+    }
+  ]
+}

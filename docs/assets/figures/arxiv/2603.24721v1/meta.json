@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-001.webp",
+      "caption": "Table 1. Results for the comparative experiments, the best scores obtained by using ground-truth or predicted segmentation are underlined, and the overall best scores are in bold. By applying QuatRoPE, our models have achieved consistent gains under all metrics.",
+      "page": 6,
+      "index": 1,
+      "width": 1029,
+      "height": 508
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-002.webp",
+      "caption": "Table 2. Results on our spatial reasoning benchmark. Our model achieves significant and consistent gains across various settings.",
+      "page": 6,
+      "index": 2,
+      "width": 922,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-003.webp",
+      "caption": "Table 9. Qualitative Results (Continued)",
+      "page": 15,
+      "index": 3,
+      "width": 1036,
+      "height": 1196
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-004.webp",
+      "caption": "Figure 1. (a) In QuatRoPE, we embed the absolute 3D position of each object to the corresponding token, thus limiting the input length linear to object count. (b) By leveraging a dedicated rotation scheme, when tokens with 3D position embedding interact in the attention layer of the LLM, the absolute coordinates are transformed into pairwise relative positions, empowering spatial reasoning. (c) In previous methods, as the positions are decoupled into individual coordinates, when the coordinate of some axis is close (as marked in green), the attention score is incorrectly inflated. (d) QuatRoPE encodes positions as holistic vectors, correctly representing spatial relations.",
+      "page": 2,
+      "index": 4,
+      "width": 1010,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-005.webp",
+      "caption": "Table 4. Results for ablation study on different RoPE methods, the best scores of each baseline are marked in bold.",
+      "page": 7,
+      "index": 5,
+      "width": 890,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-006.webp",
+      "caption": "Table 3. Results for ablation study on different composition approaches, the best scores of each baseline are marked in bold.",
+      "page": 7,
+      "index": 6,
+      "width": 818,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-007.webp",
+      "caption": "Table 8. Qualitative Results",
+      "page": 14,
+      "index": 7,
+      "width": 1036,
+      "height": 1173
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-008.webp",
+      "caption": "Table 6. Comparison between fixed and learnable base vectors for rotation.",
+      "page": 13,
+      "index": 8,
+      "width": 864,
+      "height": 196
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-009.webp",
+      "caption": "Figure 3. Qualitative results on the ScanRefer dataset. Target objects are correctly grounded by QuatRoPE (green), whereas the baseline Chat-Scene produces incorrect predictions (red).",
+      "page": 8,
+      "index": 9,
+      "width": 494,
+      "height": 597
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-010.webp",
+      "caption": "Figure 2. An illustration of ASR’s construction pipeline.",
+      "page": 5,
+      "index": 10,
+      "width": 448,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24721v1/fig-011.webp",
+      "caption": "Table 10. Qualitative Results (Continued)",
+      "page": 16,
+      "index": 11,
+      "width": 1036,
+      "height": 1200
+    }
+  ]
+}

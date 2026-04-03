@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-001.webp",
+      "caption": "Figure 1. We achieve superior results over state-of-the-art selfsupervised approaches (DOS [2] and Sonata [37]) on both indoor instance (left) and outdoor panoptic segmentation (right).",
+      "page": 1,
+      "index": 1,
+      "width": 485,
+      "height": 293
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-002.webp",
+      "caption": "Table 1. Comparison of self-supervised methods on various indoor scene datasets: ScanNet [13], ScanNet200 [31] and S3DIS [22]. For fair comparison, all models deploy the same backbone of Point Transformer v3 (PTv3) [36] and no additional data is used during pre-training. The best and second best results in each setting are highlighted in bold and underline, respectively.",
+      "page": 6,
+      "index": 2,
+      "width": 872,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-003.webp",
+      "caption": "Table 2. Comparison of self-supervised methods on the outdoor scene datasets: nuScenes [15] and SemanticKITTI [4].",
+      "page": 6,
+      "index": 3,
+      "width": 489,
+      "height": 381
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-004.webp",
+      "caption": "Figure 6. Visualization of predicted centroids ci = xi+Oi (no explicit regularization) from models pre-trained under four configurations. (a) Without regularization, the centroids are scattered irregularly across the scenes. (b) With ODR only, the centroids are aligned more closely with the scene structure but they are not grouped (lack of local coherence). (c) With SCR only, the centroids are partially grouped but spatially scattered. (d) With ODR and SCR, the centroids become tightly concentrated around instances.",
+      "page": 7,
+      "index": 4,
+      "width": 1006,
+      "height": 216
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-005.webp",
+      "caption": "Figure 8. Qualitative results of unsupervised instance segmentation. Left: ground-truth instance labels. Right: predictions from PointINS obtained directly from offset clustering without any downstream supervision.",
+      "page": 14,
+      "index": 5,
+      "width": 496,
+      "height": 896
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-006.webp",
+      "caption": "Figure 5. We monitor the linear probing (LP) performance of a model pre-trained with a recent SSL method [37]. Remarkably, the model reaches 85% of its final LP performance within just 10% of the total training.",
+      "page": 4,
+      "index": 6,
+      "width": 443,
+      "height": 377
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-007.webp",
+      "caption": "Figure 3. Overview of PointINS: A point cloud is augmented to two independent views and they are randomly masked. The teacher processes the full input and the student receives only visible points. Both networks share the same architecture. In the semantic branch, features are computed similarity with prototypes Q. A KL-divergence loss Lsem is then applied for distillation. In the offset branch, an offset head maps features into 3D offset vectors. Teacher offsets are first regularized by ODR to align with empirically observed geometric priors. Next, segments obtained from K-means-clustering are used to extract pseudo-instance masks. Those masks help to enhance instance awareness by regularizing local coherence of points. Finally, an offset loss Loff is computed as the second distillation.",
+      "page": 4,
+      "index": 7,
+      "width": 1031,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25165v1/fig-008.webp",
+      "caption": "Table 9. Pretraining settings for indoor and outdoor point clouds.",
+      "page": 12,
+      "index": 8,
+      "width": 489,
+      "height": 375
+    }
+  ]
+}

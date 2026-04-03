@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-001.webp",
+      "caption": "Figure 4. Qualitative Comparisons of different methods on Technicolor [26], Neural 3D Video [13], and Nvidia Dynamic Scenes [46] Datasets. We conduct comparisons with representative dynamic scene reconstruction methods: MonoFusion [35], 4DGS [38], 4DRotor [5], and Realtime4DGS [43]. MonoFusion∗ is our reproduced version. Our method significantly outperforms other baselines, producing visually reliable results with sharper details. Please zoom in for more details. Additional qualitative comparisons are included in the supplementary material.",
+      "page": 6,
+      "index": 1,
+      "width": 1034,
+      "height": 1064
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-002.webp",
+      "caption": "Table 12. PSNR, SSIM, and LPIPS of our framework on Nvidia Dynamic Scenes. Three cameras (cam01, cam06 and cam10) are training views.",
+      "page": 25,
+      "index": 2,
+      "width": 484,
+      "height": 647
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-003.webp",
+      "caption": "Figure 12. Visualization of Spatio-Temporal Distortion Field",
+      "page": 15,
+      "index": 3,
+      "width": 984,
+      "height": 724
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-004.webp",
+      "caption": "Figure 18. Additional qualitative comparison results on Nvidia Dynamic Scenes Dataset (part I). In the top panel, we emphasize the geometric completeness of the left archway and the right escalator across different viewpoints, as well as the temporal consistency of dynamic regions such as the human body, balloon, and the blue tether. In the bottom panel, we highlight the fine details of background grass, shoes, and umbrella textures, together with accurate motion fitting under fast movement in the leftmost column.",
+      "page": 21,
+      "index": 4,
+      "width": 804,
+      "height": 1250
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-005.webp",
+      "caption": "Figure 2. Spatio-temporal inconsistency. Real cameras (grey) capture consistent content of multi-view dynamic scene, while generative results (orange) include additional observations at different poses and time. Inconsistencies across poses at the same time are referred to as spatial inconsistencies, and inconsistencies across time at the same pose are referred to as temporal inconsistencies.",
+      "page": 2,
+      "index": 5,
+      "width": 1005,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-006.webp",
+      "caption": "Figure 5. Spatio-Temporal Consistency. Rendering results (top) and space-time slices (bottom) constructed by concatenating the red pixel locations across all time steps, demonstrate that direct reconstruction from diffusion observations leads to severe blur and temporal instability(e.g., the moving hand at the bottom right).",
+      "page": 7,
+      "index": 6,
+      "width": 489,
+      "height": 251
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-007.webp",
+      "caption": "Figure 19. Additional qualitative comparison results on Nvidia Dynamic Scenes Dataset (part II).",
+      "page": 22,
+      "index": 7,
+      "width": 792,
+      "height": 1129
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-008.webp",
+      "caption": "Figure 10. Visualization of the point-cloud rendering condition, generation prior, and final results.",
+      "page": 14,
+      "index": 8,
+      "width": 976,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-009.webp",
+      "caption": "Table 7. PSNR, SSIM, and LPIPS of our framework on Technicolor, with cam00, cam09 and cam15 served as training views.",
+      "page": 23,
+      "index": 9,
+      "width": 486,
+      "height": 550
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-010.webp",
+      "caption": "Table 8. PSNR, SSIM, and LPIPS of our framework on Neural 3D Video, with cam01, cam05 and cam10 served as training views.",
+      "page": 23,
+      "index": 10,
+      "width": 488,
+      "height": 365
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-011.webp",
+      "caption": "Table 9. PSNR, SSIM, and LPIPS of our framework on Nvidia Dynamic Scenes, with cam01, cam06 and cam10 as training views.",
+      "page": 23,
+      "index": 11,
+      "width": 483,
+      "height": 440
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-012.webp",
+      "caption": "Figure 9. Reliability of PSNR vs. LPIPS in Ablation Experiments. We find that directly using generated-view reconstruction introduces severe oversmoothness that, paradoxically, favors PSNR computation, preventing PSNR from accurately reflecting changes in reconstruction quality. In contrast, LPIPS effectively captures the variations in reconstruction quality under these ablation settings.",
+      "page": 13,
+      "index": 12,
+      "width": 1012,
+      "height": 289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-013.webp",
+      "caption": "Table 3. Ablation studies on pose optimization and loss components. We randomly select one representative scene from Technicolor [26] and Nvidia Dynamic Scenes [46] Datasets to ablate pose optimization and loss components.",
+      "page": 8,
+      "index": 13,
+      "width": 487,
+      "height": 379
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-014.webp",
+      "caption": "Figure 3. Method overview. Given a generated frame at temporal index t and pose index s, each 4D Gaussian at c = (x, y, z) is projected onto the planes of the Spatio-Temporal Distortion Field to obtain deformation features, which are then decoded by a small MLP to produce the deformation values. We use separate photometric losses for real and generated frames, and additionally introduce regularization terms on pose, feature plane, and spatial smoothness to enhance optimization stability.",
+      "page": 4,
+      "index": 14,
+      "width": 1018,
+      "height": 345
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-015.webp",
+      "caption": "Table 11. PSNR, SSIM, and LPIPS of our framework on Neural 3D Video. Three cameras (cam01, cam05 and cam10) are training views.",
+      "page": 24,
+      "index": 15,
+      "width": 485,
+      "height": 542
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-016.webp",
+      "caption": "Table 10. PSNR, SSIM, and LPIPS of our framework on Technicolor. Three cameras (cam00, cam09 and cam15) are served as training views for scene Fabien, Theater and Train, while only two cameras (cam00 and cam15) are training views for scene Birthday and Painter.",
+      "page": 24,
+      "index": 16,
+      "width": 483,
+      "height": 856
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26481v1/fig-017.webp",
+      "caption": "Figure 13. Additional qualitative comparison results on Technicolor Dataset. We highlight the geometric completeness of background structures, bottom decorations, and the red bridge across different viewpoints, as well as the temporal consistency of dynamic regions such as human faces, the ‘Happy Birthday’ text, and the toy train.",
+      "page": 16,
+      "index": 17,
+      "width": 804,
+      "height": 1108
+    }
+  ]
+}

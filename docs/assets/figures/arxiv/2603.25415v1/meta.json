@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-001.webp",
+      "caption": "Fig. 2: Learning curves over training blocks. Node Recall and Episodic Return are evaluated on the held-out FloorPlans 28–30 every 50 blocks, while Move Success Rate is computed on the training scenes after each block; shaded areas denote the 95% confidence interval across seeds. SH/MH: single-head/multi-head policy; D: depth input; CL: curriculum learning; IL: imitation learning.",
+      "page": 11,
+      "index": 1,
+      "width": 717,
+      "height": 226
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-002.webp",
+      "caption": "Table 9: Hyperparameters for training and reward shaping. PPO entries listed as “SH16 / SH504 / MH” correspond to the compact single-head action space (16 actions), the full single-head action space (504 actions), and the multi-head factorised action space (24 rotation angles, 21 lengths, Stop), respectively.",
+      "page": 30,
+      "index": 2,
+      "width": 598,
+      "height": 808
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-003.webp",
+      "caption": "Table 8: Feature dimensions and architecture specifications.",
+      "page": 29,
+      "index": 3,
+      "width": 716,
+      "height": 809
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-004.webp",
+      "caption": "Table 3: Hyperparameters for stagnation detection.",
+      "page": 22,
+      "index": 4,
+      "width": 723,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-005.webp",
+      "caption": "Fig. 5: Representative trajectories on held-out scenes (FloorPlans 28–30). Numbers in parentheses in the legends report (steps | score). All plotted scenarios except the Baseline are with depth input.",
+      "page": 18,
+      "index": 5,
+      "width": 640,
+      "height": 879
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-006.webp",
+      "caption": "Table 7: Optuna hyperparameter search spaces. All parameters were optimised over categorical candidate sets. The optimisation target is the composite objective in Eq. 16.",
+      "page": 28,
+      "index": 6,
+      "width": 477,
+      "height": 688
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-007.webp",
+      "caption": "Fig. 4: Representative trajectories on evaluation scenes (FloorPlans 28–30). Legends report episode length and Node Recall for the shown episodes. All plotted scenarios except the Baseline use depth input.",
+      "page": 13,
+      "index": 7,
+      "width": 640,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-008.webp",
+      "caption": "Table 1: Final held-out performance on FloorPlans 28–30 using the final training checkpoint of each run (means across seeds; Node Recall reported as mean ± std). Node Recall : fraction of scene graph nodes recalled at episode end. Episodic Return: cumulative reward under the composite reward function. Episode Length: number of steps taken until episode termination. Move Success Rate: fraction of executed translation actions that succeed without collision. Path Length: total path length traversed during the episode. ↑ indicates that higher values are better.",
+      "page": 19,
+      "index": 8,
+      "width": 666,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-009.webp",
+      "caption": "Fig. 3: Evaluation scatter plot relating traversed path length to Node Recall and episode length; each point represents one trained run (one seed) at the final evaluation checkpoint.",
+      "page": 12,
+      "index": 9,
+      "width": 648,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-010.webp",
+      "caption": "Table 2: Overview of ablation scenarios. IL: imitation learning pretraining. Actions: single-head parameterisation (either compact 16 actions or enlarged 504 actions) versus factorised multi-head parameterisation (Rotation angle, Length, Stop) at 504 resolution. Depth w/ Coll.-Aux : depth input with an auxiliary head for collision prediction. CL: curriculum learning with staged action-space expansion.",
+      "page": 20,
+      "index": 10,
+      "width": 666,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25415v1/fig-011.webp",
+      "caption": "Fig. 1: Overview of the navigation model architecture used in our learning setup: multimodal encoders → LSTM policy core → action heads (single-head or multihead) and optional collision auxiliary head.",
+      "page": 5,
+      "index": 11,
+      "width": 666,
+      "height": 320
+    }
+  ]
+}

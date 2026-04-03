@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-001.webp",
+      "caption": "Fig. 3 Results of programming test. (a) Comparison of the executability of our framework (PhysVEC) with other three baselines (PhysVEC-1-shot, ReAct-RAG and ReAct). (b) (c) The accuracy in unit tests and integration tests before (hollow markers, PhysVEC-1-shot) and after (solid markers, PhysVEC) the iterative verification and error correction. Integration tests are not applicable to DFT input files.",
+      "page": 7,
+      "index": 1,
+      "width": 856,
+      "height": 431
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-002.webp",
+      "caption": "Fig. 5 Performance in scientific test on QMB100 subset. (a) Comparison of the performance between PhysVEC and baselines on the QMB100 subset. The vertical axis (completed tasks) denotes the number of successful tasks after the scientific test. (b) Cumulative number of completed tasks as a function of iteration in the scientific test under the PhysVEC framework.",
+      "page": 10,
+      "index": 2,
+      "width": 854,
+      "height": 481
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-003.webp",
+      "caption": "Fig. 8 Extended Data Fig. 2 Schematic of the rubric test and the physical assertion test by Scientific verifier.",
+      "page": 14,
+      "index": 3,
+      "width": 846,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-004.webp",
+      "caption": "Fig. 7 Extended Data Fig. 1 Schematic of the Verifier library builder, which distills official repositories/manuals into a verifier library that serves as reference material for unit tests.",
+      "page": 14,
+      "index": 4,
+      "width": 842,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-005.webp",
+      "caption": "Fig. 1 PhysVEC framework and QMB100 dataset. (a) PhysVEC: a multi-agent AI physicist for quantum manybody simulations with self-verification and automated error correction design. (b) QMB100: a benchmark dataset comprising 100 figures drawn from 21 high impact articles, covering numerical studies that can be implemented with ITensors, NetKet, Qiskit, and ORCA.",
+      "page": 3,
+      "index": 5,
+      "width": 790,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-006.webp",
+      "caption": "Fig. 4 The efficiency of token consumption and tool usage. (a) The S/Ti (input token efficiency), S/To (output token efficiency) and S/Tc (tool usage efficiency) of LLMs under different topics. The horizontal dashed line indicates the average performance of 4 models within each topic. (b) The marginal utility of tool usage (mainly retrieval from official repositories or manuals) between PhysVEC (ours) and ReAct-RAG (baseline). The dashed line represents the marginal benefit of using the retrieval tools in ReAct-RAG. Solid circles above the dashed lines indicate higher tool-use efficiency of PhysVEC. (c) Inference-time scaling via repeated trials on 8 failed tasks in nqs of Gemini 2.5 Flash. The pass rate, defined as the fraction of tasks that pass at least once within the first N independent trials, increases with repeated trials.",
+      "page": 8,
+      "index": 6,
+      "width": 781,
+      "height": 675
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00149v1/fig-007.webp",
+      "caption": "Fig. 2 Verification and error correction via unit tests and integration tests. In the generated script, the Author agent defines a set of element functions that are subsequently called to perform the computations (gray block). Then the Programming verifier conducts unit tests (blue block) and integration tests (green block) for all element functions. The Programming verifier aggregates the reports and implements corrections accordingly (red blocks).",
+      "page": 5,
+      "index": 7,
+      "width": 837,
+      "height": 465
+    }
+  ]
+}

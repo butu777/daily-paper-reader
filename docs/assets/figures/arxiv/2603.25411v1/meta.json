@@ -1,0 +1,158 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-001.webp",
+      "caption": "Table 1. Accuracy (%) on quantitative VQA benchmarks for level-1 and level-2 spatial understanding. ∗ denotes using GT point map.",
+      "page": 6,
+      "index": 1,
+      "width": 898,
+      "height": 460
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-002.webp",
+      "caption": "Figure 11. Prompt used to generate the object reference in objects365 dataset",
+      "page": 25,
+      "index": 2,
+      "width": 1024,
+      "height": 649
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-003.webp",
+      "caption": "Figure 13. Prompt used to generate the basic problem solving question",
+      "page": 26,
+      "index": 3,
+      "width": 976,
+      "height": 1207
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-004.webp",
+      "caption": "Figure 6. Examples of our model’s responses on unseen images.",
+      "page": 21,
+      "index": 4,
+      "width": 1029,
+      "height": 1077
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-005.webp",
+      "caption": "Figure 17. Prompt used to generate the answer of the given problem solving question (stage1, part1)",
+      "page": 30,
+      "index": 5,
+      "width": 1020,
+      "height": 1219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-006.webp",
+      "caption": "Table 2. Accuracy (%) on qualitative VQA benchmarks evaluating spatial understanding and reasoning across levels 1–3.",
+      "page": 7,
+      "index": 6,
+      "width": 956,
+      "height": 459
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-007.webp",
+      "caption": "Figure 16. Examples of few-shot demonstration",
+      "page": 29,
+      "index": 7,
+      "width": 1024,
+      "height": 817
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-008.webp",
+      "caption": "Figure 7. Prompt used to generate Level-3 spatial problem-solving QA pairs.(test set)",
+      "page": 22,
+      "index": 8,
+      "width": 1024,
+      "height": 1219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-009.webp",
+      "caption": "Figure 20. Prompt used to generate the answer of the given problem solving question (stage2)",
+      "page": 33,
+      "index": 9,
+      "width": 1020,
+      "height": 1173
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-010.webp",
+      "caption": "Figure 8. Prompt used to evaluate the correctness of answers in our custom benchmark for spatial problem-solving tasks.",
+      "page": 23,
+      "index": 10,
+      "width": 1027,
+      "height": 869
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-011.webp",
+      "caption": "Figure 15. Prompt used to generate the problem solving question guided by few shot demonstrations",
+      "page": 28,
+      "index": 11,
+      "width": 1025,
+      "height": 1289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-012.webp",
+      "caption": "Figure 2. Overview of our approach. Left: Data construction pipeline which generates spatial-related VQA pairs from either in-the-wild images or existing data with 3D annotations. Right: Hierarchical spatial understanding task taxonomy with representative QA pairs.",
+      "page": 4,
+      "index": 12,
+      "width": 1026,
+      "height": 558
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-013.webp",
+      "caption": "Figure 4. Examples of spatial VQA data constructed using our method, covering different task levels.",
+      "page": 19,
+      "index": 13,
+      "width": 1020,
+      "height": 1043
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-014.webp",
+      "caption": "Figure 19. Prompt used to generate the answer of the given problem solving question (stage1, part3)",
+      "page": 32,
+      "index": 14,
+      "width": 1018,
+      "height": 1091
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-015.webp",
+      "caption": "Figure 14. Prompt used to generate the quantative problem solving question",
+      "page": 27,
+      "index": 15,
+      "width": 1027,
+      "height": 1283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-016.webp",
+      "caption": "Figure 9. Prompt used to generate the object reference in kosmos dataset",
+      "page": 24,
+      "index": 16,
+      "width": 1148,
+      "height": 1065
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-017.webp",
+      "caption": "Figure 18. Prompt used to generate the answer of the given problem solving question (stage1, part2)",
+      "page": 31,
+      "index": 17,
+      "width": 1018,
+      "height": 1195
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-018.webp",
+      "caption": "Figure 5. Examples of spatial VQA data constructed using our method, covering different task levels.",
+      "page": 20,
+      "index": 18,
+      "width": 1024,
+      "height": 1227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25411v1/fig-019.webp",
+      "caption": "Figure 3. Model architecture of our VLM, which integrates metricscale 3D point map as auxiliary input.",
+      "page": 5,
+      "index": 19,
+      "width": 615,
+      "height": 256
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25887v1/fig-001.webp",
+      "caption": "Figure 3: The generation consistency curve w.r.t. the action sequence length. Eight world models or video generators execute identical 9-round action sequences from the same initial observations, with consistency scores measured at each round. Most models achieve lower than 75% consistency after round 5 or 6, indicating fundamental limitations for long-horizon planning applications.",
+      "page": 11,
+      "index": 1,
+      "width": 820,
+      "height": 508
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25887v1/fig-002.webp",
+      "caption": "Figure 1: The different focus of existing world model and our evaluation benchmarks.",
+      "page": 2,
+      "index": 2,
+      "width": 1036,
+      "height": 515
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25887v1/fig-003.webp",
+      "caption": "Figure 5: Qualitative comparison on Simulation Fidelity. Given a shared initial driving scene (S0), PAN, Cosmos 1, and Cosmos 2 simulate a three-step sequence of environmental interventions from a dry forest road to light rain to intensifying rainfall.",
+      "page": 14,
+      "index": 3,
+      "width": 1010,
+      "height": 885
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25887v1/fig-004.webp",
+      "caption": "Figure 4: Qualitative comparison on Structured Simulation and Planning. Starting from the same tabletop observation (S0) with the goal of arranging all blocks into a line, PAN, Cosmos 1, and Cosmos 2 each simulate multi-step action plans through an iterative VLM–world model planning loop.",
+      "page": 12,
+      "index": 4,
+      "width": 1022,
+      "height": 1252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25887v1/fig-005.webp",
+      "caption": "Table 1: Model performance on Action Simulation Fidelity, Long-horizon Forecast and Simulative Reasoning & Planning tasks. Results in Action Simulation Fidelity are measured based on the criteria proposed in Li et al. (2025) and then normalized. Task success rates in Open-Ended Sim. and Struct. Sim. are measured in the trajectory level and represent improvements over the pure VLM agent without integrating WM. The best-performing model in each dimension is marked in bold, and the second best is underlined.",
+      "page": 9,
+      "index": 5,
+      "width": 1008,
+      "height": 368
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25887v1/fig-006.webp",
+      "caption": "Figure 2: Taxonomy with detailed examples of our evaluation benchmark.",
+      "page": 5,
+      "index": 6,
+      "width": 1036,
+      "height": 954
+    }
+  ]
+}

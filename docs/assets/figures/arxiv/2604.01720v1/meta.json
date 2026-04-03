@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-001.webp",
+      "caption": "Fig. 1: Reconstructed map and estimated trajectory generated via our implicit Hi-LOAM. The above case is evaluated on the sequence 07 of KITTI dataset, superior mapping quality and accurate poses are obtained via deep utilization of hierarchical neural features.",
+      "page": 1,
+      "index": 1,
+      "width": 516,
+      "height": 392
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-002.webp",
+      "caption": "Fig. 9: The Qualitative Results of Our Reconstructed Mesh on KITTI Dataset. Our reconstructed mesh on sequence 00, 04, 06, and 08 demonstrate the construction capacity of Hi-LOAM in large-scale environment.",
+      "page": 11,
+      "index": 2,
+      "width": 1076,
+      "height": 527
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-003.webp",
+      "caption": "TABLE I: Comparison of Average Relative Translational Drifting Error (%) on KITTI Odommetry Benchmark. The best results are highlighted in bold, and the second-best results are underlined. “-” indicates the result is not reported in the related paper, ‘-LO’ in the name of methods indicates that only the odometry component of the method is used for evaluation. And the definition of those symbols are applicable to other tables in the rest of the paper. Consistent with other methods, we use the average relative translational error in % as the metric for evaluating odometry drift.",
+      "page": 7,
+      "index": 3,
+      "width": 1046,
+      "height": 458
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-004.webp",
+      "caption": "Fig. 6: The Visualization of Our 3D Reconstruction Results on Mai City Dataset via Comparing with Other Related Methods. The mapping results in first row are original reconstruction result, and the second row presents the error maps with ground truth mesh as a reference, where the red points stand for large error above 25cm. (Best viewed with zoom in.)",
+      "page": 10,
+      "index": 4,
+      "width": 1056,
+      "height": 343
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-005.webp",
+      "caption": "Fig. 7: The Visualization of Our 3D Reconstruction Results on Newer College Dataset via Comparing with Other Related Methods. The mapping results in first row are original reconstruction result, and the second row presents the error maps with using ground truth mesh as a reference, where the red points mean larger error up to 50 cm. (Best viewed with zoom in.)",
+      "page": 10,
+      "index": 5,
+      "width": 1056,
+      "height": 344
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-006.webp",
+      "caption": "TABLE XII: Sensitivity Analysis of Submap Numbers on KITTI, Newer College, and Mai City Benchmark. Localization Performance (ATE RMSE [m]) are reported for system evaluation. ✗ denotes the execution failure.",
+      "page": 13,
+      "index": 6,
+      "width": 1046,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-007.webp",
+      "caption": "TABLE XI: Sensitivity Analysis of Tree Level Numbers on KITTI, Newer College, and Mai City Benchmark. Localization Performance (ATE RMSE [m]) are reported for system evaluation. ✗ denotes the execution failure.",
+      "page": 13,
+      "index": 7,
+      "width": 1046,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-008.webp",
+      "caption": "TABLE II: Comparison of Absolute Trajectory Error (m) on KITTI Odometry Benchmark.",
+      "page": 8,
+      "index": 8,
+      "width": 1046,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-009.webp",
+      "caption": "Fig. 2: The Overview of Our Hi-LOAM Framework. The main data stream is depicted as following. Sampled points PCt along the ray is used to construct neural signed distance fields (nSDF) based on the octree. For the first two scans, poses P0 and P1 are predefined and nSDF are created. For following scans, original points Pt are firstly matched with octree of sub map to estimate the pose T∗ WCt . Then, Pt is transformed into the global coordinate system via T∗ WCt , PWt is registered to expand the nSDF, this process is repeated in turn. The separate optimization strategies are designed for odometry and mapping, the trainable parameters and frozen parameters are marked correspondingly.",
+      "page": 4,
+      "index": 9,
+      "width": 1064,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-010.webp",
+      "caption": "Fig. 10: The Reconstructed Mesh of our Hi-LOAM on Hilti-21 and Hilti-23 Datasets. The mapping environment of Hilti-23 is made up by construction sites, which are full with highly-repetitive or feature-less walls. The mapping ability for this extreme condition is shown in the above sub-figures. The estimated trajectory is also overlapped in the map to visualize the localization result. (Best viewed with zoomin.)",
+      "page": 12,
+      "index": 10,
+      "width": 516,
+      "height": 460
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-011.webp",
+      "caption": "Fig. 5: The Qualitative Results of Our Odometry on MulRAN Dataset. The black dashed line represents the ground truth, while the blue solid line represents our trajectory. (Best viewed with zoom-in.)",
+      "page": 9,
+      "index": 11,
+      "width": 1052,
+      "height": 439
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01720v1/fig-012.webp",
+      "caption": "Fig. 3: The correspondence among the three tables in certain level of octree. The eight corners of a node correspond to eight features stored in table F. The hierarchical nodes and their corresponding corners are stored in Morton code form in tables N and G.",
+      "page": 5,
+      "index": 12,
+      "width": 529,
+      "height": 321
+    }
+  ]
+}

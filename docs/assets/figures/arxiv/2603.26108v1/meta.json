@@ -1,0 +1,158 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-001.webp",
+      "caption": "Fig. 4: The network structure of ViT-based latent feature iterative prediction model (LPM ). It takes the latent atmospheric features of the previous two time steps as input and outputs the predicted latent feature for the next time step. The input also includes the corresponding time embeddings and constant embeddings. After passing through the multi-scale residual blocks, 3D convolutional layer, ViT, and the multi-scale residual blocks again, the predicted results are output. Note that the ‘multi-scale residual blocks’ are identical to those in the encoder, as depicted in Fig. 3.",
+      "page": 6,
+      "index": 1,
+      "width": 1076,
+      "height": 529
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-002.webp",
+      "caption": "Fig. 5: A schematic diagram of the inference process for the improved HTA algorithm, which takes two time steps as input for iterative prediction. Arrows of different colors represent predictions with different time step intervals.",
+      "page": 6,
+      "index": 2,
+      "width": 860,
+      "height": 323
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-003.webp",
+      "caption": "Fig. 7: The qualitative comparison on ‘USA’ dataset. The input data covers the period: 2016-10-26 03:00 - 2016-10-26-07:00 (UTC). The results of EarthFarseer are not shown here due to its poor qualitative performance.",
+      "page": 11,
+      "index": 3,
+      "width": 1076,
+      "height": 627
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-004.webp",
+      "caption": "Fig. 11: The qualitative comparison on ‘Hubei’ dataset. The input data covers the period: 2022-07-27 15:00 - 16:00 (UTC).",
+      "page": 15,
+      "index": 4,
+      "width": 1076,
+      "height": 631
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-005.webp",
+      "caption": "Fig. 18: Attribution magnitude of input variables on ‘USA’ dataset. The dots and lines in different colors represent different prediction intervals. Please refer to the supplementary materials for more information on ERA5 surface variables.",
+      "page": 21,
+      "index": 5,
+      "width": 540,
+      "height": 798
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-006.webp",
+      "caption": "Fig. 1: Comparison between the precipitation prediction framework. ConvLSTM [4] and PredRNN [5] primarily focus on ultra-short-term severe convection and thunderstorms nowcasting. Metnet models [6][7][8] employs a dense interval-partitioned cross-entropy loss to train its single-lead-time network. In contrast, our novelly designed latent space iterative prediction framework integrates a ‘WMCE’ loss to train the network for short-term precipitation forecasting.",
+      "page": 2,
+      "index": 6,
+      "width": 1076,
+      "height": 565
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-007.webp",
+      "caption": "Fig. 6: The 24 lead times’ quantitative comparison results on ‘USA’ dataset. 0.2, 1, 2, 4 and 8mm/hour represent different Cumulative precipitation rate thresholds.",
+      "page": 10,
+      "index": 7,
+      "width": 540,
+      "height": 896
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-008.webp",
+      "caption": "Fig. 10: The 24 lead times’ quantitative comparison results on ‘Hubei’ dataset. The values 20, 25, and 30 correspond to different radar reflectivity thresholds.",
+      "page": 14,
+      "index": 8,
+      "width": 540,
+      "height": 540
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-009.webp",
+      "caption": "Fig. 14: The quantitative ablation comparison results of loss functions on ‘USA’ dataset. Note that ‘Weighted MAE Loss’ refers to the MAE loss weighted by the parameters defined in Eq. 17 (The weighting schemes are identical across different ablation studies). The term ‘Weighted MAE+Original CE Loss’ denotes a combination of the weighted MAE loss (with non-precipitation samples masked out, as in Eq. 17) and the unweighted cross-entropy loss. The focal loss is adopted from [40].",
+      "page": 18,
+      "index": 9,
+      "width": 540,
+      "height": 539
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-010.webp",
+      "caption": "Fig. 9: The qualitative comparison on ‘USA’ dataset. The input data covers the period: 2016-11-29 16:00 - 20:00 (UTC).",
+      "page": 13,
+      "index": 10,
+      "width": 1076,
+      "height": 627
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-011.webp",
+      "caption": "TABLE II: The details of two datasets. ERA5 variables include 6 upper-air variables in 37 levels and 21 surface variables. 6 upper-air variables include ‘geopotential’, ‘temperature’, ‘u component of wind’, ‘v component of wind’, ‘specific humidity’ and ‘vertical velocity’. Please refer to the supplementary materials for more details. The time resolution of these two datasets are 1 hour and 15 minutes, respectively.",
+      "page": 8,
+      "index": 11,
+      "width": 822,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-012.webp",
+      "caption": "Fig. 2: Network structure and loss function of our proposed forecasting model. The ‘labels’ include the MRMS hourly cumulative QPE from ‘USA’ dataset or near-surface radar reflectivity from ‘Hubei’ dataset. And the ‘MAE’ and ‘CE’ losses for precipitation samples employ a weighting scheme, as presented in Eq. 17 and Eq. 18. ‘LPM’ represents the latent feature iterative prediction model. It is worth noting that the encoder simultaneously encodes the latent features from two time steps.",
+      "page": 4,
+      "index": 12,
+      "width": 1076,
+      "height": 573
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-013.webp",
+      "caption": "Fig. 15: The quantitative ablation comparison results between ‘Weighted MAE+Focal’ loss and ‘WMCE’ loss on ‘USA’ dataset across different epochs.",
+      "page": 19,
+      "index": 13,
+      "width": 540,
+      "height": 1075
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-014.webp",
+      "caption": "Fig. 13: The qualitative comparison on ‘Hubei’ dataset. The input data covers the period: 2023-08-27 08:45 - 09:45 (UTC).",
+      "page": 17,
+      "index": 14,
+      "width": 1076,
+      "height": 631
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-015.webp",
+      "caption": "Fig. 8: The qualitative comparison on ‘USA’ dataset. The input data covers the period: 2016-11-28 12:00 - 16:00 (UTC).",
+      "page": 12,
+      "index": 15,
+      "width": 1076,
+      "height": 627
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-016.webp",
+      "caption": "Fig. 16: The ablation results of latent space iterative prediction and inputting more variables (ERA5) on ‘USA’ dataset. ‘Physical Space Iter WO ERA5’ denotes the iterative prediction conducted in the physical variable space, employing only MRMS QPE and radar data while excluding ERA5 variables.‘Latent Space Iter With ERA5’ means perform the iterative prediction in latent variable space with inputting more variables (including MRMS QPE, radar and ERA5 variables).",
+      "page": 20,
+      "index": 16,
+      "width": 539,
+      "height": 539
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-017.webp",
+      "caption": "Fig. 17: The ablation results of ‘Importance Sampling’ on ‘USA’ dataset. ‘W Importance Sampling’ refers to the incorporation of importance sampling during the training phase to preprocess the training data by filtering out a portion of non-precipitation sequences. ‘WO Importance Sampling’, on the other hand, does not employ this technique and uses all available data for training.",
+      "page": 20,
+      "index": 17,
+      "width": 542,
+      "height": 540
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-018.webp",
+      "caption": "Fig. 3: Network structure of the designed encoder. Note that the input for the ‘USA’ dataset does not include satellite imagery and the input for the ‘Hubei’ dataset does not include MRMS QPE.",
+      "page": 5,
+      "index": 18,
+      "width": 860,
+      "height": 415
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26108v1/fig-019.webp",
+      "caption": "Fig. 12: The qualitative comparison on ‘Hubei’ dataset. The input data covers the period: 2022-06-29 05:30 - 06:30 (UTC).",
+      "page": 16,
+      "index": 19,
+      "width": 1076,
+      "height": 631
+    }
+  ]
+}

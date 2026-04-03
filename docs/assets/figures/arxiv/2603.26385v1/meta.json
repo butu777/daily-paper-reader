@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26385v1/fig-001.webp",
+      "caption": "Figure 5. Qualitative analysis: Comparison with other multi-round methods (AutoDIR [16], AgenticIR [53]). Intermediate steps for our method are shown for illustrative purposes. First row: Composite degradations (haze + noise). RAR identifies and corrects them, also enhances contrast, making the result visually clearer. Second row: Single degradation (low light). AgenticIR fails due to inadequate tools for very dark scenes. Third row: Single degradation (haze). RAR successfully dehazes, but also improves low light, lowering the fidelity to ground truth. Fourth row: Unknown degradations. RAR demonstrates stronger generalization (also improving over ground truth).",
+      "page": 6,
+      "index": 1,
+      "width": 1039,
+      "height": 573
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26385v1/fig-002.webp",
+      "caption": "Figure 6. Qualitative comparison on single degradation: Row1: Kodak24 (noise), Row2: GoPro (blur), Row3: Rain100L (rain), Row4: SOTS (haze), In the single-degradation setting, our method produces clearer images that better align with human visual perception. This results lower fidelity scores but higher perceptual scores.",
+      "page": 7,
+      "index": 2,
+      "width": 1023,
+      "height": 470
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26385v1/fig-003.webp",
+      "caption": "Figure 2. To enable our RAR process, we define an LQA that fully integrates the input and out of the IQA into the latent space of the restoration module, using adapters AI and AQ, respectively. Then, we instore a feedback loop between the two modules to iteratively recover best image quality. The dashed-line is only used for the very first iteration to feed z0deg to the restoration model.",
+      "page": 3,
+      "index": 3,
+      "width": 1035,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26385v1/fig-004.webp",
+      "caption": "Table 4. Ablation of the integration process between the IQA and the UIR modules.",
+      "page": 8,
+      "index": 4,
+      "width": 1035,
+      "height": 232
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26385v1/fig-005.webp",
+      "caption": "Figure 4. Qualitative comparison on Composite Degradation.",
+      "page": 5,
+      "index": 5,
+      "width": 486,
+      "height": 370
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26385v1/fig-006.webp",
+      "caption": "Table 1. Quantitative results for Composite Degradations. Results taken from AgenticIR [53]",
+      "page": 5,
+      "index": 6,
+      "width": 496,
+      "height": 587
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-001.webp",
+      "caption": "Figure 5: Pairwise task correlations based on VLM performance. Higher values suggest that VLMs perform more similarly on the two tasks, indicating a greater overlap in the abilities required to solve them.",
+      "page": 6,
+      "index": 1,
+      "width": 406,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-002.webp",
+      "caption": "Table 2: Results (%) on LinkS2Bench for existing various VLMs on 12 task types across 4 evaluation dimensions. The former section shows existing popular models’ results. The latter section demonstrates model adaption experimental results.",
+      "page": 7,
+      "index": 2,
+      "width": 1052,
+      "height": 946
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-003.webp",
+      "caption": "Table 1: Comparison of LinkS2Bench with representative spatial intelligence benchmarks.",
+      "page": 3,
+      "index": 3,
+      "width": 910,
+      "height": 198
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-004.webp",
+      "caption": "Figure 2: Benchmark Statistics. (a) The distribution of tasks across four main categories. (b) Distribution of data sources across different video durations.",
+      "page": 3,
+      "index": 4,
+      "width": 306,
+      "height": 650
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-005.webp",
+      "caption": "Figure 7: Overview of Cross-View Alignment Adapter and Alignment-Guided VLM Reasoning.",
+      "page": 8,
+      "index": 5,
+      "width": 506,
+      "height": 367
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-006.webp",
+      "caption": "Figure 3: LinkS2Bench comprises 12 fine-grained task types categorized into four primary evaluation dimensions: Perception, Location, Relation, and Reasoning. For visualization purposes, the satellite images are cropped to highlight the annotations; the actual benchmark samples preserve the full original spatial context.",
+      "page": 4,
+      "index": 6,
+      "width": 1052,
+      "height": 600
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02020v1/fig-007.webp",
+      "caption": "Figure 4: LinkS2Bench curation pipeline includes data collection, question generation, human annotation and quality control.",
+      "page": 5,
+      "index": 7,
+      "width": 948,
+      "height": 342
+    }
+  ]
+}

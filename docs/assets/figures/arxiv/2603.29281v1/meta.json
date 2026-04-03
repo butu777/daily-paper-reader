@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-001.webp",
+      "caption": "Table 4 PRISM scale statistics. Token counts at 4 fps with Qwen3VL tokenization.",
+      "page": 11,
+      "index": 1,
+      "width": 652,
+      "height": 196
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-002.webp",
+      "caption": "Figure 4 Performance scaling with training data. MCQ accuracy by capability domain as a function of training progress. All domains improve rapidly in early training (0–40%), with ER showing the largest absolute gain (+31.5pp). Performance continues to increase at a diminishing rate, with the full 270K dataset achieving the best overall accuracy of 88.9%. CS starts highest due to strong baseline scene understanding; IP shows steady improvement throughout training.",
+      "page": 15,
+      "index": 2,
+      "width": 898,
+      "height": 647
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-003.webp",
+      "caption": "Table 7 Fine-tuning hyperparameters.",
+      "page": 29,
+      "index": 3,
+      "width": 614,
+      "height": 620
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-004.webp",
+      "caption": "Figure 2 PRISM pipeline overview. The overview of the PRISM pipeline is shown here. PRISM is built on egocentric and exocentric videos from real-world retail stores. Four annotation strategies - metadata extraction, LLM generation (Gemini 2.5 Flash), depth analysis (DepthCrafter), and self-supervised transformations - produce twenty tasks (full list of tasks is mentioned in section section 3) across four capability domains, totaling 270K instruction-tuning samples. Solid boxes denote egocentric tasks; dashed boxes denote exocentric tasks (exo). Samples from PRISM are used for finetuning Cosmos-Reason2-2B via BF16 LoRA.",
+      "page": 3,
+      "index": 4,
+      "width": 984,
+      "height": 508
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-005.webp",
+      "caption": "Figure 3 PRISM capability probe examples (Part 2 of 3). Continued from above.",
+      "page": 18,
+      "index": 5,
+      "width": 924,
+      "height": 1211
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-006.webp",
+      "caption": "Table 5 Performance Comparison between Baseline (Zero-Shot Cosmos-Reason2-2B) and PRISM (Our model fine-tuned on the full 270K training corpus) on all evaluation tasks. Best score per task in bold. The Error Ratio shows the ratio of PRISM fine-tuned error rate to the baseline error rate.",
+      "page": 13,
+      "index": 6,
+      "width": 944,
+      "height": 754
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-007.webp",
+      "caption": "Table 3 PRISM dataset overview. All 20+ capability probes organized by knowledge domain, viewpoint, SFT format, allocated sample counts, and annotation method. Und. = open-ended understanding; CoT = chain-of-thought reasoning with ⟨think⟩ tags; MCQ = multiple-choice (A/B/C/D). Sample allocations follow sqrt-proportional scaling with no single task exceeding 9.5% of the total mix.",
+      "page": 9,
+      "index": 7,
+      "width": 986,
+      "height": 498
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29281v1/fig-008.webp",
+      "caption": "Table 1 PRISM vs. Cosmos-Reason1 training data by capability domain. Cosmos-Reason1 NVIDIA (2025a) SFT counts are taken from the publicly released HuggingFace datasets. While AgiBot World includes retail scenes as one of five deployment domains (∗), its SFT samples target general manipulation skills and are not structured as retail-domain perceptual QA; no dataset contributing to Cosmos-Reason1 provides retail-targeted VLM SFT. PRISM contributes 270K retail-specific SFT pairs spanning all three domains. † Cosmos Physical Common Sense covers generic scenes; no retail or robot-deployment content is included. ‡ Novel tasks entirely absent from Cosmos-Reason1 training. ∗ AgiBot World includes a retail deployment domain (∼1 of 5 domains, supermarket shelf-picking and restocking tasks), but contributes no retail-targeted VLM SFT to Cosmos-Reason1 training.",
+      "page": 5,
+      "index": 8,
+      "width": 986,
+      "height": 291
+    }
+  ]
+}

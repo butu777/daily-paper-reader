@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26206v1/fig-001.webp",
+      "caption": "Fig. 1. (a) Comparison of runtime and performance across several methods on SJTU4D dataset [8]. (b) The framework of 4D radar place recognition based on knowledge distillation. The query scan is encoded into a descriptor, and the database is searched for the closest matching descriptors. The R2R (radar-to-radar) and L2L (LiDAR-to-LiDAR) databases consist of 4D radar descriptors and LiDAR descriptors, respectively.",
+      "page": 1,
+      "index": 1,
+      "width": 487,
+      "height": 418
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26206v1/fig-002.webp",
+      "caption": "TABLE II COMPARISON WITH STATE-OF-THE-ART OF R2R IN BENCHMARK DATASETS.",
+      "page": 6,
+      "index": 2,
+      "width": 1044,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26206v1/fig-003.webp",
+      "caption": "Fig. 2. Comparison of the two paradigms of R2L (radar-to-LiDAR). The joint training paradigm employs one or more encoders to directly align the features of LiDAR and 4D radar, while the knowledge distillation paradigm leverages a teacher model to guide the feature alignment of two modalities.",
+      "page": 2,
+      "index": 3,
+      "width": 512,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26206v1/fig-004.webp",
+      "caption": "Fig. 6. Visualization of LiDAR and 4D radar data across different weather conditions in the SNAIL radar dataset.",
+      "page": 7,
+      "index": 4,
+      "width": 487,
+      "height": 383
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26206v1/fig-005.webp",
+      "caption": "Fig. 3. Overview of 4DRaL. Given LiDAR and 4D radar point clouds of the same scene, we generate BEV images. The teacher model extracts features from LiDAR BEV to guide the student model, which consists of R2R and R2L. R2R applies LIE for image enhancement, FDD for feature learning, and RD for refining output relationships. R2L enhances radar data with LIE and aligns LiDAR features via RD. The teacher model is used only during training.",
+      "page": 3,
+      "index": 5,
+      "width": 1052,
+      "height": 342
+    }
+  ]
+}

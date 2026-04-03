@@ -1,0 +1,3311 @@
+Title: Fast localization of anomalous patches in spatial data under dependence
+
+URL Source: https://arxiv.org/pdf/2603.27546v1
+
+Published Time: Tue, 31 Mar 2026 01:13:51 GMT
+
+Number of Pages: 50
+
+Markdown Content:
+# Fast localization of anomalous patches in spatial data under dependence 
+
+Soham Bonnerjee ∗ Sayar Karmakar ∗ George Michailidis 
+
+University of Chicago University of Florida UCLA 
+
+Abstract 
+
+We propose a scalable, provably accurate method for localizing an unknown number of multiple axis-aligned anomalous patches in spatial data under a general class of spatial dependence. Motivated by the practical need to detect localized changes rather than completely segment large spatial grids, we first introduce both a naive and a significantly faster intelligent-sampling-based estimator for a single patch. We then extend this methodology to the highly challenging multiple-patch setting and propose a two-stage Spatial Patch Localization of Anomalies under DEpendence procedure (SPLADE). Under mild conditions on signal strength, separation from the boundary, inter-patch separation, and a uniform Gaussian approximation, we establish simultaneous consistency for the estimated number of patches and for each individual patch boundary. Extensive numerical results based on synthetic data scenarios demonstrate that the proposed method exhibits significant computational and accuracy gains over competing approaches, as well as robustness to moderate and severe spatial dependence. Finally, we demonstrate the real-world utility of the proposed method by applying it to frame-to-frame video surveillance data, where it accurately detects small, closely separated subjects, a task where existing methods are significantly slower and highly prone to spurious detections due to not accounting for spatial dependence. A second application on 3D fibrous media is deferred to the Appendix. 
+
+Keywords : Spatial dependence, Anomaly detection, Boundary detection, Multiple change-points 
+
+# 1 Introduction 
+
+Inference for anomalous patches or clusters in spatial data has a long history, going back at least to Besag and Newell [1991]. The problem is rooted in the earlier literature on epidemic change-points for time-ordered data [Levin and Kline, 1985, Yao, 1993, Inclán and Tiao, 1994, Hušková, 1995, Csörgő and Horváth, 1997, Chen et al., 2016, Račkauskas and Suquet, 2004, 2006, Ning et al., 2012], aided by mathematical tools such as those developed in Naus [1965]. In the spatial setting, one natural analogue is boundary or partition recovery, where separating hypersurfaces divide the domain into heterogeneous regions [Hall et al., 2001, Han et al., 2025, Song et al., 2011, Otto and Schmid, 2016, Fan and Guan, 2018, Chan et al., 2022]. In many applications, however, the practically relevant departure is not a global partition, but a local hotspot; namely, a small region whose behavior differs from its surroundings. This viewpoint is especially natural in public health [Hjalmars et al., 1996, Souza et al., 2019, Lord et al., 2020], public safety and urban planning [Warden, 2008, Gao et al., 2013, Zeoli et al., 2014, Basu Sarbadhikary et al., 2025], and environmental monitoring [Riitters and Coulston, 2005, Shackelford et al., 2015, Vega Orozco et al., 2012], where the goal is to screen an entire map for localized excess risk without specifying the anomalous region in advance. 
+
+> ∗Equal contributions
+
+1
+
+> arXiv:2603.27546v1 [stat.ME] 29 Mar 2026
+
+2Formally, we model the observed data as a d-dimensional lattice field 
+
+Xi = μi + ηi, i ∈ [n], (1.1) where n = ( n1, . . . , n d) ∈ Nd and [n] := Qdℓ=1 {1, 2, . . . , n ℓ}. Let I := SKj=1 Ij denote the union of K (pairwise disjoint) anomalous patches, with each Ij ⊆ [n]. We model the mean field by a baseline level μ0 outside the anomalous region and patch-specific mean shifts inside: 
+
+μi =
+
+(
+
+μ0 + δj , i ∈ Ij , j = 1 , . . . , K, μ0, i ∈ [n] \ I, (1.2) where δj̸ = 0 for anomalous patches (and δj1̸ = δj2 is allowed). With this formulation, the two fundamental statistical problems are: (i) to test whether anomalous patches exist at all, and (ii) to localize them when they do. Likelihood-based spatial scan statistics systematized anomalous patch detection by computing likelihood ratios over candidate regions and using Monte Carlo calibrations to adjust for multiple testing [Kulldorff and Nagarwalla, 1995, Glaz et al., 2001]. Pioneered by Kulldorff [1997] and popularized by the SaTScan software [Kulldorff, 2006, Block, 2007], this framework has been widely extended. Developments include adaptations for count [Neill et al., 2004, Neill, 2012], ordinal [Jung et al., 2007], and Bernoulli data [Boutsikas and Koutras, 2006, Walther, 2010], alongside minimax-optimal procedures for Gaussian settings [Arias-Castro et al., 2005, 2011, Chan and Walther, 2013, Sharpnack and Arias-Castro, 2016, Datta and Sen, 2021, Walther and Perry, 2022]. Drawing on limit theory for Gaussian random fields [Jiang, 2002, Kabluchko, 2011], much of this literature primarily focuses on the testing problem [Walther, 2010, Walther and Perry, 2022, Arias-Castro et al., 2011, Sharpnack and Arias-Castro, 2016, Gao et al., 2016, Arias-Castro et al., 2018, Datta and Sen, 2021, Klein, 2022, Stoepker et al., 2025, Köhne and Mies, 2025], though recent advances also include non-parametric, rank-, and permutation-based methods [Cucala, 2014, Jung and Cho, 2015, Arias-Castro et al., 2018, König et al., 2020, Stoepker et al., 2025]. For comprehensive reviews of the extensive scan-statistics literature, see Arias-Castro et al. [2011], Abolhassani and Prates [2021], Xie et al. [2022]. Conceptually, the “scan statistic” can be argued to adopt a top-down perspective: one specifies a class of anomalous patterns a priori, and systematically scans the field to detect regions consistent with that structure. On the other hand, there has been a stream of complementary literature stemming from partition recovery or anomalous sub-graph or cluster detection problems [Madrid Padilla et al., 2021, Yu et al., 2022, Wang and Chao, 2025], which usually proceeds via a bottom-up approach by constructing the anomalous region incrementally from local, fine-scale evidence. In such an approach, one can quantify uncertainty in the boundary by constructing location-wise “membership evidence” scores from the ensemble of near-optimal clusters, producing a fuzzy boundary map rather than a single hard contour Oliveira and others [2018]. These distinctions are not mutually exclusive: for example, several subgraph or sub-matrix recovery problems Arias-Castro et al. [2011], Sharpnack et al. [2013], Butucea and Ingster [2013] also perform scans of some statistics over a family of corresponding candidates, blurring the boundary between the two approaches. Nevertheless, we find this distinction convenient for exposition. Our framework aligns closely with the top-down scan-statistic perspective, though we contextualize this work within both frameworks. 
+
+The case for dependent-data : A vast majority of the literature on the “bottom-up” approach, perhaps constrained by the available theoretical guarantees of the clustering algorithms, exclusively consider independently distributed observations. A similar restriction appears in a substantial portion of the scan-statistics literature as well. This assumption is known to be consequential in practice; for example, Loh and Zhu [2007] show that when spatial data exhibit unmodeled positive autocorrelation, classical scan statistics that assume independence can yield overly small p-values and spurious cluster detections. To the best of our knowledge, only a small 3number of works consider spatial dependence in anomalous patch detection, including Chan et al. [2022], Dresvyanskiy et al. [2020], Makogin et al. [2024], Kirch et al. [2025], Wang and Chao [2025]. Among these, Wang and Chao [2025] is, to our knowledge, the only work that directly addresses the localization problem, providing theoretical guarantees for consistent estimation of both the number of anomalous patches and their locations; rest of these works primarily investigate the testing problem for existence of anomalous patches. Moreover, Dresvyanskiy et al. [2020], Makogin et al. [2024], Wang and Chao [2025] can be viewed as adopting a bottom-up perspective, using clustering-based methods to construct anomalous regions from local evidence. In contrast, Chan et al. [2022], Kirch et al. [2025] formulate the problem in the scan-statistics framework and concentrate on testing for the presence of anomalous regions. Moreover, Dresvyanskiy et al. [2020], Kirch et al. [2025] assume M -dependent observations, which substantially restricts the class of admissible dependence structures; for example, standard spatial autoregressive models [Anselin and Bera, 1998, Smirnov and Anselin, 2001] generally do not satisfy this assumption. On the other hand, Wang and Chao [2025] assumes sub-Gaussian tails, which allows the analysis to proceed using techniques similar to those developed for the Gaussian case. This paper focuses on the localization of multiple anomalous patches under general spatial dependence . Crucially, our methodology requires only the existence of finite p-th moments ,thereby seamlessly accommodating heavy-tailed noise distributions. As noted by Arias-Castro et al. [2011], while testing and localization may share superficial computational traits, they demand fundamentally distinct theoretical assumptions and techniques. By advancing the scan-statistics paradigm, we leverage threshold calibration across spatial scales to establish sharp detection regimes alongside rigorous localization guarantees for structured clusters. Consequently, our methodology delineates the precise conditions under which anomalous boundaries can be reliably localized. 
+
+The case for scalability : Computational feasibility is a crucial issue often overlooked in the pursuit of optimal detection. For spatially dependent data, Wang and Chao [2025] proposes a rank-based scan algorithm (similar to Sharpnack and Arias-Castro [2016]) that localizes arbitrarily shaped patches in approximately O(|n|3/2) time, but lacks accompanying theoretical guarantees. In contrast, the detection algorithms in Chan et al. [2022] and Kirch et al. [2025] require O(|n|2)
+
+time. Bottom-up clustering approaches for general anomalous patches typically incur even higher computational cost, an issue highlighted by Yu et al. [2022] despite achieving optimal statistical rates. While Madrid Padilla et al. [2021] prescribes an O(|n|) algorithm, our numerical work reveals its empirical runtime is considerably larger than the method proposed in this paper. Ultimately, most methods for detecting irregularly shaped patches [Patil et al., 2004, Tango and Takahashi, 2005, Duczmal et al., 2007, Takahashi et al., 2008, Kim and Jung, 2017, Otani and Takahashi, 2021, Inoue et al., 2023, Oliveira et al., 2025] suffer from at least one of four limitations: (i) substantial computational costs, (ii) restrictive assumptions on cluster size corresponding to the anomalous patch, (iii) reliance on knowing the true number of clusters, or (iv) intractable analyses driven by independence assumptions coupled with machine-learning models that are hard to analyze theoretically. On the other hand, much of the scan-statistics literature alleviates computational costs by restricting the search space to specific geometrical shapes for the anomalies. While the 
+
+SaTScan software Kulldorff [2006] focuses on circular or elliptical patches [Tango and Takahashi, 2005, Kulldorff et al., 2006], another prominent approach employs rectangular scan windows. A substantial body of work [Neill and Moore, 2004, Arias-Castro et al., 2005, Walther, 2010, Arias-Castro et al., 2011, Bucchia, 2014, Sharpnack and Arias-Castro, 2016, Bucchia and Wendler, 2017, König et al., 2020, Dresvyanskiy et al., 2020, Kou, 2023, Makogin et al., 2024] has developed approximately linear-time algorithms for detecting axis-parallel (hyper)-rectangular patches in d-dimensional fields, primarily under independence. Theoretically, as noted by Sharpnack and Arias-Castro [2016], Bucchia and Wendler [2017], scanning over rectangular windows facilitates the derivation of tight asymptotic results even under complex spatial dependency structures. 4Moreover, rectangular clusters arise naturally in certain applications, including fibrous media [Wirjadi et al., 2014, Dresvyanskiy et al., 2019, 2020] and data mining [Huo, 2002]. In surveillance, criminology, and geography, axis-aligned rectangles and related raster-style grids are also preferred for three primary reasons: (i) they are operationally interpretable, allowing analysts to quickly link hotspots to concrete action levels like street segments [Chainey et al., 2008, Eck et al., 2005]; (ii) regular grids provide comparable micro-units for studying fine-scale heterogeneity, which is essential since crime is often concentrated at specific micro-places [Malleson et al., 2019, Weisburd, 2015]; and (iii) they permit fast multiscale scanning and rigorous statistical analysis, even if they are more restrictive than irregular shapes [Walther, 2010, Pei et al., 2009]. This utility is also demonstrated in CAVIAR video surveillance dataset [Fisher, 2004, Fisher et al., 2005], where subjects are identified via rectangular bounding boxes. The rectangular representation is computationally efficient; as noted in the CAVIAR documentation, restricting processing to such detection zones significantly improves speed while maintaining high performance. This shows why such box-based representations are attractive for surveillance analysis in general. Later, we analyze a part of the data using our proposed scalable method and contrast it with other baselines through the lens of precise localization. 
+
+Main contributions and Paper Organization: By focusing on axis-parallel rectangles as a canonical structured class of anomalies, we develop a computationally efficient O(|n|) algorithm that provides rigorous detection and localization guarantees under significantly richer spatial dependence structures than previously studied. Our core contributions are organized as follows: 
+
+• Optimal single-Patch localization (Section 2.1): We introduce a fast intelligent sub-sampling approach for localizing a single anomalous patch. Notably, for d = 1 , our method recovers optimal minimax rates, offering a highly scalable solution for epidemic time-series change point localization. 
+
+• Scalable multi-Patch detection (Section 3): Building on the single-patch localization algo-rithm, we develop a two-stage Spatial Patch Localization of Anomalies under DEpendence procedure (SPLADE) to simultaneously estimate an unknown number of anomalous patches and their precise boundaries . SPLADE enjoys strong theoretical guarantees under mini-mal separation assumptions and is highly scalable, unlike standard binary segmentation techniques that scale poorly in spatial settings. 
+
+• Strong empirical performance (Section 4): Extensive synthetic data experiments illustrate that SPLADE exhibits robustness to tuning parameters. More importantly, SPLADE enjoys significant gains in speed and accuracy across various patch configurations, signal strength and types of spatial dependence, compared to existing baselines, including DCART [Madrid Padilla et al., 2021] and recent extensions DPLS-SAD [Wang and Chao, 2025]. While competing methods falter under spatial dependence, our approach consistently achieves high Adjusted Rand Indices and low normalized Hausdorff distances, all the while maintaining attractive computational efficiency. 
+
+• Real-world efficacy (Section 5 and Appendix H): We validate our framework on video surveillance footage and 3D fibrous media, two domains inherently characterized by strong spatial dependence. For the first application, on video surveillance, we demonstrate the ability to accurately resolve and bound closely situated subjects in complex environments where baseline methods fail to distinguish individual entities. In the second application on fibrous media, we explored beyond 2D images to a 3D use-case, underlining the scalability SPLADE enjoys over other baselines. All theoretical proofs, auxiliary lemmas, and additional simulation studies are deferred to the Appendix. 
+
+Notation: For i ∈ Zd, |i| = i1 . . . , i d. Define a Rectangle I[a,b] ⊆ Zd with end-points a ∈ Zd
+
+and b ∈ Zd, given by I[a,b] = {x ∈ Zd : a < x ≤ b}, where for two vectors x and y ∈ Zd, we 5say x ≤ y if xj ≤ yj for j = 1(1) d. Note that, |I[a,b]| = |b − a|. We denote I[0,n] as [n]. We also denote the sample size n := |n|. For two points a, b ∈ Zd, let |a/b|min := min 1≤k≤d |ak/b k|,and correspondingly |a/b|∞ := max 1≤k≤d |ak/b k|. For sequences {an} and {bn}, an = O(bn) and 
+
+an = Θ( bn) imply lim n→∞ an/b n < ∞ and lim n→∞ an/b n → ∞ respectively. A∆B denotes the symmetric difference of two sets A and B.
+
+# 2 Localization of a single anomalous patch 
+
+Next, we introduce a generalized framework for spatial dependency. This foundation motivates our two-step localization strategy: first, a "naive" estimator with established theoretical consistency (Section 2.2), and second, an intelligent-sampling algorithm that ensures computational scalability while maintaining theoretical validity (Section 2.3). These components form the essential building blocks for our subsequent multiple-patch SPLADE methodology. 
+
+2.1 Preliminaries: dependent spatial fields 
+
+Let (εi)i∈Zd be a mean-zero stationary random field. We accommodate a very general dependence structure by assuming only that the εi’s satisfy a mild, maximal Lp bound for some p > 2.Formally, we require: 
+
+Assumption 2.1. For any rectangle I ⊆ [n], define its partial sum SεI := P 
+
+> j∈I
+
+εj . Assume that 
+
+∥ε0∥p < ∞ for some p > 2. Then, we require that 
+
+∥ max  
+
+> I⊆[n]
+
+|SεI |∥ p ≤ C′|n|1/2,
+
+where C′ is independent of n, but may depend on d and p.
+
+Assumption 2.1 serves as a spatial analogue of Rosenthal’s or Doob’s maximal inequality [Liu et al., 2013, Peligrad et al., 2007]. Proving such inequalities for d ≥ 2 is non-trivial due to lack of total ordering; the independent case was pioneered by Cairoli [1970] and extended to specific dependent martingales by others [Christofides and Serfling, 1990, Hirsch, 1995, Walsh, 2006]. Given its relative obscurity in statistics, we provide a proof in Appendix §A that also illustrates the mathematical techniques central to this paper. Next, we show validity of Assumption 2.1 across various spatial dependency mechanisms. 
+
+Example (m-dependent linear field) . Assumption 2.1 easily follows from Cairoli’s inequality for 
+
+m-dependent fields (See Lemma A.1), recently studied by Kirch et al. [2025]. 
+
+Example (Linear random fields) . Assumption 2.1 also holds (Lemma A.2) for the broad class of linear random fields that are not m- dependent 
+
+εi = X
+
+> s∈Zd
+
+asei−s, where X
+
+> s∈Zd
+
+as < ∞, e k i.i.d. with ∥e0∥p < ∞,
+
+which encompasses the Spatial Autoregressive Model (SAR) (See (4.1)) [Ord, 1975] widely used in econometrics and geography [Anselin and Bera, 1998, Cressie, 2015, Paul and Nath, 2024]. Later in Section 4, we revisit this model for simulations. Moving beyond such specific classes of dependence, arguably the most general representation for (εi)i∈Zd is given by the functional form: 
+
+εi = g(ei−s : s ∈ Zd), (2.1) where g : N∞ 
+
+> i=1
+
+Rd → Rd is a progressively measurable function and the innovations (ei)i∈Zd
+
+are i.i.d. This representation intuitively allows for spatial dependence from any direction and 6is directly inspired from writing the joint distribution of dependent random variables in terms of compositions of conditional quantile functions of i.i.d. uniform random variables. However, for meaningful analysis, we must control the influence of distant indices by imposing a decay structure on spatial correlations. A standard approach [El Machkouri et al., 2013, Bucchia, 2014, Steland, 2025] is to assume a finite long-run variance. 
+
+Assumption 2.2. The mean-zero spatial random field (εi)i∈Zd has a finite long-run variance σ2,defined by 
+
+σ2 = E[ε2
+
+> 0
+
+] + X
+
+> i̸=0
+
+E[ε0εi] < ∞
+
+A pertinent question is whether Assumption 2.2 suffices to guarantee Assumption 2.1. 
+
+Remark 2.1 (Assumption 2.1 under general dependency) . Under mild regularity conditions like Assumption 2.2, fields of type (2.1) satisfy a weaker version of Assumption 2.1. For instance, El Machkouri et al. [2013] establish: 
+
+Lemma 2.1 (Abridged from Proposition 1, El Machkouri et al. [2013]) . Under Assumption 2.2, for any rectangle I ⊆ [n], ∥SI ∥p ≤ C|I|1/2, where C is independent of n.
+
+However, confirming the full maximal inequality of Assumption 2.1 under general dependence remains an open problem in probability theory, primarily due to the lack of total ordering in 
+
+Zd. Existing results typically impose a causal structure to leverage Cairoli’s inequality. The most general formulation currently available (derived from Cuny et al. [2025] and recorded in Lemma B.1) restricts (2.1) to: 
+
+εi = g(ei−s : s ∈ Zd, s ≥ 0),
+
+which limits dependence to specific axial directions. Despite this technical gap for the fully general case, the extensive evidence validating Assumption 2.1 across diverse settings makes it a practical and reasonable condition. Under Assumption 2.1, we next introduce a theoretically valid but naive estimator for a single anomalous patch, denoted I0. Analyzing its computational limitations naturally motivates the fast, scalable algorithm developed in Section 2.3. 
+
+2.2 A naive estimator 
+
+We first establish key notation. Let τk = ( τk, 1, . . . , τ k,d ) ∈ [0 , 1] d for k = 1 , 2, and denote the true rectangular anomalous patch by I0 := Qdj=1 [nj τ1,j , n j τ2,j ]. For expositional simplicity, we assume nj τk,j ∈ N, ignoring negligible fractional rounding since n−1⌊nγ ⌋ ∼ γ asymptotically. We start with the “naive” least-squares estimator as: 
+
+ˆILS (λ1, λ 2) = arg min 
+
+> I⊂[n]
+> nλ 1<|I|<nλ 2
+
+X
+
+> k∈I
+
+(Xk − ¯XI )2 + X
+
+> k∈Ic
+
+(Xk − ¯XIc )2
+
+!
+
+, (2.2) where λ1 and λ2 act as search-space parameters bounding the admissible patch volume. Central to our analysis is an equivalent formulation of (2.2): 
+
+ˆILS (λ1, λ 2) = arg max 
+
+> I⊂[n]
+> nλ 1<|I|<nλ 2
+
+r |I|(n − | I|)
+
+n2 | ¯XI − ¯XIc |. (2.3) This representation streamlines the error analysis for localizing I0 by isolating the contrast between internal (the patch) and external sample means. Additionally, mirroring standard conventions in change-point localization, we assume the true anomaly is bounded away from the spatial domain boundaries: 7
+
+Assumption 2.3. Let a and b denote the endpoints of the rectangle I0. There exists a constant 
+
+c > 0 such that max {| a/n|min , 1 − | b/n|max } ≥ c.
+
+Generalizing the techniques of Bai [1994] to spatial random fields, we establish the consistency of 
+
+ˆILS .
+
+Theorem 2.2. Consider the model in (1.1) satisfying Assumption 2.1 for some p > p2( d − 1) ∨2.Let I0 satisfy Assumption 2.3 and define cn = min {| I0|/n, 1 − | I0|/n }. Provided nc 2
+
+> n
+
+δ2 → ∞ as 
+
+n → ∞ , the estimator (2.2) satisfies 
+
+|I0 ∆ ˆILS (C0cn, 1 − C 1cn)| = OP(r−1
+
+> n,δ
+
+), rn,δ := δ 21−2( d−1) /p 2   max {log 2
+
+√nδ , 1}− 2 
+
+> p2/(d−1) −2
+
+, (2.4) 
+
+for sufficiently small constants C0, C1 ∈ (0 , 1) .
+
+Theorem 2.2 introduces several important nuances regarding convergence rates, sufficient conditions, and search space selection. 
+
+Remark 2.2 (Convergence conditions and Assumption 2.3) . The sufficient condition for conver-gence is nc 2
+
+> n
+
+δ2 → ∞ . When |I0| ≍ n, this recovers the standard optimal condition nδ 2 → ∞ .For context, Wang and Chao [2025] achieves a localization rate of (max k nk)δ2 ≫ log n, which is minimax optimal without the boundary restrictions of Assumption 2.3. Comparable rates appear in Gaussian subgraph detection [Addario-Berry et al., 2010, Yu et al., 2022] and time-series literature, where the minimax bound nδ 2 ≫ log n relaxes to nδ 2 → ∞ , when change-points are bounded away from the edges [Wang et al., 2020]. Crucially, while such minimax bounds typically rely on strict (sub-)Gaussian data, our results hold under the significantly milder Assumption 2.1, completely avoiding any reliance on fast tail decay. Of particular interest is the fixed-alternative regime ( δ ≍ 1), where consistent localization requires cn ≫ n−1/2. Conversely, for degenerate “flat” rectangles (i.e., min k∈[d] |bk − ak| = 0 ), the patch volume satisfies |I| ≤ | n|min . Consistency here necessitates a diverging signal δ > n 1/2|n|−1min .For instance, if n = t0c for some t0 ∈ N and c ∈ (0 , 1] d, consistency requires δ → ∞ whenever 
+
+d > 2. Intuitively, the sparse signal from a lower-dimensional flat patch is easily overwhelmed by surrounding baseline noise. More generally, if cn ≍ n−γ , the signal must be sufficiently strong such that γ < 12 + log δ  
+
+> log n
+
+.
+
+Remark 2.3 (Duality of anomalous patch localization) . The rate nc 2
+
+> n
+
+δ2, governed by cn =min {| I0|/n, 1 − | I0|/n }, reveals an interesting duality : localization is equally difficult whether the patch is vanishingly small ( |I0|/n → 0) or overwhelmingly large ( |I0|/n → 1). While upper bounds on patch size have appeared in the literature [e.g., Assumption 2.iii in Wang and Chao, 2025], this explicit duality is rarely emphasized, though minimum size constraints occasionally appear Walther [2010], Sharpnack and Arias-Castro [2016]. Conceptually, if an anomaly dominates the spatial domain, the baseline effectively corresponds to the true “anomalous” patch. 
+
+Remark 2.4 . (Impact of spatial dimension and convergence rates) The rate rn,δ reflects an impact of d. For d = 1 (dependent time series), Theorem 2.2 recovers the standard δ−2 localization rate. See Hušková [1995], Bucchia [2014] Further, for a fixed d, if the spatial field (εi)i∈Zd possesses sufficiently many moments, such as sub-Weibull tails [Kontorovich, 2014], we again recover the near-optimal δ−2 rate, up to logarithmic factors. The primary limitation of (2.3) is computational: an exhaustive search over a grid Qdk=1 {1, · · · , n 0}
+
+requires O(n2d 
+
+> 0
+
+) operations, which is severely prohibitive for real-world applications. 
+
+2.3 Intelligent Sampling for Spatial Patch Localization 
+
+To overcome the O(n2d 
+
+> 0
+
+) computational bottleneck of ˆILS , we develop an efficient sub-sampling algorithm to localize I0. This method will also serve as a foundational building block for our 8subsequent multi-patch algorithm. Building on the “intelligent sampling” concept introduced by Lu et al. [2017] for univariate time series, we substantially generalize the framework to multi-dimensional spatial random fields. The core idea relies on a two-stage process: first, we apply the naive estimator to a coarsely sampled spatial grid to identify high-probability candidate regions containing the patch boundaries. Second, we restrict the refined search space exclusively to these localized subsets. This strategy yields massive computational speedups without sacrificing statistical accuracy. 
+
+Figure 1: Illustration of the two-stage intelligent subsampling procedure detailed in Algorithm 1. 
+
+To build intuition before formalizing the general algorithm, consider the d = 1 case un-der a fixed-alternative regime ( δ ≥ c > 0). We first construct a coarse subsample Y =
+
+{X1, X ⌊√n⌋, X ⌊2√n⌋, . . . } of size O(√n). Computing the naive estimate ˆI1 := ˆILS (Y) requires only O(n) operations, and by Theorem 2.2, its endpoints are guaranteed to lie within O(√n) of the true anomaly I0. Therefore, restricting our second-stage search to O(√n log n) neighborhoods around the endpoints of ˆI1 guarantees optimal localization of I0 with high probability. This restricted search reduces the second-stage complexity to just O(n log 2 n), a stark improvement over the O(n2) naive approach. Generalizing this two-stage refinement strategy to d-dimensional fields yields the proposed algorithm. Figure 1 provides a schematic illustration of Algorithm 1. 
+
+Algorithm 1 Single spatial patch localization  
+
+> 1:
+
+Input: X = ( Xi)i∈[n], α, κ . 
+
+> 2:
+
+for k = 1 to d do  
+
+> 3:
+
+Lk ← ⌊ nαk ⌋, Mk ← ⌈ nk/L k⌉. 
+
+> 4:
+
+Yk ← { (s − 1) Lk + 1 : s ∈ [Mk]}. 
+
+> 5:
+
+end for  
+
+> 6:
+
+Sub-sampled dataset: Y ← { Xi : i ∈ Qdk=1 Yk}, m ← |Y| . 
+
+> 7:
+
+ˆI[aI ,b I ] ← the preliminary naive estimate based on Y. 
+
+> 8:
+
+ˆLB ← Qdk=1 [LkaI,k − CL knκk (log n)1/d , L kaI,k + CL knκk (log n)1/d ]. 
+
+> 9:
+
+ˆRB ← Qdk=1 [LkbI,k − CL knκk (log n)1/d , L kbI,k + CL knκk (log n)1/d ]. 
+
+> 10:
+
+˜I := arg max     
+
+> i∈ˆLB,j∈ˆRB
+
+r |j − i|(n − | j − i|)
+
+n2 ¯XI[i,j] − ¯XIc 
+
+> [i,j]
+
+.In particular, the validity and consistency of ˜I based on Algorithm 1 depend heavily on the coarseness of the initial grid. Intuitively, a coarser subsample degrades the first-stage estimate, increasing the risk that the local enlargement sets ˆLB and ˆRB fail to capture the true rectangle’s endpoints. Conversely, the initial grid size directly dictates the computational speedup of Algorithm 1 over ˆILS , introducing a fundamental computational-statistical trade-off. We formalize this trade-off in the remarks following our next result, which establishes the consistency 9of Algorithm 1. 
+
+Theorem 2.3. Consider the model in (1.1) . Let n be sufficiently large such that rn,δ ≥
+
+(min k nk)−κ for some κ > 0, and assume n1−αc2
+
+> n
+
+δ2 → ∞ as n → ∞ . Let ˜I be the output of Algorithm 1 with parameters α, κ > 0 satisfying α + κ < 1. Under the assumptions of Theorem 2.2, it holds that 
+
+| ˜I∆I0| = OP(r−1
+
+> n,δ
+
+). (2.5) The parameter α in Theorem 2.3 governs a crucial statistical-computational tradeoff. While a smaller α relaxes the sufficient conditions for statistical consistency, a larger α reduces the computational cost of the preliminary estimate ˆI[aI ,b I ] at the expense of a more costly second-stage refinement for ˜I. We formalize this tradeoff below. 
+
+Remark 2.5 (Optimal choice of α). For simplicity, assume p ≫ √d (so rn,δ ≍ δ2 up to logarithmic factors) and uniform dimensions n1 ≍ . . . ≍ nd. Algorithm 1’s computational complexity is 
+
+O(n2(1 −α) + n2( α+κ) log 2 n). If the patch size scales as cn ≍ n−γ for some γ ∈ (0 , 1) , consistency requires α ∈ (0 , 1 − 2γ + 2 log δ  
+
+> log n
+
+). Balancing computational efficiency with this statistical constraint yields the optimal choice α⋆:
+
+α⋆ =
+
+( 1−κ 
+
+> 2
+
+, γ ∈  0, 1+ κ 
+
+> 4
+
++ log δ 
+
+> log n
+
+,
+
+1 − 2γ + 2 log δ  
+
+> log n
+
+, γ ∈  1+ κ 
+
+> 4
+
++ log δ  
+
+> log n
+
+, 12 + log δ 
+
+> log n
+
+.
+
+Since δ2 ≳ n−κ/d , it follows that 1+ κ 
+
+> 4
+
++ log δ  
+
+> log n
+
+≥ 14 + κ( 14 − 12d ). We detail the following obser-vations for regimes where the patch size is sufficiently large ( γ ∈ (0 , 1/4) ). Note that this still accommodates vanishing patches ( cn → 0 when γ > 0), provided they do not vanish too rapidly. 
+
+• For d = 2 , arguably the most common practical setting, we have α⋆ = 1−κ 
+
+> 2
+
+for all γ ∈ (0 , 1/4) ,provided δ2 ≳ n−κ/ 2 for κ > 0. Consequently, Algorithm 1 achieves a computational complexity of O(n1+ κ). This represents a massive speed-up over the naive estimator ˆILS , while preserving the optimal statistical consistency rate for realistically sized anomalous patches. 
+
+• As expected, computational complexity naturally increases as the signal strength δ decreases (which corresponds to a larger κ). 
+
+• Under a fixed alternative ( δ ≍ 1), we set κ ≈ 0, making the ideal first-stage block length 
+
+Lk(I) ≈ √nk. In this regime, Algorithm 1 achieves a near-linear runtime of O(n) up to logarith-mic factors. In contrast, under similar settings, existing approaches [e.g., Wang and Chao, 2025] require O(n3/2) operations for d = 2 , often without explicit theoretical guarantees for consistency. In summary, while Algorithm 1 successfully leverages subsampling to yield a computationally efficient and provably valid estimator, its current formulation fundamentally assumes the presence of only a single anomalous patch. Since the true number of anomalies is rarely known a priori in practice, this framework must be extended. Building on the foundations established in Section 2.3, the subsequent section develops a generalized algorithm capable of localizing multiple spatial patches. 
+
+# 3 Multiple spatial patch localization 
+
+Next, we address the generalized multi-patch localization problem introduced in (1.2) . To leverage the computational and statistical efficiency of Algorithm 1, we decompose the multiple-patch problem into several disjoint single-patch localization tasks that can be solved in parallel. This decomposition relies on a preliminary block-based testing procedure. Despite complex spatial dependence, functional central limit theorems typically yield an asymptotic Gaussian structure for the random field. Assuming for simplicity that the long-run variance is known, we derive an asymptotic threshold for a coarse screening step. This screening isolates a set of disjoint candidate regions, each containing a single true anomalous patch. We can then apply Algorithm 10  
+
+> Figure 2: Illustration of the workings of Algorithm 2.
+
+1 piecemeal to each candidate region. We introduce our proposed method, for multiple patch detection, as Spatial Patch Localization of Anomalies under DEpendence (SPLADE), detailing its practical nuances and formal theoretical guarantees below. Figure 2 provides a schematic of Algorithm 2. Assuming the true anomalous patches are sufficiently large and well-separated (for instance, overlapping along the y-axis but separated along the x-axis as in Figure 2, formalized later in Assumption 3.1) the key steps of Algorithm 2 proceed as follows: 
+
+• Let μ0 denote the baseline mean outside the anomalies. The algorithm begins with a block-based testing strategy using a threshold Q. The sample space [n] is partitioned into n1−α
+
+equal-sized rectangles, and a simultaneous test of E[Xi] = μ0 is performed on each block. Since the patches are large relative to the block size, uniform Gaussian approximations (formalized in Assumption 3.2) ensure that all blocks substantially overlapping with an anomaly are flagged with probability approaching one. 
+
+• Because the threshold controls a pre-specified Type I error, isolated false positive blocks will naturally occur. However, the probability of these false positives forming large connected components vanishes as n increases. Thus, we isolate only connected regions of blocks, denoted Cj , that contain a sufficient number of samples. Given the separation assumption, each selected region Cj captures exactly one anomalous patch, simultaneously yielding an accurate estimate of the total number of anomalies. 
+
+• Each connected region Cj is then enveloped by a slightly larger rectangle Dj such that all 
+
+Dj remain disjoint. Since each Dj isolates a single true anomaly, we can deploy Algorithm 1 in parallel across all Dj to accurately localize the patches. 
+
+Remark 3.1 (Computational complexity of Algorithm 2) . As in Remark 2.5, assume uniform dimensions n1 ≍ . . . ≍ nd ≍ n1/d . The first-stage testing requires O(n) computations, and the connected components can be identified in O(|M |) time using standard graph traversal techniques [e.g., Cormen et al., 2022]. Suppose the mean-shift δj of each patch Ij satisfies δ2 
+
+> j
+
+≫ n−κj /d .Applying Algorithm 1 with parameters (αj , κ j ) independently to each enveloping region Dj yields 11 a computational complexity of 
+
+O
+
+ KX
+
+> j=1
+
+|Ij |2(1 −αj ) + |Ij |2( αj +κj ) log 2 n
+
+
+
+.
+
+Choosing the optimal α⋆j = 1−κj 
+
+> 2
+
+in accordance with Remark 2.5 reduces the total complexity to O(n + PKj=1 |Ij |1+ κj ). If the number of anomalous patches K = O(1) , applying the trivial bound max j |Ij | ≤ n simplifies this to O(n1+max j κj ).
+
+Algorithm 2 SPLADE: Spatial Patch Localization of Anomalies under DEpendence  
+
+> 1:
+
+Input: X = ( Xi)i∈[n], block length parameter α, first-stage threshold Q. 
+
+> 2:
+
+for k = 1 to d do  
+
+> 3:
+
+Lk ← ⌊ nαk ⌋, Mk ← ⌈ nk/L k⌉. 
+
+> 4:
+
+For s ∈ [Mk], set  
+
+> 5:
+
+Ik(s) := (s − 1) Lk + 1 , (s − 1) Lk + 2 , . . . , min {sL k, n k} . 
+
+> 6:
+
+end for  
+
+> 7:
+
+Form blocks Bs := Ndk=1 Ik(sk) for s = ( s1, . . . , s d) ∈ Ndk=1 [Mk]. 
+
+> 8:
+
+Set |Bs| = Qdk=1 
+
+
+
+min {skLk, n k} − (sk − 1) Lk
+
+
+
+. 
+
+> 9:
+
+Define block means Xs := 1
+
+> |Bs|
+
+P 
+
+> i∈Bs
+
+Xi, s ∈ Ndk=1 [Mk]. 
+
+> 10:
+
+Initialize ˜M . 
+
+> 11:
+
+for each s ∈ Ndk=1 [Mk] do  
+
+> 12:
+
+if | ¯Xs| > Q then  
+
+> 13:
+
+˜M ← Bs. 
+
+> 14:
+
+end if  
+
+> 15:
+
+end for  
+
+> 16:
+
+Let {C1, . . . , C ˆK } be the connected components of ˜M , with min j |Cj | > n α log n. 
+
+> 17:
+
+for j = 1 to ˆK do  
+
+> 18:
+
+for k = 1 to d do  
+
+> 19:
+
+ℓjk ← min s∈Cj sk; rjk ← max s∈Cj sk. 
+
+> 20:
+
+end for  
+
+> 21:
+
+lj ← [L1ℓj 
+
+> 1
+
+−cL 1 log n, . . . , L dℓjd −cL d log n], rj ← [L1rj 
+
+> 1
+
++cL 1 log n, . . . , L drjd +cL d log n]. 
+
+> 22:
+
+Dj ← I[lj ,rj ], dj ← | Dj |. 
+
+> 23:
+
+ˆIj ← Algorithm 1 (Xi; i ∈ Dj ). 
+
+> 24:
+
+end for  
+
+> 25:
+
+return number of patches ˆK; estimated patches ˆIj , j ∈ [ ˆK].Crucially, for fixed alternatives where all δj ≍ 1 (implying κj = 0 ), the overall runtime is strictly O(n). To the best of our knowledge, this is the only algorithm that achieves linear-time computation for the spatial anomaly localization problem. In contrast, existing approaches such as Wang and Chao [2025] require O(n3/2) operations even when K is bounded by a constant. As anticipated in our informal discussion, the validity of Algorithm 2 hinges on two key condi-tions: (i) the anomalous patches must be well-separated, and (ii) a sufficiently sharp Gaussian approximation must hold to enable simultaneous testing of the first-stage block means. We formalize these assumptions below. 
+
+Assumption 3.1 (Minimum separation) . For any two rectangles I[i1,i2] and I[j1,j2] in [n], define the pseudo-metric 
+
+ρ(I[i1,i2], I [j1,j2]) = max  
+
+> k∈[d]
+
+max {0, j 1,k − i2,k , i 1,k − j2,k },12 
+
+and let ν(I[i1,i2], I [j1,j2]) denote the corresponding maximizer over k ∈ [d]. There exists an 
+
+α ∈ (0 , 1) such that the K disjoint anomalous patches I1, . . . , I K satisfy 
+
+min   
+
+> j̸=k
+
+ρ(Ij , I k) ≥ c0nαν⋆jk log n, 
+
+where ν⋆jk = ν(Ij , I k) and Ij = Qdk=1 [nkτ j
+
+> 1,k
+
+, n kτ j
+
+> 2,k
+
+].
+
+Assumption 3.1 ensures that any pair of anomalous patches is sufficiently separated along at least one of the d coordinate axes. The separation parameter α strictly governs the first-stage block-based testing procedure in Algorithm 2. Specifically, if we partition the domain into rectangular blocks with side lengths nαk for k ∈ [d], Assumption 3.1 guarantees that any two distinct patches Ij and Ik are separated by at least Θ( log n) many blocks along their axis of maximal separation, ν⋆jk .
+
+Assumption 3.2 (Uniform Gaussian approximation) . Let A be the collection of rectangles in 
+
+[0 , 1] d. For some n0 ∈ N, define An0 (A) := P 
+
+> i∈{ 1,...,n 0}d
+
+n0A ∩ I[i−1,i]. In a possibly enriched probability space, there exists a standard Brownian sheet W on [0 , 1] d such that 
+
+sup 
+
+> A∈A
+
+Sn(An0 (A)) − σn d/ 20 W(A) = oP(nd/q  
+
+> 0
+
+), (3.1) 
+
+for some q > 2, where σ > 0 is defined as in Assumption 2.2, and Sn(An0 (A)) = P  
+
+> i∈An0(A)
+
+εi.
+
+Assumption 3.2 plays a central role in our subsequent analysis by enabling a simultaneously valid, block-based testing procedure. Next, we discuss its implications. 
+
+Remark 3.2 (Discussion on Assumption 3.2) . Assumption 3.2 functions as a strengthened weak invariance principle (or functional central limit theorem) for spatial random fields. The q = 2 
+
+case in (3.1) is well-established for a broad class of stationary spatial random fields satisfying (2.1) [El Machkouri et al., 2013, Bucchia, 2014], building upon a rich history of classical results [Wichura, 1969, Poghosyan and Rœlly, 1998, Bulinski and Shashkin, 2007]. Stronger uniform Gaussian approximations requiring q > 2 have been extensively developed primarily for the d = 1 
+
+(time series) setting. Beginning with the seminal work of Komios et al. [1975], a large body of literature has established optimal exponents q = p (with p defined in Assumption 2.1) for general stationary time series [Sakhanenko, 1984, 1989, Zaitsev, 1998, Sakhanenko, 2006, Götze and Zaitsev, 2009, Liu and Lin, 2009, Wu and Zhou, 2011, Berkes et al., 2014, Karmakar and Wu, 2020, Bonnerjee et al., 2024]. Given this substantial evidence in one dimension, we adopt Assumption 3.2 as a standing condition for spatial fields ( d > 1). We do not strictly require the optimal exponent q = p,although such rates may well be attainable in higher dimensions. Rigorously establishing these uniform approximations for d > 1 remains a highly non-trivial open problem in probability theory, though recent advances in multiscale and high-dimensional spatial approximations [e.g., Proksch et al., 2018, Kurisu et al., 2024] offer promising steps towards this direction. The next result establishes the theoretical consistency guarantees of Algorithm 2. 
+
+Theorem 3.1. Suppose Assumptions 2.1, 2.2, and 3.2 hold for the underlying spatial random field (εi)i∈Zd . Further, assume the baseline mean is μ0 = 0 . Recall the definition of blocks Bs
+
+in Algorithm 2. Let Q be the (1 − κ)-th quantile of max s∈Qdk=1 [Mk (I)] |Bs|−1 σW(Bs) for some 
+
+κ ∈ (0 , 1) . Consider the model (1.1) with a bounded number of anomalous patches K ≤ C for some constant C > 0, and let these patches {Ij }j∈[K] satisfy Assumption 2.3. 
+
+• (First stage guarantee) Assume that the parameter α ∈ (0 , 1) in the first stage of Algorithm 2 is small enough to satisfy Assumption 3.1 and 
+
+min  
+
+> j∈[K]
+
+min  
+
+> k∈[d]
+
+n1−αk |τ j 
+
+> 2,k
+
+− τ j
+
+> 1,k
+
+| = Θ(log 1/d n), (3.2) 13 
+
+yet large enough to satisfy 
+
+min 
+
+ nα
+
+log n min  
+
+> j∈[K]
+
+δ2 
+
+> j
+
+, n α/ 2plog n|n|−d/q 
+
+> ∞
+
+
+
+→ ∞ as n → ∞ , (3.3) 
+
+where q > 2 is as defined in Assumption 3.2. Then, for Algorithm 2, it holds that 
+
+P( ˆK = K) → 1 as n → ∞ . (3.4) 
+
+• (Second stage guarantee) For each j ∈ [K], suppose there exists κj > 0 such that r|Ij |,δ j ≫
+
+( min k∈[d] |Ij |k)−κj . Moreover, suppose each individual application of Algorithm 1 within Algorithm 2 is performed with parameters αj small enough such that αj + κj < 1, and 
+
+min 
+
+> j∈[K]
+
+n2α log 3d n
+
+|Ij |1+ αj δ2 
+
+> j
+
+→ ∞ . (3.5) 
+
+Then, for any η > 0, there exists an Mη > 0 such that the estimates ˆK and ˆIj (for j ∈ [ ˆK])from Algorithm 2 satisfy 
+
+P |Ij ∆ ˆIj | > M ηr−1 
+
+> n,δ j
+
+for all j ∈ [K] ˆK = K < η. (3.6) Theorem 3.1 ensures that Algorithm 2 accurately estimates the true number of anomalous patches while localizing each individual patch at the optimal rate rn,δ j , matching the performance of the naive estimator. To the best of our knowledge, this establishes Algorithm 2 as the only method capable of consistently localizing rectangular anomalies under spatial dependence, while potentially achieving an O(n) computational complexity .The theoretical guarantees of Theorem 3.1 rely on specific technical conditions governing the choice of α in the first stage and the parameters {αj , κ j }Kj=1 in the second stage. We detail these requirements below. Throughout this discussion, we treat the true number of anomalies K as fixed relative to n and n, and we condition on the event that ˆK = K.
+
+Remark 3.3 (Choice of first-stage block-size parameter α). The choice of α is closely tied to the true patch sizes |Ij | and their mean-shifts δj . Following Remark 2.5, assume uniform dimensions 
+
+n1 ≍ . . . ≍ nd ≍ n1/d , and suppose the relative boundaries τ j
+
+> 1,k
+
+, τ j 
+
+> 2,k
+
+are independent of n. Under these conditions, Assumption 3.1 and (3.2) are trivially satisfied for any α ∈ (0 , 1) , and (3.3) simplifies to 
+
+α ∈
+
+
+
+max 
+
+ 2
+
+q , −2 min j∈[K] log |δj |
+
+log n
+
+
+
+, 1
+
+
+
+. (3.7) Equation (3.7) requires q > 2 (from Assumption 3.2) and min j∈[K] |δj | ≫ n−1/2. This is an extremely mild lower bound, ensuring the anomalous patches remain discernible at the scale of the lattice Zd. As we detail next, this choice of α also fundamentally constrains the individual patch localizations in the second stage of Algorithm 2. 
+
+Remark 3.4 (Choice of second-stage tuning parameters αj ). Analyzing (3.5) under the conditions of Remark 3.3, the parameters α and αj must satisfy n2α−1−αj δ2 
+
+> j
+
+→ ∞ . This condition is strictly stronger than the nδ 2 → ∞ requirement in Theorem 2.2, reflecting the fundamental trade-off necessary to achieve computational efficiency. Ignoring logarithmic factors, this requires 
+
+αj ∈
+
+
+
+0, 2
+
+
+
+α + log |δj |
+
+log n
+
+
+
+− 1
+
+
+
+,
+
+which implicitly necessitates α > 1/2 − (log |δj |)/ log n. Our empirical ablation studies, presented in §4.1, highlight the robustness of SPLADE across different choices of α for various light-tailed 14 settings, provided the theoretical constraints are satisfied. To further align with Theorem 2.3, as-sume |δj | ≍ n−κj /(2 d) for κj ∈ (0 , 2d), and let min j∈[K] κj = 0 (meaning at least one patch exhibits a constant-order mean shift). For sufficiently large n, we have 1/q ≫ max j∈[K] κj /(2 d log n),which simplifies the feasible parameter range to: 
+
+α ∈ (2 /q, 1) and αj ∈
+
+
+
+0, 2
+
+
+
+α − κj
+
+2d − 12
+
+ 
+
+. (3.8) While the O(n) complexity of the first stage is independent of α, the efficiency of the second stage relies heavily on αj . Having argued κj ≈ 0 in §2.3, in light of (3.8) we choose αj = 1 /2,which yields a fully linear-time algorithm. The discussion on estimating the parameters μ0 and σ is deferred to Appendix F. 
+
+# 4 Performance Evaluation 
+
+In this section, we provide empirical evidence corroborating the established theoretical guarantees. We first provide a sensitivity analysis on the stability of SPLADE across different choices of tuning parameters. Subsequently, we compare it extensively against three baselines: DCART [Madrid Padilla et al., 2021], a fused-lasso approach denoted as TV [Tansey and Scott, 2015], and, in selected settings, DPLS-SAD [Wang and Chao, 2025]. An implementation of SPLADE is publicly available at https://github.com/sohamb01/SPLADE. We evaluate computational efficiency, localization accuracy, and robustness across varying grid sizes and anomalous patch layouts, spatial dependence structures, and signal strengths. Performance is assessed using the following metrics: the mean number of detected patches, the empirical probability of correctly estimating the true number of patches, the Adjusted Rand Index (ARI), the average runtime per iteration (in seconds 1), and the normalized Hausdorff distance defined as follows: For 
+
+G := {1, . . . , N } × { 1, . . . , N }, Λ0 := G \ SKk=1 Λk, bΛ0 := G \ S bKk=1 bΛk, let C := {Λk : 0 ≤ k ≤
+
+K, Λk̸ = ∅}, bC := {bΛk : 0 ≤ k ≤ bK, bΛk̸ = ∅}. For A, B ⊆ G , define the Jaccard distance 
+
+dJ (A, B ) := |A△B|/|A ∪ B| with the convention dJ (∅, ∅) = 0 . The normalized two-sided Hausdorff distance between C and bC is 
+
+dH (C, bC) := max 
+
+(
+
+max  
+
+> C∈C
+
+min  
+
+> bC∈bC
+
+dJ (C, bC), max  
+
+> bC∈bC
+
+min  
+
+> C∈C
+
+dJ ( bC, C )
+
+)
+
+.
+
+All reported results are averaged over 100 independent replicates across diverse experimental conditions. 
+
+4.1 Sensitivity analysis for SPLADE 
+
+In this section, we consider the following setting. 
+
+• Grid sizes ( N × N ): For ablation, N = 500 , 750 and 1000 .
+
+• Configuration 1 of anomalous patches: Layout of 3 true patches (Figure 3a). 
+
+• Spatial dependence structure: We consider a SAR( ρ) process defined as 
+
+εi = ρ X 
+
+> j∈N (i)
+
+wij εj + ei, (4.1) with ei iid 
+
+∼ N (0 , 1) and wij = 1{j∈N (i)}|N (i)| , where neighborhood N (i) can have cardinality of 2, 3 or 4 depending on i-th pixel’s position at corner, edge or interior respectively. For 
+
+> 1All computations are run on 13th Gen intel(R) Core(TM) i9-13900K
+
+15 
+
+(a) Individual jumps are δμ (left), δμ (top right), and −δμ (bottom right) 
+
+(b) Individual jumps are δμ (bottom left), 2δμ (top left), 
+
+3δμ (top right), 4δμ (bottom right), and 5δμ (center) 
+
+Figure 3: Illustration of anomalous patch configurations used for performance assessment. 
+
+the sensitivity analysis, we vary ρ ∈ { 0.25 , 0.5}, and keep the signal strength δμ in the anomalous patches fixed at 1. Some additional ablation studies for a non-linear distribution are deferred to Appendix G.1. Across all experimental settings, we implement SPLADE (Algorithm 2) with varying α ∈{0.4, 0.5, 0.6}, and we fix the second-stage tuning parameters (Algorithm 1) to αj = 0 .5 for all j ∈ [ ˆK]. The corresponding results are presented in Table 1. SPLADE seems to perform equally well for all three choices of α. This result is not surprising based on (3.7) and (3.8) ,whose prescribed ranges are being further widened by the light-tailed Gaussian distribution of the SAR( ρ) errors. Importantly, our theoretical results require only the minimal assumption of a finite p-th moment, and so the theoretically motivated choices of α may, prima facie, seem somewhat conservative. Nevertheless, SPLADE is robust across a wide range of α, highlighting its stability and further strengthening the consistent improvements in both accuracy and speed over competitors in §4.2. 
+
+Table 1: Sensitivity analysis of SPLADE (on α from Stage 1 of Algorithm 2) for Config. 1 with δμ = 1 
+
+under SAR ρ. Each cell reports average over 100 replicates in the order α = 0 .4 / α = 0 .5 / α = 0 .6.                                  
+
+> NSAR( ρ)ˆKmean I( ˆK= 3) ARI Hausdorff 500 0.25 3.01 / 3.02 / 3.00 0.99 / 0.98 / 1.00 0.986 / 0.975 / 0.977 0.051 / 0.090 / 0.063 0.50 3.01 / 3.02 / 3.00 0.99 / 0.98 / 1.00 0.977 / 0.967 / 0.969 0.078 / 0.111 / 0.085 750 0.25 3.00 / 3.00 / 3.00 1.00 / 1.00 / 1.00 0.982 / 0.985 / 0.983 0.034 / 0.044 / 0.050 0.50 3.00 / 3.00 / 3.00 1.00 / 1.00 / 1.00 0.979 / 0.984 / 0.977 0.049 / 0.048 / 0.065 1000 0.25 3.00 / 3.00 / 2.98 1.00 / 1.00 / 0.96 0.993 / 0.996 / 0.980 0.018 / 0.014 / 0.059 0.50 3.00 / 3.00 / 2.97 1.00 / 1.00 / 0.95 0.991 / 0.991 / 0.976 0.024 / 0.033 / 0.071
+
+4.2 Comparative studies 
+
+In this section, we provide a detailed comparison against other baseline approaches across diverse settings. In particular, we consider the following. 
+
+• Grid sizes ( N × N ): Owing to scalability and other restrictions in the comparative study (eg. the restriction of 2k × 2k for DCART), we choose N = 256 and 512 .
+
+• Configuration 2 of anomalous patches: In addition to Configuration 1 in §4.1, we also consider a layout of 5 true patches (Figure 3b), closely mirroring Scenario 4 from DCART proposed in Madrid Padilla et al. [2021]. 16 
+
+• Spatial dependence structure: Similar to §4.1, we consider SAR( ρ) process with ρ ∈{0.04 , 0.4, 0.8}. Here, the ρ = 0 .04 approximates the i.i.d. setting assumed by DCART. Some additional simulations for a non-linear distribution are deferred to Appendix G. 
+
+• Signal strengths: We vary the signal strength δμ ∈ { 0.2, 0.4, 0.6, 0.8, 1} for an exhaustive picture of the performance of SPLADE in both low and high SNR regimes. For this section, across all experimental settings, we implement SPLADE (Algorithm 2) with the first-stage parameter set to α = 0 .5, and we fix the second-stage tuning parameters (Algorithm 1) to αj = 0 .5 for all j ∈ [ ˆK]. For the baseline methods, DCART and TV, we define the penalty parameter grids for λ as {5, 6.78 , . . . , 30 } and {10 c : c ∈ {− 1, −0.785 , . . . , 3}} ,respectively, following the default recommendations in Madrid Padilla et al. [2021]. 
+
+Table 2: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and SAR ρ for Config. 1 (Fig 3a). Each cell reports average over 100 replicates in the order DCART / SPLADE / TV. 
+
+Jump ˆK I( ˆK = 3) ARI Hausdorff distance time/iter (sec) 
+
+Grid = 256 × 256 
+
+ρ = 0 .04 
+
+0.2 4.78 / 3.66 / 1.34 0.09 / 0.43 / 0.03 0.187 / 0.490 / 0.006 0.86 / 0.86 / 0.96 8.88 / 2.58 / 4.92 0.4 3.72 / 3.00 / 1.18 0.25 / 1.00 / 0.00 0.353 / 0.702 / 0.026 0.93 / 0.52 / 0.95 8.81 / 4.24 / 5.36 0.6 2.83 / 3.00 / 1.31 0.31 / 1.00 / 0.03 0.275 / 0.792 / 0.057 0.95 / 0.38 / 0.95 8.85 / 5.05 / 5.87 0.8 2.63 / 3.00 / 1.42 0.34 / 1.00 / 0.01 0.249 / 0.866 / 0.097 0.96 / 0.25 / 0.96 8.99 / 6.04 / 6.18 1.0 2.99 / 2.99 / 1.38 0.37 / 0.99 / 0.04 0.274 / 0.886 / 0.140 0.97 / 0.20 / 0.95 8.98 / 6.37 / 6.72 
+
+ρ = 0 .40 
+
+0.2 7.74 / 1.68 / 1.32 0.04 / 0.12 / 0.04 0.040 / 0.108 / 0.005 0.99 / 0.95 / 0.95 16.38 / 1.21 / 8.85 0.4 7.02 / 3.07 / 1.39 0.09 / 0.93 / 0.05 0.052 / 0.685 / 0.022 0.99 / 0.58 / 0.96 8.93 / 3.77 / 5.60 0.6 6.21 / 3.00 / 1.37 0.07 / 1.00 / 0.04 0.013 / 0.789 / 0.049 1.00 / 0.39 / 0.96 9.00 / 4.89 / 6.07 0.8 5.82 / 3.00 / 1.45 0.09 / 1.00 / 0.03 0.022 / 0.858 / 0.083 1.00 / 0.26 / 0.96 9.03 / 5.56 / 6.33 1.0 5.26 / 3.00 / 1.40 0.14 / 1.00 / 0.05 0.028 / 0.892 / 0.123 1.00 / 0.20 / 0.95 9.12 / 6.04 / 6.83 
+
+ρ = 0 .80 
+
+0.2 28.95 / 0.10 / 2.00 0.00 / 0.00 / 0.24 −0.002 / 0.002 / 0.001 1.00 / 0.94 / 0.98 36.00 / 0.14 / 6.09 0.4 28.77 / 0.79 / 2.15 0.00 / 0.04 / 0.31 −0.002 / 0.049 / 0.008 1.00 / 0.94 / 0.98 36.05 / 0.37 / 6.43 0.6 28.51 / 2.92 / 2.00 0.00 / 0.30 / 0.24 −0.002 / 0.289 / 0.019 1.00 / 0.93 / 0.98 36.17 / 1.38 / 6.60 0.8 28.25 / 3.66 / 2.03 0.00 / 0.43 / 0.22 −0.002 / 0.656 / 0.034 1.00 / 0.75 / 0.98 36.20 / 3.17 / 6.82 1.0 28.12 / 3.21 / 2.30 0.00 / 0.80 / 0.28 −0.003 / 0.815 / 0.052 1.00 / 0.43 / 0.99 36.71 / 4.62 / 7.18 
+
+Grid = 512 × 512 
+
+ρ = 0 .04 
+
+0.2 3.60 / 5.71 / 1.10 0.33 / 0.04 / 0.01 0.348 / 0.369 / 0.003 0.92 / 0.97 / 0.98 68.31 / 9.34 / 31.20 0.4 2.53 / 3.00 / 1.12 0.27 / 1.00 / 0.01 0.203 / 0.782 / 0.010 0.97 / 0.43 / 0.98 40.44 / 20.33 / 22.91 0.6 2.04 / 3.00 / 1.30 0.23 / 1.00 / 0.04 0.211 / 0.891 / 0.022 0.95 / 0.23 / 0.97 40.79 / 26.08 / 25.13 0.8 1.97 / 3.00 / 1.13 0.15 / 1.00 / 0.00 0.200 / 0.948 / 0.037 0.96 / 0.11 / 0.96 65.32 / 43.92 / 37.55 
+
+1.0 2.17 / 3.00 / 1.25 0.24 / 1.00 / 0.01 0.306 / 0.967 / 0.054 0.93 / 0.06 / 0.95 37.92 / 27.52 / 23.73 
+
+ρ = 0 .40 
+
+0.2 9.57 / 0.06 / 1.25 0.01 / 0.00 / 0.02 0.107 / 0.002 / 0.002 1.00 / 0.94 / 0.98 68.99 / 0.36 / 31.79 0.4 8.40 / 3.23 / 1.28 0.05 / 0.81 / 0.02 0.019 / 0.764 / 0.009 1.00 / 0.53 / 0.98 40.68 / 15.34 / 23.71 0.6 6.99 / 3.00 / 1.24 0.08 / 1.00 / 0.02 0.036 / 0.877 / 0.021 1.00 / 0.28 / 0.97 40.84 / 22.12 / 24.99 0.8 7.12 / 3.00 / 1.26 0.14 / 1.00 / 0.04 0.045 / 0.934 / 0.035 1.00 / 0.15 / 0.96 66.66 / 40.63 / 40.27 
+
+1.0 6.36 / 3.00 / 1.32 0.13 / 1.00 / 0.05 0.061 / 0.963 / 0.052 1.00 / 0.07 / 0.95 38.13 / 26.40 / 25.07 
+
+ρ = 0 .80 
+
+0.2 104.32 / 0.00 / 1.56 0.00 / 0.00 / 0.04 −0.001 / 0.000 / 0.001 1.00 / 0.94 / 0.98 565.48 / 0.42 / 49.88 0.4 103.90 / 0.00 / 1.52 0.00 / 0.00 / 0.12 −0.001 / 0.000 / 0.005 1.00 / 0.94 / 0.98 425.19 / 0.36 / 48.41 0.6 103.82 / 0.52 / 1.70 0.00 / 0.00 / 0.12 −0.001 / 0.026 / 0.013 1.00 / 0.94 / 0.98 437.93 / 0.71 / 52.72 0.8 103.54 / 4.88 / 1.68 0.00 / 0.18 / 0.14 −0.001 / 0.363 / 0.023 1.00 / 0.96 / 0.98 471.83 / 4.88 / 55.70 1.0 102.66 / 4.44 / 1.66 0.00 / 0.18 / 0.12 −0.001 / 0.901 / 0.035 1.00 / 0.66 / 0.97 409.01 / 13.68 / 56.61 
+
+Tables 2 and 3 summarize the comparative performance of DCART, SPLADE, and TV across a diverse range of experimental configurations. Notably, DPLS-SAD [Wang and Chao, 2025] is excluded from these comprehensive evaluations due to its prohibitive computational runtime; in 17 
+
+Table 3: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and SAR ρ for Config. 2 (5 patches). Each cell reports average over 100 replicates in the order DCART / SPLADE / TV. 
+
+Jump ˆK I( ˆK = 5) ARI Hausdorff distance time/iter (sec) 
+
+Grid = 256 × 256 
+
+ρ = 0 .04 
+
+0.2 6.30 / 4.78 / 1.33 0.14 / 0.68 / 0.00 0.621 / 0.752 / 0.059 0.84 / 0.75 / 0.97 9.94 / 4.01 / 4.93 0.4 5.72 / 5.00 / 1.54 0.34 / 1.00 / 0.00 0.797 / 0.877 / 0.194 0.89 / 0.40 / 0.98 9.69 / 4.99 / 5.38 0.6 5.52 / 5.00 / 6.00 0.34 / 1.00 / 0.34 0.851 / 0.930 / 0.831 0.73 / 0.21 / 0.99 9.76 / 5.36 / 3.76 
+
+0.8 5.86 / 5.00 / 6.72 0.27 / 1.00 / 0.18 0.878 / 0.951 / 0.852 0.73 / 0.13 / 0.99 9.67 / 5.65 / 4.00 
+
+1.0 6.16 / 5.00 / 7.32 0.22 / 1.00 / 0.05 0.905 / 0.958 / 0.902 0.74 / 0.10 / 0.99 9.85 / 5.77 / 3.97 
+
+ρ = 0 .40 
+
+0.2 9.82 / 4.24 / 1.49 0.04 / 0.24 / 0.00 0.402 / 0.715 / 0.051 1.00 / 0.90 / 0.98 9.62 / 3.57 / 4.92 0.4 8.91 / 5.01 / 1.68 0.04 / 0.95 / 0.01 0.528 / 0.865 / 0.172 1.00 / 0.50 / 0.98 9.79 / 4.85 / 5.47 0.6 9.02 / 5.00 / 2.20 0.05 / 1.00 / 0.02 0.651 / 0.920 / 0.302 0.99 / 0.26 / 0.99 9.80 / 5.28 / 5.72 0.8 9.18 / 5.00 / 7.01 0.02 / 1.00 / 0.10 0.668 / 0.944 / 0.834 1.00 / 0.16 / 0.99 9.71 / 5.57 / 4.07 
+
+1.0 9.51 / 5.00 / 7.67 0.01 / 1.00 / 0.04 0.713 / 0.954 / 0.855 1.00 / 0.11 / 0.99 9.95 / 5.72 / 4.00 
+
+ρ = 0 .80 
+
+0.2 29.07 / 2.85 / 2.13 0.00 / 0.03 / 0.00 −0.002 / 0.456 / 0.020 1.00 / 0.96 / 0.99 37.35 / 2.23 / 5.34 0.4 28.72 / 4.13 / 2.29 0.00 / 0.18 / 0.01 −0.002 / 0.738 / 0.078 1.00 / 0.92 / 0.99 37.34 / 3.86 / 5.83 0.6 28.79 / 4.43 / 2.89 0.00 / 0.39 / 0.05 −0.001 / 0.818 / 0.147 1.00 / 0.80 / 1.00 37.58 / 4.57 / 6.10 0.8 28.83 / 4.74 / 3.82 0.00 / 0.68 / 0.19 −0.001 / 0.865 / 0.203 1.00 / 0.61 / 1.00 38.00 / 4.96 / 6.40 1.0 29.41 / 4.97 / 5.71 0.00 / 0.89 / 0.20 0.043 / 0.908 / 0.239 1.00 / 0.38 / 1.00 38.60 / 5.28 / 6.37 
+
+Grid = 512 × 512 
+
+ρ = 0 .04 
+
+0.2 5.86 / 4.89 / 1.22 0.30 / 0.67 / 0.00 0.729 / 0.822 / 0.023 0.82 / 0.78 / 0.97 36.43 / 18.76 / 20.76 0.4 5.91 / 5.00 / 1.27 0.27 / 1.00 / 0.00 0.849 / 0.944 / 0.059 0.79 / 0.27 / 0.97 37.15 / 23.49 / 22.81 
+
+0.6 6.03 / 5.00 / 1.39 0.25 / 1.00 / 0.00 0.895 / 0.969 / 0.080 0.78 / 0.14 / 0.97 36.94 / 24.09 / 24.46 0.8 5.86 / 5.00 / 1.40 0.30 / 1.00 / 0.00 0.929 / 0.981 / 0.103 0.59 / 0.07 / 0.97 37.57 / 24.61 / 26.88 1.0 5.87 / 5.00 / 1.43 0.19 / 1.00 / 0.00 0.940 / 0.986 / 0.162 0.47 / 0.04 / 0.97 39.75 / 28.11 / 30.21 
+
+ρ = 0 .40 
+
+0.2 11.58 / 4.10 / 1.24 0.05 / 0.10 / 0.00 0.428 / 0.776 / 0.022 1.00 / 0.95 / 0.97 36.81 / 16.70 / 21.00 0.4 10.70 / 5.07 / 1.36 0.03 / 0.94 / 0.00 0.527 / 0.936 / 0.061 1.00 / 0.32 / 0.97 37.37 / 22.87 / 23.54 0.6 9.67 / 5.00 / 1.46 0.03 / 1.00 / 0.00 0.629 / 0.966 / 0.087 0.98 / 0.16 / 0.97 37.15 / 24.02 / 24.92 0.8 9.62 / 5.00 / 1.57 0.02 / 1.00 / 0.00 0.691 / 0.978 / 0.113 0.97 / 0.09 / 0.98 37.74 / 24.64 / 26.92 1.0 9.53 / 5.00 / 1.53 0.00 / 1.00 / 0.00 0.731 / 0.985 / 0.168 1.00 / 0.04 / 0.98 39.96 / 27.99 / 31.05 
+
+ρ = 0 .80 
+
+0.2 103.40 / 2.25 / 1.72 0.00 / 0.02 / 0.00 −0.001 / 0.360 / 0.014 1.00 / 0.96 / 0.98 404.87 / 4.33 / 42.81 0.4 102.85 / 3.71 / 1.79 0.00 / 0.04 / 0.00 −0.001 / 0.732 / 0.051 1.00 / 0.95 / 0.98 404.71 / 14.33 / 48.50 0.6 103.18 / 4.04 / 1.92 0.00 / 0.04 / 0.00 −0.001 / 0.845 / 0.095 1.00 / 0.94 / 0.99 419.63 / 20.06 / 53.21 0.8 106.10 / 4.70 / 2.00 0.00 / 0.58 / 0.00 −0.001 / 0.876 / 0.139 1.00 / 0.77 / 0.99 383.13 / 20.81 / 55.35 1.0 112.32 / 5.20 / 2.16 0.00 / 0.82 / 0.00 0.019 / 0.963 / 0.187 1.00 / 0.28 / 0.99 317.32 / 25.55 / 51.02 18 many of our experimental configurations, the algorithm failed to terminate within a practical time frame. Regarding computational efficiency, SPLADE is consistently the fastest method across nearly all settings; in the rare instances where TV marginally outperforms it, TV incurs a severe cost in accuracy. While average iteration times naturally scale with grid size and spatial dependence, SPLADE maintains a distinct advantage in these more challenging scenarios, achieving speed-ups of up to 15–20x over DCART and 4x over TV. Further, while the 5-patch layout (Configuration 2) increases the computational burden for all methods, it concurrently highlights the most substantial relative speed improvements for SPLADE. It is important to note that DCART was implemented with an Rcpp accelerator, which makes the contrast in speed even more stark. In terms of statistical performance, SPLADE generally yields the most accurate estimation of the true number of patches, struggling only when the baseline jump size is exceptionally small. Strong spatial dependence ( ρ = 0 .8) degrades the performance of all methods; however, as the jump size (and correspondingly, the signal-to-noise ratio) increases, SPLADE recovers its count accuracy much more rapidly than competing methods. A similar trend is evident in the Adjusted Rand Index (ARI). SPLADE comprehensively outperforms the competing methods, and it is the only approach whose ARI reliably approaches 1 under high dependence as the signal strength grows. Finally, evaluating localization accuracy via the normalized Hausdorff distance reveals that SPLADE’s estimation error decreases significantly as the jump size increases, whereas the error rates of DCART and TV stagnate or exhibit only marginal improvements. Table 4 compares DPLS-SAD and SPLADE on a reduced 64 ×64 grid, a necessary constraint to bypass the severe computational bottlenecks DPLS-SAD encounters on larger domains. Because the original code is unavailable, we evaluated DPLS-SAD using a custom implementation based directly on the authors’ pseudocode. For this targeted experiment, we test dependence levels 
+
+ρ ∈ { 0.2, 0.4, 0.6} and jump sizes δμ ∈ { 0.5, 0.75 , 1}.The trends across all accuracy metrics align closely with our broader findings against DCART and TV. Computationally, SPLADE achieves massive speedups of 50 to 100 × over our pure R
+
+implementation of DPLS-SAD (noting that, unlike the provided DCART package, our DPLS-SAD implementation lacks Rcpp acceleration). We further contextualize this stark difference in time complexity in the real data analysis (Section 5). 
+
+# 5 Real-world data application: video surveillance footage 
+
+In this section, we demonstrate the practical utility of our proposed method through the analysis of video surveillance footage. Specifically, we apply SPLADE to capture the spatial dynamics of two individuals meeting, evaluating the method’s resolution and localization accuracy as the subjects physically approach one another. An additional real-world application concerning anomaly detection in fiber systems is deferred to Appendix H. The CAVIAR project 2 serves as a foundational benchmark in the field of public surveillance. It provides staged indoor video sequences featuring realistic scenarios, frame-level annotations, and semantically labeled behaviors such as walking alone, meeting, and window shopping. Due to its high-quality ground truth, the dataset has been widely adopted for the reproducible evaluation of detection, tracking and high-level activity analysis [Fisher, 2004, CAVIAR Project, 2005]. Further, it has significantly influenced the development of context-aware perception for ambient intelligence and human-centered video understanding [Crowley and Reignier, 2003]. Subsequent research has utilized CAVIAR for diverse tasks, including short-term activity recognition [Ribeiro and Santos-Victor, 2005], anomalous trajectory detection [Sillito and Fisher, 2008], and multi-target tracking with social grouping cues [Qin and Shelton, 2012] and change point analysis [Bai et al., 2020]. It remains a staple benchmark in contemporary surveys of 
+
+> 2EC Funded CAVIAR project/IST 2001 37540, available at: http://homepages.inf.ed.ac.uk/rbf/CAVIAR/.
+
+19    
+
+> Table 4: Comparison of DPLS-SAD and SPLADE across grid sizes, jump sizes, and SAR ρfor Config. 1 (3 patches). Each cell reports average over 100 replicates in the order DPLS-SAD / SPLADE.
+
+Jump ˆK I( ˆK = 3) ARI Hausdorff distance time/iter (sec) 
+
+Grid = 64 × 64 
+
+ρ = 0 .2
+
+0.50 0.56 / 2.29 0.00 / 0.44 0.003 / 0.372 0.96 / 0.83 41.40 / 1.15 
+
+0.75 0.69 / 2.77 0.00 / 0.75 0.006 / 0.534 0.96 / 0.64 38.10 / 0.72 
+
+1.00 0.76 / 2.40 0.00 / 0.50 0.010 / 0.511 0.96 / 0.71 43.51 / 2.42 
+
+ρ = 0 .4
+
+0.50 0.50 / 1.51 0.00 / 0.09 0.003 / 0.239 0.95 / 0.90 40.77 / 0.64 
+
+0.75 0.63 / 2.69 0.00 / 0.67 0.005 / 0.474 0.96 / 0.73 37.74 / 0.59 
+
+1.00 0.71 / 2.76 0.00 / 0.76 0.009 / 0.568 0.96 / 0.60 38.25 / 0.80 
+
+ρ = 0 .6
+
+0.50 0.36 / 0.67 0.00 / 0.01 0.002 / 0.088 0.95 / 0.92 38.63 / 0.30 
+
+0.75 0.50 / 1.80 0.00 / 0.15 0.004 / 0.306 0.95 / 0.88 40.15 / 0.86 
+
+1.00 0.69 / 2.58 0.00 / 0.57 0.008 / 0.484 0.96 / 0.77 13.35 / 0.24 Grid = 128 × 128 
+
+ρ = 0 .2
+
+0.50 0.00 / 3.02 0.00 / 0.96 0.000 / 0.597 0.93 / 0.64 121.46 / 3.87 
+
+0.75 0.00 / 3.00 0.00 / 0.98 0.000 / 0.749 0.93 / 0.42 168.22 / 2.89 
+
+1.00 0.00 / 2.98 0.00 / 0.96 0.000 / 0.820 0.93 / 0.31 110.97 / 2.49 
+
+ρ = 0 .4
+
+0.50 0.00 / 3.02 0.00 / 0.70 0.000 / 0.526 0.93 / 0.75 109.54 / 1.35 
+
+0.75 0.00 / 3.00 0.00 / 0.98 0.000 / 0.736 0.93 / 0.45 167.38 / 2.71 
+
+1.00 0.00 / 3.00 0.00 / 0.98 0.000 / 0.808 0.93 / 0.32 167.80 / 3.14 
+
+ρ = 0 .6
+
+0.50 0.00 / 1.79 0.00 / 0.23 0.000 / 0.240 0.93 / 0.93 126.89 / 1.30 
+
+0.75 0.00 / 3.12 0.00 / 0.80 0.000 / 0.649 0.93 / 0.64 69.53 / 0.96 
+
+1.00 0.00 / 3.01 0.00 / 0.97 0.000 / 0.782 0.93 / 0.38 160.13 / 2.71 20 surveillance-oriented activity recognition [Chaquet et al., 2013]. In this study, we focus specifically on the clip "Two people meet and walk together." This scenario provides a natural testbed for our methodology, as the interaction between individuals can be effectively modeled and localized as axis-aligned anomalous spatial patches within the video frames. The selected CAVIAR sequences were recorded at the entrance lobby of the INRIA Labs in Grenoble, France, using a wide-angle camera. The footage was captured at half-resolution PAL quality ( 384 × 288 pixels) at 25 frames per second and compressed via MPEG2. Our analysis focuses on 501 frames 1000-1550, which we process in R using the readJPEG function from the jpeg package. This yields a 288 × 384 × 3 array of normalized pixel intensities in [0 , 1] , from which the red, green, and blue channels are extracted as distinct matrices. For clarity of presentation in this paper, all images are shown in their transposed orientation. To isolate motion-driven foreground variations from the static background, we center each channel by subtracting a baseline mean image, calculated by averaging frames 1000–1150. While this centering approach is similar in spirit to the preprocessing in Patra et al. [2020], we maintain the spatial matrix structure of the data rather than vectorizing the RGB channels and assuming inependence across co-ordinates, thereby preserving the inherent spatial dependence across coordinates.    
+
+> Figure 4: Variogram in both directions compared to γ(0)for Frame 1315.
+
+In our support, we found significant spatial correlation as we exhibit a variogram for frame 1315 in Figure 4 which also establishes a need for developing a method that can handle spatial dependence. Our findings about detected patch boundaries are summarized in Figure 5. In Frame 1151, no anomalies are detected as a sub-ject is just beginning to enter the scene. From Frame 1155 onward, a single block is consistently identified despite the subject moving through challenging lighting conditions (sunlight). By Frame 1250, a second individ-ual enters the field of view; our method successfully captures both individuals as distinct entities by Frame 1278. SPLADE maintains this two-block detection with high precision even as the subjects approach one another, successfully resolving them as separate patches until Frame 1316. From Frame 1318, as they meet and walk together, the algorithm transitions to detecting a single merged block. This detection persists until Frame 1446, after which the subjects recede from the camera and the frames return to the baseline static background. In contrast, DCART and DPLS-SAD fail to achieve this level of precision. To accommodate their inherent limitations, we provided both baselines with significant advantages: DCART was restricted to a 256 × 256 bottom-left subgrid (their algorithm is restricted to 2k × 2k lattices), and DPLS-SAD was applied to a hand-cropped 111 × 121 subgrid specifically centered on the subjects at Frame 1315 to mitigate its lack of scalability. Despite these favorable settings, Figure 6 illustrates their poor performance. Across several grid choices for their tuning parameter λ,DCART identifies numerous spurious patches that fail to intersect with the subjects, while DPLS-SAD fails to detect any anomalies entirely. These failures highlight the inability of the baseline methods to account for the significant spatial correlation present in real-world surveillance data. 
+
+# 6 Conclusion 
+
+Despite recent attention, scalable spatial anomaly localization under general forms of spatial dependence remains a challenging problem. Prior work largely focuses on testing for the mere existence of anomalies, assuming restrictive structures such as m-dependence, and sacrificing computational feasibility for shape generality. In contrast, this paper focuses on identifying axis-aligned rectangular anomalous patches, introducing SPLADE: a fast, statistically accurate localization procedure robust to a wide class of spatially dependent data generating mechanisms. SPLADE’s two-stage architecture leverages intelligent block-based sub-sampling, yielding 21 
+
+(a) 1151: No one in the image (b) 1160: One person in the image 
+
+(c) 1278: Second person in the image (d) 1315: Two persons quite close 
+
+(e) 1318: So close that one box is detected (f ) 1390: Two persons but far apart 
+
+(g) 1446: Two persons but far apart (h) 1539: No dynamics 
+
+Figure 5: RGB detection results for selected frames. 22     
+
+> (a) DCART on cropped data (b) DPLS on cropped data
+> Figure 6: DCART (256 x 256) and DPLS (111 x 121) on cropped image
+
+massive computational speed-ups while facilitating rigorous theoretical guarantees under spatial dependence. Extensive experiments based on synthetic data across diverse dependence structures, anomalous patch configurations and signal strengths, not only validate our theoretically established guarantees, but also highlight SPLADE’s significant computational efficiency advantage over competing methods. SPLADE’s performance does not hinge on any specific choice of tuning parameters; instead, it remains robust across a fairly broad range of settings, as supported by theoretical analysis and corroborated by ablation studies. A natural avenue for future research is extending this framework to other parametric shapes, such as ellipsoids, which we anticipate would primarily require careful modifications to the second stage of our algorithm. 
+
+# References 
+
+A. Abolhassani and M. O. Prates. An up-to-date review of scan statistics. Statistic Surveys , 15: 111–153, 2021. L. Addario-Berry, N. Broutin, L. Devroye, and G. Lugosi. On combinatorial testing problems. 
+
+The Annals of Statistics , 38(5):3063–3092, 2010. ISSN 00905364, 21688966. URL http: //www.jstor.org/stable/29765255 .D. W. K. Andrews and J. C. Monahan. An improved heteroskedasticity and autocorrelation consistent covariance matrix estimator. Econometrica , 60(4):953–966, 1992. ISSN 0012-9682,1468-0262. doi: 10.2307/2951574. URL https://doi.org/10.2307/2951574 .L. Anselin and A. K. Bera. Spatial dependence in linear regression models with an introduction to spatial econometrics. Statistics textbooks and monographs , 155:237–290, 1998. E. Arias-Castro, D. L. Donoho, and X. Huo. Near-optimal detection of geometric objects by fast multiscale methods. IEEE Trans. Inform. Theory , 51(7):2402–2425, 2005. ISSN 0018-9448,1557-9654. doi: 10.1109/TIT.2005.850056. URL https://doi.org/10.1109/TIT.2005.850056 .E. Arias-Castro, E. J. Candès, and A. Durand. Detection of an anomalous cluster in a network. 
+
+Ann. Statist. , 39(1):278–304, 2011. ISSN 0090-5364,2168-8966. doi: 10.1214/10-AOS839. URL 
+
+https://doi.org/10.1214/10-AOS839 .E. Arias-Castro, R. M. Castro, E. Tánczos, and M. Wang. Distribution-free detection of structured anomalies: permutation and rank-based scans. J. Amer. Statist. Assoc. , 113 (522):789–801, 2018. ISSN 0162-1459,1537-274X. doi: 10.1080/01621459.2017.1286240. URL 
+
+https://doi.org/10.1080/01621459.2017.1286240 .23 J. Bai. Least squares estimation of a shift in linear processes. J. Time Ser. Anal. , 15(5):453–472, 1994. ISSN 0143-9782,1467-9892. doi: 10.1111/j.1467-9892.1994.tb00204.x. P. Bai, A. Safikhani, and G. Michailidis. Multiple change points detection in low rank and sparse high dimensional vector autoregressive models. IEEE Transactions on Signal Processing , 68: 3074–3089, 2020. S. Basu Sarbadhikary, A. Roy, and S. Deb. A data-driven approach to spatial zoning and anomaly detection in the dynamic real estate network. Environment and Planning B: Urban Analytics and City Science , page 23998083251411954, 2025. I. Berkes, W. Liu, and W. B. Wu. Komlós-Major-Tusnády approximation under dependence. 
+
+Ann. Probab. , 42(2):794–817, 2014. ISSN 0091-1798. doi: 10.1214/13-AOP850. URL http: //dx.doi.org/10.1214/13-AOP850 .J. Besag and J. Newell. The detection of clusters in rare diseases. Journal of the Royal Statistical Society: Series A (Statistics in Society) , 154(1):143–155, 1991. doi: 10.2307/2982708. R. Block. Software review: scanning for clusters in space and time: a tutorial review of satscan. 
+
+Social Science Computer Review , 25(2):272–278, 2007. doi: 10.1177/0894439307298562. S. Bonnerjee, S. Karmakar, and W. B. Wu. Gaussian approximation for nonstationary time series with optimal rate and explicit construction. Ann. Statist. , 52(5):2293–2317, 2024. ISSN 0090-5364,2168-8966. doi: 10.1214/24-aos2436. URL https://doi.org/10.1214/24-aos2436 .M. V. Boutsikas and M. V. Koutras. On the asymptotic distribution of the discrete scan statistic. J. Appl. Probab. , 43(4):1137–1154, 2006. ISSN 0021-9002,1475-6072. doi: 10.1239/jap/1165505213. URL https://doi.org/10.1239/jap/1165505213 .B. Bucchia. Testing for epidemic changes in the mean of a multiparameter stochastic process. J. Statist. Plann. Inference , 150:124–141, 2014. ISSN 0378-3758,1873-1171. doi: 10.1016/j.jspi. 2014.03.001. URL https://doi.org/10.1016/j.jspi.2014.03.001 .B. Bucchia and M. Wendler. Change-point detection and bootstrap for Hilbert space valued random fields. J. Multivariate Anal. , 155:344–368, 2017. ISSN 0047-259X,1095-7243. doi: 10.1016/j.jmva.2017.01.007. URL https://doi.org/10.1016/j.jmva.2017.01.007 .A. Bulinski and A. Shashkin. Limit Theorems for Associated Random Fields and Related Systems .World Scientific, 2007. doi: 10.1142/6555. URL https://www.worldscientific.com/doi/ abs/10.1142/6555 .C. Butucea and Y. I. Ingster. Detection of a sparse submatrix of a high-dimensional noisy matrix. 
+
+Bernoulli , 19(5B):2652–2688, 2013. ISSN 1350-7265,1573-9759. doi: 10.3150/12-BEJ470. URL 
+
+https://doi.org/10.3150/12-BEJ470 .R. Cairoli. Une inégalité pour martingales à indices multiples et ses applications. Séminaire de probabilités de Strasbourg , 4:1–27, 1970. URL http://eudml.org/doc/112900 .CAVIAR Project. Caviar behaviour labeling schema summary. https://homepages.inf.ed.ac. uk/rbf/CAVIARDATA1/labelingstates.pdf , June 2005. Official labeling schema document. S. Chainey, L. Tompson, and S. Uhlig. The utility of hotspot mapping for predicting spatial patterns of crime. Security Journal , 21:4–28, 2008. doi: 10.1057/palgrave.sj.8350066. H. P. Chan and G. Walther. Detection with the scan and the average likelihood ratio. Statist. Sinica , 23(1):409–428, 2013. ISSN 1017-0405,1996-8507. 24 N. H. Chan, R. Zhang, and C. Y. Yau. Inference for structural breaks in spatial models. Statist. Sinica , 32(4):1961–1981, 2022. ISSN 1017-0405,1996-8507. J. M. Chaquet, E. J. Carmona, and A. Fernández-Caballero. A survey of video datasets for human action and activity recognition. Computer Vision and Image Understanding , 117(6): 633–659, 2013. doi: 10.1016/j.cviu.2013.01.013. Z. Chen, Z. Li, and M. Zhou. Detecting change-points in epidemic models. Journal of Advanced Statistics , 1(4):181, 2016. T. C. Christofides and R. J. Serfling. Maximal inequalities for multidimensionally indexed submartingale arrays. The Annals of Probability , pages 630–641, 1990. T. Cormen, C. Leiserson, R. Rivest, and C. Stein. Introduction to Algorithms, fourth edi-tion . MIT Press, 2022. ISBN 9780262367509. URL https://books.google.com/books?id= RSMuEAAAQBAJ .N. Cressie. Statistics for spatial data . John Wiley & Sons, 2015. J. L. Crowley and P. Reignier. An architecture for context aware observation of human activity. In Workshop on Computer Vision System Control Architectures (VSCA 2003) , Graz, Austria, Apr. 2003. M. Csörgő and L. Horváth. Limit theorems in change-point analysis . Wiley Series in Probability and Statistics. John Wiley & Sons, Ltd., Chichester, 1997. ISBN 0-471-95522-1. L. Cucala. A distribution-free spatial scan statistic for marked point processes. Spatial Statistics ,10:117–125, 2014. C. Cuny, J. Dedecker, and F. Merlevède. On the weak invariance principle for random fields with commuting filtrations under l1-projective criteria. arXiv preprint arXiv:2503.20380 , 2025. P. Datta and B. Sen. Optimal inference with a multidimensional multiscale statistic. Electron. J. Stat. , 15(2):5203–5244, 2021. ISSN 1935-7524. doi: 10.1214/21-ejs1914. URL https: //doi.org/10.1214/21-ejs1914 .D. Dresvyanskiy, T. Karaseva, S. Mitrofanov, C. Redenbach, S. Schwaar, V. Makogin, and E. Spodarev. Application of clustering methods to anomaly detection in fibrous media. In 
+
+IOP Conference Series: Materials Science and Engineering , volume 537, page 022001. IOP Publishing, 2019. D. Dresvyanskiy, T. Karaseva, V. Makogin, S. Mitrofanov, C. Redenbach, and E. Spodarev. Detecting anomalies in fibre systems using 3-dimensional image data. Statistics and Computing ,30(4):817–837, 2020. L. Duczmal, A. L. F. Can ¸cado, R. H. C. Takahashi, and L. F. Bessegato. A genetic algorithm for irregularly shaped spatial scan statistics. Comput. Statist. Data Anal. , 52(1):43–52, 2007. ISSN 0167-9473,1872-7352. doi: 10.1016/j.csda.2007.01.016. URL https://doi.org/10.1016/ j.csda.2007.01.016 .J. E. Eck, S. Chainey, J. G. Cameron, M. Leitner, and R. E. Wilson. Mapping crime: Understand-ing hot spots. Technical Report NCJ 209393, National Institute of Justice, U.S. Department of Justice, 2005. M. El Machkouri, D. Voln` y, and W. B. Wu. A central limit theorem for stationary random fields. 
+
+Stochastic Processes and their Applications , 123(1):1–14, 2013. 25 M. J. Emerson, K. M. Jespersen, A. B. Dahl, K. Conradsen, and L. P. Mikkelsen. Individual fibre segmentation from 3d x-ray computed tomography for characterising the fibre orientation in unidirectional composite materials. Composites Part A: Applied Science and Manufacturing ,97:83–92, 2017. Z. Fan and L. Guan. Approximate ℓ0-penalized estimation of piecewise-constant signals on graphs. The Annals of Statistics , 46(6B):3217 – 3245, 2018. doi: 10.1214/17-AOS1656. URL 
+
+https://doi.org/10.1214/17-AOS1656 .Fisher, Hall, and Vasquez. Caviar d23: Report on top-down primed salience mechanisms. Technical report, CAVIAR Project, WorkPackage 3, 2005. URL https://homepages.inf.ed. ac.uk/rbf/CAVIAR/DELIVERABLES/d23.pdf . Public deliverable, dated September 30, 2005. R. B. Fisher. The pets04 surveillance ground-truth data sets. In Proceedings of the Sixth IEEE International Workshop on Performance Evaluation of Tracking and Surveillance (PETS04) ,pages 1–5, 2004. Prague, Czech Republic, May 10, 2004. C. Gao, Y. Lu, Z. Ma, and H. H. Zhou. Optimal estimation and completion of matrices with biclustering structures. J. Mach. Learn. Res. , 17:Paper No. 161, 29, 2016. ISSN 1532-4435,1533-7928. P. Gao, D. Guo, K. Liao, J. J. Webb, and S. L. Cutter. Early detection of terrorism outbreaks using prospective space–time scan statistics. The Professional Geographer , 65(4):676–691, 2013. S. C. Garcea, Y. Wang, and P. J. Withers. X-ray computed tomography of polymer composites. 
+
+Composites Science and Technology , 156:305–319, 2018. J. Glaz, J. Naus, and S. Wallenstein. Scan Statistics . Springer Series in Statistics. Springer, 2001. doi: 10.1007/978-1-4757-3460-7. F. Götze and A. Y. Zaitsev. Bounds for the rate of strong approximation in the multidimensional invariance principle. Theory of Probability & Its Applications , 53(1):59–80, 2009. doi: 10.1137/ S0040585X9798350X. URL https://doi.org/10.1137/S0040585X9798350X .P. Hall, L. Peng, and C. Rau. Local likelihood tracking of fault lines and boundaries. J. R. Stat. Soc. Ser. B Stat. Methodol. , 63(3):569–582, 2001. ISSN 1369-7412,1467-9868. doi: 10.1111/1467-9868.00299. URL https://doi.org/10.1111/1467-9868.00299 .C. Han, N. H. Chan, and C. Y. Yau. An extreme-value test for structural breaks in spatial trends. 
+
+Statist. Sinica , 35(3):1301–1322, 2025. ISSN 1017-0405,1996-8507. F. Hirsch. Potential theory related to some multiparameter processes. Potential Analysis , 4(3): 245–267, 1995. U. Hjalmars, M. Kulldorff, G. Gustafsson, and N. Nagarwalla. Childhood leukaemia in sweden: using gis and a spatial scan statistic for cluster detection. Statistics in medicine , 15(7-9): 707–715, 1996. X. Huo. Multiscale approximation methods (mame) to locate embedded consecutive subse-quences—its applications in statistical data mining and spatial statistics. Computers & industrial engineering , 43(4):703–720, 2002. M. Hušková. Estimators for epidemic alternatives. Comment. Math. Univ. Carolin. , 36(2): 279–291, 1995. ISSN 0010-2628,1213-7243. 26 M. Hušková. Estimators for epidemic alternatives. Comment. Math. Univ. Carolin. , 36(2): 279–291, 1995. ISSN 0010-2628,1213-7243. C. Inclán and G. C. Tiao. Use of cumulative sums of squares for retrospective detection of changes of variance. J. Amer. Statist. Assoc. , 89(427):913–923, 1994. ISSN 0162-1459,1537-274X. R. Inoue, S. Shiode, and N. Shiode. Detection of irregular-shaped clusters on a network by controlling the shape compactness with a penalty function. GeoJournal , 88(4):3817–3832, 2023. T. Jiang. Maxima of partial sums indexed by geometrical structures. Ann. Probab. , 30(4): 1854–1892, 2002. ISSN 0091-1798,2168-894X. doi: 10.1214/aop/1039548374. URL https: //doi.org/10.1214/aop/1039548374 .I. Jung and H. J. Cho. A nonparametric spatial scan statistic for continuous data. International journal of health geographics , 14(1):30, 2015. I. Jung, M. Kulldorff, and A. C. Klassen. A spatial scan statistic for ordinal data. Statistics in medicine , 26(7):1594–1607, 2007. Z. Kabluchko. Extremes of the standardized Gaussian noise. Stochastic Process. Appl. , 121 (3):515–533, 2011. ISSN 0304-4149,1879-209X. doi: 10.1016/j.spa.2010.11.007. URL https: //doi.org/10.1016/j.spa.2010.11.007 .S. Karmakar and W. B. Wu. Optimal gaussian approximation for multiple time series. Statist. Sinica , 30(3):1399–1417, 2020. ISSN 1017-0405,1996-8507. doi: 10.5705/ss.202017.0303. URL 
+
+https://doi.org/10.5705/ss.202017.0303 .J. Kim and I. Jung. Evaluation of the gini coefficient in spatial scan statistics for detecting irregularly shaped clusters. PLoS One , 12(1):e0170736, 2017. C. Kirch, P. Klein, and M. Meyer. Scan statistics for the detection of anomalies in m-dependent random fields with applications to image data. Journal of the American Statistical Association ,pages 1–13, 2025. P. Klein. Scan statistics for data segmentation of stochastic processes and anomaly detection in large image data . PhD thesis, 2022. J. Köhne and F. Mies. At the edge of donsker’s theorem: Asymptotics of multiscale scan statistics. 
+
+arXiv preprint arXiv:2506.05112 , 2025. J. Komios, P. Major, and G. Tusnaldy. An approximation of partial sums of independent random variables and sample df, i. zeit, 1975. C. König, A. Munk, and F. Werner. Multidimensional multiscale scanning in exponential families: limit theory and statistical consequences. Ann. Statist. , 48(2):655–678, 2020. ISSN 0090-5364,2168-8966. doi: 10.1214/18-AOS1806. URL https://doi.org/10.1214/18-AOS1806 .A. Kontorovich. Concentration in unbounded metric spaces and algorithmic stability. In 
+
+International conference on machine learning , pages 28–36. PMLR, 2014. J. Kou. Identifying the support of rectangular signals in Gaussian noise. Comm. Statist. Theory Methods , 52(10):3262–3289, 2023. ISSN 0361-0926,1532-415X. doi: 10.1080/03610926.2021. 1970771. URL https://doi.org/10.1080/03610926.2021.1970771 .M. Kulldorff. A spatial scan statistic. Comm. Statist. Theory Methods , 26(6):1481–1496, 1997. ISSN 0361-0926,1532-415X. doi: 10.1080/03610929708831995. URL https://doi.org/10. 1080/03610929708831995 .27 M. Kulldorff. SaTScan ™ v7.0: Software for the Spatial and Space-Time Scan Statistics . Informa-tion Management Services, Inc., Boston, MA, 2006. Available at https://www.satscan.org/. M. Kulldorff and N. Nagarwalla. Spatial disease clusters: Detection and inference. Statistics in Medicine , 14(8):799–810, 1995. doi: 10.1002/sim.4780140809. M. Kulldorff, L. Huang, L. Pickle, and L. Duczmal. An elliptic spatial scan statistic. Stat. Med. , 25(22):3929–3943, 2006. ISSN 0277-6715,1097-0258. doi: 10.1002/sim.2490. URL 
+
+https://doi.org/10.1002/sim.2490 .D. Kurisu, K. Kato, and X. Shao. Gaussian approximation and spatially dependent wild bootstrap for high-dimensional spatial data. J. Amer. Statist. Assoc. , 119(547):1820–1832, 2024. ISSN 0162-1459,1537-274X. doi: 10.1080/01621459.2023.2218578. URL https://doi.org/10.1080/ 01621459.2023.2218578 .B. Levin and J. Kline. The cusum test of homogeneity with an application in spontaneous abortion epidemiology. Statistics in Medicine , 4(4):469–488, 1985. W. Liu and Z. Lin. Strong approximation for a class of stationary processes. Stochastic Process. Appl. , 119(1):249–280, 2009. ISSN 0304-4149,1879-209X. doi: 10.1016/j.spa.2008.01.012. URL 
+
+https://doi.org/10.1016/j.spa.2008.01.012 .W. Liu, H. Xiao, and W. B. Wu. Probability and moment inequalities under dependence. Statist. Sinica , 23(3):1257–1272, 2013. ISSN 1017-0405,1996-8507. J. M. Loh and Z. Zhu. Accounting for spatial correlation in the scan statistic. The Annals of Applied Statistics , 1(2):560–584, 2007. doi: 10.1214/07-AOAS129. J. Lord, S. Roberson, and A. Odoi. Investigation of geographic disparities of pre-diabetes and diabetes in florida. BMC Public Health , 20(1):1226, 2020. Z. Lu, M. Banerjee, and G. Michailidis. Intelligent sampling for multiple change-points in exceedingly long time series with rate guarantees. arXiv preprint arXiv:1710.07420 , 2017. O. H. Madrid Padilla, Y. Yu, and A. Rinaldo. Lattice partition recovery with dyadic cart. 
+
+Advances in Neural Information Processing Systems , 34:26143–26155, 2021. V. Makogin, D. Nguyen, and E. Spodarev. A statistical method for crack pre-detection in 3d concrete images. arXiv preprint arXiv:2402.16126 , 2024. N. Malleson, W. Steenbeek, and M. A. Andresen. Identifying the appropriate spatial resolution for the analysis of crime patterns. PLOS ONE , 14(6):e0218324, 2019. doi: 10.1371/journal. pone.0218324. J. I. Naus. The distribution of the size of the maximum cluster of points on a line. Journal of the American Statistical Association , 60(310):532–538, 1965. doi: 10.1080/01621459.1965.10480810. D. Neill, A. Moore, F. Pereira, and T. M. Mitchell. Detecting significant multidimensional spatial clusters. Advances in Neural Information Processing Systems , 17, 2004. D. B. Neill. Fast subset scan for spatial pattern detection. J. R. Stat. Soc. Ser. B. Stat. Methodol. ,74(2):337–360, 2012. ISSN 1369-7412,1467-9868. doi: 10.1111/j.1467-9868.2011.01014.x. URL 
+
+https://doi.org/10.1111/j.1467-9868.2011.01014.x .D. B. Neill and A. W. Moore. Rapid detection of significant spatial clusters. In Proceedings of the Tenth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD ’04) , pages 256–265, New York, NY, USA, 2004. Association for Computing Machinery. doi: 10.1145/1014052.1014082. 28 W. K. Newey and K. D. West. A simple, positive semi-definite, heteroskedasticity and autocor-relation consistent covariance matrix. Econometrica , 55(3):703–708, 1987. ISSN 00129682, 14680262. URL http://www.jstor.org/stable/1913610 .W. Ning, J. Pailden, and A. Gupta. Empirical likelihood ratio test for the epidemic change model. J. Data Sci. , 10(1):107–127, 2012. ISSN 1680-743X,1683-8602. D. R. Oliveira, G. J. Moreira, and A. R. Duarte. Arbitrarily shaped spatial cluster detection via reinforcement learning algorithms: Drx oliveira et al. Environmental and Ecological Statistics ,32(2):385–407, 2025. F. L. P. Oliveira and others. Border analysis for spatial clusters. International Journal of Health Geographics , 17(1):5, 2018. doi: 10.1186/s12942-018-0124-1. K. Ord. Estimation methods for models of spatial interaction. Journal of the American Statistical Association , 70(349):120–126, 1975. T. Otani and K. Takahashi. Flexible scan statistics for detecting spatial disease clusters: the rflexscan r package. Journal of Statistical Software , 99:1–29, 2021. P. Otto and W. Schmid. Detection of spatial change points in the mean and covariances of multivariate simultaneous autoregressive models. Biometrical Journal , 58(5):1113–1137, 2016. G. Patil, J. Bishop, W. L. Myers, C. Taillie, R. Vraney, and D. Wardrop. Detection and delineation of critical areas using echelons and spatial scan statistics with synoptic cellular data. Environmental and Ecological Statistics , 11(2):139–164, 2004. R. K. Patra, M. Banerjee, and G. Michailidis. A semi-parametric model for target localization in distributed systems. arXiv preprint arXiv:2012.02025 , 2020. S. Paul and S. Nath. Spatial autoregressive model with measurement error in covariates. arXiv preprint arXiv:2402.04593 , 2024. T. Pei, A. Jasra, D. J. Hand, A.-X. Zhu, and C. Zhou. Decode: a new method for discovering clusters of different densities in spatial data. Data Mining and Knowledge Discovery , 18(3): 337–369, 2009. doi: 10.1007/s10618-008-0120-3. M. Peligrad, S. Utev, and W. B. Wu. A maximal Lp-inequality for stationary sequences and its applications. Proceedings of the American Mathematical Society , 135(2):541–550, 2007. S. Poghosyan and S. Rœlly. Invariance principle for martingale-difference random fields. Statistics & probability letters , 38(3):235–245, 1998. K. Proksch, F. Werner, and A. Munk. Multiscale scanning in inverse problems. 2018. Z. Qin and C. R. Shelton. Improving multi-target tracking via social grouping. In 2012 IEEE Conference on Computer Vision and Pattern Recognition , pages 1972–1978, 2012. doi: 10.1109/CVPR.2012.6247899. A. Račkauskas and C. Suquet. Hölder norm test statistics for epidemic change. J. Statist. Plann. Inference , 126(2):495–520, 2004. ISSN 0378-3758,1873-1171. doi: 10.1016/j.jspi.2003.09.004. A. Račkauskas and C. Suquet. Testing epidemic changes of infinite dimensional parameters. 
+
+Stat. Inference Stoch. Process. , 9(2):111–134, 2006. ISSN 1387-0874,1572-9311. doi: 10.1007/ s11203-005-0728-5. 29 P. Ribeiro and J. Santos-Victor. Human activities recognition from video: Modeling, feature selection and classification architecture. In Workshop on Human Activity Recognition and Modelling (HAREM 2005, in conjunction with BMVC 2005) , pages 61–70, Oxford, UK, Sept. 2005. K. H. Riitters and J. W. Coulston. Hot spots of perforated forest in the eastern united states. 
+
+Environmental management , 35(4):483–492, 2005. A. I. Sakhanenko. The convergence rate in the invariance principle for differently distributed variables with exponential moments. Predel’nye Teoremy dlya Summ Sluchajnykh Velichin, Tr. Inst. Mat. 3, 4-49 (1984)., 1984. A. I. Sakhanenko. Accuracy of the normal approximation in the invariance principle. Tr. Inst. Mat. , 13:40—66, 1989. A. I. Sakhanenko. Estimates in the invariance principle in terms of truncated power moments. 
+
+Sibirsk. Mat. Zh. , 47(6):1355–1371, 2006. ISSN 0037-4474. doi: 10.1007/s11202-006-0119-1. URL http://dx.doi.org/10.1007/s11202-006-0119-1 .G. E. Shackelford, P. R. Steward, R. N. German, S. M. Sait, and T. G. Benton. Conservation planning in agricultural landscapes: hotspots of conflict between agriculture and nature. 
+
+Diversity and Distributions , 21(3):357–367, 2015. J. Sharpnack and E. Arias-Castro. Exact asymptotics for the scan statistic and fast alternatives. 
+
+Electron. J. Stat. , 10(2):2641–2684, 2016. ISSN 1935-7524. doi: 10.1214/16-EJS1188. URL 
+
+https://doi.org/10.1214/16-EJS1188 .J. L. Sharpnack, A. Krishnamurthy, and A. Singh. Near-optimal anomaly detection in graphs using lovasz extended scan statistic. Advances in Neural Information Processing Systems , 26, 2013. R. R. Sillito and R. B. Fisher. Semi-supervised learning for anomalous trajectory detection. In 
+
+Proceedings of the British Machine Vision Conference (BMVC) , pages 1035–1044, 2008. doi: 10.5244/C.22.103. O. Smirnov and L. Anselin. Fast maximum likelihood estimation of very large spatial autoregres-sive models: a characteristic polynomial approach. Computational Statistics & Data Analysis ,35(3):301–319, 2001. S. Song, Z. Zhan, Z. Long, J. Zhang, and L. Yao. Comparative study of svm methods combined with voxel selection for object category classification on fmri data. PloS one , 6(2):e17191, 2011. R. C. Souza, R. M. Assunção, D. M. Oliveira, D. B. Neill, and W. Meira Jr. Where did i get dengue? detecting spatial clusters of infection risk with social network data. Spatial and spatio-temporal epidemiology , 29:163–175, 2019. A. Steland. Inference in nonlinear random fields and non-asymptotic rates for threshold variance estimators under sparse dependence. Stochastic Processes and their Applications , 186:104649, 2025. I. V. Stoepker, R. M. Castro, and E. Arias-Castro. Sparse anomaly detection across referentials: a rank-based higher criticism approach. Ann. Statist. , 53(2):676–702, 2025. ISSN 0090-5364,2168-8966. doi: 10.1214/24-aos2477. URL https://doi.org/10.1214/24-aos2477 .K. Takahashi, M. Kulldorff, T. Tango, and K. Yih. A flexibly shaped space-time scan statistic for disease outbreak detection and monitoring. International journal of health geographics , 7 (1):14, 2008. 30 T. Tango and K. Takahashi. A flexibly shaped spatial scan statistic for detecting clusters. 
+
+International Journal of Health Geographics , 4:11, 2005. doi: 10.1186/1476-072X-4-11. W. Tansey and J. G. Scott. A fast and flexible algorithm for the graph-fused lasso. arXiv preprint arXiv:1505.06475 , 2015. C. Vega Orozco, M. Tonini, M. Conedera, and M. Kanveski. Cluster recognition in spatial-temporal sequences: the case of forest fires. Geoinformatica , 16(4):653–673, 2012. J. B. Walsh. Martingales with a multidimensional parameter and stochastic integrals in the plane. In Lectures in Probability and Statistics: Lectures given at the Winter School in Probability and Statistics held in Santiago de Chile , pages 329–491. Springer, 2006. G. Walther. Optimal and fast detection of spatial clusters with scan statistics. The Annals of Statistics , 38(2):1010–1033, 2010. doi: 10.1214/09-AOS732. G. Walther and A. Perry. Calibrating the scan statistic: finite sample performance versus asymptotics. J. R. Stat. Soc. Ser. B. Stat. Methodol. , 84(5):1608–1639, 2022. ISSN 1369-7412,1467-9868. B. Wang and Z. Chao. Optimal spatial anomaly detection. arXiv preprint arXiv:2510.22330 ,2025. D. Wang, Y. Yu, and A. Rinaldo. Univariate mean change point detection: Penalization, cusum and optimality. 2020. C. R. Warden. Comparison of poisson and bernoulli spatial cluster analyses of pediatric injuries in a fire district. International Journal of Health Geographics , 7(1):51, 2008. D. Weisburd. The law of crime concentration and the criminology of place. Criminology , 53(2): 133–157, 2015. doi: 10.1111/1745-9125.12070. M. J. Wichura. Inequalities with applications to the weak convergence of random processes with multi-dimensional time parameters. The Annals of Mathematical Statistics , pages 681–687, 1969. O. Wirjadi, M. Godehardt, K. Schladitz, B. Wagner, A. Rack, M. Gurka, S. Nissle, and A. Noll. Characterization of multilayer structures in fiber reinforced polymer employing synchrotron and laboratory x-ray ct. International journal of materials research , 105(7):645–654, 2014. O. Wirjadi, K. Schladitz, P. Easwaran, and J. Ohser. Estimating fibre direction distributions of reinforced composites from tomographic images. Image Analysis and Stereology , 35(3):167–179, 2016. W. B. Wu and Z. Zhou. Gaussian approximations for non-stationary multiple time series. 
+
+Statistica Sinica , 21(3):1397–1413, 2011. ISSN 10170405, 19968507. URL http://www.jstor. org/stable/24309567 .Y. Xie, S. Shekhar, and Y. Li. Statistically-robust clustering techniques for mapping spatial hotspots: A survey. ACM Computing Surveys (CSUR) , 55(2):1–38, 2022. Q. W. Yao. Tests for change-points with epidemic alternatives. Biometrika , 80(1):179–191, 1993. ISSN 0006-3444,1464-3510. doi: 10.1093/biomet/80.1.179. Y. Yu, O. Madrid, and A. Rinaldo. Optimal partition recovery in general graphs. In International Conference on Artificial Intelligence and Statistics , pages 4339–4358. PMLR, 2022. 31 A. Y. Zaitsev. Multidimensional version of the results of Komlós, Major and Tusnády for vectors with finite exponential moments. ESAIM: Probability and Statistics , 2:41–108, 1998. URL 
+
+http://www.numdam.org/item/PS_1998__2__41_0/ .A. M. Zeoli, J. M. Pizarro, S. C. Grady, and C. Melde. Homicide as infectious disease: Using public health methods to investigate the diffusion of homicide. Justice quarterly , 31(3):609–632, 2014. 32 
+
+Appendix 
+
+The Appendix contains all deferred discussions, including theoretical proofs and additional numerical experiments. In particular, Appendix A contains examples satisfying our key assump-tion quantifying a general dependence structure. Some auxiliary results follow in Appendix B that will be used in proofs subsequently. Appendixes C, D, and E contains the proofs of the Theorems 2.2, 2.3 and 3.1 respectively. Appendix F contains some deferred, finer details regarding implementation of SPLADE; Finally Appendices G and H contain some additional simulation study, and one interesting application of SPLADE on fibre anomaly detection, respectively. 
+
+# A Assumption 2.1 and deferred discussion 
+
+In the following, we illustrate the ubiquity of Assumption 2.1 through examples drawn from commonly occurring spatial processes. 
+
+Lemma A.1. Consider an m-dependent random field (εi)i∈Zd satisfying εi and εj are independent if |i − j|∞ > m . Then Assumption 2.1 is satisfied for (εi)i∈Zd .of Lemma A.1. Let q := m + 1 . For each a ∈ { 0, . . . , m }d, define 
+
+Γa := {i ∈ Zd : ir ≡ ar (mod q), r ∈ [d]}.
+
+Then (Γ a)a∈{ 0,...,m }d forms a partition of Zd. Hence for every rectangle I ⊆ [n],
+
+SεI = X
+
+> i∈I
+
+εi = X
+
+> a∈{ 0,...,m }d
+
+X
+
+> j∈I∩Γa
+
+εj . (A.1) Fix a. If i̸ = j ∈ Γa, then there exist ki, k j ∈ Zd such that s = qk s + a for s ∈ { i, j}.Consequently, 
+
+|i − j|∞ = q|ki − kj |∞ ≥ q = m + 1 .
+
+By m-dependence, εi and εj are independent. Define the coarse-lattice field 
+
+ε(a) 
+
+> k
+
+:= εa+qk, k ∈ Zd.
+
+Then (ε(a) 
+
+> k
+
+)k∈Zd is an independent field. Let I = Qdr=1 [ur, v r] ∩ Zd. Define 
+
+αr(I, a) = 
+
+l ur − ar
+
+q
+
+m
+
+, βr(I, a) = 
+
+j vr − ar
+
+q
+
+k
+
+.
+
+Set 
+
+J(I, a) := 
+
+> d
+
+Y
+
+> r=1
+
+[αr(I, a), β r(I, a)] ∩ Zd.
+
+Then I ∩ Γa = {a + qk : k ∈ J(I, a)}, and therefore 
+
+X
+
+> j∈I∩Γa
+
+εj = X
+
+> k∈J(I, a)
+
+ε(a) 
+
+> k
+
+.
+
+Hence, (A.1) can be re-written as 
+
+SεI = X
+
+> a∈{ 0,...,m }d
+
+X
+
+> k∈J(I, a)
+
+ε(a) 
+
+> k
+
+.33 Since J(I, a) ranges over rectangles contained in a box with side lengths at most ⌈nr/q ⌉, Cairoli’s maximal inequality for independent random fields yields 
+
+max  
+
+> I⊆[n]
+
+|SεI | p ≤ X
+
+> a∈{ 0,...,m }d
+
+max 
+
+> I⊆[n]
+
+X
+
+> k∈J(I, a)
+
+ε(a) 
+
+> kp
+
+≤ Cp,d (m + 1) d∥ε0∥pdY
+
+> r=1
+
+l nr
+
+m + 1 
+
+m1/2
+
+= O(|n|1/2),
+
+which completes the proof. 
+
+Lemma A.2. Consider the linear random field εi = P 
+
+> s∈Zd
+
+asei−s, where (es)s∈Zd are i.i.d. mean-zero random variables and P 
+
+> s∈Zd
+
+|as| < ∞. Then Assumption 2.1 is satisfied by (εi)i∈Zd .of Lemma A.2. Observe that SεI = P 
+
+> s∈Zd
+
+as
+
+P 
+
+> i∈I
+
+ei−s, which immediately implies, via another application of Cairoli’s maximal inequality for independent random fields, 
+
+∥ max  
+
+> I⊆[n]
+
+|SεI |∥ p ≤ X
+
+> s∈Zd
+
+|as| max 
+
+> I⊆[n]
+
+X
+
+> i∈I
+
+ei−s p = O(|n|1/2).
+
+# B Auxiliary Results 
+
+In this section we record some crucial auxiliary results in support of our theoretical arguments and broader analysis. Firstly, we address the feasibility of Assumption 2.1 by deriving it for a relatively broad class of spatial dependence. Specifically, Cuny et al. [2025] establishes a Rosenthal inequality for the following dependence class: 
+
+εi = g(ei−s : s ∈ Zd, s ≥ 0).
+
+In §2.1 we briefly discuss this model as an example of additional structures ( for example, s ≥ 0)imposed on spatial dependence in order to derive control on maximal partial sums. In Lemma B.1, we formalize this by proving Assumption 2.1 for this class. 
+
+Lemma B.1. For mean-zero spatial stationary random field (εi)i∈Zd , and a rectangle I ⊆ [n],let SεI := P 
+
+> j∈I
+
+εj , and suppose ∥ε0∥p < ∞ for some p > 2. Then, under the Assumptions of Theorem 17 of Cuny et al. [2025], it follows that 
+
+∥ max  
+
+> I
+
+|SI |∥ p ≤ C′|n|1/2,
+
+where C′ is independent of n, and possibly dependent on d and p.Proof. The result follows more-or-less straightforwardly from Theorem 17 of Cuny et al. [2025]; nevertheless we provide a proof for completeness. For a ∈ Zd, a > 0, let Sε 
+
+> a
+
+= P 
+
+> 0≤i≤a
+
+εi. Note that, from equation (6.1) in Cuny et al. [2025], it follows that that 
+
+max  
+
+> k≤n
+
+|Sε
+
+> k
+
+| p ≲ |n|1/p ∥ε0∥p +
+
+h n1X
+
+> k1=1
+
+. . . 
+
+> nd
+
+X
+
+> kd=1
+
+∥Sεk1,...,k d ∥2δp
+
+k1+2 δ/p  
+
+> 1
+
+. . . k 1+2 δ/p d
+
+i1/(2 δ)
+
+!
+
+≤ | n|1/p ∥ε0∥p +
+
+h n1X
+
+> k1=1
+
+. . . 
+
+> nd
+
+X
+
+> kd=1
+
+kδ 
+
+> 1
+
+. . . k δd
+
+k1+2 δ/p  
+
+> 1
+
+. . . k 1+2 δ/p d
+
+i1/(2 δ)
+
+!
+
+≤ | n|1/p ∥ε0∥p +
+
+h n1X
+
+> k1=1
+
+. . . 
+
+> nd
+
+X
+
+> kd=1
+
+(k1 . . . k d)δ p−2 
+
+> p−1
+
+i1/(2 δ)
+
+!
+
+≤ | n|1/p (∥ε0∥p + |n|1/2−1/p ) ≲ |n|1/2. (B.1) 34 The result follows from (B.1) by observing that for a, b ∈ Zd with a ≤ b, any rectangle I[a,b] can be represented as: 
+
+I[a,b] = X
+
+> η∈{ 0,1}d
+
+(−1) P  
+
+> jηj
+
+Sε
+
+> b−η⊙(a−1)
+
+,
+
+where ⊙ is component-wise dot-product. This completes the proof. Lemma B.2 delivers control over sums over a special class of “anchored” rectangles that serves as building blocks in our proof of Theorem 2.2. 
+
+Lemma B.2. Grant Assumption 2.1. For a, l ∈ Zd
+
+> ≥0
+
+, define the anchored rectangle 
+
+I(a, l) = 
+
+> d−1
+
+Y
+
+> k=1
+
+[ak, a k + lk] ⊗ [1 , l d],
+
+where the anchoring is along the canonical axes in the d-th dimension. Given an integer m > 0,consider the class 
+
+M(m) = {I : I = I(a, l), a, l ∈ Zd
+
+> ≥0
+
+, |I| ≤ m}.
+
+Then it follows that 
+
+∥ max  
+
+> I∈M (m)
+
+|SεI |∥ p ≤ C′′ √m(log m) d−1 
+
+> p
+
+(
+
+> d−1
+
+Y
+
+> k=1
+
+nk)1/p .
+
+Proof. For each r = ( r1, r 2, . . . , r d−1) ∈ Zd−1 
+
+> ≥0
+
+, define I(r) = {I ∈ M (m) : 2 rk ≤ lk < 2rk +1 , k ∈
+
+[d − 1] }. For each I(a, l) ∈ I(r), it is evident that 
+
+ld ≤ H(r) := ⌈ m
+
+2Pd−1 
+
+> k=1 rk
+
+⌉.
+
+For each k ∈ [d], let 
+
+Bk,s (r) = [ s2rk +1 , (s + 1)2 rk +1 ], s ∈ { 1, . . . , ⌈ nk
+
+2rk +1 ⌉} ,
+
+denote a partition of [1 , n k] into intervals of length 2rk +1 . Finally, to complete our notational preparation, for t = ( t1, . . . , t d−1) ∈ Qd−1
+
+> k=1
+
+{1, . . . , ⌈ nk  
+
+> 2rk+1
+
+⌉} , let us define the rectangles 
+
+Q(r, t) = 
+
+> d−1
+
+Y
+
+> k=1
+
+Bk,t k (r) × [1 , H (r)] .
+
+Take any rectangle I(a, l) ∈ I(r). Define 
+
+tk := 
+
+ ak − 12rk +1 
+
+
+
+, k ∈ [d − 1] .
+
+Then the interval {ak, . . . , a k + ℓk − 1} ⊆ B k,t k (r), and consequently, I(a, l) ⊆ Q (r, t). Therefore, one writes 
+
+∥ max  
+
+> I∈M (m)
+
+|SεI |∥ p ≤ max  
+
+> r
+
+max    
+
+> t∈{ 1,..., ⌈nk
+> 2rk+1 ⌉} d−1
+
+sup 
+
+> I⊆Q (r,t)
+
+|SεI | p
+
+. (B.2) Let us deal with the right-hand side of (B.2) . Firstly, for a fixed r, t, Assumption 2.1 instructs that 
+
+∥ sup 
+
+> I⊆Q (r,t)
+
+|SεI |∥ p ≲ |Q (r, t)|1/2 ≤
+
+
+
+H(r)
+
+> d−1
+
+Y
+
+> k=1
+
+2rk +1 
+
+1/2
+
+≲ √m, (B.3) where, ≲ hides constants pertaining to d. On the other hand, for each r, the number of t’s are at most Qd−1 
+
+> k=1
+
+nk/ Finally, noting that |l| ≤ m if I(a, l) ∈ M (m), the number of possible r’s are at most ( log 2 m)d−1. The proof is completed by invoking an union bound on (B.2) in view of (B.3). 35 Proposition 1 is arguably the most vital cog in the general strategy of our proof of Theorem 2.2, and derives a weaker upper bound that is then leveraged in a finer analysis in Appendix C to conclude the theorem. 
+
+Proposition 1. Under the assumptions of Theorem 2.2, it holds that 
+
+|I0∆ ˆILS (C0cn, 1 − C 1cn)| = OP(n1/2δ−1). (B.4) 
+
+of Proposition 1. We borrow notation from the proof of Theorem 2.2. One can simplify V μI as 
+
+b(|I|)−1V μI = δ
+
+ x3
+
+x2 + x3
+
+− x4
+
+x1 + x4
+
+
+
+. (B.5) Consider the following series of simplification: 
+
+|V μI0 |2 − | V μI |2
+
+=n−2δ2
+
+
+
+(x3 + x4)( x1 + x2) − (x2 + x3)( x1 + x4)( x3
+
+x2 + x3
+
+− x4
+
+x1 + x4
+
+)2
+
+
+
+=n−2δ2(x2 + x3)( x1 + x4)
+
+
+
+(1 − x2
+
+x2 + x3
+
++ x4
+
+x2 + x3
+
+)(1 − x4
+
+x1 + x4
+
++ x2
+
+x1 + x4
+
+)
+
+− (1 − x2
+
+x2 + x3
+
+− x4
+
+x1 + x4
+
+)(1 − x4
+
+x1 + x4
+
+− x2
+
+x2 + x3
+
+)
+
+
+
+=n−2δ2(x2 + x3)( x1 + x4)
+
+ x2x3 + x1x4
+
+(x2 + x3)( x1 + x4) + x2x3
+
+(x2 + x3)2 + x1x4
+
+(x1 + x4)2
+
+
+
+=n−2δ2(x2 + x3)( x1 + x4)
+
+
+
+( x2x3
+
+x2 + x3
+
++ x1x4
+
+x1 + x4
+
+) n
+
+(x2 + x3)( x1 + x4)
+
+
+
+=n−1δ2
+
+ x2x3
+
+x2 + x3
+
++ x1x4
+
+x1 + x4
+
+
+
+. (B.6) Apart from characterizing the explicit difference between |V μI0 |2 and |V μI |2, (B.6) also gives a very useful information: that |V μI0 | ≥ | V μI |; this is of course expected, since at the population level, 
+
+|V μI | should be maximizing at the true interval I0. We can exploit this equality as follows. 
+
+|V μI0 | − | V μI | = |V μI0 |2 − | V μI |2
+
+|V μI0 | + |V μI | ≥ n−1δ2( x2x3 
+
+> x2+x3
+
++ x1x4 
+
+> x1+x4
+
+)2δpτn(1 − τn)
+
+≥ 4−1 δnpτn(1 − τn) min {xI , x 1 + x3, nc n}, (B.7) where cn := min {τn, 1 − τn}. Next, we will show that there exists a constant C0 > 0 such that 
+
+x1 + x3 ≥ C0nc n. Otherwise, there exist a sequence {rn}n≥1 ∈ N, rn → ∞ , and a sequence of rectangles (Irn )n≥1 ∈ R such that 
+
+x1 + x3
+
+rncrn
+
+→ 0, (B.8) as n → ∞ ; note that here we have kept the dependence of xi on n implicit; nevertheless, they are still sequences varying with n. Without loss of generality assume that τn ≤ 1/2 for all sufficiently large n, which implies crn = τrn for all sufficiently large n. Therefore, by definition of xi’s, we also must have x3+x4 
+
+> rncrn
+
+→ 1 as n → ∞ . Therefore, in light of (B.8), we have 
+
+|Icrn ||I0,r n | = x1 + x4
+
+rncrn
+
+→ 1, as n → ∞ ,36 which is in direct contradiction |Irn ||I0,rn | ≥ C 0. Therefore, from (B.7), one has 
+
+|V μI0 | − | V μI | ≥ 4−1 δnpτn(1 − τn) min {xI , C0nc n}. (B.9) Consider equation (10) of Bai [1994] , which yields 
+
+|V ε 
+
+> ˆI0
+
+| + |V εI0 | ≥ | V μI0 | − | V μ
+
+> ˆI0
+
+|. (B.10) Let κ be given. Denoting by ˆxI = |I0∆ ˆI0(λn)|, (B.9) and (B.10) provides, for some approprately chosen Mκ, that 
+
+P(ˆ xI > M κn1/2δ−1) ≤ P(|V ε 
+
+> ˆI0
+
+| + |V εI0 | ≥ δ cn
+
+pτn(1 − τn) )+ P( sup 
+
+> I∈R :n(1 −λn)>|I|>nλ n
+
+|V εI | > M κ(n1−4/p cn)−1/2):= (B.11).1 + (B.11).2 . (B.11) For (B.11).1, note that (B.11).1 ≤ P
+
+
+
+sup 
+
+> I∈R :|I|>nλ n
+
+b(|I|)| SI
+
+|I| − SIc
+
+|Ic| | ≥ δ cn
+
+pτn(1 − τn)
+
+
+
+≤ P
+
+
+
+sup 
+
+> I∈R :n(1 −λn)>|I|>nλ n
+
+r n − | I|
+
+n
+
+|SI |
+
+p|I| ≥ √nδ cn
+
+2pτn(1 − τn)
+
+
+
++
+
+P
+
+
+
+sup 
+
+> I∈R :n(1 −λn)>|I|>nλ n
+
+r |I|
+
+n
+
+|SIc |
+
+p|Ic| ≥ √nδ cn
+
+2pτn(1 − τn)
+
+
+
+= (B.11).1.1 + (B.11).1.2 Let us first focus on (B.11).1.1. In view of τn(1 − τn) ≍ cn and Assumption 2.1, we obtain 
+
+P
+
+
+
+sup 
+
+> n(1 −C 1cn)>|I|>n C0cn
+
+r n − | I|
+
+n
+
+|SI |
+
+p|I| ≥ C√nδ √cn
+
+
+
+≤P
+
+
+
+sup 
+
+> n(1 −C 1cn)>|I|>n C0cn
+
+|SI | ≥ Cnδ 
+
+s
+
+c2
+
+> n
+
+1 − C 1cn
+
+
+
+≤ C np/ 2(1 − C 1cn)p/ 2
+
+npδpcpn
+
+≲ (nc 2
+
+> n
+
+δ2)−p/ 2. (B.12) Note that (B.11).1.2 can be similarly tackled by noting that n(1 − C 0cn) > |I| > n C1cn and 
+
+sup I |SIc | ≤ | SI[1,n] | + sup I |SI |. Henceforth, we shift focus to (B.11).2 . Note that, for a given 
+
+κ > 0 and appropriately chosen Mκ,
+
+P( sup 
+
+> n(1 −C 1cn)>|I|>n C0cn
+
+|V εI | > M κ(n1−4/p cn)−1/2)
+
+≤ P( sup 
+
+> n(1 −C 1cn)>|I|>n C0cn
+
+r n − | I|
+
+n
+
+|SI |
+
+p|I| > M κc−1/2 
+
+> n
+
+) + P( sup 
+
+> n(1 −C 1cn)>|I|>n C0cn
+
+r |I|
+
+n
+
+|SIc |
+
+p|Ic| > M κc−1/2 
+
+> n
+
+)
+
+≤ 2P( sup 
+
+> n(1 −C 1cn)>|I|>n C0cn
+
+|SI | > √C0Mκn1/2) + o(1) 
+
+≤ 4C−p/ 20 M −pκ . (B.13) Finally, (B.12) and (B.13) in conjunction with (B.11) completes the proof. 37 
+
+# C Proof of Theorem 2.2 
+
+Without loss of generality, we assume δ > 0, since otherwise we can replace Xi with −Xi to leave (2.3) unchanged. Let I0 := Qdj=1 [nj τ1,j , n j τ2,j ]. For ease of exposition, we will also omit the niceties of ⌈nj τj ⌉, and pretend that nj τj ∈ N. This of course, raises no issue in asymptotic analysis, since for γ ∈ (0 , 1) , n−1⌊nγ ⌋ ≍ γ ≍ n−1⌈nγ ⌉. Let τ1 = ( τ1,1, . . . , τ 1,d ), and likewise 
+
+τ2 = ( τ2,1, . . . , τ 2,d ). Without loss of generality, we further assume that τn := |τ2 − τ1| < 12 , so that cn = τn. The other case can be treated similarly. To explain our argument effectively, we require some notations. For a candidate interval I, denote 
+
+x1 = |Ic ∩ Ic
+
+> 0
+
+|, x 2 = |I ∩ Ic
+
+> 0
+
+|, x 3 = |I ∩ I0|, and x4 = |Ic ∩ I0|,
+
+where Ac = I[1 ,n ] \ A. For I ∈ R , call xI = |I∆I0|. Note that xI = x2 + x4, x1 + x2 = n(1 − τn),and x3 + x4 = nτ n. Denote by V XI = b(|I|)( ¯XI − ¯XIc ), where b(k) = pk(n − k)n−2. Let us further define V μI = b(|I|)( ¯μI − ¯μIc ). Note that, for a fixed I ∈ R , V μI = E[V XI ], and in particular, 
+
+V μI0 = b(|I0|)δ. We likewise define V εI . Recall rn,δ from Theorem 2.2. Consider the sets 
+
+D := {I : C0nc n < |I| < n (1 − cn), x I > M ηr−1
+
+> n,δ
+
+}, 0 < C0 < 1 is a small constant, and ,
+
+D0 := D ∩ { I : xI < C ηn1/2δ−1},
+
+where, the choice of Mη > 0 will be specified later, and Cη is such that P(|xI | > C ηn1/2δ−1) < η 
+
+upon invoking Proposition 1. Therefore, it is sufficient to control the probability P(sup I∈D 0 |VI | ≥ |VI0 |). Clearly, 
+
+P( sup 
+
+> I∈D 0
+
+|VI | ≥ | VI0 |) ≤ P( sup 
+
+> I∈D 0
+
+VI − VI0 ≥ 0) + P( sup 
+
+> I∈D 0
+
+VI + VI0 ≤ 0) := (C.1) .1 + (C.1) .2. (C.1) We deal with the two terms sequentially. 
+
+C.1 Control on (C.1) .1
+
+We write 
+
+P( sup 
+
+> I∈D 0
+
+VI − VI0 ≥ 0) ≤ P( sup 
+
+> I∈D 0
+
+V εI − V εI0 − V μI0 + V μI ≥ 0) 
+
+≤ P( sup 
+
+> I∈D 0
+
+V εI − V εI0 − 2−1 δnpτn(1 − τn) min {xI , C 0nc n} ≥ 0) (C.2) 
+
+≤ P( sup 
+
+> I∈D 0
+
+xI > C 0nc n) + P( sup 
+
+> I∈D 0
+
+V εI − V εI0
+
+xI
+
+≥ 2−1 δn√cn
+
+):= (C.1) .1.1 + (C.1) .1.2,
+
+where (C.2) follows from (B.9) . Now, since |xI | < C ηn1/2δ−1, it follows (C.1) .1.1 = 0 for all sufficiently large n, as nc 2
+
+> n
+
+δ2 → ∞ . So we move on to tackling (C.1) .1.2. Following the notations of xi, i = 1(1)4 , we define the following for a candidate interval I ∈ D 0. Let 
+
+Sε
+
+> 1
+
+(I) = X
+
+> i∈Ic∩Ic
+> 0
+
+εi; Sε
+
+> 2
+
+(I) = X
+
+> i∈I∩Ic
+> 0
+
+εi; Sε
+
+> 3
+
+(I) = X
+
+> i∈I∩I0
+
+εi; Sε
+
+> 4
+
+(I) = X
+
+> i∈Ic∩I0
+
+εi.
+
+For convenience, subsequently we keep the dependence of Sεi ’s on I implicit. With these notations in place, let us rewrite (C.1).1.2 as follows 
+
+V εI − V εI0
+
+xI
+
+= x−1
+
+> I
+
+
+
+b(x2 + x3) Sε 
+
+> 2
+
++ Sε
+
+> 3
+
+x2 + x3
+
+− b(x3 + x4) Sε 
+
+> 3
+
++ Sε
+
+> 4
+
+x3 + x4
+
+
+
+−
+
+
+
+b(x3 + x4) Sε 
+
+> 1
+
++ Sε
+
+> 2
+
+x1 + x2
+
+− b(x2 + x3) Sε 
+
+> 1
+
++ Sε
+
+> 4
+
+x1 + x4
+
+
+
+:= G(I)
+
+xI
+
++ H(I)
+
+xI
+
+.38 In the following, we establish a control over G(I) 
+
+> xI
+
+; the term H(I) 
+
+> xI
+
+can be dealt with similarly. To that end, we further express G(I) as follows. 
+
+G(I) = b(|I|) SεI
+
+|I| − b(|I0|) SεI0
+
+|I0|
+
+= b(|I0|)SεI0 ( 1
+
+|I| − 1
+
+|I0| ) − b(|I0|) SεI − (S2 − S4)
+
+|I| + b(|I|) SI
+
+|I|
+
+= b(|I0|)SεI0
+
+x4 − x2
+
+|I|| I0| + ( b(|I|) − b(|I0|)) SI
+
+|I| + b(|I0|) S2 − S4
+
+|I|
+
+:= G1(I) + G2(I) + G3(I).
+
+Clearly, 
+
+P( sup 
+
+> I∈D 0
+
+G1(I)
+
+xI
+
+≥ δn√cn
+
+) ≤P( SεI0
+
+p|I0| ≥ √nδ C0) = O(( nc 2
+
+> n
+
+δ2)−1) = o(1) , (C.3) where (C.3) follows from n1−4/p c2
+
+> n
+
+δ2 → ∞ . On the other hand, note that |b(|I|) − b(|I0|)| ≤  
+
+> || I|−| I0||
+> n
+
+≤ xI 
+
+> n
+
+. Therefore, 
+
+P( sup 
+
+> I∈D 0
+
+G2(I)
+
+xI
+
+≥ δn√τn
+
+) ≤P( sup 
+
+> I∈D 0
+
+SεI
+
+|I| ≥ δ
+
+√τn
+
+) = O(( nc 2
+
+> n
+
+δ2)−1) = o(1) . (C.4) Finally, for G3, we proceed via considering a carefully orchestrated partitioning argument. To introduce this, let us first consider a coordinate-wise partition of intervals in the k-th dimension. For an interval I with Ik := [ ak, b k] denoting its slice in the k-th dimension, let 
+
+Lk(I) = [ ak, b k ∧ nkτ1,k ]; Mk(I) = [ ak ∨ nkτ1,k , b k ∧ nkτ2,k ], and Rk(I) = [ ak ∨ nkτ2,k , b k].
+
+Here, for notational convenience we assume that [a, b ] is empty is b < a . Clearly, for each k, Lk(I),
+
+Mk(I) and Rk(I) are disjoint, and Ik = Lk(I)∪Mk(I)∪Rk(I). Observe that I ∩I0 = Qdk=1 Mk(I).Therefore, if σ = ( σ1, . . . , σ d) ∈ { L, M, R }d and 
+
+σ(k)(I) = 
+
+
+
+Lk(I), if σk = LMk(I), if σk = MRk(I), if σk = R, 
+
+it follows that 
+
+I ∩ I0 = ∪σ̸ =( M,...,M )
+
+> d
+
+Y
+
+> k=1
+
+σ(k)(I). (C.5) Note that the σ(k)(I)’s depend on I through the Lk(I), M k(I) and Rk(I)’s. The representation (C.5) facilitates a piecemeal application of Assumption 2.1 and B.2. We call (C.5) a Peeling 
+
+representation of I ∩I0, in that it resembles peeling I ∩I0 into an union of disjoint rectangles along different axes; the name is also justified since it is on the individual rectangles I(σ) := Qdk=1 σ(k)(I)
+
+that we will apply the “peeling” trick of dyadic decompositions. To that end, let us introduce another, more general partition of the set of rectangles R := {I[a,b ] : 1 ≤ a ≤ n, a, b ∈ Zd}. Let 
+
+Rk = {I : I = [ a, b ], 1 ≤ a < b ≤ n}, k ∈ [d]
+
+be the set of corresponding k-th dimension slice. In particular, with Ik 
+
+> 0
+
+= I[nk τ1,k ,n k τ2,k ], k ∈ [d],let 39 
+
+• Pk 
+
+> 1
+
+:= {I : I ⊆ Ik 
+
+> 0
+
+};
+
+• Pk 
+
+> 2
+
+:= {I : I ⊇ Ik 
+
+> 0
+
+};
+
+• Pk 
+
+> 3
+
+:= {I : I ∩ Ik 
+
+> 0
+
+= ϕ};
+
+• Pk 
+
+> 4
+
+:= {I : a < n kτ1,k < b < n kτ2,k };
+
+• Pk 
+
+> 5
+
+:= {I : nkτ1,k < a < n kτ2,k < b };Clearly, Rk = ∪5
+
+> i=1
+
+P ki . Then, a partition of R can be represented as 
+
+ dY
+
+> k=1
+
+Pkαk : α := ( α1, α 2, . . . , α d) ∈ { 1, . . . , 5}d
+
+
+
+. (C.6) In view of (C.6) , we essentially have to deal with 5d cases. Fix some α ∈ [5] d, and let 
+
+Pα = Qdk=1 Pkαk . Observe that if αk = 3 for some k ∈ [d], then I ∩ I0 = ϕ. Therefore, for the sake of exposition, we consider the hardest case α ∈ { 1, 2, 4, 5}d.
+
+P( sup 
+
+> I∈D 0∩P α
+
+G3(I)
+
+xI
+
+≥ δn√τn
+
+) ≤ P( sup 
+
+> I∈D 0∩P α
+
+Sε 
+
+> 2
+
+− Sε
+
+> 4
+
+|xI | ≥ C 0δ)
+
+≤
+
+> ⌈log 2
+> √nδ −1⌉
+
+X   
+
+> j=⌊log 2Mηr−1
+> n,δ ⌋
+
+
+
+P( sup   
+
+> I∈D 0∩P α
+> 2j<|xI|<2j+1
+
+|Sε
+
+> 2
+
+| > C0δ2j ) + P( sup   
+
+> I∈D 0∩P α
+> 2j<|xI|<2j+1
+
+|Sε
+
+> 4
+
+| > C0δ2j )
+
+
+
+.
+
+(C.7) Due to the similarity of the two terms in (C.7), we only elaborate on the treatment of 
+
+P
+
+
+
+sup   
+
+> I∈D 0∩P α
+> 2j<|xI|<2j+1
+
+|Sε
+
+> 2
+
+| > C0δ2j 
+
+. (C.8) Depending on αk, we can further restrict the set of σ’s in the corresponding Peeling representation of I ∩ Ic 
+
+> 0
+
+for a candidate rectangle I. Let σk(αk) denote the particular set of choices for σk given a α = ( α1, . . . , α d).
+
+• αk = 1 = ⇒ σk(αk) = {M }, σ (k)(I) = Mk(I) = [ ak, b k].
+
+• αk = 2 = ⇒ σk(αk) = {L, M, R }, σ (k)(I) ∈ { Lk(I), M k(I), R k(I)}, where 
+
+Lk(I) = [ ak, n kτ1,k ]; Mk(I) = [ nkτ1,k , n kτ2,k ], and Rk(I) = [ nkτ2,k , b k].
+
+• αk = 4 = ⇒ σk(αk) = {L, M }, σ (k)(I) ∈ { Lk(I), M k(I)}, where 
+
+Lk(I) = [ ak, n kτ1,k ]; Mk(I) = [ nkτ1,k , b k].
+
+• αk = 5 = ⇒ σk(αk) = {M, R }, σ (k)(I) ∈ { Mk(I), R k(I)}, where 
+
+Mk(I) = [ ak, n kτ2,k ], R k(I) = [ nkτ2,k , b k].
+
+Further, denote 
+
+σ(α) := {(σ1, . . . , σ d) : σk ∈ σk(αk)} \ { M, . . . , M }.
+
+Note that, due to the Peeling representation (C.5), 
+
+sup 
+
+> I∈P α
+
+|Sε
+
+> 2
+
+| ≤ X
+
+> σ∈σ(α)
+
+sup 
+
+> I∈P α
+
+|SεI(σ)|, I (σ) := 
+
+> d
+
+Y
+
+> k=1
+
+σ(k)(I). (C.9) 40 For each σ, there exists k0 such that σk0 = L or σk = R. We focus on the first case, since the other case can be tackled symmetrically. Without loss of generality, let k0 = d. Evidently, then 
+
+I(σ) ∈ M (2 j+1 ), where M(m) is defined as in Lemma B.2. At this point, the end-points a, l of the rectangles I(a, l) in M(m) may seem to be unrestricted, but we can further restrict the box by exploiting the condition |xI | < 2j+1 .Indeed, for a generic I := I[a,b ] with I ∩ I0̸ = ϕ, |xI | < 2j+1 immediately implies that 
+
+max j∈[d](|aj − nj τ1,j | ∨ | bj − nj τ2,j |) < 2j+1 . Consequently, I(σ) can be enclosed in the following box: 
+
+I ⊆ B := 
+
+> d
+
+Y
+
+> k=1
+
+[nkτ2,k − 2j+2 , n kτ2,k + 2 j+1 ]. (C.10) From (C.8)-(C.10), one obtains, for each σ ∈ σ(α), that 
+
+P
+
+
+
+sup  
+
+> I∈D 0∩P α
+> |xI|<2j+1
+
+|SεI(σ)| > C0δ2j 
+
+≤ P
+
+
+
+sup 
+
+> I∈M (2 j+1 )
+> I⊆B
+
+|SεI | > C0δ2j 
+
+≲ 2jp/ 2(log 2 j ) d−1 
+
+> p
+
+(2 j ) d−1
+
+> p
+
+δp2jp (C.11) 
+
+≲ j d−1 
+
+> p
+
+(2 j ) d−1  
+
+> p−p
+> 2
+
+δp , (C.12) where, (C.11) involves an application of Lemma B.2. Plugging (C.12) into (C.7) yields that 
+
+P( sup 
+
+> I∈D 0∩P α
+
+G3(I)
+
+xI
+
+≥ δn√τn
+
+) ≲ δ−p
+
+> ⌈log 2
+> √nδ −1⌉
+
+X   
+
+> j=⌊log 2Mηr−1
+> n,δ ⌋
+
+j d−1 
+
+> p
+
+(2 j ) d−1  
+
+> p−p
+> 2
+
+≲ δ−p(log 2
+
+√nδ −1) d−1 
+
+> p
+
+(Mηr−1
+
+> n,δ
+
+) d−1   
+
+> p−p
+> 2
+
+(C.13) 
+
+≤ M   
+
+> d−1
+> p−p
+> 2
+> η
+
+, (C.14) where we have used 
+
+rn,δ = δ 21−2( d−1) /p 2 (log 2
+
+√nδ )− 2 
+
+> p2/(d−1) −2
+
+,
+
+to simplify (C.13) into (C.14) . Finally, since p > p2( d − 1) implies that d−1 
+
+> p
+
+− p 
+
+> 2
+
+< 0, hence, Mη
+
+can be chosen to make (C.14) arbitrarily small. Therefore, from (C.3) , (C.4) , (C.7) and (C.14) ,one obtains P(sup I∈D 0 
+
+> G(I)
+> xI
+
+> δn√cn ) < η for all sufficiently large n. This completes the proof by establishing a control on (C.1).1.2. 
+
+C.2 Control on (C.1) .2
+
+We further divide this into two sub-cases as follows. 
+
+P( sup 
+
+> I∈D 0
+
+VI + VI0 ≤ 0) ≤ P( sup  
+
+> I∈D 0:VI≥0
+
+VI + VI0 ≤ 0) + P( sup  
+
+> I∈D 0:VI≤0
+
+VI + VI0 ≤ 0) := (C.1) .2.1 + (C.1) .2.2.
+
+(C.15) Write VI = V εI + V μI . When VI > 0, it is immediate that VI + VI0 ≤ 0 ⇐⇒ V εI + V εI0 ≤−V μI − V μI0 ≤ − V μI0 , and therefore, from V μI0 = δτ n(1 − τn), one obtains, (C.1) .2.1 ≤ P( sup  
+
+> I∈D 0:VI≥0
+
+|V εI | ≥ δpτn(1 − τn)2 ) + P(|V εI0 | ≥ δpτn(1 − τn)2 )
+
+≤ 2P( sup 
+
+> I:|I|>nc n
+
+|V εI | ≥ δpτn(1 − τn)2 )=o(1) ,41 where o(1) bound occurs by a treatment following verbatim from the corresponding analysis of the term (B.11).1 in (B.11) . Next, we show that (C.1) .2.2 is exactly zero. Indeed, from (B.5) ,
+
+V μI < 0 trivially reduces to 
+
+x3x1 < x 4x2 ⇐⇒ x3
+
+x2
+
+< τn
+
+1 − τn
+
+⇐⇒ | I| < x2
+
+1 − τn
+
+,
+
+which, light of I ∈ D 0, implies that 
+
+C0nτ n < |I| < C η(1 − τn)−1√nδ −1 ≤ 2−1Cη
+
+√nδ −1. (C.16) Clearly, in view of nc 2
+
+> n
+
+δ2 → ∞ , (C.16) constitutes a contradiction for all sufficiently large n,showing that (C.1) .2.2 = 0 .
+
+# D Proof of Theorem 2.3 
+
+Recall m from Algorithm 1. A direct application of Theorem 2.2 yields the error rate for our first stage estimators. More formally, let rm,δ be defined as rn,δ in Theorem 2.2, but with n
+
+replaced by m ≍ n1−α. Since mc 2 
+
+> n
+
+→ ∞ , given ε > 0, Theorem 2.2 instructs that there exists 
+
+Mη sufficiently large, such that for every k ∈ [d],
+
+aI,k ∈ L k := [ Mkτ1,k − Mηr−1
+
+> m,δ
+
+, M kτ1,k + Mηr−1
+
+> m,δ
+
+], and 
+
+bI,k ∈ R k := [ Mkτ2,k − Mηr−1
+
+> m,δ
+
+, M kτ2,k + Mηr−1
+
+> m,δ
+
+], (D.1) holds with probability ≥ 1 − η, i.e. P(A) ≥ 1 − η, where the event in (D.1) is denoted by A. Let 
+
+LB = Qdk=1 Lk, and RB = Qdk=1 Rk. Clearly, at the second stage, it holds that 
+
+P(| ˜I∆I0| > G ηr−1
+
+> n,δ
+
+) ≤ sup  
+
+> s∈L B,t∈R B
+
+P(| ˜I∆I0| > G ηr−1 
+
+> n,δ
+
+|aI = s, b I = t) + η. (D.2) We note that conditional on A, (D.1) instructs 
+
+|bI,k − aI,k | ≥ Mk(τ2,k − τ1,k ) − 2Mηr−1
+
+> m,δ
+
+. (D.3) Conditional on the event {aI = s, b I = t}, define the set of rectangles 
+
+Ps,t =
+
+(
+
+I[i,j] : i ∈
+
+> d
+
+Y
+
+> k=1
+
+h
+
+skLk − CL knκk (log n)1/d , s kLk + CL knκk (log n)1/d i
+
+,
+
+j ∈
+
+> d
+
+Y
+
+> k=1
+
+h
+
+tkLk − CL knκk (log n)1/d , t kLk + CL knκk (log n)1/d i)
+
+. (D.4) Evidently, Ps,t is motivated directly from the definitions of ˆLB and ˆRB from Algorithm 1. Let n be sufficiently large that (min k nk)κ > M ηr−1
+
+> m,δ
+
+. Crucially, note that rm,δ ≍ rn,δ , since log m ≍ log n.Then, conditional on A ∩ { aI = s, b I = t}, I0 ∈ P s,t. Let Ds,t := {I : I ∈ P s,t, |I∆I0| > G ηr−1
+
+> n,δ
+
+}.Then, for a fixed s < t , it holds that 
+
+P(| ˜I∆I0| > G ηr−1 
+
+> n,δ
+
+|aI = s, b I = t) ≤ P( sup 
+
+> I∈D s,t
+
+|VI | ≥ | VI0 | | aI = s, b I = t),42 where VI = b(|I|)( ¯XI − ¯XIc ), where b(k) = pk(n − k)n−2. Note that, if I ∈ P s,t, then with 
+
+τk = τ2,k − τ1,k it follows 
+
+|I| ≥ 
+
+> d
+
+Y
+
+> k=1
+
+
+
+(tk − sk)Lk − 2CL knκk (log n)1/d 
+
+> (a)
+
+≥
+
+> d
+
+Y
+
+> k=1
+
+(nkτk − 2MηLkr−1 
+
+> n,δ
+
+− 2Lknκk (log n)1/d )
+
+> (b)
+
+≥
+
+> k
+
+Y
+
+> k=1
+
+(nkτk − 4Lknκk (log n)1/d )
+
+≥ C 0nc n, a.s. (D.5) where, (a) follows from (D.3) ; (b) follows from ( min k nk)κ > M ηr−1
+
+> m,δ
+
+, and (D.5) is the consequence of the choice of α guaranteeing α + κ < 1, culminating in the final bound for a small enough constant C0. Similarly, it can be shown that if I ∈ P s,t , then |I| ≤ n(1 − C 1cn) for a small constant C1. Therefore, it follows that conditional on A ∩ { aI = s, b I = t}, Ds,t ⊆ D , where we recall D from the proof of Theorem 2.2. Clearly, Theorem 2.2 instructs that, 
+
+P( sup 
+
+> I∈D s,t
+
+|VI | ≥ | VI0 | | aI = s, b I = t) ≤ P(sup 
+
+> I∈D
+
+|VI | ≥ | VI0 |) < η, 
+
+upon choosing Gη appropriately. This completes the proof in light of (D.2). 
+
+# E Proof of Theorem 3.1 
+
+The proof of Theorem E, while quite involved, mostly consists of sequential validation of each step of Algorithm 2. In particular, in Step 1, we establish the validity of our testing mechanism in identifying small blocks inside anomalous rectangles. In Step 2, we leverage the uniform Gaussian approximation assumption 3.2 along with our careful deletion steps, to argue that the blocks with significant intersection with the background noise will not be selected by our mechanism. Steps 1 and 2 together show that we will select the correct number of patches in our algorithm with probability approaching 1. Finally, in Step 3, we provide individual level localization rate for each anomalous patch, rounding off the theoretical analysis of SPLADE. 
+
+E.1 Step 1 
+
+Let for each j ∈ [K], eBj = {s : Bs ⊆ Ij }, and let eB = ∪Kj=1 Bj . Recall that, |Bs| ≍ nα, and from Assumption 3.1, min j∈[K] |bjl − ajl | ≫ nαl log 1/d n for all l ∈ [d]. Therefore for all sufficiently large n, it must hold that for each j ∈ [K], | eBj | ≫ log n. Let ¯Xs be defined the same as in Step 9 of Algorithm 2. In the following, we show that 
+
+P
+
+
+
+min  
+
+> j∈[K]
+
+min  
+
+> s∈eBj
+
+| ¯Xs| > Q
+
+
+
+→ 1, as n → ∞ . (E.1) Indeed, it follows that for a fixed j ∈ [K], and s ∈ eBj
+
+P(| ¯Xs| < Q) ≤ P(|¯εs| > |δj | − Q) ≤ O(n−pα/ 2)(|δj | − Q)p ,
+
+which directly implies 
+
+P
+
+
+
+min  
+
+> j∈[K]
+
+min  
+
+> s∈eBj
+
+| ¯Xs| ≤ Q
+
+
+
+≲ max 
+
+> j∈[K]
+
+|Ij |
+
+nα
+
+O(n−pα/ 2)(|δj | − Q)p
+
+> (a)
+
+= O(max  
+
+> j∈[K]
+
+n1−α(p−1) /2cnj δ−pj ) → 0,43 where in (a) we used (3.3) together with the Gaussian tail bound Q ≍
+
+q log nnα to conclude that 
+
+min j∈[K] |δj | ≫ Q. This shows (E.1). 
+
+E.2 Step 2 
+
+In this step, we show that P( ˆK = K) → 1 as n → ∞ . To that end, note that by the construction of ¯M , and since Cj ’s and eBj ’s are respectively disjoint, it holds 
+
+P
+
+
+
+min  
+
+> j∈[K]
+
+min  
+
+> s∈eBj
+
+| ¯Xs| > Q
+
+
+
+≤ P(An1),
+
+where An1 := {For every j ∈ [K], there exists ij ∈ [ ˆK], such that eBj ⊆ Cij }., (E.2) Let PE,F (·) = P(· ∩ E ∩ F ) for any events E, F . At this stage, the relationship between ˆK and 
+
+K is still not entirely clear. Subsequently, we will show that under the event An1, the mapping 
+
+j 7 → ij is injective, establishing that ˆK ≥ K with high probability. To that end, suppose there exists k1 < k 2 ∈ [K] such that ik1 = ik2 . Let the common component Cik1 = Cik2 be denoted by C. Without loss of generality, suppose that ν⋆Ik1 ,I k2
+
+= 1 . Further, without loss of generality, we can assume that max {0, a k2,1 − bk1,1, a k1,1 − bk2,1} := ak2,1 − bk1,1. Let sk1,1 = ⌈bk1,1/L 1⌉,
+
+sk2,1 = ⌈ak2,1/L 1⌉. Note that sk2,1 − sk1,1 computes the gap between the rectangles Ik1 and 
+
+Ik2 projected into the first dimension. Moreover, by Assumption 3.1, sk2,1 − sk1,1 ≥ nα 
+
+> 1
+
+log 1/d n.Consider the set 
+
+A = {l ∈
+
+> d
+
+Y
+
+> k=1
+
+[Mk(I)] : s1,1 < l 1 < s 2,1}.
+
+Because C is connected in Rd, its projection π1(C) = {x1 : x ∈ C} ⊂ R is connected and hence an interval; moreover, we have [b1,1, a 2,1] ⊂ π1(C). Hence, for each integer r with s1,1 ≤ r ≤ s2,1,there exists sr ∈ [n] with sr, 1 = r and Bsr ∈ C. Clearly, by definition of rectangles, sk1,1 and 
+
+sk2,1, Bsr /∈ Ik1 ∪ Ik2 for all s1,1 ≤ r ≤ s2,1. However, Assumption 3.2 instructs that 
+
+PAn1 (There exists ss1,1 , . . . , ss2,1 such that Bsr ∈ Ic 
+
+> 1
+
+∩ Ic 
+
+> 2
+
+∩ C)
+
+≤ P(There exists at least log n many points s ∈
+
+> d
+
+Y
+
+> k=1
+
+[Mk(I)] with ¯εs > Q)
+
+> (b)
+
+≤ o(1) + P(There exists at least log n many points s ∈
+
+> d
+
+Y
+
+> k=1
+
+[Mk(I)] with |Bs|−1Ws > Q/σ )
+
+≲ o(1) + (log n)− log n = o(1) , (E.3) where (b) follows from Assumption 3.2 and nα/ 2 ≫ ( log n)−1/2|n|d/q  
+
+> ∞
+
+. Therefore, from (E.2) and (E.3) , jointly with Step 1, it follows that P( ˆK ≥ K) → 1. Before we show the other direction, we recalibrate by letting An2 = {Cik ’s are mutually disjoint for k ∈ [K]}, and realizing that we have shown 
+
+P(An1 ∩ A n2) → 1, as n → ∞ .
+
+Now if ˆK > K , then under the event An1 ∩ A n2, there exists j ∈ [ ˆK] such that Cj and ∪s∈B Bs
+
+are disjoint. Consequently, it must be true that |Cj ∩ (∪Kk=1 Ik)| ≤ nα. Note that, by construction of Cj ’s in Algorithm 2, |Cj | ≥ cn α√log n. Therefore it must be true that there are at least 
+
+2−1c√log n many s’s such that Bs ∩ Cj ∩ (∪Kk=1 Ij ) = ϕ, and ¯Xs > Q. Hence it follows similar to (E.3) that 
+
+PAn1,An2 ( ˆK > K ) → 0, as n → ∞ ,
+
+which immediately implies (3.4). 44 
+
+E.3 Step 3 
+
+In this step, we show (3.6) conditional on An3 := { ˆK = K}. Under An3, without loss of generality, we can assume ij = j , j ∈ [K]. Conditional on An3, in this step we establish the piecewise consistency of ˆIj in estimating the true rectangle Ij . Recall that ˆIj is obtained by implementing Algorithm 1 on the random rectangle Dj . The sets Dj ’s themselves can be thought of as an enlargement of the random sets Cj ’s into rectangles, so as to enable an application of Algorithm 1. To facilitate further analysis, it is imperative that the sets Dj ’s are disjoint with high probability. To that end, first observe that under An1, Ij ⊆ Cj , and therefore, Ij ⊆ Dj . Consider the deterministic rectangles 
+
+D† 
+
+> j
+
+:= 
+
+> d
+
+Y
+
+> k=1
+
+[nkτ j 
+
+> 1,k
+
+− c0
+
+2 nαk log 3/2 n, n kτ j 
+
+> 2,k
+
++ c0
+
+2 nαk log 3/2 n],
+
+where c0 is as in Assumption 3.1. Clearly, D† 
+
+> j
+
+are disjoint by invoking Assumption 3.1. We will show that Dj ⊆ D† 
+
+> j
+
+with high probability. Observe that, a proof similar to (E.3) can be employed to deduce that under, PAn1,An2,An3 (|Cj \ Ij | ≤ log n) → 1. Let An4 := {| Cj \ Ij | ≤ log n}. Recall from Algorithm 2 that 
+
+ℓjk = min 
+
+> s∈Cj
+
+sk, r jk = max 
+
+> s∈Cj
+
+sk.
+
+Under An4 it follows that 
+
+min {| Lkℓjk − nkτ j
+
+> 1,k
+
+|, |Lkrjk − nkτ j
+
+> 2,k
+
+|} < log n. (E.4) From the definition of Dj and D† 
+
+> j
+
+, it follows from (E.4) that 
+
+PAn1,An2,An3,An4 (Ij ⊆ Dj ⊆ D† 
+
+> j
+
+) → 1, as n → ∞ . (E.5) Let An5 := {Ij ⊆ Dj ⊆ D† 
+
+> j
+
+, j ∈ [K]}. For our final step, we analyze Algorithm 1 in the context of Dj and D† 
+
+> j
+
+. To that end, let us consider the naive, least-square based estimator on Dj . More formally, let 
+
+˜Ij := arg max    
+
+> I⊂Dj,|Dj|λ2>|I|>|Dj|λ1
+
+s
+
+|I|(|Dj | − | I|)
+
+|Dj |2 | ¯XI − ¯XIc | (E.6) Fix ε > 0. Observe that, in light of |Ij | ≫ nα log n, one derives r|D†  
+
+> j|,δ j
+
+≍ r|Ij |,δ j ≍ rn,δ j .Consequently, it is immediate that 
+
+P∩4 
+
+> u=1 An,u
+
+(| ˜Ij ∆Ij | > M ηr|Ij |,δ j ) ≤ P∩4
+
+> u=1 An,u
+
+  sup     
+
+> I⊆Dj:|I∆Ij|>M ηr|Ij|,δ j
+
+|VI | ≥ | VIj |
+
+≤ P( sup     
+
+> I⊆D†
+> j:|I∆Ij|>M ηr|Ij|,δ j
+
+|VI | ≥ | VIj |) < η (E.7) where the choice of Mη ascertains the control by η via Theorem 2.2. Therefore, for the sub-sampling step of Algorithm 1, as long as the choice of αj in Algorithm 1 satisfies (3.5) , the first stage localization around the end-points of Ij , similar to (D.1) , is achieved with high probability, conditional on ∩5
+
+> u=1
+
+An,u . Thereafter, an argument verbatim to that of Theorem 2.3 can be employed to conclude (3.6), and thus we omit the details. 45 
+
+# F Deferred implementation details for SPLADE: How to get μ0
+
+# and σ?
+
+An important aspect of Theorem 3.1 is the requirement that the baseline mean μ0 and long-run variance σ2 be known, which may not hold in many practical applications. Therefore, we briefly discuss a procedure for estimating both the parameters even in presence of anomalous patches. Consider the boundary layer with thickness βIbdry  
+
+> n
+
+=
+
+n
+
+i = ( i1, . . . , i d) ∈ In : ∃ j ∈ [d] s.t. ij ≤ nβj or ij ≥ nj − nβj + 1 
+
+o
+
+.
+
+Figure 7 depicts Ibdry  
+
+> n
+
+in the case of d = 2 . In light of Assumption 2.3, Ibdry  
+
+> n
+
+is disjoint from any of the anomalous patches, and therefore, can be safely employed to estimate both μ0 and σ2. In particular, we replace μ0 by the corresponding sample mean over Ibdry  
+
+> n
+
+, which is consistent via Proposition 1 of El Machkouri et al. [2013]. On the other hand, for σ2, we employ the Kernel-based estimators from Steland [2025], which can also be understood as generalizations of HAC estimator (see Newey and West [1987], Andrews and Monahan [1992]). Formally, let K : R → R
+
+Figure 7: Example for d = 2 : estimate μ0 and σ2 based on the blue shaded area. 
+
+be a symmetric kernel with bounded support [−ω, ω ], with K ∈ C 1, and sup x |K′(x)| ⩽ C. With a slight abuse of notation, for v ∈ Rd, let K(v) := K (v1) . . . K (vd). Our long-run variance estimator reads 
+
+bσ2 = 1
+
+|Ibdry  
+
+> n
+
+|
+
+X
+
+> i,j ∈S
+
+K (i − j)/Bn
+
+   Xi − XIbdry 
+
+> n
+
+   Xj − XIbdry 
+
+> n
+
+,
+
+where Bn = ( Bn, 1, . . . , B n,d ) with Bn,k → ∞ and Bn,k /n 1/d k → 0. Since the theoretical properties of ˆσ2 for different choices of kernel functions and bandwidths Bn,k follows directly from Steland [2025], we omit that discussion for brevity. 
+
+# G Additional Simulation results 
+
+In this section we provide some more sensitivity analysis and an extensive comparative study for a non-linear spatial distribution. For ˜α > 2, let Pε( ˜α) denote the distribution of the random variable Z − E[Z], where Z ∼ Fréchet ( ˜α). Let P 
+
+> s∈Zd
+
+|as| < ∞. Define max stable distribution as 
+
+Yt = max  
+
+> s∈Zd
+
+asεt−s, ε t i.i.d. 
+
+∼ Pε(˜ α).
+
+We set, in this part of our simulation, as = 0 .6s1+s2 . In contrast to the experiments on SAR model in §4, where an increasing ρ indicates increasing spatial dependence, the relation between dependence and the parameter α is more nuanced for the Fréchet scenario. In particular, a larger α means lighter tails, so naively speaking, increasing α results in less extremal values under no anomalous patch, which might mean overall a weaker level of dependence. To further 46 investigate this, we choose ˜α = 2 .75 and 3 for the sensitivity analysis and ˜α = 2 .5, 2.75 and 3 for comparative study. In both cases we demean the data to keep it comparable with the mean-zero SAR ( ρ) cases in the main draft. The sensitivity analysis results for δμ = 1 are presented in Table 5 and the comparative studies are deferred to Tables 6 and 7. 
+
+G.1 Sensitivity analysis for SPLADE- Max Stable Distribution 
+
+One sees, from Table 5 that our method SPLADE enjoys reasonable robustness across different choices of α parameter in the first-stage of Algorithm 2 SPLADE. In particular, ARI is consistently high and close to 1 across grid size and Fréchet parameter ˜α. When contrasted with Table 1, Table 5 provides an interesting insight into the performance of SPLADE in the heavy-tailed set-ups, along with potentially hinting at the optimality of the theoretical assumptions in Theorem 3.1. In particular, the max stable distribution is heavy-tailed, and therefore, the moment-based prescriptions in (3.7) and (3.8) are perhaps more accurately applicable in this scenario. Note that (3.8) will be satisfied only if α > 1/2, which corresponds to the performance boost SPLADE enjoys in Table 5 for α = 0 .5 and 0.6 (especially in estimating K, and in terms of Hausdorff distance). As N increases, the asymptotic regime kicks in, and for N = 1000 , the performance of SPLADE stabilizes for α > 0.5, reflecting back the same robustness property displayed in Table 1. This further vindicates our choice of α = 1 /2 in all our experiments. 
+
+Table 5: Ablation study of SPLADE (on α from Stage -1 of Algorithm 2) for Config. 1 with δμ = 1 
+
+under Fréchet ( ˜α). Each cell reports average over 100 replicates in the order α = 0 .4 / α = 0 .5 / α = 0 .6.                                   
+
+> NFréchet ( ˜α)ˆKmean I( ˆK= 3) ARI Hausdorff 500 2.75 4.19 / 3.34 / 2.91 0.33 / 0.7 / 0.91 0.991 / 0.974 / 0.976 0.674 / 0.338 / 0.093 3.00 4.06 / 3.38 / 2.94 0.36 / 0.72 / 0.978 0.993 / 0.974 / 0.982 0.643 / 0.352 / 0.064 750 2.75 4.73 / 3.50 / 3.00 0.19 / 0.61 / 1.00 0.984 / 0.982 / 0.991 0.816 / 0.402 / 0.022 3.00 4.50 / 3.41 / 3.00 0.23 / 0.69 / 1.00 0.985 / 0.982 / 0.991 0.770 / 0.327 / 0.022 1000 2.75 4.86 / 3.09 / 2.83 0.17 / 0.91 / 0.72 0.993 / 0.998 / 0.933 0.829 / 0.093 / 0.260 3.00 4.67 / 3.08 / 2.83 0.19 / 0.92 / 0.75 0.994 / 0.998 / 0.942 0.813 / 0.077 / 0.232
+
+G.2 Comparing SPLADE with other competing methods-Max Stable Distri-bution 
+
+For both the grid sizes 256 × 256 and 512 × 512 , the performance of SPLADE is comparable across different ˜α value; specifically for the larger grid, SPLADE may even seem to perform better as ˜α increases. This vindicates our earlier notion that increasing ˜α might mean weakening the dependency structure. To compare with other methods, firstly we focus on configuration 1, presented in Table 6. Here, the Hausdorff metric for SPLADE shows dramatic improvement compared to other methods while maintaining great ARI and accuracy for number of patches. Moreover, speed-wise, SPLADE beats DCART uniformly. However, it is slower than TV in all cases across two tables. One could also see that TV fails in other accuracy metrics compared to SPLADE almost everywhere. The speed-up of SPLADE compared to DCART is roughly between 1.2x-2x. As expected, SPLADE outperforms both methods in all 4 accuracy metrics almost uniformly. For configuration 2, displayed in Table 7, although sometimes for larger jump sizes, DCART catches up or marginally beats SPLADE in ARI or Hausdorff metric, they have a tendency to overestimate number of patches uniformly. 
+
+# H Additional Real-world dataset analysis 
+
+Compression in glass fibre-reinforced polymers often leads to unreliable or potentially deformed fibre clusters. Recently, multi-computed Tomography has been heavily used to produce three-47 
+
+Table 6: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and Fréchet ˜α for Config. 1 (3 patches). Each cell reports avg. over 100 replicates in the order DCART / SPLADE / TV. 
+
+Jump ˆK I( ˆK = 3) ARI Hausdorff distance time/iter (sec) 
+
+Grid = 256 × 256 
+
+Fréchet ˜α = 2 .50 
+
+0.2 6.11 / 3.20 / 2.30 0.08 / 0.70 / 0.18 0.233 / 0.895 / 0.036 0.98 / 0.39 / 0.98 10.54 / 7.88 / 2.29 
+
+0.4 5.98 / 3.11 / 2.95 0.06 / 0.67 / 0.25 0.286 / 0.899 / 0.206 0.99 / 0.41 / 0.98 9.89 / 8.54 / 2.29 
+
+0.6 6.02 / 3.04 / 3.38 0.09 / 0.63 / 0.36 0.355 / 0.882 / 0.313 0.99 / 0.45 / 0.98 13.15 / 11.40 / 3.14 
+
+0.8 7.59 / 3.01 / 3.96 0.01 / 0.62 / 0.26 0.500 / 0.872 / 0.593 1.00 / 0.46 / 0.98 17.30 / 14.64 / 4.00 
+
+1.0 6.63 / 2.98 / 4.53 0.01 / 0.65 / 0.24 0.511 / 0.869 / 0.839 1.00 / 0.44 / 0.98 10.04 / 9.12 / 2.48 Fréchet ˜α = 2 .75 
+
+0.2 5.04 / 3.14 / 1.77 0.14 / 0.75 / 0.12 0.337 / 0.910 / 0.032 0.94 / 0.34 / 0.98 9.75 / 8.06 / 2.00 
+
+0.4 4.37 / 2.99 / 2.53 0.23 / 0.70 / 0.22 0.372 / 0.885 / 0.261 0.98 / 0.39 / 0.97 9.87 / 8.92 / 2.13 
+
+0.6 4.23 / 2.96 / 3.09 0.32 / 0.71 / 0.43 0.413 / 0.871 / 0.526 0.98 / 0.40 / 0.97 17.34 / 14.71 / 3.83 
+
+0.8 6.28 / 2.94 / 3.68 0.00 / 0.71 / 0.49 0.614 / 0.874 / 0.836 1.00 / 0.40 / 0.97 15.32 / 13.20 / 3.40 
+
+1.0 4.91 / 2.92 / 3.97 0.04 / 0.69 / 0.37 0.572 / 0.871 / 0.890 0.99 / 0.41 / 0.98 10.00 / 9.06 / 2.36 Fréchet ˜α = 3 .00 
+
+0.2 4.62 / 3.07 / 1.45 0.13 / 0.75 / 0.05 0.392 / 0.902 / 0.027 0.92 / 0.34 / 0.97 9.77 / 8.48 / 1.91 
+
+0.4 3.99 / 2.96 / 2.37 0.30 / 0.71 / 0.15 0.452 / 0.877 / 0.315 0.97 / 0.39 / 0.97 9.84 / 9.00 / 2.06 
+
+0.6 3.76 / 2.92 / 3.10 0.29 / 0.69 / 0.66 0.428 / 0.871 / 0.770 0.97 / 0.40 / 0.96 14.15 / 12.25 / 3.02 
+
+0.8 5.88 / 2.91 / 3.47 0.01 / 0.68 / 0.63 0.639 / 0.869 / 0.890 0.99 / 0.41 / 0.97 9.94 / 9.01 / 2.20 
+
+1.0 4.44 / 2.91 / 3.57 0.07 / 0.68 / 0.58 0.594 / 0.869 / 0.897 0.99 / 0.41 / 0.97 9.99 / 8.98 / 2.23 Grid = 512 × 512 
+
+Fréchet ˜α = 2 .50 
+
+0.2 12.30 / 3.15 / 3.10 0.00 / 0.77 / 0.19 0.132 / 0.927 / 0.008 1.00 / 0.25 / 1.00 50.78 / 29.19 / 11.12 
+
+0.4 12.23 / 3.09 / 3.10 0.00 / 0.84 / 0.22 0.192 / 0.953 / 0.023 1.00 / 0.19 / 1.00 72.38 / 48.84 / 15.60 
+
+0.6 12.70 / 3.14 / 3.67 0.00 / 0.86 / 0.32 0.434 / 0.972 / 0.198 1.00 / 0.17 / 1.00 73.36 / 51.69 / 16.44 
+
+0.8 12.90 / 3.14 / 4.18 0.00 / 0.86 / 0.28 0.554 / 0.972 / 0.300 1.00 / 0.17 / 1.00 72.35 / 51.92 / 16.77 
+
+1.0 13.29 / 3.13 / 4.53 0.00 / 0.87 / 0.19 0.667 / 0.972 / 0.421 1.00 / 0.16 / 1.00 42.14 / 31.57 / 10.70 Fréchet ˜α = 2 .75 
+
+0.2 5.92 / 3.04 / 2.27 0.15 / 0.89 / 0.13 0.226 / 0.954 / 0.009 0.99 / 0.14 / 0.99 68.27 / 44.11 / 13.27 
+
+0.4 5.77 / 3.08 / 2.47 0.11 / 0.92 / 0.15 0.297 / 0.974 / 0.110 0.99 / 0.11 / 0.99 72.34 / 51.29 / 14.34 
+
+0.6 6.21 / 3.08 / 3.15 0.09 / 0.92 / 0.24 0.511 / 0.974 / 0.276 0.99 / 0.11 / 0.99 72.96 / 51.87 / 15.25 
+
+0.8 6.51 / 3.08 / 3.57 0.10 / 0.92 / 0.32 0.693 / 0.974 / 0.419 0.96 / 0.11 / 0.99 68.26 / 49.50 / 15.09 
+
+1.0 6.70 / 3.08 / 4.28 0.02 / 0.92 / 0.26 0.749 / 0.974 / 0.818 0.96 / 0.11 / 0.99 42.09 / 31.62 / 9.86 Fréchet ˜α = 3 .00 
+
+0.2 3.95 / 3.07 / 1.85 0.33 / 0.93 / 0.11 0.278 / 0.974 / 0.010 0.97 / 0.10 / 0.99 71.02 / 49.17 / 12.86 
+
+0.4 3.96 / 3.06 / 2.51 0.22 / 0.94 / 0.23 0.401 / 0.974 / 0.233 0.98 / 0.09 / 0.99 72.33 / 51.37 / 13.71 
+
+0.6 3.96 / 3.08 / 2.68 0.22 / 0.92 / 0.28 0.585 / 0.973 / 0.327 0.94 / 0.11 / 0.99 73.26 / 51.91 / 14.59 
+
+0.8 4.45 / 3.05 / 3.65 0.34 / 0.95 / 0.43 0.765 / 0.975 / 0.808 0.84 / 0.08 / 0.99 41.66 / 31.61 / 8.83 
+
+1.0 4.52 / 3.06 / 4.00 0.32 / 0.94 / 0.46 0.774 / 0.976 / 0.934 0.95 / 0.09 / 0.99 41.85 / 31.72 / 9.23 48 
+
+Table 7: Comparison of DCART, SPLADE and TV across grid sizes, jump sizes, and Fréchet ˜α for Config. 2 (5 patches). Each cell reports avg. over 100 replicates in the order DCART / SPLADE / TV. 
+
+Jump ˆK I( ˆK = 5) ARI Hausdorff distance time/iter (sec) 
+
+Grid = 256 × 256 
+
+Fréchet ˜α = 2 .50 
+
+0.2 7.64 / 5.04 / 2.02 0.11 / 0.86 / 0.03 0.725 / 0.946 / 0.093 0.98 / 0.22 / 0.98 9.49 / 5.81 / 2.66 
+
+0.4 8.31 / 5.01 / 4.21 0.03 / 0.99 / 0.22 0.898 / 0.963 / 0.661 0.91 / 0.08 / 0.97 9.67 / 5.70 / 2.87 
+
+0.6 8.79 / 5.01 / 6.25 0.03 / 0.99 / 0.28 0.941 / 0.965 / 0.817 0.92 / 0.07 / 0.98 9.65 / 5.67 / 2.85 
+
+0.8 8.63 / 5.00 / 6.98 0.00 / 1.00 / 0.07 0.951 / 0.965 / 0.907 0.89 / 0.06 / 0.97 9.75 / 5.69 / 2.94 
+
+1.0 8.72 / 5.00 / 7.75 0.00 / 1.00 / 0.00 0.961 / 0.965 / 0.953 0.89 / 0.06 / 0.99 9.69 / 5.68 / 2.72 Fréchet ˜α = 2 .75 
+
+0.2 6.28 / 5.03 / 1.49 0.24 / 0.97 / 0.01 0.786 / 0.961 / 0.083 0.88 / 0.10 / 0.97 9.46 / 5.71 / 2.46 
+
+0.4 6.77 / 5.01 / 4.84 0.06 / 0.99 / 0.49 0.933 / 0.965 / 0.780 0.63 / 0.07 / 0.96 9.61 / 5.69 / 2.72 
+
+0.6 7.18 / 5.00 / 6.12 0.02 / 1.00 / 0.35 0.963 / 0.965 / 0.866 0.70 / 0.06 / 0.96 9.57 / 5.68 / 2.67 
+
+0.8 7.07 / 5.00 / 6.77 0.00 / 1.00 / 0.00 0.972 / 0.965 / 0.957 0.60 / 0.06 / 0.98 9.63 / 5.67 / 2.61 
+
+1.0 7.11 / 5.00 / 7.28 0.00 / 1.00 / 0.00 0.975 / 0.965 / 0.967 0.61 / 0.06 / 0.99 9.66 / 5.67 / 2.55 Fréchet ˜α = 3 .00 
+
+0.2 5.61 / 5.01 / 1.27 0.36 / 0.99 / 0.00 0.811 / 0.964 / 0.089 0.78 / 0.07 / 0.96 9.54 / 5.68 / 2.34 
+
+0.4 6.20 / 5.00 / 5.13 0.11 / 1.00 / 0.71 0.946 / 0.965 / 0.818 0.40 / 0.06 / 0.96 9.59 / 5.68 / 2.56 
+
+0.6 6.58 / 5.00 / 6.26 0.03 / 1.00 / 0.07 0.971 / 0.965 / 0.943 0.49 / 0.06 / 0.96 9.59 / 5.67 / 2.49 
+
+0.8 6.37 / 5.00 / 6.49 0.02 / 1.00 / 0.00 0.974 / 0.965 / 0.968 0.32 / 0.06 / 0.99 9.66 / 5.69 / 2.50 
+
+1.0 6.39 / 5.00 / 6.76 0.01 / 1.00 / 0.00 0.975 / 0.965 / 0.971 0.33 / 0.06 / 0.99 9.66 / 5.66 / 2.47 Grid = 512 × 512 
+
+Fréchet ˜α = 2 .50 
+
+0.2 14.61 / 5.06 / 2.64 0.00 / 0.83 / 0.04 0.798 / 0.974 / 0.024 1.00 / 0.19 / 0.99 43.0 / 30.3 / 11.4 
+
+0.4 15.70 / 5.16 / 2.30 0.00 / 0.84 / 0.04 0.897 / 0.984 / 0.072 1.00 / 0.18 / 0.99 38.6 / 28.2 / 11.6 
+
+0.6 15.94 / 5.16 / 4.60 0.00 / 0.84 / 0.22 0.950 / 0.984 / 0.676 1.00 / 0.17 / 0.99 38.8 / 28.3 / 11.8 
+
+0.8 15.56 / 5.14 / 6.88 0.00 / 0.88 / 0.15 0.966 / 0.986 / 0.826 1.00 / 0.14 / 0.99 39.0 / 28.4 / 12.0 
+
+1.0 15.66 / 5.14 / 8.24 0.00 / 0.88 / 0.04 0.975 / 0.986 / 0.864 1.00 / 0.14 / 1.00 38.9 / 28.3 / 12.5 Fréchet ˜α = 2 .75 
+
+0.2 8.46 / 5.08 / 1.81 0.06 / 0.91 / 0.00 0.850 / 0.983 / 0.025 0.96 / 0.12 / 0.99 38.3 / 28.0 / 9.8 
+
+0.4 9.14 / 5.10 / 2.71 0.02 / 0.91 / 0.09 0.958 / 0.986 / 0.473 0.94 / 0.11 / 0.97 38.4 / 28.2 / 10.7 
+
+0.6 9.24 / 5.10 / 5.31 0.01 / 0.91 / 0.38 0.981 / 0.986 / 0.812 0.92 / 0.11 / 0.98 38.5 / 28.2 / 10.8 
+
+0.8 9.30 / 5.10 / 6.65 0.00 / 0.91 / 0.19 0.985 / 0.986 / 0.865 0.91 / 0.11 / 0.99 38.7 / 28.2 / 10.9 
+
+1.0 9.30 / 5.10 / 7.77 0.00 / 0.91 / 0.02 0.986 / 0.986 / 0.953 0.91 / 0.11 / 0.99 38.7 / 28.3 / 11.6 Fréchet ˜α = 3 .00 
+
+0.2 6.52 / 5.10 / 1.32 0.23 / 0.91 / 0.01 0.881 / 0.986 / 0.025 0.80 / 0.11 / 0.98 38.3 / 28.0 / 9.4 
+
+0.4 7.13 / 5.10 / 4.04 0.03 / 0.91 / 0.24 0.978 / 0.986 / 0.727 0.63 / 0.11 / 0.97 38.4 / 28.1 / 9.8 
+
+0.6 7.19 / 5.10 / 5.55 0.00 / 0.91 / 0.54 0.988 / 0.986 / 0.853 0.61 / 0.11 / 0.98 38.5 / 28.2 / 10.1 
+
+0.8 7.18 / 5.10 / 6.66 0.00 / 0.91 / 0.09 0.988 / 0.986 / 0.947 0.60 / 0.11 / 0.99 38.6 / 28.1 / 10.4 
+
+1.0 7.18 / 5.10 / 7.17 0.00 / 0.91 / 0.00 0.989 / 0.986 / 0.978 0.59 / 0.11 / 0.99 38.7 / 28.1 / 11.0 49 dimensional voxelized images of the fibre microstructure [Emerson et al., 2017, Garcea et al., 2018] , which are further processed via MAVI (Modular Algorithms for Volume Images - Wirjadi et al. [2016]) over a scanning window to produce three-dimensional fibre directions. The key idea, as illustrated in Dresvyanskiy et al. [2020] is that fibres are just cylinders without a distinct “head" or “tail"; therefore, on a high level, MAVI constructs a cube around some voxel (m1, m 2, m 3),and averages the local fibre direction vectors (x, y, z ) inside the cube. Finally, corresponding to each of the directions x, y, and z, the absolute value of the corresponding direction is assigned to the voxel (m1, m 2, m 3). Concretely, given a tomographic image of size m1 × m2 × m3 voxels, a MAVI scan using equal-sized cubic blocks of side length b produces three 3-dimensional datasets, corresponding to fibre directions parallel to the x-, y-, and z-axes, each of size 
+
+ m1
+
+b
+
+
+
+×
+
+ m2
+
+b
+
+
+
+×
+
+ m3
+
+b
+
+
+
+.
+
+Based on the three-dimensional fibre-detection datasets, one can employ algorithms for anomalous patch detections to identify deformations on fibre systems. This key idea was analyzed in Dresvyanskiy et al. [2019, 2020] with the spatial dependence between the fibre directions being assumed to be m-dependent. In contrast, we employ Algorithm 2 that allows general form of spatial dependence, along with providing an estimate of the anomalous region, rather than tackling a testing problem. To that end, we consider the fibre directions datasets 3 corresponding to 3D-images of a glass fibre reinforced polymer, collected by the Institute for Composite Materials(IVW) in Kaiserslautern. In particular, we look at two images: 
+
+• a simulated glass-fibre image of 2000 × 2000 × 2100 voxels, analyzed by MAVI with block-size b = 24 to provide three datasets (corresponding to 3 fibre-directions), each of size 83 × 83 × 87 voxels. This simulated dataset acts as a baseline sanity check for the performance of Algorithm 2 against the detection algorithms in Dresvyanskiy et al. [2020]. 
+
+• Moving beyond simulated dataset, we also analyze a real glass-fibre image of 970 ×1469 ×1217 
+
+voxels, which was further processed by MAVI with b = 15 to produce three fibre-directions datasets, each of size 65 × 98 × 81 voxels. Mimicking main drafts setting, for each of the dataset, we employ Algorithm 2 SPLADE with 
+
+α = 0 .5, with the corresponding parameters for the application of Algorithm 1 inside Algorithm 2 being αj = 0 .5, κ j = 0 .01 , for every j ∈ [ ˆK]. The identified anomalous patches for both the simulated and real datasets are shown in Figure 8. Firstly, we discuss the results on simulated dataset (Figure 8, subfigures (a)-(b)-(c)). As a sanity check, we note that the anomalous hyper-rectangular patch is uniformly localized across each of three fibre-directions, which also corresponds almost identically to Figures 7 and 8 in Dresvyanskiy et al. [2020]. This indicates the accuracy of our algorithm, albeit in synthetic settings where fibre deformations are uniform across different directions. Moreover, as can be seen in Table 5 in the aforementioned paper, their cluster-based anomaly detection algorithm fails to detect any anomalous patch along the direction of z-axis. On the other hand, Algorithm 2 discovers the same anomalous rectangle for the z-axis fibre direction as with the other two directions, indicating the increased accuracy and power of our algorithm. The situation is much more nuanced for the real glass-fibre reinforced polymer dataset, corresponding to §6.2 in Dresvyanskiy et al. [2020]. Therein, in Table 6, the authors show that they fail to detect any anomalous patch along x-axis direction, whereas anomalous patches are discovered along the y- and z- axes directions. In contrast, our results for the x-axis direction (depicted in Figure 8, subfigures (d)) recover the same anomalous patch as highlighted by Dresvyanskiy et al. [2020], yet again highlighting the elevated accuracy of our algorithm 
+
+> 3The authors gratefully thank Prof. Claudia Redenbach for providing this dataset in personal communication. The dataset is available upon request contingent on permission from Prof. Redenbach.
+
+50 compared to available methods. Moving on, in Dresvyanskiy et al. [2020], the discovered patches are then combined to produce Figures 14-15-16 therein, where the discovered anomalous regions are mostly identical. However, our results show that such combinations of means of local fibre directions may be too simplistic to represent the total characteristics of the anomalous region. For example, Figure 8, subfigures (d)-(e)-(f) clearly show that the anomaly is anisotropic, and different spatial fibre directions exhibit different directional biases. This may highlight local shear or flow causing fibres to rotate mainly in one planar direction; compression or warping causing more change in vertical orientation; layered structure where one component picks up the boundary more strongly than another, or even diffuse orientation disorder - requiring further investigations and in-depth physical analysis. In light of this, Algorithm 2 can accurately predict complex anomalies occurring even in three-dimensional systems, marrying scalability with performance.                 
+
+> (a) Simulated; fibre-direction: x-axis (b) Simulated; fibre-direction: y-axis (c) Simulated; fibre-direction: z-axis
+> (d) Real data; fibre-direction: x-axis (e) Real data; fibre-direction: y-axis (f ) Real data; fibre-direction: z-axis
+
+Figure 8: Application of Algorithm 2 to the fibre systems dataset.
