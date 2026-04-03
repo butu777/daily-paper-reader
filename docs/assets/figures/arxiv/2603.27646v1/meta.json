@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27646v1/fig-001.webp",
+      "caption": "Figure 3: Overview of the PRBench evaluation pipeline. A green agent orchestrates the process and performs grading, while a white agent executes the task inside a sandboxed Docker environment.",
+      "page": 6,
+      "index": 1,
+      "width": 713,
+      "height": 348
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27646v1/fig-002.webp",
+      "caption": "Table 1: Distribution of PRBench tasks across physics subfields. The benchmark contains 30 tasks spanning 11 subfields of physics.",
+      "page": 4,
+      "index": 2,
+      "width": 889,
+      "height": 228
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27646v1/fig-003.webp",
+      "caption": "Figure 2: Overview of the PRBench task curation pipeline. The process consists of four stages: paper selection, expert reference reproduction, task specification, and independent verification, ensuring that each task is executable, scientifically grounded, and suitable for rigorous evaluation.",
+      "page": 4,
+      "index": 3,
+      "width": 889,
+      "height": 381
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27646v1/fig-004.webp",
+      "caption": "Table 2: Aggregate performance of different agents on PRBench. Scores are averaged over tasks with available results and reported as percentages (%). The overall score is computed as 0.05× Methodology +0.30× Code +0.60× Data +0.05× Instruction.",
+      "page": 8,
+      "index": 4,
+      "width": 848,
+      "height": 333
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27646v1/fig-005.webp",
+      "caption": "Figure 1: Overview of paper reproduction. As stated, reproducing computational results from a published paper is a comprehensive and demanding task.",
+      "page": 2,
+      "index": 5,
+      "width": 889,
+      "height": 208
+    }
+  ]
+}

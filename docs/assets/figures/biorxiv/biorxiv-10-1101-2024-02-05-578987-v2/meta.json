@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-001.webp",
+      "caption": "FIG. 5. DARE3d membrane model applied to the avian neuroepithelium (Dataset 2): (a) Example of a division in the imaging xy plane versus perpendicular to it, with both daughter cells in the same plane as the mother cell. (b) Example of a division perpendicular to the xy plane, with the daughter cells located in the planes above and below, which challenges both annotation and detection. Red lines in (a,b) are the output of the regression code.",
+      "page": 11,
+      "index": 1,
+      "width": 831,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-002.webp",
+      "caption": "FIG. 6. DARE2d membrane model discussion: (a) Example of detected and missed divisions when using a single (t), two (t− 1, t), or three (t− 2, t− 1, t) frames. Red: divisions detected in all three cases. Blue: divisions detected using two (t− 1, t) and three (t− 2, t− 1, t) frames but missed using t only. Green: divisions detected only using three (t− 2, t− 1, t) frames. (b-c) Examples of (b) a missed division and (c) a false detection.",
+      "page": 11,
+      "index": 2,
+      "width": 914,
+      "height": 564
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-003.webp",
+      "caption": "TABLE I. Description of Datasets 1–3: marker type (membrane/nuclei), age of sample (A, 72h or 96h), image/stack size in pixels (px), number of frames (∆T ), number of annotated divisions (Ndiv), and mean division length in pixels (l) for each set. For Dataset 3, set 1 corresponds to Movie 4 and set 2 to Movie 5. The entries highlighted in blue denote the test subsets of model 8 for Dataset 1, and of the models provided for Datasets 2 and 3.",
+      "page": 2,
+      "index": 3,
+      "width": 461,
+      "height": 378
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-004.webp",
+      "caption": "FIG. 4. DARE3d nuclei model applied to the gastruloid bulk (Dataset 3): (a) Example of a division in the imaging xy plane versus one perpendicular to it, with both daughter cells in the same plane as the mother cell. (b) Example of a division perpendicular to the xy plane, with the daughter cells located in the planes above and below, which challenges both annotation and detection. Red lines in (a,b) are the output of the regression code.",
+      "page": 10,
+      "index": 4,
+      "width": 831,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-005.webp",
+      "caption": "FIG. 3. DARE2d membrane results and 8 models discussion: (a-b) Impact of the input time window on (a) the F1 score of the midpoint detection task, (b) the error on the orientation and length inference. The time t refers to the first frame at which membrane separation between the two daughter cells is apparent. Each colour refers to the set used for the validation. (c) Impact of the weight scaling W , defined in Eq. (1) and circle radius r on the mean F1 performance of the U-Net-based division location inference with (t− 2, t− 1, t) as input. The color code (shades of blue) refers to a p-value, estimated by a two-sample t-test, against the network’s best performance for W = 2 and r = 4px (red box). Yellow shading indicates that the p-value is above 5%, meaning that the difference from the optimal value is not statistically significant at this level.",
+      "page": 10,
+      "index": 5,
+      "width": 996,
+      "height": 346
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-006.webp",
+      "caption": "FIG. 7. DARE3d nuclei model results on the validation set. (a) 3D projection of one frame with the regression overlaid on the ground truth. Colored dots are daughter cells following division. (1) Example of a True Positive (TP), where the probability map is thresholded into a prediction matching the ground truth. (2) At this frame, the prediction matches no ground-truth annotation because the daughter cells were annotated at the next frame (t+1). A one-frame shift is not counted as erroneous, thanks to our post-processing algorithm defined in Sec. III B 3, resulting in this division being correctly labeled as a TP. In map (b), which is the sum of the subsequent frames, the regression matches the ground truth. (3) Example of a False Negative (FN), where the U-Net wrongly predicts a low probability for these pixels to correspond to a division event. The probability is below the threshold and counts as an absence of prediction. (4) Example of a False Positive (FP): the midpoint segmentation, stage-1 DARE3d nuclei model wrongly predicts a high probability for these pixels to correspond to a division event, whereas it is actually a bright dead cell. Scale bar: 10µm.",
+      "page": 12,
+      "index": 6,
+      "width": 956,
+      "height": 1123
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-007.webp",
+      "caption": "FIG. 1. Description of our two-stage approach, used across all models (illustrated here in 2D on the avian neuroepithelium Dataset 1). (Top row) Stage 1: the input image sequence is processed by a U-Net to predict division centers. The image sequence is stacked along the channel dimension. Scale bar: 10µm. (Bottom row) Stage 2: for each predicted division center, a local patch is cropped and fed to a regression CNN to estimate the division length and orientation. The regressor also uses temporally stacked input images from multiple time steps. Scale bar: 3µm.",
+      "page": 9,
+      "index": 7,
+      "width": 948,
+      "height": 394
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-1101-2024-02-05-578987-v2/fig-008.webp",
+      "caption": "FIG. 2. Dataset 3: gastruloids, nuclei signal (histone GFP). Live division detection is challenging in 3D, as illustrated by three cases of increasing complexity, from (a) to (c) , shown across three consecutive frames (columns t − 1, t, t + 1; see Methods section, DARE3d network input). (a) The easiest case to annotate is when both the metaphase ring-like structure and the two daughter cells lie within a single z-slice. (b) A more complex case occurs when the ring structure lies clearly within a single z-slice, but the two daughter cells do not. Blue arrows indicate the two daughter cells, and the dotted circle shows the position of the mother cell at separation time t+1. (c) Complex cases include situations in which daughter cells have reduced brightness and contrast compared to the surrounding cells.",
+      "page": 9,
+      "index": 8,
+      "width": 623,
+      "height": 468
+    }
+  ]
+}

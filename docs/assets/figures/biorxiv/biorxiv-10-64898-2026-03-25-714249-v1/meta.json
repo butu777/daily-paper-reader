@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-64898-2026-03-25-714249-v1/fig-001.webp",
+      "caption": "Figure 1. Cascade Training Framework Stage 1: Volume Preparation. (A) Schematic showing mitochondria interspersed between myofibrils in human skeletal muscle. Many of them are in contact with each other, forming a nearly continuous branching network. (B) Preprocessing includes cross-correlation alignment to ensure 3D continuity and artifact removal",
+      "page": 6,
+      "index": 1,
+      "width": 980,
+      "height": 1194
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-64898-2026-03-25-714249-v1/fig-002.webp",
+      "caption": "Figure 4. DeepBranchAI Segmentation Performance. Pixel-to-pixel comparison (DSC = 0.97) between DeepBranchAI segmentation (green) and ground truth (red) showing high overlap and discrepancies primarily contained in highly dense regions near the capillary.",
+      "page": 13,
+      "index": 2,
+      "width": 980,
+      "height": 498
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-64898-2026-03-25-714249-v1/fig-003.webp",
+      "caption": "Figure 2. Cascade Training Framework Stage 2: Iterative Ground Truth Construction. (A) The process starts with a 2D Weka random forest classifier trained on minimal annotations. Experts correct the output and retrain iteratively until accuracy plateaus. (B) The refined segments are then used to train a 2D nnU-Net, which generates probability maps across full volumes. Experts do a final refinement pass on these maps, producing ground truth volumes that feed back into further training. 3.5 Training DeepBranchAI Classifier",
+      "page": 8,
+      "index": 3,
+      "width": 980,
+      "height": 578
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-64898-2026-03-25-714249-v1/fig-004.webp",
+      "caption": "Table 2: 5-fold cross-validation performance for DeepBranchAI (3D nnU-Net)",
+      "page": 12,
+      "index": 4,
+      "width": 790,
+      "height": 213
+    },
+    {
+      "url": "assets/figures/biorxiv/biorxiv-10-64898-2026-03-25-714249-v1/fig-005.webp",
+      "caption": "Figure 3. Cascade Training Framework Stage 3: DeepBranchAI and Deployment. The 3D nnU-Net model that we dub DeepBranchAI is trained using high-quality ground truth s with chunk sizes large enough to capture local details and long-range topological relationships. Trained models segment new volumes via chunk-wise processing, generating probability maps that are stitched and thresholded to produce final segmentations.",
+      "page": 9,
+      "index": 5,
+      "width": 980,
+      "height": 665
+    }
+  ]
+}

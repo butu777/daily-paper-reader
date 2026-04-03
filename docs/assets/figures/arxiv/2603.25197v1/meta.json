@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25197v1/fig-001.webp",
+      "caption": "Fig. 2. Four canonical human-AI collaboration structures for AI-assisted safety analysis, differing in information flow and active shadow mechanisms.",
+      "page": 5,
+      "index": 1,
+      "width": 529,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25197v1/fig-002.webp",
+      "caption": "Fig. 3. Waterfall analysis of the compounding shadow. Starting from the idealized case at 0.948, each mechanism sequentially reduces quality: scope framing (0.888), attention allocation (0.721), confidence asymmetry (0.700), and time compression (0.680). Final quality is 20% below human baseline.",
+      "page": 5,
+      "index": 2,
+      "width": 515,
+      "height": 302
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25197v1/fig-003.webp",
+      "caption": "TABLE I DIMENSIONS OF SAFETY ENGINEERING COMPETENCE",
+      "page": 2,
+      "index": 3,
+      "width": 496,
+      "height": 425
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25197v1/fig-004.webp",
+      "caption": "Fig. 1. Complementary competence profiles forming a complete team. Panel (a): consider a certified safety engineer, strong in standards (S) and judgment (J), limited in operational exposure. Panel (b): field expert, strong in domain knowledge (D) and contextual understanding (C). Panel (c): test engineer, strong in operational experience (E) and contextual knowledge (C). Panel (d): combined team coverage (dashed envelope).",
+      "page": 3,
+      "index": 4,
+      "width": 496,
+      "height": 590
+    }
+  ]
+}

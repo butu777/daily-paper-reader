@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01346v1/fig-001.webp",
+      "caption": "Table 1: Attacker Capability Taxonomy for World Model Systems",
+      "page": 8,
+      "index": 1,
+      "width": 981,
+      "height": 602
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01346v1/fig-002.webp",
+      "caption": "Figure 1: Trajectory-Persistent Adversarial Attack Experiment (V3 Results). (A) Mean latent-state error (ℓ2) over K = 30 rollout steps following a single adversarial perturbation at t = 0 (ε = 0.05, N = 200 trials, GRU-based RSSM). The world model (WM, blue) amplifies the perturbation at step 1 (A1 = 2.26×) before GRU contraction attenuates it; the single-step baseline (SS, orange) shows no state-mediated amplification. (B) Architecture comparison: trajectory amplification ratio Ak on a log scale for the deterministic GRU world model vs. a stochastic RSSM proxy (posterior at t = 0, prior rollout thereafter). The RSSM proxy shows lower initial amplification (A1 = 0.65×) and slower decay, confirming architecture-dependence. (C) Real DreamerV3 checkpoint probe (seed 0): per-metric bar chart showing A1, normalised latent error E1, and action drift ∥∆a1∥. Non-zero coupling confirms representational perturbations propagate into policy outputs. (D) Mitigation effect: adversarial fine-tuning (PGD-10 on t = 0) reduces Ak substantially at all steps (before: solid; after: dashed). (E) Perturbation budget sensitivity before and after mitigation; the hardened model maintains lower error across the full ε range. (F) Absolute cumulative reward (clean vs. perturbed) as a function of planning horizon H; the reward gap at H = 30 is 0.000892±0.000057. All error bands show ±1 SE.",
+      "page": 12,
+      "index": 2,
+      "width": 963,
+      "height": 596
+    }
+  ]
+}
