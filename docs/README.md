@@ -6,82 +6,82 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-04-03
-- 运行时间：2026-04-03 19:52:04 UTC
+- 最新运行日期：2026-04-04
+- 运行时间：2026-04-04 19:52:15 UTC
 - 运行状态：成功
 - 本次总论文数：20
-- 精读区：13
-- 速读区：7
+- 精读区：10
+- 速读区：10
 
 ### 今日简报（AI）
-今日深度解析 20 篇 AI 论文，重点攻克自动驾驶世界建模与几何感知物理推理两大满分课题。
-Uni-World VLA 创新性地融合了驾驶规划与环境模拟，SPREAD 则利用扩散模型重塑了空间物理推理范式。
-建议优先研读这两篇满分佳作，掌握 AI 从理解虚拟空间向重构物理世界进化的核心逻辑。
-- 详情：[/202604/03/README](/202604/03/README)
+今日精选 20 篇前沿成果，深度攻克空间物理推理与多智能体 3D 世界建模难题。
+满分论文 SPREAD 与 F3DGS 分别在几何感知扩散与联邦 3DGS 领域实现突破，显著提升了 AI 对复杂物理空间的认知与协作建模能力。
+建议优先研读几何感知相关技术，掌握 AI 如何通过空间整合与物理推理更精准地理解现实世界。
+- 详情：[/202604/04/README](/202604/04/README)
 
 ### 精读区论文标签
-1. [Uni-World VLA: Interleaved World Modeling and Planning for Autonomous Driving](/202604/03/2603.27287v1-uni-world-vla-interleaved-world-modeling-and-planning-for-autonomous-driving)  
+1. [SPREAD: Spatial-Physical REasoning via geometry Aware Diffusion](/202604/04/2603.27573v1-spread-spatial-physical-reasoning-via-geometry-aware-diffusion)  
    标签：评分：10.0/10、query:ai-3d
-   evidence：自动驾驶中的交替式世界建模与规划
-2. [SPREAD: Spatial-Physical REasoning via geometry Aware Diffusion](/202604/03/2603.27573v1-spread-spatial-physical-reasoning-via-geometry-aware-diffusion)  
+   evidence：3D场景生成、空间物理推理与几何感知
+2. [F3DGS: Federated 3D Gaussian Splatting for Decentralized Multi-Agent World Modeling](/202604/04/2604.01605v1-f3dgs-federated-3d-gaussian-splatting-for-decentralized-multi-agent-world-modeling)  
    标签：评分：10.0/10、query:ai-3d
-   evidence：用于3D场景生成的空间物理推理
-3. [AutoWorld: Scaling Multi-Agent Traffic Simulation with Self-Supervised World Models](/202604/03/2603.28963v1-autoworld-scaling-multi-agent-traffic-simulation-with-self-supervised-world-models)  
+   evidence：用于世界建模的联邦3D高斯泼溅技术
+3. [DriveDreamer-Policy: A Geometry-Grounded World-Action Model for Unified Generation and Planning](/202604/04/2604.01765v1-drivedreamer-policy-a-geometry-grounded-world-action-model-for-unified-generation-and-planning)  
    标签：评分：10.0/10、query:ai-3d
-   evidence：基于LiDAR数据的自监督交通模拟世界模型
-4. [HCLSM: Hierarchical Causal Latent State Machines for Object-Centric World Modeling](/202604/03/2603.29090v1-hclsm-hierarchical-causal-latent-state-machines-for-object-centric-world-modeling)  
-   标签：评分：10.0/10、query:ai-3d
-   evidence：以物体为中心的世界建模与连续物理
-5. [DriveDreamer-Policy: A Geometry-Grounded World-Action Model for Unified Generation and Planning](/202604/03/2604.01765v1-drivedreamer-policy-a-geometry-grounded-world-action-model-for-unified-generation-and-planning)  
-   标签：评分：10.0/10、query:ai-3d
-   evidence：基于几何落地的3D生成世界动作模型
-6. [HiSpatial: Taming Hierarchical 3D Spatial Understanding in Vision-Language Models](/202604/03/2603.25411v1-hispatial-taming-hierarchical-3d-spatial-understanding-in-vision-language-models)  
+   evidence：用于3D驾驶的几何接地世界动作模型
+4. [World Reasoning Arena](/202604/04/2603.25887v1-world-reasoning-arena)  
    标签：评分：9.0/10、query:ai-3d
-   evidence：视觉语言模型中的3D空间理解与几何感知
-7. [Modernising Reinforcement Learning-Based Navigation for Embodied Semantic Scene Graph Generation](/202604/03/2603.25415v1-modernising-reinforcement-learning-based-navigation-for-embodied-semantic-scene-graph-generation)  
-   标签：评分：9.0/10、query:ai-3d
-   evidence：具身智能体的语义世界模型与空间上下文
-8. [World Reasoning Arena](/202604/03/2603.25887v1-world-reasoning-arena)  
-   标签：评分：9.0/10、query:ai-3d
-   evidence：评估世界模型物理合理性的综合基准
-9. [Policy-Guided World Model Planning for Language-Conditioned Visual Navigation](/202604/03/2603.25981v1-policy-guided-world-model-planning-for-language-conditioned-visual-navigation)  
+   evidence：评估世界模型与物理合理性的基准测试
+5. [Policy-Guided World Model Planning for Language-Conditioned Visual Navigation](/202604/04/2603.25981v1-policy-guided-world-model-planning-for-language-conditioned-visual-navigation)  
    标签：评分：9.0/10、query:ai-3d
    evidence：用于视觉导航的潜空间世界模型规划
-10. [From Human Cognition to Neural Activations: Probing the Computational Primitives of Spatial Reasoning in LLMs](/202604/03/2603.26323v1-from-human-cognition-to-neural-activations-probing-the-computational-primitives-of-spatial-reasoning-in-llms)  
+6. [Uni-World VLA: Interleaved World Modeling and Planning for Autonomous Driving](/202604/04/2603.27287v1-uni-world-vla-interleaved-world-modeling-and-planning-for-autonomous-driving)  
    标签：评分：9.0/10、query:ai-3d
-   evidence：探索大语言模型中的空间智能与推理原语
-11. [Video Generation Models as World Models: Efficient Paradigms, Architectures and Algorithms](/202604/03/2603.28489v1-video-generation-models-as-world-models-efficient-paradigms-architectures-and-algorithms)  
+   evidence：自动驾驶中的交替世界建模与规划
+7. [Video Generation Models as World Models: Efficient Paradigms, Architectures and Algorithms](/202604/04/2603.28489v1-video-generation-models-as-world-models-efficient-paradigms-architectures-and-algorithms)  
    标签：评分：9.0/10、query:ai-3d
-   evidence：视频生成模型作为世界模拟器
-12. [Enhancing Policy Learning with World-Action Model](/202604/03/2603.28955v1-enhancing-policy-learning-with-world-action-model)  
+   evidence：视频生成作为世界模拟器与物理动力学
+8. [Enhancing Policy Learning with World-Action Model](/202604/04/2603.28955v1-enhancing-policy-learning-with-world-action-model)  
    标签：评分：9.0/10、query:ai-3d
-   evidence：用于策略学习的动作正则化世界模型
-13. [PRISM: A Multi-View Multi-Capability Retail Video Dataset for Embodied Vision-Language Models](/202604/03/2603.29281v1-prism-a-multi-view-multi-capability-retail-video-dataset-for-embodied-vision-language-models)  
+   evidence：用于操作任务的动作正则化世界模型
+9. [HCLSM: Hierarchical Causal Latent State Machines for Object-Centric World Modeling](/202604/04/2603.29090v1-hclsm-hierarchical-causal-latent-state-machines-for-object-centric-world-modeling)  
    标签：评分：9.0/10、query:ai-3d
-   evidence：具身视觉语言模型中的物理AI与空间知识
+   evidence：具有连续物理特性的以对象为中心的世界建模
+10. [PRISM: A Multi-View Multi-Capability Retail Video Dataset for Embodied Vision-Language Models](/202604/04/2603.29281v1-prism-a-multi-view-multi-capability-retail-video-dataset-for-embodied-vision-language-models)  
+   标签：评分：9.0/10、query:ai-3d
+   evidence：物理AI系统、空间知识与物理动力学
 
 ### 速读区论文标签
-1. [A Wireless World Model for AI-Native 6G Networks](/202604/03/2603.25216v1-a-wireless-world-model-for-ai-native-6g-networks)  
+1. [From Human Cognition to Neural Activations: Probing the Computational Primitives of Spatial Reasoning in LLMs](/202604/04/2603.26323v1-from-human-cognition-to-neural-activations-probing-the-computational-primitives-of-spatial-reasoning-in-llms)  
    标签：评分：8.0/10、query:ai-3d
-   evidence：内化3D几何与信号动力学的世界模型
-2. [Communicating about Space: Language-Mediated Spatial Integration Across Partial Views](/202604/03/2603.27183v1-communicating-about-space-language-mediated-spatial-integration-across-partial-views)  
-   标签：评分：8.0/10、query:ai-3d
-   evidence：空间整合与3D环境理解
-3. [Communicating about Space: Language-Mediated Spatial Integration Across Partial Views](/202604/03/2603.27183v2-communicating-about-space-language-mediated-spatial-integration-across-partial-views)  
+   evidence：空间推理与空间智能的计算原语
+2. [Communicating about Space: Language-Mediated Spatial Integration Across Partial Views](/202604/04/2603.27183v1-communicating-about-space-language-mediated-spatial-integration-across-partial-views)  
    标签：评分：8.0/10、query:ai-3d
    evidence：协作空间通信与3D心理模型
-4. [World Action Verifier: Self-Improving World Models via Forward-Inverse Asymmetry](/202604/03/2604.01985v1-world-action-verifier-self-improving-world-models-via-forward-inverse-asymmetry)  
+3. [Communicating about Space: Language-Mediated Spatial Integration Across Partial Views](/202604/04/2603.27183v2-communicating-about-space-language-mediated-spatial-integration-across-partial-views)  
    标签：评分：8.0/10、query:ai-3d
-   evidence：通过状态合理性验证实现自改进的世界模型
-5. [STAR: Mitigating Cascading Errors in Spatial Reasoning via Turn-point Alignment and Segment-level DPO](/202604/03/2604.00558v1-star-mitigating-cascading-errors-in-spatial-reasoning-via-turn-point-alignment-and-segment-level-dpo)  
+   evidence：空间整合与3D室内环境心理模型
+4. [ManipArena: Comprehensive Real-world Evaluation of Reasoning-Oriented Generalist Robot Manipulation](/202604/04/2603.28545v1-maniparena-comprehensive-real-world-evaluation-of-reasoning-oriented-generalist-robot-manipulation)  
+   标签：评分：8.0/10、query:ai-3d
+   evidence：真实机器人操作中世界模型与VLA的评估
+5. [STAR: Mitigating Cascading Errors in Spatial Reasoning via Turn-point Alignment and Segment-level DPO](/202604/04/2604.00558v1-star-mitigating-cascading-errors-in-spatial-reasoning-via-turn-point-alignment-and-segment-level-dpo)  
+   标签：评分：8.0/10、query:ai-3d
+   evidence：复杂拓扑结构中的空间推理与导航
+6. [World Action Verifier: Self-Improving World Models via Forward-Inverse Asymmetry](/202604/04/2604.01985v1-world-action-verifier-self-improving-world-models-via-forward-inverse-asymmetry)  
+   标签：评分：8.0/10、query:ai-3d
+   evidence：通过状态合理性实现自改进的世界模型
+7. [Safety, Security, and Cognitive Risks in World Models](/202604/04/2604.01346v1-safety-security-and-cognitive-risks-in-world-models)  
    标签：评分：7.0/10、query:ai-3d
-   evidence：大语言模型中的空间推理与导航
-6. [Semantic Modeling for World-Centered Architectures](/202604/03/2604.01359v1-semantic-modeling-for-world-centered-architectures)  
+   evidence：机器人世界模型中的安全与风险
+8. [Semantic Modeling for World-Centered Architectures](/202604/04/2604.01359v1-semantic-modeling-for-world-centered-architectures)  
    标签：评分：7.0/10、query:ai-3d
-   evidence：多智能体系统的共享世界表示
-7. [Safety, Security, and Cognitive Risks in World Models](/202604/03/2604.01346v1-safety-security-and-cognitive-risks-in-world-models)  
+   evidence：共享世界表示与以世界为中心的架构
+9. [Data-Model Co-Driven Continuous Channel Map Construction: A Perceptive Foundation for Embodied Intelligent Agents in 6G Networks](/202604/04/2604.01060v1-data-model-co-driven-continuous-channel-map-construction-a-perceptive-foundation-for-embodied-intelligent-agents-in-6g-networks)  
    标签：评分：6.0/10、query:ai-3d
-   evidence：世界模型中的安全与认知风险
+   evidence：信道图作为具身智能体的基础世界模型
+10. [Neural sampling from cognitive maps enables goal-directed imagination and planning](/202604/04/biorxiv-10-1101-2025-05-14-654027-v3-neural-sampling-from-cognitive-maps-enables-goal-directed-imagination-and-planning)  
+   标签：评分：6.0/10、query:ai-3d
+   evidence：用于目标导向想象与规划的认知地图
 
 
 <div class="dpr-home-promo-card">

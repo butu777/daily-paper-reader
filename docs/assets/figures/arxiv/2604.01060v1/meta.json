@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-001.webp",
+      "caption": "Fig. 9. NMSE along training duration for different data-driven methods.",
+      "page": 11,
+      "index": 1,
+      "width": 462,
+      "height": 357
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-002.webp",
+      "caption": "Fig. 10. NMSE under different numbers of observed nodes (with ablations).",
+      "page": 11,
+      "index": 2,
+      "width": 463,
+      "height": 355
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-003.webp",
+      "caption": "Fig. 6. Diagram of the proposed induct-edge graph neural network.",
+      "page": 7,
+      "index": 3,
+      "width": 1066,
+      "height": 469
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-004.webp",
+      "caption": "Fig. 8. Delay PSDs of measurements, pure RT, and the proposed HCM.",
+      "page": 10,
+      "index": 4,
+      "width": 470,
+      "height": 368
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-005.webp",
+      "caption": "Fig. 7. CDFs of (a) AS (indoor), (b) DS (indoor), (c) AS (outdoor), and (d) DS (outdoor), comparing the proposed HCM with measurements.",
+      "page": 10,
+      "index": 5,
+      "width": 1070,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-006.webp",
+      "caption": "Fig. 2. Two-stage data–model co-driven framework for space-time continuous channel map construction.",
+      "page": 3,
+      "index": 6,
+      "width": 1040,
+      "height": 727
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-007.webp",
+      "caption": "Fig. 3. Reconstruction of the (a) indoor and (b) outdoor measurement environments with RT simulations.",
+      "page": 4,
+      "index": 7,
+      "width": 533,
+      "height": 249
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-008.webp",
+      "caption": "Fig. 12. Time-varying delay PSD comparison between measurements and the proposed DMcD.",
+      "page": 12,
+      "index": 8,
+      "width": 535,
+      "height": 475
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-009.webp",
+      "caption": "Fig. 11. Channel maps for received power, RMS DS, and RMS AS: measurements baseline, CGAN-based method, and the proposed DMcD.",
+      "page": 12,
+      "index": 9,
+      "width": 1096,
+      "height": 427
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-010.webp",
+      "caption": "TABLE I HYPERPARAMETER SETTINGS OF THE INDUCT-EDGE GNN.",
+      "page": 9,
+      "index": 10,
+      "width": 534,
+      "height": 513
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01060v1/fig-011.webp",
+      "caption": "Fig. 4. Geometry map of the proposed RT-based hybrid channel model.",
+      "page": 5,
+      "index": 11,
+      "width": 976,
+      "height": 450
+    }
+  ]
+}
