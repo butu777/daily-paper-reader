@@ -1,0 +1,390 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-001.webp",
+      "caption": "Table B.2: Raw cProfile output for the MPPI planner on Jetson AGX Xavier. The profile captures 100 control loops and 25 planning iterations.",
+      "page": 139,
+      "index": 1,
+      "width": 998,
+      "height": 914
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-002.webp",
+      "caption": "Figure 6.6: Identification of the induced drag coefficient, kd, for the Crazyflie via linear regression, following the procedure outlined in [25].",
+      "page": 102,
+      "index": 2,
+      "width": 686,
+      "height": 515
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-003.webp",
+      "caption": "Table 4.1: Run times for our fluid solver on varying grid sizes compared to our network on an Intel Core i5 @ 2.60 GHz.",
+      "page": 57,
+      "index": 3,
+      "width": 980,
+      "height": 389
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-004.webp",
+      "caption": "Figure 3.2: A simulated instance of the unscented Kalman filter estimating the local wind velocity vector for a UAV subject to Dryden wind gusts.",
+      "page": 53,
+      "index": 4,
+      "width": 832,
+      "height": 627
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-005.webp",
+      "caption": "Table 6.3: Hyperparameters for the MPPI controller implemented on an Nvidia Jetson AGX Xavier. Note that because the actuator sampling scheme changed with the hardware implementation, the associated parameters below were not used.",
+      "page": 111,
+      "index": 5,
+      "width": 490,
+      "height": 452
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-006.webp",
+      "caption": "Figure 4.2: (a) Strouhal numbers for isolated rectangles of various shapes and onset flow angles compared with experimental data [113, 114]. (b) Strouhal numbers for various aspect ratios compared with experimental data [113, 114]. (c) Qualitative comparisons of our fluid solver against commercial solutions for isolated (bottom) and grouped (top) rectangles.",
+      "page": 58,
+      "index": 6,
+      "width": 931,
+      "height": 272
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-007.webp",
+      "caption": "Table 5.1: Hyperparameters for the simulated nominal MPPI controller.",
+      "page": 79,
+      "index": 7,
+      "width": 490,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-008.webp",
+      "caption": "Figure 6.10: Time-averaged wind flow field reconstructions at z = 0.75 for experiment 14 of the Flow Traversal series. The CMU Whisker and Wind UKF measurements were collected from the UAV, while the WindProbe was collected during a separate sweep.",
+      "page": 107,
+      "index": 8,
+      "width": 957,
+      "height": 552
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-009.webp",
+      "caption": "Figure 5.7: Case studies demonstrating the qualitative differences between the local receding horizon (MPPI and EA-MPPI+W) and the global graph search (GS and GS+W) methods for navigation in windy urban environments. The EA-MPPI+W method has parametersQE = 3.0 andH = 90. The background contours visualize the time-averaged wind magnitude, although in simulation the winds vary over time.",
+      "page": 85,
+      "index": 9,
+      "width": 950,
+      "height": 617
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-010.webp",
+      "caption": "Figure 6.3: A modified palm-sized Crazyflie 2.1-Brushless UAV designed and manufactured by Bitcraze. The UAV has a rotor diameter of 55 mm and is modified with IR reflective markers, a dedicated sensor for high frequency power measurements, and a custom whisker-based airflow sensor to measure wind.",
+      "page": 90,
+      "index": 10,
+      "width": 932,
+      "height": 620
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-011.webp",
+      "caption": "Figure B.4: The whisker sensor calibration procedure: A) calibration curves for each of the sensor and wind axes; B) oblique view of the whisker sensor rigidly mounted on top of the anemometer; C) side view of the whisker experiencing maximum deflection due to the wind; D) side view of the whisker with a WindShaper fan array in the background.",
+      "page": 134,
+      "index": 11,
+      "width": 960,
+      "height": 1152
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-012.webp",
+      "caption": "Figure 4.5: Cumulative explained variance as a function of the number of components retained from principal component analysis. As the region size grows, the local flow fields become more complex and therefore more components are required to recover the training data statistics.",
+      "page": 61,
+      "index": 12,
+      "width": 582,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-013.webp",
+      "caption": "Table 6.2: Lumped parameter aerodynamic coefficients identified using the procedure in [25]. The magnitudes of each coefficient are indicated in the parenthesis.",
+      "page": 103,
+      "index": 13,
+      "width": 644,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-014.webp",
+      "caption": "Figure 2.1: Free body diagram of a rotary-wing UAV subjected to forces and torques generated by gravity and aerodynamic interactions with the air. The blue, red, and black arrows indicate coordinate frames, wrenches, and positional vectors, respectively.",
+      "page": 29,
+      "index": 14,
+      "width": 979,
+      "height": 948
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-015.webp",
+      "caption": "Figure B.6: Part 2 of the flow field reconstructions and unsteadiness metrics for the Flow Traversal experimental series.",
+      "page": 138,
+      "index": 15,
+      "width": 968,
+      "height": 1017
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-016.webp",
+      "caption": "Figure 4.8: The pointwise absolute error distributions for velocity magnitude (left) and direction (right) for H = 25 m grid size models with different feature inputs, compared to baselines that assume a uniform flow field. Dots indicate the mean.",
+      "page": 66,
+      "index": 16,
+      "width": 686,
+      "height": 477
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-017.webp",
+      "caption": "Figure 6.12: Local time-averaged velocity magnitude comparisons between reconstructions using the WindProbe and the instantaneous predictions from the wind decoder network running on an Nvidia Jetson AGX Xavier. The green sphere represents the desired position, the triad is the pose of the UAV, and the green and magenta arrows extending off screen are wind estimates from CMU Whisker and Wind UKF, respectively. The wind decoder network takes as input the Wind UKF wind estimate as well as the simulated point cloud data (red dots) to sense topography. The top 25 forecasted trajectories from the wind-aware motion planner can also be seen originating the UAV’s position.",
+      "page": 110,
+      "index": 17,
+      "width": 968,
+      "height": 534
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-018.webp",
+      "caption": "Figure 6.4: The power spectral density (PSD) of the wake velocity behind the 16×16 inch obstacle, as measured by the WindProbe positioned roughly 0.4 m downstream from the obstacle’s leeward side while the WindShaper operated at 20% power. For additional context, Kolmogorov’s -5/3 turbulence scaling law [132] is plotted for the higher frequencies.",
+      "page": 97,
+      "index": 18,
+      "width": 830,
+      "height": 613
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-019.webp",
+      "caption": "Figure B.1: The four obstacles used during experiments in the WindShaper facility. The “slim” (top) and “wide” (bottom) obstacles were constructed from recycled 1 inch thick plywood and fitted with motion capture marker arrays for pose tracking and tuft grids for flow visualization.",
+      "page": 130,
+      "index": 19,
+      "width": 882,
+      "height": 1140
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-020.webp",
+      "caption": "Figure 6.9: The root mean square error (RMSE) between the CMU Whisker and Wind UKF across all the experiments. In the left plot, the numbers correspond to the experiment IDs in Table B.1.",
+      "page": 106,
+      "index": 20,
+      "width": 822,
+      "height": 407
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-021.webp",
+      "caption": "Figure 2.2: Empirically-driven power curves for a rotary-wing UAV as a function of ground speed and wind speed. On the left, power curves are plotted for varying headwinds (-) and tailwinds (+) with the max range indicated for each. On the right, the optimal range airspeeds and ground speeds are plotted versus the wind speed.",
+      "page": 35,
+      "index": 21,
+      "width": 853,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-022.webp",
+      "caption": "Figure 4.7: Density scatter plots comparing between the predicted and actual spatial gradients of the wind flow field at the robot’s location for a model with H = 25 m given both local and upstream wind measurements.",
+      "page": 65,
+      "index": 22,
+      "width": 786,
+      "height": 539
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-023.webp",
+      "caption": "Figure 4.4: Because of the large spatial scale of urban flow features, local croppings of urban flow fields can actually be thought of as evolving on a much lower dimensional manifold composed of elementary flows. The 30×30 m local flow fields on the left can be reproduced by unique linear combinations of the principal components from the right, some of which mimic fundamental flows in fluid mechanics such as uniform flow, vortex pairs, and shear flow.",
+      "page": 60,
+      "index": 23,
+      "width": 946,
+      "height": 470
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-024.webp",
+      "caption": "Figure 5.2: Wind-aware navigation through unknown windy environments. A LiDAR Scan measures distances to nearby obstacles. The wind prediction module synthesizes a measurement of the local wind with the LiDAR scan to predict the time-averaged wind flow field in a local region, Lt, around the UAV. The stochastic receding horizon controller (MPPI Controller) produces a low frequency acceleration reference, which is then tracked with a higher frequency lower level controller (Lower-Level Controller). The simulation environment includes full rigid body dynamics and unsteady wind flow fields.",
+      "page": 72,
+      "index": 24,
+      "width": 965,
+      "height": 318
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-025.webp",
+      "caption": "Figure 6.1: An overview of the experimental design, in which a small UAV is tasked with tracking a dynamic goal position through a small-scale city-like environment subjected to wind generated by the Ames WindShaper fan array. The left and right sides of the diagram describe the hardware and software components, respectively. The software components are split between two off board computers: a Beelink Mini PC handles the LiDAR simulation, networking, and lower level control, while a flight-ready Nvidia Jetson AGX Xavier runs the core wind prediction and planning algorithms.",
+      "page": 87,
+      "index": 25,
+      "width": 968,
+      "height": 382
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-026.webp",
+      "caption": "Figure 6.13: Time series measurements of the distance to the nearest obstacle for the wand and UAV while running the MPPI motion planner. The UAV tracks the wand adequately when it is far enough away from obstacles. However, the obstacle avoidance term in the MPPI cost function prevents the UAV from tracking the wand when it gets too close to an obstacle.",
+      "page": 114,
+      "index": 26,
+      "width": 772,
+      "height": 380
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-027.webp",
+      "caption": "Figure 5.5: The best trial with respect to energy reduction over the baseline from the simulated wind scenarios. The blue lines correspond to MPPI whereas the green lines correspond to EA-MPPI+W. The wind flow field is seen averaged over time in the top right alongside the paths each ablation took. Airspeed and instantaneous power consumption are shown in the bottom two plots.",
+      "page": 82,
+      "index": 27,
+      "width": 882,
+      "height": 881
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-028.webp",
+      "caption": "Figure 5.3: Time-averaged wind flow fields for 4 out of the 16 wind scenarios used for experiments on one of the 16 maps. Each scenario is labeled with one of the four possible start (green circle) and goal (red square) waypoints.",
+      "page": 77,
+      "index": 28,
+      "width": 744,
+      "height": 806
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-029.webp",
+      "caption": "Figure 6.7: Data used for the identification of the thrust kη , inflow kz , and translational lift kh coefficients for the Crazyflie, following the procedure outlined in [25].",
+      "page": 104,
+      "index": 29,
+      "width": 968,
+      "height": 808
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-030.webp",
+      "caption": "Figure 4.9: The average absolute error in velocity magnitude (left) and direction (right) for models with varying prediction grid sizes (H), reported as the ratio of the prediction area to the maximum LiDAR perception region.",
+      "page": 67,
+      "index": 30,
+      "width": 686,
+      "height": 479
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-031.webp",
+      "caption": "Figure B.2: Characterization of the average velocity of the bulk wind flow generated by the WindShaper with varying fan power levels and fan speeds. Velocity measurements were taken at three downstream locations to confirm that the wind maintains a constant speed throughout the test section.",
+      "page": 131,
+      "index": 31,
+      "width": 932,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-032.webp",
+      "caption": "Figure 4.6: A global reconstruction of an urban wind flow field time-averaged over 50 seconds, generated by translating the robot in and around an evaluation map and overlapping 25×25m predictions: (a) ground truth velocity magnitude; (b) reconstructed velocity magnitude; (c) velocity magnitude error; (d) velocity direction error. Points of interest for comparison are marked in dashed boxes highlighting strong shears (black), city wakes (red), and intersecting (pink) channel flows.",
+      "page": 64,
+      "index": 32,
+      "width": 844,
+      "height": 752
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-033.webp",
+      "caption": "Figure 6.2: The WindShaper facility at NASA Ames Research Center has a 9 ft by 6 ft open air wind tunnel with 1,134 individually programmable fans capable of producing winds up to 16 m/s. The wind tunnel is positioned inside a large motion capture space which is used to track the pose of objects with centimeter precision. On the right, the six experiment configurations are visualized with the sub-scale buildings highlighted in red. See Section B.1 for pictures of each obstacle with dimensions.",
+      "page": 88,
+      "index": 33,
+      "width": 932,
+      "height": 542
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-034.webp",
+      "caption": "Figure 6.8: Identification of a cubic power consumption model as a function of airspeed for the Crazyflie. The data is annotated with the hover power and max range and endurance speeds (assuming no wind). The max range speed was determined via the range tangent line, which extends down to the point (0, 0).",
+      "page": 105,
+      "index": 34,
+      "width": 654,
+      "height": 482
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-035.webp",
+      "caption": "Figure 4.1: Method overview for predicting local wind vector fields in real time without a map of the environment. Buildings are sensed using range sensors and fed through a deep neural network alongside sparse wind measurements to predict the components of the time-averaged wind flow field.",
+      "page": 56,
+      "index": 35,
+      "width": 865,
+      "height": 479
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-036.webp",
+      "caption": "Figure 6.14: Heat maps of the standard deviation of the lateral force commands and the average body rotation rates of the UAV for experiment 11, demonstrating regions of unsteadiness in urban-like winds.",
+      "page": 115,
+      "index": 36,
+      "width": 870,
+      "height": 406
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-037.webp",
+      "caption": "Figure 4.3: An overview of the data acquisition, training, and evaluation of a wind flow decoder model. Thousands of wind simulations on small maps are densely sampled (left), and the labeled pairs are used to train the model via supervised learning (middle). The model is evaluated on randomly sampled locations in much larger maps (right) to measure generalization.",
+      "page": 59,
+      "index": 37,
+      "width": 932,
+      "height": 357
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-038.webp",
+      "caption": "Figure 5.6: The worst trial with respect to energy reduction over the baseline from the simulated wind scenarios. The blue lines correspond to MPPI whereas the green lines correspond to EA-MPPI+W. The wind flow field is seen averaged over time in the top right alongside the paths each ablation took. Airspeed and instantaneous power consumption are shown in the bottom two plots.",
+      "page": 83,
+      "index": 38,
+      "width": 882,
+      "height": 881
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-039.webp",
+      "caption": "Table 3.1: Randomized UAV and wind parameters for the Monte Carlo evaluation of the wind filter. The symbols are consistent with those in Chapter 2.",
+      "page": 52,
+      "index": 39,
+      "width": 522,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-040.webp",
+      "caption": "Figure 6.11: Comparisons of the instantaneous wind estimates between the UKF and CMU Whisker for Flow Traversal experiment 14. The estimate provided by the WindProbe represents a sampling of the mean and standard deviation of the flow field from the bins corresponding to the UAV’s trajectory.",
+      "page": 108,
+      "index": 40,
+      "width": 769,
+      "height": 565
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-041.webp",
+      "caption": "Table A.1: Example wind uncertainties associated with three robots with varying size, mass, drag coefficients, and operating environments.",
+      "page": 127,
+      "index": 41,
+      "width": 977,
+      "height": 329
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-042.webp",
+      "caption": "Figure B.5: Part 1 of the flow field reconstructions and unsteadiness metrics for the Flow Traversal experimental series.",
+      "page": 137,
+      "index": 42,
+      "width": 968,
+      "height": 1140
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-043.webp",
+      "caption": "Figure 5.4: Average percent reduction in energy consumption with one standard deviation regions for EAMPPI+W relative to MPPI against different energy cost weights (left) and wind prediction region sizes (right). Trials where either EA-MPPI+W or MPPI failed are not included.",
+      "page": 80,
+      "index": 43,
+      "width": 930,
+      "height": 447
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-044.webp",
+      "caption": "Table 6.1: A rough comparison between the sub-scale flyer (Crazyflie 2.1-Brushless) and the Joby S4 prototype aircraft.",
+      "page": 95,
+      "index": 44,
+      "width": 981,
+      "height": 235
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-045.webp",
+      "caption": "Figure B.3: Validation of the WindShaper characterization on two experiments. On the left, the WindShaper receives a sequence of discrete increasing power commands, whereas on the right the command is a continuous sinusoid. The predicted wind from the fan speeds (magenta lines) is in good agreement with the data collected from the WindProbe.",
+      "page": 132,
+      "index": 45,
+      "width": 932,
+      "height": 349
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-046.webp",
+      "caption": "Figure 5.1: Energy-aware autonomous navigation through an urban environment with dynamic wind conditions. The controller adapts in real time using on board wind flow predictions, balancing energy consumption and obstacle avoidance to reach the goal destination more robustly and with improved energy efficiency.",
+      "page": 69,
+      "index": 46,
+      "width": 754,
+      "height": 445
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-047.webp",
+      "caption": "Table 6.4: Breakdown of computational latency for a single MPPI planning iteration on the Nvidia Jetson AGX Xavier. Data is averaged over 25 planning cycles, and the raw profiling log is available in Appendix B.",
+      "page": 112,
+      "index": 47,
+      "width": 860,
+      "height": 343
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00343v1/fig-048.webp",
+      "caption": "Figure 6.5: Identification of relationships between thrust, motor speed, input voltage, and commanded pulse width modulation (PWM) for a single rotor of the Crazyflie 2.1-Brushless. The bench top experimental setup is seen in the inset.",
+      "page": 101,
+      "index": 48,
+      "width": 940,
+      "height": 456
+    }
+  ]
+}

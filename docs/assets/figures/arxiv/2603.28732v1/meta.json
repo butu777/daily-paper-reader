@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28732v1/fig-001.webp",
+      "caption": "Figure 1: Pandora constructs an articulated 3D scene graph from egocentric data, where we model articulate object parts and their relationships to objects they contain. The estimated articulation models from human interactions are used to build a 3D scene graph, which can be then used for downstream object-retrieval tasks on a mobile robot.",
+      "page": 2,
+      "index": 1,
+      "width": 692,
+      "height": 400
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28732v1/fig-002.webp",
+      "caption": "Table 2: Articulated 3D scene graph reconstruction metrics in simulated environments. Unlike [5], we only focus on dynamic objects which are constrained to move with an articulate part. NoArt baseline is ours without using the estimated articulate part geometry to determine object relationships.",
+      "page": 7,
+      "index": 2,
+      "width": 818,
+      "height": 253
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28732v1/fig-003.webp",
+      "caption": "Figure 5: (a) Sample renders from a simulated evaluation scene. The ground truth instance map is used for evaluations for consistency with baselines. (b) Examples of articulated objects in the evaluation scene.",
+      "page": 14,
+      "index": 3,
+      "width": 822,
+      "height": 186
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28732v1/fig-004.webp",
+      "caption": "Figure 4: Pandora is queried to provide the handle grasp point and orientation, along with target end-effector positions. With knowledge of how the constrained object has moved, a target grasp location is proposed and executed.",
+      "page": 8,
+      "index": 4,
+      "width": 550,
+      "height": 289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28732v1/fig-005.webp",
+      "caption": "Figure 3: (left) For each timestep t, we intersect the hand-sphere with the scene pointcloud (backprojected from the depth map Dt). The counts form a time series, which we post-process to obtain the interaction interval, with endpoints that define the interaction keyframes ∈ I. The static keyframes ∈ K, where there is no interaction, span the intervals in red. (right) From fusing the scene mesh during the static keyframe intervals, we obtain the mesh before and after interaction. The object part is then extracted and used in combination with the hand poses to estimate the articulation model.",
+      "page": 4,
+      "index": 5,
+      "width": 818,
+      "height": 276
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-001.webp",
+      "caption": "Fig. 2. Example RGB images of seasonal environments. These pictures demonstrate the unstructured, off-road, and forested characteristics of complex environments.",
+      "page": 3,
+      "index": 1,
+      "width": 479,
+      "height": 673
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-002.webp",
+      "caption": "Fig. 8. The original image, the ground truth, and the predicted image annotation for models 8 to 13.",
+      "page": 5,
+      "index": 2,
+      "width": 1074,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-003.webp",
+      "caption": "Fig. 6. Examples of ground truth annotations from the ForestSim dataset. The first row is the photorealistic RGB image collected from the environment, and the second row is the corresponding semantic segmentation. Please note that these are the pixel-wise, true semantic segmentation images after consolidation and labeling.",
+      "page": 5,
+      "index": 3,
+      "width": 1070,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-004.webp",
+      "caption": "Fig. 7. The original image, the ground truth, and the predicted image annotation for models 1 to 7.",
+      "page": 5,
+      "index": 4,
+      "width": 1074,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-005.webp",
+      "caption": "TABLE I PREDICTION RESULTS FROM ARCHITECTURES USED BEGINNING WITH THE MODEL NUMBER, THE PRETRAINED MODEL, ENCODER, AND DECODER.",
+      "page": 6,
+      "index": 5,
+      "width": 890,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-006.webp",
+      "caption": "Fig. 4. Examples of segmentation images captured directly from AirSim are on the left. These images were processed by manually determining the object each RGB value corresponds with and using this mapping to generate the ground truth pixelwise labels on the right.",
+      "page": 4,
+      "index": 6,
+      "width": 506,
+      "height": 643
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27923v1/fig-007.webp",
+      "caption": "Fig. 5. Numbers of total pixels per class in the dataset in descending order.",
+      "page": 4,
+      "index": 7,
+      "width": 506,
+      "height": 387
+    }
+  ]
+}

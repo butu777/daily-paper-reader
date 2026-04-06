@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.02097v1/fig-001.webp",
+      "caption": "Figure 4 Training for multi-frame interleaved reasoning. Visual tokens are processed by both MoME branches with specific attention mask, enabling all visual states to be trained in a single forward pass.",
+      "page": 6,
+      "index": 1,
+      "width": 415,
+      "height": 590
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02097v1/fig-002.webp",
+      "caption": "Figure 6 Two interleaved reasoning paradigms for visual spatial planning. (a) Coarse-grained: LatentUMVis-Plan first analyzes the maze layout, generates a complete visual plan, then derives the solution. (b) Fine-grained: LatentUMVis-Plan alternates between textual reasonings and visual state updates, where each generated visual state serves as context for the next action.",
+      "page": 11,
+      "index": 2,
+      "width": 982,
+      "height": 329
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02097v1/fig-003.webp",
+      "caption": "Table 2 Evaluation on GenEval (Ghosh et al., 2023). LatentUM achieves the best performance among unified models on compositional instruction-following for visual generation. LatentUMVis-Gen is post-trained from LatentUMBase via GRPO with self-derived reward; pixel-reward denotes further replacing the reward signal with the external GenEval pixel-reward model.",
+      "page": 10,
+      "index": 3,
+      "width": 1000,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02097v1/fig-004.webp",
+      "caption": "Figure 10 Reward curve during GRPO training for self-reflection visual generation.",
+      "page": 23,
+      "index": 4,
+      "width": 960,
+      "height": 419
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02097v1/fig-005.webp",
+      "caption": "Table 1 Evaluation on multimodal understanding benchmarks. LatentUMBase achieves competitive performance while preserving the pretrained VLM’s visual understanding capability. † denotes the quantized setting where LatentUMBase processes benchmark images through quantized visual representations.",
+      "page": 8,
+      "index": 5,
+      "width": 1004,
+      "height": 454
+    }
+  ]
+}

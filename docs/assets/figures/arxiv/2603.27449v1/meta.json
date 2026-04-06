@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-001.webp",
+      "caption": "Fig. 10. Occluded-object manipulation and output diversity.We compare LOME (ours), CoSHAND, Wan-I2V and GwtF on a challenging task where some of the objects to be manipulated are not visible in the input image (e.g., behind the fridge door). Among the three methods, only LOME produces plausible human–object interactions in this setting. LOME 1-3 denote three stochastic inference runs under identical conditions, illustrating output diversity. Text prompt is overlaid on the GT video frames.",
+      "page": 11,
+      "index": 1,
+      "width": 1064,
+      "height": 1042
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-002.webp",
+      "caption": "Fig. 8. Failure casewithmulti-object interaction. In this example, LOME struggles to coordinate simultaneous interactions: it fails to correctly grasp the cup, causing ice cubes to fall into the tray rather than the cup (highlighted in red). The prompt is overlaid on the GT frames.",
+      "page": 7,
+      "index": 2,
+      "width": 498,
+      "height": 444
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-003.webp",
+      "caption": "Fig. 2. Training pipeline of LOME. A pretrained VAE encoder E maps the reference image 𝐼 , input video 𝑉 , and rasterized 2D action maps ?̂? to latent representations. A camera adapter encodes per-frame ray maps into camera features, which are added to the video latents. A Diffusion Transformer (DiT), conditioned on a text prompt, denoises the concatenated noisy action and video latents, and a pretrained decoder D reconstructs the generated video.",
+      "page": 3,
+      "index": 3,
+      "width": 1064,
+      "height": 383
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-004.webp",
+      "caption": "Fig. 15. Hand mask visualization of CoSHAND.We visualize the hand mask of CoSHAND on the same examples as in Fig. 4 of the main paper.",
+      "page": 13,
+      "index": 4,
+      "width": 503,
+      "height": 478
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-005.webp",
+      "caption": "Fig. 13. Per-frame PCK@20 visualization. We illustrate the PCK@20 evaluation by comparing detected hand locations in the generated videos against those in the ground-truth videos on a per-frame basis.",
+      "page": 13,
+      "index": 5,
+      "width": 497,
+      "height": 460
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-006.webp",
+      "caption": "Fig. 14. More qualitative comparisons across tasks.We compare LOME (ours) with CoSHAND, Wan-I2V and GwtF on diverse human-object manipulations. “Action” denotes our 2D action maps; CoSHAND uses its own hand masks; Wan-I2V uses no action condition; GwtF uses GT optical flow as action condition. Text prompts are overlaid on GT video frames.",
+      "page": 13,
+      "index": 6,
+      "width": 500,
+      "height": 475
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-007.webp",
+      "caption": "Fig. 11. In-the-wild lab captures.We showcase LOME on real-world egocentric scenes recorded in our lab with novel objects and environments, demonstrating generalization beyond the training data.",
+      "page": 12,
+      "index": 7,
+      "width": 1053,
+      "height": 1272
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27449v1/fig-008.webp",
+      "caption": "Fig. 4. Qualitative action-following comparison across tasks. We compare LOME (ours) with CoSHAND, Wan-I2V and Go-with-Flow (GwtF) on diverse human-object manipulations. “Action” denotes our 2D action maps; CoSHAND uses its own hand masks; Wan-I2V uses no action condition; GwtF uses GT optical flow as action condition. Text prompts are overlaid on the ground-truth (GT) frames.",
+      "page": 5,
+      "index": 8,
+      "width": 499,
+      "height": 930
+    }
+  ]
+}

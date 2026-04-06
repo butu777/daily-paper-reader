@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-001.webp",
+      "caption": "Figure 1 Comparison of VLA paradigms for autonomous driving. (a) Vanilla 2D VLA provides strong semantic reasoning but limited spatial perception. (b) 3D-enhanced VLA improves spatial perception but may degrade semantic reasoning. (c) UniDriveVLA decouples understanding, perception, and action with the Mixture-of-Transformers architecture, achieving both.",
+      "page": 2,
+      "index": 1,
+      "width": 973,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-002.webp",
+      "caption": "Table 1 Open-loop and closed-loop planning results on Bench2Drive. Avg. L2 is computed over predictions within a 2-second horizon at 2 Hz. † Models trained on PDM-Lite, which provides higher-quality expert demonstrations than Think2Drive. Bold numbers indicate the best results among methods trained without PDM-Lite.",
+      "page": 8,
+      "index": 2,
+      "width": 902,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-003.webp",
+      "caption": "Table 2 Multi-ability results of end-to-end autonomous driving methods on Bench2Drive.",
+      "page": 8,
+      "index": 3,
+      "width": 868,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-004.webp",
+      "caption": "Figure 2 Analysis of representation interference and model performance. (a) Cosine similarity between LLM tokens and perception tokens across layers. In the shared-weight decoder, the similarity progressively increases toward 1, indicating feature collapse into nearly identical representations, whereas MoT maintains low similarity and preserves task decoupling. (b) Performance comparison. By mitigating optimization conflicts, UniDriveVLA consistently outperforms the shared-weight baseline across perception, reasoning, and planning metrics.",
+      "page": 4,
+      "index": 4,
+      "width": 971,
+      "height": 341
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-005.webp",
+      "caption": "Table 4 Comparison of perception, mapping, and motion prediction performance on the nuScenes validation dataset.",
+      "page": 9,
+      "index": 5,
+      "width": 933,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-006.webp",
+      "caption": "Table 3 End-to-end trajectory planning performance on nuScenes. We evaluate planning quality using L2 displacement error and collision rate across two mainstream protocols: ST-P3 [28] and UniAD [29]. * denotes methods using ego-state information. Results for SparseDrive‡ are re-evaluated following the protocol established by GPT-Driver [69].",
+      "page": 9,
+      "index": 6,
+      "width": 979,
+      "height": 556
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02190v1/fig-007.webp",
+      "caption": "Figure 3 Architecture overview of UniDriveVLA. UniDriveVLA adopts a Mixture-of-Transformers architecture with three specialized experts for driving understanding, scene perception, and action planning. By decoupling heterogeneous tokens into dedicated experts and coordinating them through masked joint attention, the model mitigates optimization conflicts and unifies understanding, perception, and planning within a single framework.",
+      "page": 5,
+      "index": 7,
+      "width": 973,
+      "height": 551
+    }
+  ]
+}

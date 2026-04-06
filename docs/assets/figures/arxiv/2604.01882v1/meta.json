@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01882v1/fig-001.webp",
+      "caption": "Figure 3: Qualitative comparison with static baselines. Our method produces more accurate and spatially precise affordance predictions, especially in ambiguity-heavy scenes that require fine-grained localization and distractor suppression.",
+      "page": 7,
+      "index": 1,
+      "width": 487,
+      "height": 618
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01882v1/fig-002.webp",
+      "caption": "Table 1: Comparison with representative affordance reasoning methods. Our method differs from prior work by performing agentic cross-dimensional evidence acquisition in 3DGS scenes with both 2D and 3D tools.",
+      "page": 3,
+      "index": 2,
+      "width": 876,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01882v1/fig-003.webp",
+      "caption": "Figure 4: Visualization of evidence-acquisition trajectories. The agent adaptively selects 2D semantic and 3D geometric operators based on the current belief, progressively refining the affordance prediction through coarse-to-fine cross-dimensional evidence acquisition.",
+      "page": 8,
+      "index": 3,
+      "width": 935,
+      "height": 467
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01882v1/fig-004.webp",
+      "caption": "Table 4: Comparison of evidence acquisition strategies. All methods use the same evidence operators and the same backbone.",
+      "page": 8,
+      "index": 4,
+      "width": 494,
+      "height": 441
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01882v1/fig-005.webp",
+      "caption": "Figure 2: Overview of the proposed framework. The agent maintains a scene-grounded decision state composed of the current workspace, affordance belief, and action–evidence history. Conditioned on this state, the policy selects 2D or 3D evidence operators whose outputs are projected back to the scene support to update the state, progressively reducing ambiguity for fine-grained affordance reasoning in 3DGS scenes.",
+      "page": 4,
+      "index": 5,
+      "width": 1056,
+      "height": 590
+    }
+  ]
+}

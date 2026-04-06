@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-001.webp",
+      "caption": "Figure 1. Illustration of our DLWM for pre-training and performance improvements for downstream tasks.",
+      "page": 1,
+      "index": 1,
+      "width": 489,
+      "height": 413
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-002.webp",
+      "caption": "Table 1. 3D occupancy perception results on the SurroundOcc-nuScenes validation set [39]. *: We re-evaluate the checkpoints released by GaussianWorld because they repeatedly calculated the metrics for intermediate time-interval frames within each video.",
+      "page": 6,
+      "index": 2,
+      "width": 1031,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-003.webp",
+      "caption": "Table 2. 4D occupancy forecasting results on the SurroundOcc-nuScenes validation set [39]. Aux. Sup. represents auxiliary supervision. Avg. computes the average result of 1s, 2s, and 3s.",
+      "page": 6,
+      "index": 3,
+      "width": 994,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-004.webp",
+      "caption": "Figure 5. Qualitative comparison of 3D Occupancy Perception over GT, baseline without pre-training and ours with pre-training.",
+      "page": 15,
+      "index": 4,
+      "width": 890,
+      "height": 806
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-005.webp",
+      "caption": "Table 3. Motion Planning Results on the nuScenes validation set. The metrics are computed by the way in VAD [15]. ⋄: Lidar-based methods. We do not utilize ego status in the planning module.",
+      "page": 7,
+      "index": 5,
+      "width": 818,
+      "height": 488
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-006.webp",
+      "caption": "Figure 4. Qualitative results of depth and semantic reconstruction and forecasting during the pre-training. The left column shows the depth and semantic reconstruction at the current frame while the right column illustrates the depth and semantic images rendered by predicted Gaussians at the next frame compared with the GT RGB images.",
+      "page": 14,
+      "index": 6,
+      "width": 883,
+      "height": 499
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-007.webp",
+      "caption": "Figure 2. Overall pipeline of DLWM. Stage 1 (Sec. 3.1) focuses on learning robust 3D Gaussian scene representations from multi-view videos using self-supervised reconstruction on depth and semantic maps. Stage 2 introduces dual latent world models. a. Gaussianflow-guided model (Sec. 3.2) explicitly predicts 3D Gaussian flow, propagating the current Gaussian states to the future frame for latent prediction. b. Ego-planning-guided model (Sec. 3.3) conditions the future scene forecasting on the predicted ego trajectory. All predicted latents are supervised by the perceived features from next multi-view image using a frozen Gaussian perception module.",
+      "page": 3,
+      "index": 7,
+      "width": 984,
+      "height": 464
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-008.webp",
+      "caption": "Figure 3. 4D occupancy forecasting in a stream manner. We transform current 3D Gaussians to the next frame with ego motion alignment and complete new area with random Gaussians.",
+      "page": 5,
+      "index": 8,
+      "width": 493,
+      "height": 282
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00969v1/fig-009.webp",
+      "caption": "Figure 6. Qualitative comparison of 4D Occupancy Forecasting over GTs, baseline without pre-training and ours with pre-training.",
+      "page": 16,
+      "index": 9,
+      "width": 988,
+      "height": 330
+    }
+  ]
+}

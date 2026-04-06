@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-001.webp",
+      "caption": "Table 1. Performance comparison on LIBERO-LONG benchmark. CLaD achieves competitive performance with significantly fewer parameters (0.66B) compared to baselines. LIBERO-LONG tasks include: (1) put soup and sauce in basket; (2) put box and butter in basket; (3) turn on stove and put pot; (4) put bowl in drawer and close it; (5) put mugs on left and right plates; (6) pick book and place it in back; (7) put mug on plate and put pudding to right; (8) put soup and box in basket; (9) put both pots on stove; (10) put mug in microwave and close it.",
+      "page": 6,
+      "index": 1,
+      "width": 1032,
+      "height": 361
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-002.webp",
+      "caption": "Figure 9. Demonstrations on task 10 of LIBERO-LONG.",
+      "page": 15,
+      "index": 2,
+      "width": 960,
+      "height": 483
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-003.webp",
+      "caption": "Figure 3. Modality contribution analysis on LIBERO-LONG tasks. We compare diffusion policy without foresight conditioning (Policy only), conditioning on proprioceptive foresight only (CLaDp), semantic foresight only (CLaDs), and full cross-modal foresight (CLaD). Results demonstrate that cross-modal foresight provides substantial gains over single-modality predictions, though semantic foresight alone achieves reasonable performance. Notably, proprioceptive foresight alone severely degrades performance, suggesting that kinematic predictions require semantic context for effective planning.",
+      "page": 7,
+      "index": 3,
+      "width": 1036,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-004.webp",
+      "caption": "Figure 8. Demonstrations on task 7, 8, 9 of LIBERO-LONG.",
+      "page": 14,
+      "index": 4,
+      "width": 962,
+      "height": 1448
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-005.webp",
+      "caption": "Figure 7. Demonstrations on task 4, 5, 6 of LIBERO-LONG.",
+      "page": 13,
+      "index": 5,
+      "width": 962,
+      "height": 1448
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-006.webp",
+      "caption": "Figure 2. Detailed architecture of CLaD’s two-stage framework. Stage 1 (Left) - Semantic state st and proprioceptive state pt are each encoded and fed into modality-specific cross-attention modules to extract transition representations zs and zp. Asymmetric cross-attention, where proprioceptive transitions query semantic ones, yields shared dynamics zdyn, from which lightweight MLPs predict future latent foresights ẑt+τ",
+      "page": 4,
+      "index": 6,
+      "width": 1036,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29409v1/fig-007.webp",
+      "caption": "Figure 6. Demonstrations on task 1, 2, 3 of LIBERO-LONG.",
+      "page": 12,
+      "index": 7,
+      "width": 962,
+      "height": 1448
+    }
+  ]
+}

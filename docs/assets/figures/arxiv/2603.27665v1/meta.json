@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-001.webp",
+      "caption": "Figure 1. Comparison of static versus adaptive parameterization. Composer dynamically composes instance-specific parameter updates, allowing per-input adaptation without fine-tuning.",
+      "page": 1,
+      "index": 1,
+      "width": 480,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-002.webp",
+      "caption": "Table 2. Comparison of different generative models and methods in class-conditional image generation on ImageNet 256× 256. Inference time shows absolute and percentage increase relative to Standard.",
+      "page": 6,
+      "index": 2,
+      "width": 718,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-003.webp",
+      "caption": "Figure 5. Qualitative comparison on additional text-to-image examples. For each prompt, we show images produced by baseline methods and by our approach.",
+      "page": 11,
+      "index": 3,
+      "width": 1022,
+      "height": 834
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-004.webp",
+      "caption": "Figure 2. Overview of Composer. Given any weight matrix W from the backbone, Composer generates a low-rank update W ′ = W + AB conditioned on the input. Specifically, the query and value matrices WQ and WV from the pretrained model are linearly projected from Rd×d to R2r×dmodel . The projected representations are then separated to initialize tokens A0 i and B0 i ∈ R1×dmodel . During training, these tokens are combined with prompt tokens Pi ∈ R1×dmodel and processed by a transformer to produce W ∗ = AB. The adapted parameters W ′ = W +W ∗ are used for generation. At inference, the first projection layers are removed, while A0 i and B0 i are stored for fast instance-specific adaptation.",
+      "page": 2,
+      "index": 4,
+      "width": 493,
+      "height": 642
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-005.webp",
+      "caption": "Table 6. Comparison of SD2.1 variants on COCO 2014 (30K samples). Metrics include FID, CLIP similarity, inference time (s), and peak GPU memory.",
+      "page": 7,
+      "index": 5,
+      "width": 446,
+      "height": 329
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-006.webp",
+      "caption": "Figure 3. Illustration of the attention scheme. Component tokens attend to prompt tokens for context, maintain local block-wise attention, and the first token of each block captures inter-block correlations.",
+      "page": 4,
+      "index": 6,
+      "width": 375,
+      "height": 379
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27665v1/fig-007.webp",
+      "caption": "Table 13. Ablation on modified attention layers for VAR d-16 and VAR d-24 on ImageNet 256× 256.",
+      "page": 12,
+      "index": 7,
+      "width": 487,
+      "height": 258
+    }
+  ]
+}

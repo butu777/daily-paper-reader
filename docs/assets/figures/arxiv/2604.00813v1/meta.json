@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-001.webp",
+      "caption": "Fig. 3: Comparison of different paradigms for geometry reconstruction. Batch-processing models like DVGT [93] compute pair-wise relations across all frames, incurring an overall O(T 2) complexity. Full-history streaming models like StreamVGGT [92] extract temporal cues from the entire history, leading to an O(T ) per-frame complexity. In contrast, our sliding-window streaming strategy attends to a fixed-size cache of length W , achieving a constant O(W ) per-frame complexity.",
+      "page": 6,
+      "index": 1,
+      "width": 717,
+      "height": 222
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-002.webp",
+      "caption": "Table 4: Quantitative 3D geometry reconstruction results on DDAD [11].",
+      "page": 11,
+      "index": 2,
+      "width": 702,
+      "height": 198
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-003.webp",
+      "caption": "Table 3: Quantitative 3D geometry reconstruction results on Waymo [62].",
+      "page": 11,
+      "index": 3,
+      "width": 702,
+      "height": 197
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-004.webp",
+      "caption": "Fig. 7: Efficiency comparison of online inference. We report the per-frame latency and memory cost of different methods on multi-frame, 8-view sequences.",
+      "page": 15,
+      "index": 4,
+      "width": 703,
+      "height": 299
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-005.webp",
+      "caption": "Fig. 4: Overall archetecture of DVGT-2. Our model consists of an image encoder, a geometry transformer with temporal causal attention, and a set of prediction heads to jointly output geometry reconstruction and trajectory planning.",
+      "page": 7,
+      "index": 5,
+      "width": 718,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-006.webp",
+      "caption": "Table 1: Quantitative 3D geometry reconstruction results on OpenScene [5].",
+      "page": 10,
+      "index": 6,
+      "width": 712,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-007.webp",
+      "caption": "Table 2: Quantitative 3D geometry reconstruction results on nuScenes [1].",
+      "page": 10,
+      "index": 7,
+      "width": 702,
+      "height": 198
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-008.webp",
+      "caption": "Table 7: Open-looped planning results on nuScenes [1]. † denotes the results computed with an average of previous frames as adopted in VAD [26]. Aux. Sup. represents auxiliary supervision. Avg. computes the average result of 1s, 2s, and 3s.",
+      "page": 14,
+      "index": 8,
+      "width": 714,
+      "height": 469
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-009.webp",
+      "caption": "Table A.3: Quantitative 3D geometry reconstruction results on KITTI [10].",
+      "page": 23,
+      "index": 9,
+      "width": 738,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-010.webp",
+      "caption": "Fig. 6: Qualitative visualizations. These results demonstrate that DVGT-2 can predict high-fidelity dense scene geometry and perform robust trajectory planning.",
+      "page": 13,
+      "index": 10,
+      "width": 721,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-011.webp",
+      "caption": "Fig. 5: Efficient inference of DVGT-2. Given the current frame multi-view input and the cache of past W frames, our model performs efficient geometry reconstruction and trajectory planning in an online manner, avoiding recomputing historical frames.",
+      "page": 8,
+      "index": 11,
+      "width": 719,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-012.webp",
+      "caption": "Fig. 2: Comparison of different paradigms for end-to-end autonomous driving. Conventional end-to-end models rely on sparse perception representations for scene understanding. VLA models predict language descriptions to interpret driving scenarios. Our VGA model reconstructs dense 3D geometry to facilitate safe planning.",
+      "page": 4,
+      "index": 12,
+      "width": 721,
+      "height": 324
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-013.webp",
+      "caption": "Table 5: Closed-loop planning results on NAVSIM v1 navtest split. † denotes using reinforcement learning to boost planning scores. Future states represent worldmodeling-based methods. C and L denote camera and LiDAR, respectively.",
+      "page": 12,
+      "index": 13,
+      "width": 718,
+      "height": 413
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-014.webp",
+      "caption": "Table 6: Closed-loop planning results on NAVSIM v2 navtest split.",
+      "page": 12,
+      "index": 14,
+      "width": 718,
+      "height": 248
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00813v1/fig-015.webp",
+      "caption": "Table A.4: Detailed statistics of the datasets used in our experiments. All temporal statistics are reported at a 2Hz sampling rate.",
+      "page": 24,
+      "index": 15,
+      "width": 716,
+      "height": 185
+    }
+  ]
+}

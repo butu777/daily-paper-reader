@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-001.webp",
+      "caption": "Table 1 The performance of different semantic forecasting model trained with occupancy collected from UniOcc-Carla(UniC) or OccSim, test on UniOcc-NuScenes(Uni-N) validation set. mIOU measured over all background occupancy categories and car category for foreground. †: We collected the same amount of data on OccSim as that provided by UniOcc for Carla for fairness. ⋆: Use ×5 amount of data collected from OccSim to train downstream models. Stoch.: whether the model is stochastic. The gray-shaded rows represent the performance upper bound, as the models are trained and tested on the same domain without domain shift.",
+      "page": 11,
+      "index": 1,
+      "width": 986,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-002.webp",
+      "caption": "Figure 1 Comparison of OccSim and workflow. We overcome all of the mentioned drawback of previous method, with only 1 single frame and future actions, the W-DiT we proposed is able to build a multi-kilometer consistent occupancy map for autonomous driving simulation. The agent initial poses are generated via the layout generator and then forward-simulated. OccSim is compatible with multi-agent forward simulation methods as plug-and-play modules; in our experiments, we use an IDM variant [16].",
+      "page": 2,
+      "index": 2,
+      "width": 986,
+      "height": 531
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-003.webp",
+      "caption": "Figure 3 Agent initialization within generated static maps. Each panel displays a 200x200 voxel crop centered on the (unrendered) ego-vehicle fromMglobal. The first two panels show distinct generated scenes, the third and fourth panels demonstrate the model’s multimodality: two different plausible layouts generated for the same revisited location. Orange vehicles (second panel) are stationary.",
+      "page": 7,
+      "index": 3,
+      "width": 986,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-004.webp",
+      "caption": "Figure 5 Long-horizon 2D realism under varying trajectories. FID and KID comparisons for 2D projections of the 3D generated occupancy. We evaluate three ego-actions: straight, closed-loop, and continuous turning. The dashed reference line indicates the “chaos” threshold characterizing scene collapse. In all scenarios, our model (red) remains strictly below this threshold, vastly outperforming the previous SOTA model(which exceed the “chaos” threshold in 35/40-th frame generated) and ensuring long-term structural integrity regardless of the driving action.",
+      "page": 10,
+      "index": 4,
+      "width": 986,
+      "height": 343
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-005.webp",
+      "caption": "Figure 6 Generation diversity comparison. Pairwise mIoU diversity and Vendi scores evaluated over 100 timesteps using 10 random seeds. Solid lines and shaded areas denote the mean and the 25th-75th percentiles, respectively. Our methods performed the best diversity in the rollout among all tested generative method.",
+      "page": 10,
+      "index": 5,
+      "width": 986,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-006.webp",
+      "caption": "Figure 9 Visualization of frames from the “chaos” baseline. We randomly visualize 20 frames from the 1000 samples pool. The semantic categories represented by colors here are consistent with those in Fig. 3.",
+      "page": 18,
+      "index": 6,
+      "width": 986,
+      "height": 1231
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-007.webp",
+      "caption": "Figure 8 Visualization of trajectory shapes (Loop, Straight, and Turn) evaluated in Fig. 5. The green star indicates the starting point. The blue solid line denotes the initial ground-truth (GT) trajectory snippet (frames 1–40) used as the condition prompt, while the red dashed line represents the extended trajectory explicitly designed to guide the long-horizon generation. For visual clarity the displayed trajectories are truncated at 500 frames, whereas our actual synthesis spans up to 3000 frames.",
+      "page": 17,
+      "index": 7,
+      "width": 836,
+      "height": 329
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-008.webp",
+      "caption": "Figure 4 Realism evaluation of generated 3D static occupancy. The left three columns report the conditional fidelity (MMD and KID) under a 30-frame constraint. The right two columns showcase the unconditional realism (KID and FID) over a 1000-frame long-horizon rollout. Our W-DiT-based method obtains the best long-horizon stability and conditional realism.",
+      "page": 9,
+      "index": 8,
+      "width": 986,
+      "height": 672
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-009.webp",
+      "caption": "Figure 2 Illustration of structure to generate road map of t+1 from condition at timestep t. Here, t represents the sequence frame index, and τ denotes the probability flow timestep. Different from classic temporal concatenation in the input, the core insight of this paradigm design is to transform temporal generation into scene completion at a single time point. This token-wise scale and shift condition injection method allow us can precisely control spatial rigid transformation during long-horizon generation. I(−) stand for rasterization process of given future trajectory Jt+n",
+      "page": 5,
+      "index": 9,
+      "width": 986,
+      "height": 587
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28887v1/fig-010.webp",
+      "caption": "Figure 7 Qualitative comparison of two rollouts for two models: previous SOTA occupancy world model (first and third rows), and our model (second and fourth rows) at different horizons. Ours exhibits long-horizon stability under different trajectory input.",
+      "page": 16,
+      "index": 10,
+      "width": 986,
+      "height": 604
+    }
+  ]
+}

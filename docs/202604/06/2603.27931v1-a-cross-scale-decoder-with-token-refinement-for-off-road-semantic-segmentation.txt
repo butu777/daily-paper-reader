@@ -1,0 +1,245 @@
+Title: A Cross-Scale Decoder with Token Refinement for Off-Road Semantic Segmentation
+
+URL Source: https://arxiv.org/pdf/2603.27931v1
+
+Published Time: Tue, 31 Mar 2026 01:48:38 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# A Cross-Scale Decoder with Token Refinement for Off-Road Semantic Segmentation 
+
+Seongkyu Choi Jhonghyun An ∗
+
+Abstract —Off-road semantic segmentation is fundamentally challenged by irregular terrain, vegetation clutter, and inherent annotation ambiguity. Unlike urban scenes with crisp object boundaries, off-road environments exhibit strong class-level sim-ilarity among terrain categories, resulting in thick and uncertain transition regions that degrade boundary coherence and destabi-lize training. Rare or thin structures, such as narrow traversable gaps or isolated obstacles, further receive sparse and unreliable supervision and are easily overwhelmed by dominant background textures. Existing decoder designs either rely on low-scale bot-tlenecks that oversmooth fine structural details, or repeatedly fuse high-detail features, which tends to amplify annotation noise and incur substantial computational cost. We present a cross-scale decoder that explicitly addresses these challenges through three complementary mechanisms. First, a global–local token refinement module consolidates semantic context on a compact bottleneck lattice, guided by boundary-aware regularization to remain robust under ambiguous supervision. Second, a gated detail bridge selectively injects fine-scale structural cues only once through cross-scale attention, preserving boundary and texture information while avoiding noise accumulation. Third, an uncertainty-guided class-aware point refinement selectively updates the least reliable pixels, improving rare and ambiguous structures with minimal computational overhead. The result-ing framework achieves noise-robust and boundary-preserving segmentation tailored to off-road environments, recovering fine structural details while maintaining deployment-friendly effi-ciency. Experimental results on standard off-road benchmarks demonstrate consistent improvements over prior approaches without resorting to heavy dense feature fusion. 
+
+I. I NTRODUCTION 
+
+Off-road semantic segmentation presents challenges that differ fundamentally from perception in structured urban en-vironments. Irregular terrain, weak spatial organization, and inherently ambiguous semantic boundaries lead to annotations that are thick, inconsistent, and noisy, particularly around class transitions [1–5]. Vegetation clutter and appearance variations further exacerbate boundary ambiguity, making stable and boundary-coherent learning substantially more difficult than in urban scenes. A key difficulty arises from strong class-level similarity. Many terrain categories share overlapping visual cues in color, texture, and scale, rendering both class identity and boundaries ambiguous in practice. Thin or rare structures, such as narrow traversable gaps or small obstacles, are often occluded and sparsely annotated, and even human annotators may disagree on precise boundaries, resulting in intrinsically weak and inconsistent supervision [6–8]. Robust off-road semantic segmentation is therefore critical for field robotics, where semantic perception directly informs downstream navigation and safety decisions under extreme (a) Irregular Terrain (b) Boundary Confusion 
+
+(d) Vegetation Occlusion (c) Light Reflection 
+
+Fig. 1: Off-road scenes exhibit diverse challenges, including irregular and uneven terrain, ambiguous boundaries between similar surfaces, strong light reflections, and severe occlusion by vegetation. 
+
+class imbalance and sparse supervision [6, 7, 9]. In such settings, errors near ambiguous boundaries or rare but safety-critical structures can propagate into unsafe traversal behavior, making robustness to label uncertainty a system-level require-ment. Despite recent advances, most existing segmentation archi-tectures remain ill-suited to these conditions. Transformer-based and hybrid designs commonly aggregate multi-scale features into compact low-resolution bottlenecks, discarding fine-scale structural cues early in the network [10–12]. While dense multi-scale fusion can partially recover lost details, it often amplifies annotation noise, increases computational cost, and introduces train–test mismatches when refinement branches are used only during training [13, 14]. Recent foun-dation segmentation models, such as SAM-based approaches, demonstrate strong generalization for visually well-defined object boundaries; however, their dense mask generation and boundary sharpening assumptions are often misaligned with off-road scenes dominated by thick, ambiguous transitions and annotation noise [15–17]. These limitations reveal a structural mismatch between existing decoder designs and the requirements of off-road perception. Robust segmentation under ambiguous supervision requires explicitly separating semantic consolidation from 
+
+> arXiv:2603.27931v1 [cs.CV] 30 Mar 2026
+
+boundary-guided structural correction, rather than entangling both through repeated dense fusion [18–20]. To address this, we propose a Cross-Scale Decoder that de-couples semantic consolidation from boundary-guided correc-tion. Global–Local Token Refinement (GLTR) is first applied on a compact bottleneck lattice to stabilize global semantic representations under ambiguous supervision. Subsequently, boundary-guided correction is performed by selectively con-sulting fine-scale structural cues through a Gated Cross-Scale Interaction (GCS), which mediates semantic–structural infor-mation exchange without dense fusion. Within this interac-tion, uncertainty-guided, class-aware point-wise correction is applied to focus computation on a small set of low-confidence pixels after semantic stabilization and structural interaction. Together, these components preserve boundary geometry and thin structures while maintaining robustness and deployment efficiency in off-road robotic perception. The main contributions of this work are summarized as follows:  
+
+> •
+
+We propose a Cross-Scale Decoder that explicitly sepa-rates semantic consolidation from boundary-guided cor-rection, enabling robust off-road semantic segmentation under ambiguous and noisy supervision without relying on dense multi-scale fusion.  
+
+> •
+
+We introduce Global–Local Token Refinement (GLTR), which stabilizes semantic representations on a compact bottleneck lattice through global attention and lightweight local refinement, supported by a boundary-band regular-izer for noise-robust semantic consolidation.  
+
+> •
+
+We realize boundary-guided correction via a Gated Cross-Scale Interaction (GCS), which selectively consults fine-scale structural cues and integrates uncertainty-guided, class-aware point-wise correction to recover rare and am-biguous structures with minimal computational overhead. II. R ELATED WORK 
+
+A. Off-Road Semantic Segmentation 
+
+Semantic segmentation in off-road environments has gained increasing attention due to its importance in field robotics. Unlike urban datasets with well-defined object boundaries and structured layouts, off-road datasets exhibit irregular terrain, vegetation clutter, and significant annotation ambiguity. Class boundaries are often thick, inconsistent, and visually ambigu-ous, particularly around transitions between similar terrain types [1, 2, 6, 7]. This ambiguity reflects the intrinsic uncertainty of natural environments rather than simple annotation errors. Terrain cat-egories frequently share overlapping visual characteristics, and fine-scale structures are often occluded or sparsely represented. As a result, dense and fully consistent pixel-level ground truth is difficult to obtain in practice, posing fundamental challenges to learning stable and boundary-coherent representations in off-road scenes [6, 8, 21]. 
+
+B. Multi-Scale Decoder Architectures 
+
+Recent advances in semantic segmentation have been driven by transformer-based and hybrid architectures that aggregate multi-scale features through attention mechanisms [10, 11, 22– 24]. For computational efficiency, many designs compress fea-ture representations into compact low-resolution bottlenecks before global reasoning. While effective for capturing long-range context, this strategy discards fine-scale structural cues early in the network [10–12]. Once thin structures and local discontinuities are suppressed at the bottleneck stage, they are difficult to recover through downstream refinement. Several approaches attempt to ad-dress this limitation through dense multi-scale fusion or skip connections [13, 14, 18, 25]. However, repeated fusion often amplifies annotation noise and significantly increases com-putational cost, limiting suitability for resource-constrained robotic deployment [26–28]. 
+
+C. Boundary-Aware Refinement 
+
+Prior work has explored boundary-aware losses, affinity-based constraints, and post-processing techniques such as conditional random fields to improve boundary quality [29– 32]. While effective at sharpening predictions, these methods typically operate as auxiliary components and do not address the architectural causes of boundary degradation. More recent approaches adopt sparse or point-based refine-ment strategies to selectively correct uncertain regions [20, 33, 34]. However, many such modules are enabled only during training and disabled at inference to reduce latency, introducing train–test mismatches that can lead to unstable boundary behavior under noisy supervision [19]. Taken together, prior work suggests that improving off-road segmentation does not primarily require increasing model capacity or repeated dense fusion, but rather rethinking how semantic consolidation and structural correction are integrated within the decoder. In environments with intrinsic class-level ambiguity, a robust solution should preserve fine-scale bound-ary cues through selective, gated interaction while remaining fully active at inference time, motivating the Cross-Scale Decoder proposed in this work. III. M ETHODOLOGY 
+
+A. Overview 
+
+Given an input image I, our method extracts multi-scale features using a transformer backbone and processes them with a Cross-Scale Decoder. Unlike conventional decoders that rely on repeated dense fusion, the proposed design explicitly constrains when and where structural information is intro-duced, reflecting the intrinsic ambiguity and noisy supervision of off-road environments. The decoder consolidates global semantics at a compact bottleneck while selectively consulting structural cues only when necessary, thereby explicitly sepa-rating semantic consolidation from boundary-guided structural correction. As shown in Fig. 2, the decoder consists of three conceptual components: Global–Local Token Refinement Fig. 2: Overall framework of our CSTR. Multi-scale backbone features are compressed into a compact bottleneck token T0 and refined by Global–Local Token Refinement (GLTR). Boundary-Guided Correction extracts fine-scale structural cues, which are selectively consulted via a Gated Cross-Scale Interaction (GCS) to recover thin or ambiguous structures efficiently. 
+
+(GLTR) for stabilizing semantic representations, Boundary-Guided Correction (BGC) for extracting boundary-relevant structural cues, and a Gated Cross-Scale Interaction (GCS) that selectively integrates these cues and performs sparse point-wise correction. 
+
+B. Global–Local Token Refinement (GLTR) 
+
+Global–Local Token Refinement (GLTR), shown in the green block of Fig. 2, stabilizes semantic representations before any structural correction is applied. In off-road scenes, premature incorporation of fine-scale cues can entangle noisy boundary information with global semantics. GLTR addresses this issue by consolidating class-aware context at a compact bottleneck lattice. Multi-scale backbone features {Fl}Ll=1 are first projected into a shared embedding space and aggregated into a compact bottleneck representation: 
+
+T0 =
+
+> L
+
+X
+
+> l=1
+
+αl · ψl(Fl), (1) where ψl(·) denotes a scale-specific projection and αl controls each scale’s contribution. As indicated by Eq. (2), seman-tic aggregation is intentionally performed before introducing any boundary-related cues, preventing early contamination of global semantics under ambiguous supervision. 
+
+T0 =
+
+> L
+
+X
+
+> l=1
+
+Softmax (w⊤ 
+
+> α
+
+G(Fl)) · ϕl(Fl) (2) Here, G(·) denotes the global average pooling operation, and 
+
+wα represents a learnable projection vector that dynamically determines the importance of each scale. The function ϕl(·)
+
+projects the scale-specific features Fl into a unified embedding space RC×H0×W0 via convolution and interpolation. This formulation allows the bottleneck T0 to selectively aggregate multi-scale contexts based on their semantic relevance. GLTR then performs class-aware semantic consolidation using scaled dot-product attention [35]. For each class c, a class-specific semantic token is computed as 
+
+T (c)0 =
+
+> N
+
+X
+
+> i=1
+
+α(c) 
+
+> i
+
+T (i)0 . (3) 
+
+T1 = Softmax 
+
+ QcK⊤
+
+√dk
+
+
+
+V, (4) Fig. 3: Structure of the Boundary-Guided Correction module. Boundary-sensitive cues are extracted through an edge path, while smoothed contextual cues are obtained via a grid path. These fine-scale structural cues are later consulted through gated cross-scale interaction without dense fusion. 
+
+We formulate class-aware consolidation as a cross-attention operation. Let Qc ∈ RNclass ×d be the set of learnable class prototypes. The keys K and values V are projected from the bottleneck token T0 using linear transformations Wk and 
+
+Wv , respectively. The term √dk serves as a scaling factor to stabilize gradients. This mechanism explicitly queries the spatial feature map for class-specific semantic cues, effectively filtering out irrelevant background noise. The refined semantic lattice is obtained by aggregating class-aware tokens and restoring local coherence through a lightweight refinement operation: 
+
+T2 = T1 + φ(T1), T1 =
+
+> C
+
+X
+
+> c=1
+
+T (c)0 , (5) where φ(·) denotes a depthwise–pointwise convolution block. As summarized in Eq. (5), GLTR establishes a stable semantic core independently of fine-scale structural cues, ensuring that subsequent structural correction operates on already consoli-dated semantics rather than noisy intermediate representations. During training, a boundary-band regularizer constrains class-aware attention updates to narrow transition regions, stabilizing token alignment near ambiguous boundaries while leaving inference unchanged. The refined tokens T2 thus serve as the semantic foundation for subsequent boundary-guided correction. 
+
+C. Boundary-Guided Correction (BGC) 
+
+Boundary-Guided Correction (BGC), shown in the yellow block of Fig. 2, extracts fine-scale structural cues that are informative near ambiguous boundaries and thin structures. Rather than reinjecting these cues directly into the semantic stream, BGC isolates boundary-relevant information and de-fers its utilization to a later interaction stage. As illustrated in Fig. 3, BGC employs two complementary paths operating on early-stage features Fs: an edge path emphasizing boundary-sensitive structures and a grid path cap-turing smoothed contextual information. These paths produce a buffered set of boundary-guided structural cues: 
+
+S = {Ks, V s} = {fedge (Fs), f grid (Fs)} , (6) where fedge (·) and fgrid (·) denote edge-preserving and grid-smoothing operations. As defined in Eq. (6), S is retained as a buffer rather than being directly fused with semantic repre-sentations, preventing early contamination of global semantics with noisy boundary details. 
+
+D. Gated Cross-Scale Interaction (GCS) 
+
+The Gated Cross-Scale Interaction (GCS), shown in the red block of Fig. 2, selectively integrates boundary-guided struc-tural cues with stabilized semantic representations obtained from GLTR. Instead of dense fusion, semantic tokens query the buffered structural cues through cross-scale attention: 
+
+Fcs = Attn( Q = T2, K = Ks, V = Vs), (7) allowing structural information to be consulted only when relevant and limiting unnecessary noise propagation. The queried structural information is then selectively in-jected into the semantic stream via a gated formulation: 
+
+T3 = T2 + g(T2, S) ⊙ Fcs , (8) where the gating function is defined as 
+
+g(T2, S) = σ(WT T2 + WS Fcs ) . (9) As formalized in Eq. (8), boundary-guided structural cues influence semantic representations only when beneficial, en-abling single-shot structural correction while preventing ex-cessive amplification of boundary noise. This selective design avoids the instability commonly caused by repeated structural injection under ambiguous supervision. Within this interaction, uncertainty-guided, class-aware point-wise correction is further integrated to address residual ambiguities that cannot be resolved through token-level inter-action alone. Only a small set of pixels with high prediction uncertainty is selected, and their predictions are refined using a lightweight MLP conditioned on both semantic features from 
+
+T3 and corresponding structural cues. By restricting refinement to uncertain regions, the decoder improves boundary precision and thin structures with minimal additional computational overhead. IV. E XPERIMENTS 
+
+A. Datasets 
+
+We evaluate our method on two off-road semantic seg-mentation benchmarks, RUGD [1] and RELLIS-3D [2]. Both datasets capture unstructured outdoor environments with het-erogeneous terrain, ambiguous boundaries, and strong class imbalance, making them suitable for evaluating robustness under noisy supervision [1, 2, 6]. 
+
+RUGD. This dataset contains diverse off-road RGB scenes with irregular terrain geometry and abundant thin structures. Annotations often exhibit thick or ambiguous transitions between terrain classes, posing challenges for dense high-resolution fusion. We follow the official train/test split and use RGB inputs only. For navigation-oriented evaluation, fine-grained labels are merged into six terrain groups: Smooth, Rough, Bumpy, Forbidden, Obstacle, and Background (Ta-ble II). 
+
+RELLIS-3D. This dataset is collected using an unmanned ground vehicle and provides longer sequences with recurring terrain patterns. Despite being slightly more structured than RUGD, it still exhibits substantial label noise and boundary TABLE I: Comparison on RUGD and RELLIS-3D. We report per-group IoU (%), mean IoU ( mIoU ↑), and average accuracy ( aAcc ↑). Asterisks (*) denote transformer-based methods. Best per dataset in bold , second best underlined. 
+
+Dataset Methods (IoU) Smooth Rough Bumpy Forbidden Obstacle Background mIoU ↑ aAcc ↑
+
+RUGD 
+
+PSPNet [13] 48.62 88.92 69.45 29.07 87.98 78.29 67.06 92.85 DeepLabv3+ [14] 5.86 84.99 50.40 25.04 87.50 81.47 55.88 91.51 DANet [25] 2.26 81.47 8.69 15.00 82.54 74.86 44.14 88.81 OCRNet [18] 66.29 89.47 76.15 59.14 88.77 79.17 76.50 93.46 PSANet [36] 34.92 87.70 35.64 8.66 86.95 78.97 55.47 92.13 BiSeNetv2 [28] 24.27 89.99 89.99 83.31 90.93 75.29 75.10 93.40 CGNet [26] 40.84 90.39 85.67 76.21 89.75 74.48 76.22 93.29 FastSCNN [27] 83.03 92.82 87.69 81.05 90.94 75.11 85.11 94.77 FastFCN [37] 26.27 89.85 85.95 84.13 91.23 75.63 75.51 93.46 *SETR [10] 89.77 92.46 84.58 70.33 89.55 70.47 82.86 94.09 *DPT [12] 1.04 81.23 22.98 25.84 89.18 74.50 49.13 88.77 *SegFormer [11] 93.26 93.16 87.56 77.31 91.20 78.50 86.83 95.17 *SegNeXt [38] 90.39 91.17 83.96 65.43 87.80 68.17 81.15 93.22 *GA-Nav [6] 95.15 94.45 89.83 86.25 91.95 76.86 89.08 95.66 
+
+*CSTR (ours) 95.11 94.47 90.36 87.16 92.60 80.13 89.97 95.98 RELLIS-3D 
+
+PSPNet [13] 69.21 80.99 8.89 53.70 60.70 94.67 61.36 86.01 DeepLabv3+ [14] 65.76 79.84 19.72 47.52 64.88 95.92 62.27 85.84 DANet [25] 72.93 85.18 13.10 60.60 70.53 95.65 66.38 89.11 OCRNet [18] 74.67 83.04 27.76 60.44 62.35 92.58 66.81 86.95 PSANet [36] 64.06 75.29 17.08 47.45 61.74 94.31 59.99 83.71 BiSeNetv2 [28] 65.56 73.24 39.35 48.17 71.91 93.78 65.33 83.03 CGNet [26] 62.84 74.17 49.57 45.41 68.88 94.53 65.90 82.70 FastSCNN [27] 67.06 77.60 56.49 49.76 70.31 94.43 69.27 84.51 FastFCN [37] 70.51 79.15 49.72 51.37 63.90 94.82 68.24 84.10 *SETR [10] 65.37 78.64 40.89 52.59 63.80 91.87 65.53 83.59 *DPT [12] 5.42 76.65 47.13 54.87 62.74 85.50 55.38 81.61 *SegFormer [11] 60.28 79.78 53.35 53.78 70.15 94.37 68.62 85.37 *SegNeXt [38] 51.67 78.40 19.38 42.61 66.04 92.05 58.36 82.16 *GA-Nav [6] 78.50 88.25 37.28 72.34 74.75 96.07 74.44 91.69 
+
+*CSTR (ours) 80.92 89.16 37.26 73.56 75.08 96.35 75.39 92.15 
+
+TABLE II: Unified grouping of fine-grained RUGD and RELLIS-3D labels into a 6-class terrain hierarchy based on surface texture, navigability, and semantic characteristics.               
+
+> Terrain Group RUGD Labels RELLIS-3D Labels
+> Smooth Concrete, asphalt Concrete, asphalt Rough Gravel, grass, dirt, sand Dirt, grass Bumpy Rock, rock bed Mud, rubble Forbidden Water, bushes, tall vegetation Water, bush Obstacles Trees, poles, logs, etc. Tree, pole, vehicle, etc. Background Void, sky, signs Void, sky
+
+ambiguity due to vegetation occlusion and visually similar surfaces. We adopt the standard split and map all categories to the same six-class hierarchy used for RUGD (Table II) to ensure consistent evaluation. For both datasets, images are resized to match the de-coder input resolution (300 ×375 for RUGD and 375 ×600 for RELLIS-3D). Standard data augmentation (random cropping, horizontal flipping, and color jitter) is applied during training, while center cropping followed by resizing is used at test time. 
+
+B. Experiment Settings 
+
+All experiments are implemented in PyTorch using the MMSegmentation framework [39] and conducted on a single NVIDIA RTX A5000 GPU with mixed-precision training. We adopt MiT-B0 [11] as the backbone, initialized with ImageNet pre-trained weights [40], and attach our Cross-Scale Decoder to the same backbone configuration used by GA-Nav [6] for fair comparison. Models are trained for 240k iterations using SGD with momentum 0.9 and weight decay 4 × 10 −5. A polynomial learning rate schedule (power 0.9) with linear warm-up over the first 1.5k iterations is employed. The initial learning rate is set to 6×10 −2 for RUGD and 3×10 −3 for RELLIS-3D. Batch sizes are 8 for RUGD and 2 for RELLIS-3D under the same hardware configuration. Synchronized Batch Normalization and gradient clipping (max norm 35) are applied for training stability. 
+
+C. Main Results 
+
+We compare the proposed Cross-Scale Decoder (CSTR) with representative CNN- and Transformer-based baselines Fig. 4: Qualitative comparison on RUGD highlighting rare and thin structures. Compared to GA-Nav, CSTR better preserves small objects and narrow regions while maintaining coherent terrain bound-aries. 
+
+commonly used for semantic segmentation [6, 11, 13, 14] on RUGD [1] and RELLIS-3D [2]. Quantitative results are summarized in Table I. Across both datasets, CSTR achieves the highest mIoU and aAcc, demonstrating consistent improve-ments over prior methods. On RUGD, CSTR improves upon GA-Nav [6] in both mIoU and aAcc, with notable gains on visually ambiguous classes such as Forbidden and Background . These classes are prone to boundary leakage around vegetation and reflective regions, indicating that selective fine-scale consultation and boundary-aware supervision effectively reduce over-smoothing. These improvements are consistent with our design choice of consol-idating semantics at a compact bottleneck and applying single-shot, gated fine-scale correction under ambiguous supervision. On RELLIS-3D, CSTR also outperforms GA-Nav, with gains concentrated on terrain groups with irregular geometry and sparse annotations, including Forbidden and Obstacle .This suggests that avoiding repeated structural fusion and instead relying on a single gated interaction is particularly effective under severe annotation ambiguity. Qualitative examples in Fig. 4 and Fig. 5 corroborate these results. Compared to GA-Nav and Transformer-based decoders, CSTR produces sharper transitions, cleaner region interiors, and fewer boundary artifacts, while preserving inte-rior semantic consistency. Overall, these results demonstrate that consolidating global semantics at a compact bottleneck and selectively correcting fine-scale ambiguities yields robust performance gains for off-road semantic segmentation under noisy supervision. 
+
+D. Qualitative Assessment 
+
+Qualitative results demonstrate that the proposed CSTR produces more coherent and stable segmentations than existing 
+
+Fig. 5: Qualitative comparison on RELLIS-3D under visually ambigu-ous terrain transitions. CSTR produces more coherent region interiors and smoother class boundaries around obstacles and vegetation compared to GA-Nav. TABLE III: Ablation of gated fusion configurations on RUGD, analyzing the effect of different gating inputs on semantic accuracy and boundary-sensitive performance.                         
+
+> Gate Inputs to Gate mIoU ↑bIoU ↑F1 ↑aAcc ↑
+> 1-way CA 89.72 32.22 48.87 95.93 2-way CA+ T089.71 32.12 48.78 95.83 CA+TB 89.86 32.62 49.14 95.95 3-way CA+TB+ T089.97 32.75 49.18 95.98
+
+TABLE IV: Incremental ablation results on RUGD demonstrating the contribution of each decoder component. We report region-level metrics ( mIoU , aAcc ) together with boundary- and structure-sensitive metrics ( bIoU , F1).                         
+
+> Variant mIoU ↑bIoU ↑F1 ↑aAcc ↑
+> Baseline 88.32 28.53 46.97 95.19 + GLTR 88.66 29.78 47.81 95.44 + BGC 88.80 29.75 47.80 95.51 + GCS (w/o point-wise) 88.86 30.03 48.05 95.52 + GCS (w/ point-wise) 89.97 32.75 49.18 95.98
+
+decoders across both RUGD [1] and RELLIS-3D [2], partic-ularly in challenging scenarios with ambiguous boundaries, cluttered backgrounds, and sparse supervision. These qual-itative improvements reflect the effect of GLTR in stabiliz-ing global semantics and BGC/GCS in selectively correcting boundary regions without repeated dense fusion. On RUGD, examples in Fig. 4 highlight CSTR’s ability to preserve rare and thin structures, such as small objects and narrow traversable regions, while maintaining contin-uous terrain boundaries in cluttered scenes. Compared to GA-Nav [6] and Transformer-based baselines, CSTR reduces fragmentation and boundary leakage between visually similar classes (e.g., soil, gravel, and grass), reflecting the benefit of selectively consulting fine-scale structural cues rather than repeatedly aggregating detailed features. On RELLIS-3D, Fig. 5 demonstrates that CSTR generalizes effectively to environments with man-made obstacles, irregu-lar terrain geometry, and partial occlusions. CSTR produces cleaner region interiors and more structurally consistent pre-dictions around obstacles and vegetation, even when class boundaries are visually ambiguous or sparsely annotated. This cross-dataset robustness indicates that single-shot fine-scale consultation and class-aware sparse refinement remain effective beyond the training domain. Overall, these qualitative observations are consistent with the quantitative improvements reported in Table I, confirming that compact semantic consolidation followed by selective fine-scale correction yields reliable and noise-robust off-road semantic segmentation. 
+
+E. Ablation Studies 
+
+Incremental Module Analysis. We conduct incremental abla-tions on the RUGD dataset to evaluate the contribution of each decoder component, progressively enabling modules following the architectural design order. As reported in Table IV, each component contributes con-sistent improvements across both region-level metrics ( mIoU ,
+
+aAcc ) and boundary- and structure-sensitive metrics ( bIoU ,
+
+F1). Here, bIoU evaluates prediction consistency within a narrow band around class boundaries [41], while the reported 
+
+F1 score emphasizes rare and thin structures, capturing frag-mentation behavior not reflected by boundary-based metrics. The results highlight the complementary roles of the pro-posed components. GLTR stabilizes semantic representations at a compact bottleneck under ambiguous supervision, lead-ing to consistent gains in region-level accuracy. Introducing BGC further improves boundary localization by extracting boundary-relevant structural cues without densely reinjecting them into the semantic stream. Subsequent GCS enables selective semantic–structural integration, yielding additional gains in boundary coherence. Finally, incorporating point-wise correction within GCS amplifies these improvements by ex-plicitly refining uncertain predictions, resulting in pronounced gains on rare and thin structures as reflected in the F1 score. The gradual increase in bIoU across modules indicates that boundary stability benefits from progressive semantic consol-idation followed by selective structural correction. Overall, these trends validate that the proposed decoder components address complementary aspects of off-road semantic segmen-tation, including semantic ambiguity, boundary uncertainty, and structural sparsity. 
+
+Gated Interaction Configuration. We further analyze dif-ferent gating configurations within the Gated Cross-Scale Interaction module (Table III). A one-way configuration that relies solely on cross-scale attention (CA) produces sharp local boundaries but exhibits limited texture continuity, often result-ing in fragmented predictions in heterogeneous terrain regions. Incorporating texture-based cues (TB) improves structural stability by reinforcing fine-scale appearance information;                                              
+
+> Fig. 6: Quantitative robustness evaluation on RUGD with noisy ground truth. CSTR exhibits smaller performance degradation than GA-Nav under increasing label noise. TABLE V: Qualitative comparison on RUGD with noisy ground truth. CSTR produces more coherent and structurally consistent predictions than GA-Nav under label noise.
+> Model Noise Level mIoU ↑bIoU ↑F1boundary ↑aAcc ↑
+> GA-Nav clean 89.08 39.66 93.65 95.66
+> r= 1 87.66 39.34 93.28 95.20
+> r= 3 88.36 39.24 93.69 95.43
+> r= 5 88.05 39.84 93.51 95.60 Ours clean 89.97 45.94 94.64 95.98
+> r= 1 89.18 43.55 94.19 95.73
+> r= 3 88.85 43.29 94.01 95.62
+> r= 5 88.20 42.47 93.62 95.30
+
+however, without explicit coordination with global semantics, overall consistency remains limited. In contrast, the three-way configuration {CA , TB , T 0}
+
+achieves the most balanced interaction by explicitly coordi-nating cross-scale semantics, structural cues, and the original semantic token representation. This configuration yields more coherent predictions across terrain transition areas and is therefore adopted as the default setting for all subsequent experiments. 
+
+Robustness to Annotation Noise. We evaluate robustness to annotation noise by training models on synthetically perturbed RUGD labels and testing on clean annotations (Table V), following common practice for studying learning under noisy supervision [42–44]. This setting reflects realistic off-road scenarios where ground-truth boundaries are often imprecise or internally inconsistent due to vegetation clutter, reflections, and weak terrain transitions. As shown in Fig. 6, misaligned or noisy ground-truth labels cause GA-Nav to produce fragmented regions and unstable boundary patterns. In contrast, CSTR maintains coherent re-gion interiors and structurally consistent predictions even when supervision is unreliable. This qualitative behavior indicates that consolidating global semantics before applying selective structural correction prevents the propagation of label noise into the final prediction. The quantitative results in Table V further support this observation. As the noise radius increases, CSTR exhibits con-sistently smaller performance degradation than GA-Nav across mIoU, bIoU, and F 1boundary , demonstrating improved robust-ness under imperfect supervision. Notably, the advantage of CSTR becomes more pronounced in boundary-sensitive metrics, suggesting that the proposed decoder effectively sup-presses noise amplification near ambiguous class transitions. Together, the qualitative evidence in Fig. 6 and the quanti-tative trends in Table V confirm that the proposed design is inherently robust to annotation noise. By stabilizing semantic representations at a compact bottleneck and selectively cor-recting fine-scale ambiguities through gated interaction and point-wise refinement, CSTR avoids overfitting to erroneous labels and yields reliable predictions in challenging off-road environments. V. C ONCLUSION 
+
+We presented a noise-robust decoding framework tailored for off-road semantic segmentation under thick boundaries, class imbalance, and ambiguous supervision. The proposed Cross-Scale Decoder consolidates multi-scale features into a compact semantic core via Global–Local Token Refinement (GLTR), extracts boundary-relevant structural cues through Boundary-Guided Correction (BGC), and selectively inte-grates them using Gated Cross-Scale Interaction (GCS) with uncertainty-guided point-wise refinement. A boundary-band regularizer further stabilizes fragile transition regions during training without introducing additional inference cost. This design is effective because it concentrates computation on stable semantic representations while correcting structural ambiguities only where necessary, thereby avoiding noise am-plification. Single-shot gated interaction preserves boundary geometry without repeated dense fusion, and sparse point-wise refinement focuses computation on uncertain regions, yielding both sharper predictions and efficient inference. While minor failure cases remain in highly reflective or tex-tureless regions with limited structural cues, the modular and noise-aware design naturally extends to settings with imperfect supervision and domain shifts. Moreover, the framework can be integrated into broader perception pipelines that jointly reason about complementary cues such as terrain type or traversability, enabling practical deployment in off-road and field robotics. REFERENCES 
+
+[1] Maggie Wigness, Sungmin Eum, John G Rogers, David Han, and Heesung Kwon. A rugd dataset for autonomous navigation and visual perception in unstructured outdoor environments. In 2019 IEEE/RSJ International Confer-ence on Intelligent Robots and Systems (IROS) , pages 5000–5007. IEEE, 2019. [2] Peng Jiang, Philip Osteen, Maggie Wigness, and Srikanth Saripalli. Rellis-3d dataset: Data, benchmarks and anal-ysis. In 2021 IEEE international conference on robotics and automation (ICRA) , pages 1110–1116. IEEE, 2021. [3] Peter Mortimer, Raphael Hagmanns, Miguel Granero, Thorsten Luettel, Janko Petereit, and Hans-Joachim Wuensche. The goose dataset for perception in un-structured environments. In 2024 IEEE International Conference on Robotics and Automation (ICRA) , pages 14838–14844. IEEE, 2024. [4] Samuel Triest, Matthew Sivaprakasam, Sean J Wang, Wenshan Wang, Aaron M Johnson, and Sebastian Scherer. Tartandrive: A large-scale dataset for learning off-road dynamics models. In 2022 International Confer-ence on Robotics and Automation (ICRA) , pages 2546– 2552. IEEE, 2022. [5] Matthew Sivaprakasam, Parv Maheshwari, Mateo Gua-man Castro, Samuel Triest, Micah Nye, Steve Willits, Andrew Saba, Wenshan Wang, and Sebastian Scherer. Tartandrive 2.0: More modalities and better infrastructure to further self-supervised learning research in off-road driving tasks. In 2024 IEEE International Conference on Robotics and Automation (ICRA) , pages 12606–12606. IEEE, 2024. [6] Tianrui Guan, Divya Kothandaraman, Rohan Chandra, Adarsh Jagan Sathyamoorthy, Kasun Weerakoon, and Di-nesh Manocha. Ga-nav: Efficient terrain segmentation for robot navigation in unstructured outdoor environments. 
+
+IEEE Robotics and Automation Letters , 7(3):8138–8145, 2022. [7] Amirreza Shaban, Xiangyun Meng, JoonHo Lee, Byron Boots, and Dieter Fox. Semantic terrain classification for off-road autonomous driving. In Conference on Robot Learning , pages 619–629. PMLR, 2022. [8] Biao Gao, Shaochi Hu, Xijun Zhao, and Huijing Zhao. Fine-grained off-road semantic segmentation and map-ping via contrastive learning. In 2021 IEEE/RSJ Inter-national Conference on Intelligent Robots and Systems (IROS) , pages 5950–5957. IEEE, 2021. [9] Simone Benatti, Aaron Young, Asher Elmquist, Jay Taves, Alessandro Tasora, Radu Serban, and Dan Negrut. End-to-end learning for off-road terrain navigation using the chrono open-source simulation platform. Multibody System Dynamics , 54(4):399–414, 2022. [10] Sixiao Zheng, Jiachen Lu, Hengshuang Zhao, Xiatian Zhu, Zekun Luo, Yabiao Wang, Yanwei Fu, Jianfeng Feng, Tao Xiang, Philip HS Torr, et al. Rethink-ing semantic segmentation from a sequence-to-sequence perspective with transformers. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 6881–6890, 2021. [11] Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandku-mar, Jose M Alvarez, and Ping Luo. Segformer: Sim-ple and efficient design for semantic segmentation with transformers. Advances in neural information processing systems , 34:12077–12090, 2021. [12] Ren´ e Ranftl, Alexey Bochkovskiy, and Vladlen Koltun. Vision transformers for dense prediction. In Proceedings of the IEEE/CVF international conference on computer vision , pages 12179–12188, 2021. [13] Hengshuang Zhao, Jianping Shi, Xiaojuan Qi, Xiaogang Wang, and Jiaya Jia. Pyramid scene parsing network. In 
+
+Proceedings of the IEEE conference on computer vision and pattern recognition , pages 2881–2890, 2017. [14] Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, and Hartwig Adam. Encoder-decoder with atrous separable convolution for semantic image segmentation. In Proceedings of the European conference on computer vision (ECCV) , pages 801–818, 2018. [15] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander C Berg, Wan-Yen Lo, et al. Segment anything. In Proceedings of the IEEE/CVF international conference on computer vision ,pages 4015–4026, 2023. [16] Xueyan Zou, Jianwei Yang, Hao Zhang, Feng Li, Linjie Li, Jianfeng Wang, Lijuan Wang, Jianfeng Gao, and Yong Jae Lee. Segment everything everywhere all at once. Advances in neural information processing sys-tems , 36:19769–19782, 2023. [17] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Ro-man R¨ adle, Chloe Rolland, Laura Gustafson, et al. Sam 2: Segment anything in images and videos. arXiv preprint arXiv:2408.00714 , 2024. [18] Yuhui Yuan, Xilin Chen, and Jingdong Wang. Object-contextual representations for semantic segmentation. In 
+
+European conference on computer vision , pages 173– 190. Springer, 2020. [19] Towaki Takikawa, David Acuna, Varun Jampani, and Sanja Fidler. Gated-scnn: Gated shape cnns for semantic segmentation. In Proceedings of the IEEE/CVF interna-tional conference on computer vision , pages 5229–5238, 2019. [20] Alexander Kirillov, Yuxin Wu, Kaiming He, and Ross Girshick. Pointrend: Image segmentation as rendering. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 9799–9808, 2020. [21] Anukriti Singh, Kartikeya Singh, and PB Sujit. Of-froadtranseg: Semi-supervised segmentation using trans-formers on offroad environments. arXiv preprint arXiv:2106.13963 , 2021. [22] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In Proceedings of the IEEE/CVF international conference on computer vision , pages 10012–10022, 2021. [23] Jitesh Jain, Jiachen Li, Mang Tik Chiu, Ali Hassani, Nikita Orlov, and Humphrey Shi. Oneformer: One transformer to rule universal image segmentation. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 2989–2998, 2023. [24] Bowen Cheng, Ishan Misra, Alexander G Schwing, Alexander Kirillov, and Rohit Girdhar. Masked-attention mask transformer for universal image segmentation. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 1290–1299, 2022. [25] Jun Fu, Jing Liu, Haijie Tian, Yong Li, Yongjun Bao, Zhiwei Fang, and Hanqing Lu. Dual attention network for scene segmentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 3146–3154, 2019. [26] Tianyi Wu, Sheng Tang, Rui Zhang, Juan Cao, and Yongdong Zhang. Cgnet: A light-weight context guided network for semantic segmentation. IEEE Transactions on Image Processing , 30:1169–1179, 2020. [27] Rudra PK Poudel, Stephan Liwicki, and Roberto Cipolla. Fast-scnn: Fast semantic segmentation network. arXiv preprint arXiv:1902.04502 , 2019. [28] Changqian Yu, Changxin Gao, Jingbo Wang, Gang Yu, Chunhua Shen, and Nong Sang. Bisenet v2: Bilateral network with guided aggregation for real-time semantic segmentation. International journal of computer vision ,129(11):3051–3068, 2021. [29] Philipp Kr¨ ahenb¨ uhl and Vladlen Koltun. Efficient infer-ence in fully connected crfs with gaussian edge poten-tials. Advances in neural information processing systems ,24, 2011. [30] Hoel Kervadec, Jihene Bouchtiba, Christian Desrosiers, Eric Granger, Jose Dolz, and Ismail Ben Ayed. Boundary loss for highly unbalanced segmentation. In International conference on medical imaging with deep learning , pages 285–296. PMLR, 2019. [31] Tsung-Wei Ke, Jyh-Jing Hwang, Ziwei Liu, and Stella X Yu. Adaptive affinity fields for semantic segmentation. In Proceedings of the European conference on computer vision (ECCV) , pages 587–602, 2018. [32] Chi Wang, Yunke Zhang, Miaomiao Cui, Peiran Ren, Yin Yang, Xuansong Xie, Xian-Sheng Hua, Hujun Bao, and Weiwei Xu. Active boundary loss for semantic segmentation. In Proceedings of the AAAI conference on artificial intelligence , volume 36, pages 2397–2405, 2022. [33] Yuhui Yuan, Jingyi Xie, Xilin Chen, and Jingdong Wang. Segfix: Model-agnostic boundary refinement for segmen-tation. In European conference on computer vision , pages 489–506. Springer, 2020. [34] Henghui Ding, Xudong Jiang, Ai Qun Liu, Nadia Magne-nat Thalmann, and Gang Wang. Boundary-aware feature propagation for scene segmentation. In Proceedings of the IEEE/CVF international conference on computer vision , pages 6819–6829, 2019. [35] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. Advances in neural information processing systems , 30, 2017. [36] Hengshuang Zhao, Yi Zhang, Shu Liu, Jianping Shi, Chen Change Loy, Dahua Lin, and Jiaya Jia. Psanet: Point-wise spatial attention network for scene parsing. In Proceedings of the European conference on computer vision (ECCV) , pages 267–283, 2018. [37] Huikai Wu, Junge Zhang, Kaiqi Huang, Kongming Liang, and Yizhou Yu. Fastfcn: Rethinking dilated convolution in the backbone for semantic segmentation. 
+
+arXiv preprint arXiv:1903.11816 , 2019. [38] Meng-Hao Guo, Cheng-Ze Lu, Qibin Hou, Zhengning Liu, Ming-Ming Cheng, and Shi-Min Hu. Segnext: Rethinking convolutional attention design for semantic segmentation. Advances in neural information processing systems , 35:1140–1156, 2022. [39] MMSegmentation Contributors. Mmsegmentation: Openmmlab semantic segmentation toolbox and bench-mark, 2020. [40] Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. Imagenet: A large-scale hierarchical image database. In 2009 IEEE conference on computer vision and pattern recognition , pages 248–255. Ieee, 2009. [41] Bowen Cheng, Ross Girshick, Piotr Doll´ ar, Alexander C Berg, and Alexander Kirillov. Boundary iou: Improving object-centric image segmentation evaluation. In Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 15334–15342, 2021. [42] Aritra Ghosh, Himanshu Kumar, and P Shanti Sastry. Robust loss functions under label noise for deep neural networks. In Proceedings of the AAAI conference on artificial intelligence , volume 31, 2017. [43] Bo Han, Quanming Yao, Xingrui Yu, Gang Niu, Miao Xu, Weihua Hu, Ivor Tsang, and Masashi Sugiyama. Co-teaching: Robust training of deep neural networks with extremely noisy labels. Advances in neural information processing systems , 31, 2018. [44] Tahmid Hasan Pranto, Abdulla All Noman, Asaduzza-man Noor, Ummey Habiba Deepty, and Rashedur M Rahman. Effect of label noise on multi-class semantic segmentation: A case study on bangladesh marine region. 
+
+Applied Artificial Intelligence , 36(1):2039348, 2022.

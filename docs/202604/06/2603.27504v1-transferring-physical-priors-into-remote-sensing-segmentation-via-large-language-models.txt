@@ -1,0 +1,462 @@
+Title: Transferring Physical Priors into Remote Sensing Segmentation via Large Language Models
+
+URL Source: https://arxiv.org/pdf/2603.27504v1
+
+Published Time: Tue, 31 Mar 2026 00:58:16 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Transferring Physical Priors into Remote Sensing Segmentation via Large Language Models 
+
+Yuxi Lu [0009 −0002 −2220 −7873] , Kunqi Li [0009 −0004 −4289 −9971] , Zhidong Li [0000 −0002 −0784 −157 X], Xiaohan Su [0009 −0003 −6159 −7453] , Biao Wu [0009 −0001 −3487 −8327] , Chenya Huang [0009 −0008 −6686 −4393] , and Bin Liang [0000 −0002 −6605 −2167] 
+
+University of Technology Sydney, New South Wales, Australia 
+
+{Yuxi.Lu, Kunqi.Li, Xiaohan.Su, Biao.Wu-2, Chenya.Huang}@student.uts.edu.au {Zhidong.Li, Bin.Liang}@uts.edu.au 
+
+Abstract. Semantic segmentation of remote sensing imagery is fun-damental to Earth observation. Achieving accurate results requires in-tegrating not only optical images but also physical variables such as the Digital Elevation Model (DEM), Synthetic Aperture Radar (SAR) and Normalized Difference Vegetation Index (NDVI). Recent foundation models (FMs) leverage pre-training to exploit these variables but still de-pend on spatially aligned data and costly retraining when involving new sensors. To overcome these limitations, we introduce a novel paradigm for integrating domain-specific physical priors into segmentation mod-els. We first construct a Physical-Centric Knowledge Graph (PCKG) by prompting large language models to extract physical priors from 1,763 vocabularies, and use it to build a heterogeneous, spatial-aligned dataset, Phy-Sky-SA. Building on this foundation, we develop PriorSeg, a physics-aware residual refinement model trained with a joint visual-physical strategy that incorporates a novel physics-consistency loss. Ex-periments on heterogeneous settings demonstrate that PriorSeg improves segmentation accuracy and physical plausibility without retraining the FMs. Ablation studies verify the effectiveness of the Phy-Sky-SA dataset, the PCKG, and the physics-consistency loss. 
+
+Keywords: Large language models · Remote sensing segmentation ·
+
+Physical priors. 
+
+1 Introduction 
+
+Semantic segmentation in remote sensing assigns semantic labels to each pixel in satellite or aerial imagery, forming a core task in Earth observation [23]. It underpins essential applications such as land cover mapping, urban planning, and environmental monitoring [12, 20]. Recent advances in deep learning have driven a shift from low-level tex-ture recognition to high-level semantic understanding, with Foundation Models 
+
+> arXiv:2603.27504v1 [cs.CV] 29 Mar 2026
+
+2 Y. Lu et al. 
+
+(FMs) emerging as a representative paradigm. Built upon self-supervised learn-ing, they learn generalized visual representations from large-scale remote sensing data and exhibit strong generalization in downstream tasks such as segmenta-tion [7]. In practice, however, ground objects possess not only visual and textual at-tributes but also measurable physical variables that are observable by sensors, such as terrain elevation, surface reflectance, and radar backscattering. As illus-trated in Fig.1, these physical variables carry essential structural and material properties that complement visual cues and enhance semantic discrimination-particularly in visually ambiguous scenarios. For example, metal roofs and con-crete buildings exhibit distinct Synthetic Aperture Radar (SAR) backscatter [16], flooded [9, 10] and normal water bodies differ in Digital Elevation Model (DEM) heights [5], and healthy vegetation shows higher Normalized Difference Vegeta-tion Index (NDVI) values than barren or built-up areas [6]. RGB image Visual segmentation Physical Prior Visual-physical segmentation 
+
+Fig. 1. Visual and visual-physical segmentation: adding the physical prior (simulated SAR) preserves the true object while preventing the shadow from being segmented. 
+
+Existing remote sensing FMs (e.g., SkySense [4], RemoteCLIP [14]) integrate spatially aligned physical variables or textual descriptions during pre-training to achieve heterogeneous data alignment via contrastive learning. Despite their strong performance, two major challenges remain: (1) they rely on large, manu-ally aligned datasets, and (2) when involving new sensors or domains, they often require full retraining or architectural modification, limiting scalability and flex-ibility. This raises a key question: Can physical priors be efficiently injected into existing FMs without manual spatial alignment or expensive retraining? 
+
+To this end, we propose a novel paradigm for transferring physical priors into segmentation models via large language models (LLMs). We employ LLMs to extract physically plausible numerical ranges from 1,763 vocabularies for each semantic category-covering NDVI, DEM, and SAR-and organize them into a structured Physical-Centric Knowledge Graph (PCKG) . Based on it, we synthesize the heterogeneous dataset Phy-Sky-SA , whose simulated physical variables follow category-level constraints, enabling physically grounded training without manually aligned datasets. Transferring Physical Priors into Remote Sensing Segmentation 3
+
+Building on these physical priors, we introduce PriorSeg , a lightweight resid-ual refinement model that learns visual-physical mappings. It attaches to any frozen foundation model and enhances segmentation consistency through struc-tured physical reasoning. At inference, PriorSeg supports two modes: visual-only, producing physically coherent results from learned correlations; and visual-physical, leveraging available variables and the PCKG for further refinement and interpretability. Our contributions are summarized as follows: 
+
+– A novel LLM-based Physical Prior Transfer paradigm was proposed. We transfer physical priors into segmentation models via large language mod-els, which extract domain-specific numerical ranges from 1,763 vocabularies. Based on these extracted priors, we construct the PCKG and Phy-Sky-SA 
+
+dataset, enabling subsequent physically grounded training. 
+
+– We design a lightweight model named PriorSeg. It attaches to frozen founda-tion models and refines their predictions using visual-physical consistency, without retraining the backbone model. It supports both visual-only and visual-physical inference through integrating physical constraints. 
+
+– Across five datasets and multiple backbones, PriorSeg improves mIoU by 1.14%–6.7%. Ablation studies show that Phy-Sky-SA, the PCKG, and the physics-consistency loss each provide complementary gains, together explain-ing the full improvement. 
+
+2 Methodology 
+
+2.1 Transferring Physical Priors via LLMs 
+
+To incorporate physical priors into segmentation without requiring direct access to manually aligned heterogeneous data, we propose a novel method that lever-ages LLMs to extract physical priors and inject them into the training process. Our approach comprises two stages: (1) constructing a structured PCKG, as illustrated in Fig.2, and (2) synthesizing a heterogeneous dataset, Phy-Sky-SA, guided by the PCKG, as shown in Fig. 3. As shown in Fig.2, we begin by constructing the PCKG using LLMs. The model is prompted with domain-specific instructions and prior knowledge about three widely used physical variables in remote sensing: DEM[5], NDVI[6], and SAR [16]. These variables are chosen for their broad availability, high discrimina-tive power across land cover types, and general applicability across most semantic categories in remote sensing. We use the large-scale segmentation dataset Sky-SA [24], which contains 33,776 satellite images and 183,000 mask-text pairs across 1,763 categories, as the textual foundation for category vocabularies. Using its category vocabularies, we design structured prompts that enable LLMs to extract physically plausible value ranges for each semantic class. Given a category vocabulary (e.g., “bare soil” or “urban park”), the model is asked to: 
+
+– Parse the semantic structure of the category phrase (e.g., target object and its modifiers), 4 Y. Lu et al. “Concrete ground ”          
+
+> “Grassland ”
+> “Vegetation ”
+> “Athletes ”
+> “Oil tank ”
+> “Parking lot ”
+> “Vehicle ”
+> …
+> “Three crown ”
+> Extract
+> Step 2
+> Step 4
+> Correspondence
+> Physically
+> Range
+> Step 1
+> Step 3
+> Remote
+> Sensing
+> Expert
+> Knowledge
+> Extraction
+> Output
+> Format
+> Controlling
+> In-context
+> Example
+> "Meaning ":
+> "parking lot",
+> "Modifier Analysis ":
+> "none",
+> "Coarse Class ":
+> "infrastructure",
+> "Reasoning ":
+> "Paved area designed
+> for vehicle parking,
+> typically with minimal
+> vegetation;
+> flat and hard surface;
+> strong SAR returns
+> from asphalt or
+> concrete."
+> [0.0,
+> 0.05]
+> [0.0,
+> 0.2]
+> [-10.0,
+> -2.0]
+> DEM
+> NDVI
+> SAR
+> Parking
+> Lot DEM SAR NDVI
+> farmland
+> city
+> water tree road
+> river
+> vegetation
+> path building bridge
+> ……
+> ……
+> Extract Category Names Ch ai n of Thought (GPT-4o )Physical-Centric Output Format Building Graph
+
+Fig. 2. Schematic of PCKG construction with GPT-4o. Category labels are prompted to the LLM, which returns NDVI, DEM, and SAR intervals [a, b ] plus a brief reasoning trace. The results are stored as JSON records and aggregated into a lightweight Physics-Centric Knowledge Graph that later guides synthetic-modal generation and loss design. 
+
+– Map the phrase to a coarse physical class (e.g., vegetation, road, water), 
+
+– Infer plausible numerical intervals for NDVI, DEM, and SAR values, 
+
+– Justify each inference through step-by-step natural language reasoning. Each entry in the PCKG is stored as a structured JSON object with the fol-lowing fields: “Category”, “Meaning”, “Modifier Analysis”, “Coarse Class”, “NDVI Range”, “DEM Range”, “SAR Range”, “Reasoning”. The value ranges are defined as closed intervals with two decimal points of precision. Collectively, these en-tries form a lightweight knowledge base incorporating physical priors for model training and inference. (a) (b) (c) (d) (e) 
+
+Fig. 3. Example sample from the Phy-Sky-SA dataset. From left to right: Image, GT, and the three simulated physical variables-NDVI(S), DEM(S), and SAR(S)-generated according to the PCKG, where the “(S)” denotes simulated values. 
+
+Having established the PCKG, we integrate it with the Sky-SA dataset to synthesize Phy-Sky-SA, as shown in Fig. 3. Although Sky-SA offers rich category diversity, it lacks physical annotations such as DEM, NDVI, and SAR. To address this gap, we generate simulated physical variable maps for each RGB image, guided by the category-specific ranges defined in the PCKG. This process ensures that the synthesized physical maps are pixel-aligned with the original imagery. The use of LLM-guided prior extraction offers several advantages. It elimi-nates dependence on manually aligned physical measurements, enables general-Transferring Physical Priors into Remote Sensing Segmentation 5Mask       
+
+> Pooling
+> Ci-n
+> …
+> PriorSeg
+> ximg
+> xann
+> xdem
+> xsar
+> xndvi
+> Region-
+> level loss
+> Pixel-level
+> loss
+> Physics-
+> consistency
+> loss
+> SkySense-O
+> [a , b]
+> GPT-4o
+> DEM SAR NDVI
+> farmland
+> city
+> water tree road
+> river
+> vegetation path building bridge
+> ……
+> ……
+> F
+> P(m) i-n
+> …
+> Fusion  +
+> Z
+> Y(0)
+> Y(1)
+> Y
+
+Fig. 4. Overview of the PriorSeg training framework. A frozen backbone extracts vi-sual features and an initial mask, which are fused with optional physical variables. A residual head refines the segmentation, and three losses jointly enforce visual quality and physical consistency. 
+
+ization to unseen categories through semantic reasoning. The resulting Phy-Sky-SA dataset then supports training of our lightweight physics-aware refine model PriorSeg. 
+
+2.2 PriorSeg Overview 
+
+PriorSeg is a physics-aware residual refinement model that integrates visual fea-tures, coarse predictions, and aligned physical variables into a unified refinement pipeline (Fig. 4). A frozen SkySense-O backbone first produces a visual feature map F and an initial coarse mask Y (0) pred ∈ [0 , 1] from the RGB image. Here, the subscript “pred” indicates predicted soft segmentation maps. The aligned physi-cal rasters P (m) (NDVI, DEM, SAR) are concatenated with F and Y (0) pred to form the joint tensor 
+
+Z = F, Y (0) pred , P (m),
+
+which encodes visual, predictive, and physical cues. A fusion module processes Z, and a residual head predicts a correction ∆Y ,yielding the refined mask 
+
+Y (1) pred = Y (0) pred + ∆Y. 
+
+Residual prediction focuses the network on correcting the errors in Y (0) pred instead of relearning the mask from scratch, leading to faster convergence, improved stability, and a lightweight refinement module that is easily compatible with different frozen backbones. During training, PriorSeg is supervised by three complementary losses- pixel-level segmentation, region-level compactness, and physics-consistency- computed for each class c using the Physical-Centric Knowledge Graph (PCKG), where 6 Y. Lu et al. 
+
+[a, b ] denotes the admissible physical interval for each class. When physical vari-ables are unavailable, their channels are zero-padded, enabling PriorSeg to op-erate seamlessly in both visual-only and visual-physical modes using identical model weights. 
+
+2.3 Visual-physical Joint Training 
+
+Training minimises a joint objective on Y (1)  
+
+> pred
+
+alone: a visual layer (cross-entropy, Dice, region compactness) learns discriminative features, while a physical- con-sistency layer uses a hinge loss to align each region’s mean physical value with its PCKG-defined interval, embedding physical priors into the network. 
+
+Pixel-level Loss. Cross-entropy ( CE ) supplies dense gradients, while the Dice coefficient rewards spatial overlap and mitigates class imbalance. 
+
+Lseg = CE  Y (1) pred , Y gt 
+
+ + α Dice  Y (1) pred , Y gt 
+
+, (1) where Ygt is the ground-truth segmentation and α controls the trade-off between the cross-entropy and Dice terms. 
+
+Region-level Loss. Let ˆY = arg max Y (1) pred and Rc = {(x, y ) | ˆY (x, y ) = c}, where 
+
+Rc denotes the set of pixels predicted as class c. Define the mean visual feature 
+
+μc = |R c|−1 P 
+
+> i∈R c
+
+Fi.
+
+Lregion =
+
+> C
+
+X
+
+> c=1
+
+1
+
+|R c|
+
+X
+
+> i∈R c
+
+∥Fi − μc∥22, (2) This loss collapses intra-class variance, suppressing speckle noise and stabilising subsequent physics statistics. 
+
+Physics-consistency Loss. For each variables m, the PCKG provides an ad-missible interval [v(m,c )min , v (m,c )max ], where c indexes the semantic classes and C is the total number of classes. Denote the mean physical value in region Rc by 
+
+¯v(m) 
+
+> c
+
+= |R c|−1 P 
+
+> i∈R c
+
+v(m) 
+
+> i
+
+.
+
+L(m)phys =
+
+> C
+
+X
+
+> c=1
+
+h
+
+¯v(m) 
+
+> c
+
+− v(m,c )max  
+
+> 2+
+
++ v(m,c )min − ¯v(m)
+
+> c
+> 2+
+
+i
+
+, (3) where |x|+ = max(0 , x ). Averaging over variables yields Lphys = 1
+
+> m
+
+P 
+
+> m
+
+L(m)phys .The hinge acts only when ¯v(m) 
+
+> c
+
+departs the legal range, gently steering predictions toward physical plausibility. 
+
+Total Loss. The overall objective for visual–physical joint training of PriorSeg 
+
+is 
+
+Ltotal = Lseg + λ1 Lregion + λ2 Lphys , (4) with λ1 = 0 .05 and λ2 = 0 .40 tuned on the validation set. By jointly observing Z during training, PriorSeg internalises the implicit mapping between visual features and physical rules. Transferring Physical Priors into Remote Sensing Segmentation 7
+
+2.4 Inference 
+
+PriorSeg operates in two modes, both starting from the frozen SkySense-O pre-diction Y (0)  
+
+> pred
+
+and feature map F .
+
+Visual-only Mode. When no physical raster is available, the physics branch of PriorSeg is gated off. The refiner observes (F, Y (0) 
+
+> pred
+
+) and predicts a residual ∆Y ,yielding Y (1)  
+
+> pred
+
+= Y (0)  
+
+> pred
+
++ ∆Y . The final label is ˆYi = arg max c Y (1) 
+
+> pred
+
+(i, c ). Even without external measurements, PriorSeg relies on its learned visual-physics memory to correct visually ambiguous regions and produce physically plausi-ble masks. 
+
+Visual-physical Mode. If a subset Mavail ⊆ { NDVI , DEM , SAR } is provided, the corresponding variables P (m) are supplied to the physics branch. For each pixel 
+
+i, class c, and variables m, let d(m,c ) 
+
+> i
+
+denote the distance between v(m) 
+
+> i
+
+and its PCKG interval. With cap τ and tolerance σ,
+
+s(m,c ) 
+
+> i
+
+= exp 
+
+h
+
+− min  d(m,c ) 
+
+> i
+
+, τ 2/σ 2i
+
+, (5) The attenuation over available variables is S(c) 
+
+> i
+
+= Q 
+
+> m∈M avail
+
+s(m,c ) 
+
+> i
+
+. The re-finer first produces ∆Y as in the visual-only path; its output logits are then re-weighted, 
+
+˜p(c) 
+
+> i
+
+=
+
+ Y (1) 
+
+> pred
+
+(i, c ) S(c)
+
+> i
+
+P
+
+> j
+
+ Y (1) 
+
+> pred
+
+(i, j ) S(j)
+
+> i
+
+, ˆYi = arg max  
+
+> c
+
+˜p(c) 
+
+> i
+
+. (6) The Gaussian factor S(m,c ) 
+
+> i
+
+down-weights classes whose measurements violate PCKG constraints, while τ prevents rare outliers from dominating. If Mavail =
+
+∅, then S(c) 
+
+> i
+
+≡ 1 and the procedure degrades gracefully to visual-only mode. With real physical variables, PriorSeg yields higher accuracy and stricter physical consistency; the reasoning field in the PCKG provides explicit inter-pretability for the applied corrections. 
+
+3 Experiments 
+
+To demonstrate that PriorSeg effectively improves the semantic segmentation accuracy of foundation models, we perform evaluations across five datasets cov-ering diverse scenes and variables combinations, paired with different six back-bone models. We observe consistent improvements of approximately 1.14% to 6.7% mIoU. 8 Y. Lu et al. 
+
+Table 1. Performance comparison of six backbone models with and without the pro-posed PriorSeg refinement module. Results are reported as mIoU(%) on four datasets: RGB-only of OEM, iSAID, LoveDA, and RGB-Physics WHU-OPT-SAR, SEN12MS.                                                                     
+
+> Model Publication RGB–Only OEM RGB–Only iSAID RGB–Only LoveDA RGB–Phy WHU-OPT-SAR RGB–Phy SEN12MS SegGPT ICCV 2023 25.19 29.17 31.40 23.42 21.84
+> SegGPT+PriorSeg 27.33(+2.14) 32.18(+3.01) 33.55(+2.15) 29.33(+5.91) 27.56(+5.72)
+> DINOv CVPR 2023 23.05 25.35 25.17 22.74 20.09
+> DINOv+PriorSeg 24.32(+1.27) 27.39(+2.04) 27.95(+2.78) 28.67(+5.93) 25.44(+5.35)
+> SAN CVPR 2023 24.87 11.77 27.83 25.97 21.33
+> SAN+PriorSeg 27.22(+2.35) 15.24(+3.47) 30.51(+2.68) 32.71(+6.74) 26.76(+5.43)
+> CAT-SEG CVPR 2024 30.26 20.58 37.15 35.22 32.17
+> CAT-SEG+PriorSeg 32.38(+2.12) 23.55(+2.97) 39.04(+1.89) 39.47(+4.25) 37.16(+4.99)
+> SegEarth-OV Arxiv 2024 40.30 21.70 36.90 31.61 30.21
+> SegEarth-OV+PriorSeg 41.98(+1.68) 22.85(+1.15) 38.37(+1.47) 35.74(+4.13) 34.69(+4.48)
+> SkySense-O CVPR 2025 40.83 43.92 38.30 39.83 39.71
+> SkySense-O+PriorSeg 41.97(+1.14) 45.23(+1.31) 39.72(+1.42) 42.98(+3.15) 43.10(+3.39)
+
+3.1 Implementation Details 
+
+We train PriorSeg model using two A100 (80 GB) GPUs. While several advanced LLMs-such as ChatGPT [8], Gemini [3], LLaMA [15], and DeepSeek [1]-offer im-pressive multi-modal and reasoning capabilities, we adopt GPT-4o for its supe-rior performance in grounded reasoning and ease of API-based integration. Train-ing utilizes Sky-SA (SkySense-O), a large-scale remote sensing dataset extended with additional physical variables data using a PCKG generated by GPT-4o. 
+
+3.2 Zero-Shot Refinement Evaluation 
+
+We evaluate PriorSeg in two settings. In the visual-only mode, the model is tested on three external RGB benchmarks-iSAID [19], OEM [21], and LoveDA [17]-without any fine-tuning or exposure to their labels. Even without physical vari-ables, PriorSeg consistently improves mIoU across all backbones (Table 1), in-dicating that its visual–physics memory generalizes from vision alone. In the 
+
+visual-physical mode, PriorSeg is evaluated on WHU-OPT-SAR and SEN12MS, which provide real NDVI and SAR. Without retraining, it achieves the largest gains as physical variables activate PCKG-guided reasoning. As shown in Fig. 5, representative examples visually confirm these refinements. 
+
+3.3 Evaluation with Different Backbones 
+
+Because PriorSeg operates purely on the feature map and first-pass mask of a frozen backbone model, it can attach to arbitrary architectures. We test six backbones-SegGPT [18], DINOv [11], SAN [22], CAT-Seg [2], SegEarth-OV [13], and the original SkySense-O [24]. When a backbone’s output visual feature shape differs from that of SkySense-O, a lightweight 1×1 adapter is inserted to match the expected tensor size; only the refiner (and, if present, the adapter) is trained. Across the four external datasets PriorSeg delivers consistent mIoU gains on ev-ery backbone (Table. 1), confirming that the proposed refiner generalises well Transferring Physical Priors into Remote Sensing Segmentation 9RGB image GT SegEarth-OV With PriorSeg  
+
+> Fig. 5. Three representative visualization examples on SegEarth-OV backbone, com-paring GT, SegEarth-OV predictions, and our PriorSeg-enhanced results.
+
+beyond its source model. The residual refiner is conservative with respect to al-ready correct regions. When applied to a strong baseline such as SkySense-O, which has been extensively trained on the Sky-SA dataset, PriorSeg performs only subtle adjustments on pixels whose physical readings violate the PCKG intervals or whose confidence is low. As a result, the observed gains are con-centrated in areas exhibiting pronounced physical discrepancies, and the overall improvement remains moderate. 
+
+3.4 Reliability Analysis 
+
+To assess the reliability of simulated physical variables, we replicate the Phy-Sky-SA synthesis procedure on the WHU dataset, generating SAR, DEM, and NDVI variables from ground truth labels and PCKG intervals. The NDVI is computed as (NIR − Red )/(NIR + Red ), while DEM data are sourced from manually preprocessed SRTM (30 m resolution) tiles covering Hubei Province (30–33 °N, 108–117 °E). Fig. 6 shows strong distributional overlap across NDVI, DEM, and SAR. NDVI matches most closely, DEM shows moderate variation, and SAR displays a wider natural spread. Median alignment and compact ranges confirm that PCKG-guided synthesis produces realistic physical characteristics suitable for downstream applications. 10 Y. Lu et al.             
+
+> Fig. 6. Comparison between real and simulated physical variables on the WHU-OPT-SAR dataset.
+> Table 2. The ablation results of the SAN model on the WHU-OPT-SAR dataset, evaluating Phy-Sky-SA, PCKG, and Lphys .
+> +Phy-Sky-SA +PCKG +Lphys mIoU (%)
+> 25.97
+> ✓27.69 (+1.72)
+> ✓✓29.93 (+2.24)
+> ✓✓✓32.71 (+2.78)
+
+3.5 Ablation Study 
+
+Table 2 evaluates the contributions of Phy-Sky-SA, PCKG, and physics-consistency loss. Training on Phy-Sky-SA yields a 1.72% gain. Introducing the PCKG adds 2.24% by injecting pixel-wise physical logic. Adding the physics-consistency loss provides another 2.78%, penalizing visually ambiguous yet physically implausi-ble predictions. Together, these components enable PriorSeg to leverage joint visual–physical information and deliver coherent refinement results. 
+
+4 Conclusion 
+
+We introduced a paradigm for transferring physical priors into remote sensing segmentation without requiring manually aligned datasets or retraining founda-tion models. Using large language models, we constructed the PCKG and the Phy-Sky-SA dataset with physically constrained NDVI, DEM, and SAR vari-ables. Built on these priors, PriorSeg serves as a lightweight refinement module that enforces visual-physical consistency for frozen backbones. Experiments show improved segmentation accuracy and physical plausibility, and future work will incorporate more types of physical variables. Transferring Physical Priors into Remote Sensing Segmentation 11 
+
+References 
+
+1. Bi, X., Chen, D., Chen, G., Chen, S., Dai, D., Deng, C., Ding, H., Dong, K., Du, Q., Fu, Z., et al.: DeepSeek LLM: Scaling Open-Source Language Models with Longtermism (2024). https://doi.org/10.48550/ARXIV.2401.02954 2. Cho, S., Shin, H., Hong, S., Arnab, A., Seo, P.H., Kim, S.: Cat-seg: Cost aggregation for open-vocabulary semantic segmentation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 4113–4123 (2024) 3. Comanici, G., Bieber, E., Schaekermann, M., Pasupat, I., Sachdeva, N., Dhillon, I., Blistein, M., Ram, O., Zhang, D., Rosen, E., Marris, L., Petulla, S., Gaffney, C., Aharoni, A., Lintz, N., Pais, T.C., Jacobsson, H., Szpek-tor, I.: Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multi-modality, Long Context, and Next Generation Agentic Capabilities (2025). https://doi.org/10.48550/ARXIV.2507.06261 4. Guo, X., Lao, J., Dang, B., Zhang, Y., Yu, L., Ru, L., Zhong, L., Huang, Z., Wu, K., Hu, D., He, H., Wang, J., Chen, J., Yang, M., Zhang, Y., Li, Y.: SkySense: A Multi-Modal Remote Sensing Foundation Model Towards Universal Interpretation for Earth Observation Imagery (2023). https://doi.org/10.48550/ARXIV.2312.10115 5. Guth, P.L., Van Niekerk, A., Grohmann, C.H., Muller, J.P., Hawker, L., Florin-sky, I.V., Gesch, D., Reuter, H.I., Herrera-Cruz, V., Riazanoff, S., López-Vázquez, C., Carabajal, C.C., Albinet, C., Strobl, P.: Digital Elevation Mod-els: Terminology and Definitions. Remote Sensing 13 (18), 3581 (Sep 2021). https://doi.org/10.3390/rs13183581 6. Huang, S., Tang, L., Hupy, J.P., Wang, Y., Shao, G.: A commentary review on the use of normalized difference vegetation index (NDVI) in the era of popular remote sensing. Journal of Forestry Research 32 (1), 1–6 (Feb 2021). https://doi.org/10.1007/s11676-020-01155-1 7. Huang, Z., Yan, H., Zhan, Q., Yang, S., Zhang, M., Zhang, C., Lei, Y., Liu, Z., Liu, Q., Wang, Y.: A survey on remote sensing foundation models: From vision to multimodality. arXiv preprint arXiv:2503.22081 (2025) 8. Hurst, A., Lerer, A., Goucher, A.P., Perelman, A., Ramesh, A., Clark, A., Ostrow, A., Welihinda, A., Hayes, A., Radford, A., et al.: GPT-4o System Card (2024). https://doi.org/10.48550/ARXIV.2410.21276 9. Jia, W., Liang, B., Lu, Y., Khan, M.A., Zheng, L.: A comprehensive survey on deep learning solutions for 3d flood mapping. In: Pacific-Asia Conference on Knowledge Discovery and Data Mining. pp. 21–38. Springer (2025) 10. Jia, W., Liang, B., Lu, Y., Wilaiwongsakul, A., Khan, M.A., Zheng, L.: Hota: Hierarchical overlap-tiling aggregation for large-area 3d flood mapping. In: Asian Conference on Pattern Recognition. pp. 188–202. Springer (2025) 11. Li, F., Jiang, Q., Zhang, H., Ren, T., Liu, S., Zou, X., Xu, H., Li, H., Yang, J., Li, C., et al.: Visual in-context prompting. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 12861–12871 (2024) 12. Li, J., Huang, X., Gong, J.: Deep neural network for remote-sensing image inter-pretation: Status and perspectives. National Science Review 6(6), 1082–1086 (Nov 2019). https://doi.org/10.1093/nsr/nwz058 13. Li, K., Liu, R., Cao, X., Bai, X., Zhou, F., Meng, D., Wang, Z.: Segearth-ov: Towards training-free open-vocabulary segmentation for remote sensing images. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 10545–10556 (2025) 12 Y. Lu et al. 14. Liu, F., Chen, D., Guan, Z., Zhou, X., Zhu, J., Ye, Q., Fu, L., Zhou, J.: RemoteCLIP: A Vision Language Foundation Model for Remote Sens-ing. IEEE Transactions on Geoscience and Remote Sensing 62 , 1–16 (2024). https://doi.org/10.1109/TGRS.2024.3390838 15. Touvron, H., Lavril, T., Izacard, G., Martinet, X., Lachaux, M.A., Lacroix, T., Rozière, B., Goyal, N., Hambro, E., Azhar, F., Rodriguez, A., Joulin, A., Grave, E., Lample, G.: LLaMA: Open and Efficient Foundation Language Models (2023). https://doi.org/10.48550/ARXIV.2302.13971 16. Tsokas, A., Rysz, M., Pardalos, P.M., Dipple, K.: SAR data applications in earth observation: An overview. Expert Systems with Applications 205 , 117342 (Nov 2022). https://doi.org/10.1016/j.eswa.2022.117342 17. Wang, J., Zheng, Z., Ma, A., Lu, X., Zhong, Y.: Loveda: A remote sensing land-cover dataset for domain adaptive semantic segmentation. arXiv preprint arXiv:2110.08733 (2021) 18. Wang, X., Zhang, X., Cao, Y., Wang, W., Shen, C., Huang, T.: Seggpt: Segmenting everything in context. arXiv e-prints pp. arXiv–2304 (2023) 19. Waqas Zamir, S., Arora, A., Gupta, A., Khan, S., Sun, G., Shahbaz Khan, F., Zhu, F., Shao, L., Xia, G.S., Bai, X.: isaid: A large-scale dataset for instance segmentation in aerial images. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition workshops. pp. 28–37 (2019) 20. Wilaiwongsakul, A., Liang, B., Jia, W., Zheng, B., Chen, F.: Bare: Boundary-aware with resolution enhancement for tree crown delineation. In: Australasian Conference on Data Science and Machine Learning. pp. 302–315. Springer (2025) 21. Wu, C.H.: Oem product design in a price competition with remanufactured prod-uct. Omega 41 (2), 287–298 (2013) 22. Xu, M., Zhang, Z., Wei, F., Hu, H., Bai, X.: Side adapter network for open-vocabulary semantic segmentation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 2945–2954 (June 2023) 23. Yuan, X., Shi, J., Gu, L.: A review of deep learning methods for semantic segmen-tation of remote sensing imagery. Expert Systems with Applications 169 , 114417 (May 2021). https://doi.org/10.1016/j.eswa.2020.114417 24. Zhu, Q., Lao, J., Ji, D., Luo, J., Wu, K., Zhang, Y., Ru, L., Wang, J., Chen, J., Yang, M., Liu, D., Zhao, F.: SkySense-O: Towards Open-World Remote Sensing Interpretation with Vision-Centric Visual-Language Modeling. Proceedings of the Computer Vision and Pattern Recognition Conference. (2025)

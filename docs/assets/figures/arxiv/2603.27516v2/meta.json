@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-001.webp",
+      "caption": "Figure 4. Qualitative comparison of inverse rendering on the Interiorverse dataset [56].",
+      "page": 6,
+      "index": 1,
+      "width": 979,
+      "height": 751
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-002.webp",
+      "caption": "Figure 13. More qualitative comparison of PBR Rendered Novel View on the synthetic InteriorVerse dataset.",
+      "page": 15,
+      "index": 2,
+      "width": 979,
+      "height": 1245
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-003.webp",
+      "caption": "Figure 5. Qualitative comparison of inverse rendering on the MipNeRF dataset [4].",
+      "page": 7,
+      "index": 3,
+      "width": 976,
+      "height": 742
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-004.webp",
+      "caption": "Figure 6. Qualitative ablation study on the Interiorverse dataset. Note, “Mat-inv losses” refer to Lrelight and Lcross semantic.",
+      "page": 7,
+      "index": 4,
+      "width": 974,
+      "height": 266
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-005.webp",
+      "caption": "Figure 12. More qualitative comparison of albedo estimation on the synthetic InteriorVerse dataset.",
+      "page": 14,
+      "index": 5,
+      "width": 977,
+      "height": 1245
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-006.webp",
+      "caption": "Figure 2. Overview of our method. There are two-stage training in our framework. In stage I, we leverage a pretrained VGGT model to get a dense scene layout point cloud. Next, the geometry of the 3D Gaussians is supervised by normal and semantic priors distilled from a pretrained model. In state II, we perform inverse rendering based on the Gaussians obtained from the first stage. A mixture light model together with a deshadowing module are employed to model illumination and occlusion relationships, which are then integrated with the Gaussian-rendered G-buffer for physically based (PBR) novel view rendering. Moreover, to ensure consistent material representations during training, we incorporate an additional material consistency constraint.",
+      "page": 3,
+      "index": 6,
+      "width": 976,
+      "height": 631
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-007.webp",
+      "caption": "Table 2. Quantitative comparison with previous methods in terms of novel view synthesis on real-world datasets.",
+      "page": 8,
+      "index": 7,
+      "width": 902,
+      "height": 202
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-008.webp",
+      "caption": "Figure 7. Expressiveness of our SGM-based interior lighting model for complex emitters.",
+      "page": 8,
+      "index": 8,
+      "width": 966,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-009.webp",
+      "caption": "Figure 15. More illumination decomposition results on the synthetic InteriorVerse dataset.",
+      "page": 17,
+      "index": 9,
+      "width": 962,
+      "height": 769
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-010.webp",
+      "caption": "Figure 16. More results of object insertion, material and light editing",
+      "page": 17,
+      "index": 10,
+      "width": 972,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-011.webp",
+      "caption": "Table 1. Quantitative evaluation on the Interiorverse dataset.",
+      "page": 5,
+      "index": 11,
+      "width": 972,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27516v2/fig-012.webp",
+      "caption": "Figure 14. More qualitative comparison of albedo estimation on the synthetic InteriorVerse dataset.",
+      "page": 16,
+      "index": 12,
+      "width": 974,
+      "height": 1240
+    }
+  ]
+}

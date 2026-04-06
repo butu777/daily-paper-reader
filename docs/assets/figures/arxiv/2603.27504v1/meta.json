@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27504v1/fig-001.webp",
+      "caption": "Fig. 1. Visual and visual-physical segmentation: adding the physical prior (simulated SAR) preserves the true object while preventing the shadow from being segmented.",
+      "page": 2,
+      "index": 1,
+      "width": 715,
+      "height": 186
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27504v1/fig-002.webp",
+      "caption": "Fig. 6. Comparison between real and simulated physical variables on the WHU-OPTSAR dataset.",
+      "page": 10,
+      "index": 2,
+      "width": 508,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27504v1/fig-003.webp",
+      "caption": "Table 1. Performance comparison of six backbone models with and without the proposed PriorSeg refinement module. Results are reported as mIoU(%) on four datasets: RGB-only of OEM, iSAID, LoveDA, and RGB-Physics WHU-OPT-SAR, SEN12MS.",
+      "page": 8,
+      "index": 3,
+      "width": 725,
+      "height": 243
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27504v1/fig-004.webp",
+      "caption": "Fig. 2. Schematic of PCKG construction with GPT-4o. Category labels are prompted to the LLM, which returns NDVI, DEM, and SAR intervals [a, b] plus a brief reasoning trace. The results are stored as JSON records and aggregated into a lightweight PhysicsCentric Knowledge Graph that later guides synthetic-modal generation and loss design.",
+      "page": 4,
+      "index": 4,
+      "width": 723,
+      "height": 201
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27504v1/fig-005.webp",
+      "caption": "Fig. 5. Three representative visualization examples on SegEarth-OV backbone, comparing GT, SegEarth-OV predictions, and our PriorSeg-enhanced results.",
+      "page": 9,
+      "index": 5,
+      "width": 637,
+      "height": 476
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27504v1/fig-006.webp",
+      "caption": "Fig. 4. Overview of the PriorSeg training framework. A frozen backbone extracts visual features and an initial mask, which are fused with optional physical variables. A residual head refines the segmentation, and three losses jointly enforce visual quality and physical consistency.",
+      "page": 5,
+      "index": 6,
+      "width": 719,
+      "height": 300
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27463v1/fig-001.webp",
+      "caption": "Fig. 1. Graphical representation of two autoregressive cokriging models. Here Σt(j, j) in the left panel is the jth diagonal element of the covariance matrix Σt.",
+      "page": 7,
+      "index": 1,
+      "width": 929,
+      "height": 278
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27463v1/fig-002.webp",
+      "caption": "Fig. 4. Spatial maps of RMSPE and principal component direction under the NONSEP model. Panels (a) and (b) show the RMSPE based on the first PC and first two PCs, respectively. Panel (c) shows the absolute value of the second principal component direction at fidelity level 2.",
+      "page": 18,
+      "index": 2,
+      "width": 966,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27463v1/fig-003.webp",
+      "caption": "Table 1. Predictive performance of different models at 30 test inputs and 1, 000 spatial locations. Predictive performance is evaluated for individual high-fidelity outputs and for the aggregated high-fidelity outputs.",
+      "page": 13,
+      "index": 3,
+      "width": 971,
+      "height": 230
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27463v1/fig-004.webp",
+      "caption": "Table 3. Principal component analysis diagnostics and prediction performance under NONSEP cokriging and NONSEP kriging models as a function of number of PCs. NONSEP cokriging is performed based on outputs at low-fidelity and high-fidelity. NONSEP kriging is performed based on outputs at high-fidelity only. MRE = minimum reconstruction error. TRE = testing reconstruction error.",
+      "page": 17,
+      "index": 4,
+      "width": 964,
+      "height": 314
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27463v1/fig-005.webp",
+      "caption": "Table 2. Predictive performance of ADCIRC + SWAN emulators at 106 test inputs and 9, 284 spatial locations.",
+      "page": 16,
+      "index": 5,
+      "width": 971,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27463v1/fig-006.webp",
+      "caption": "Fig. 3. Predictive comparison under SEP and NONSEP over one testing input: ∆P = 37.58, Rp = 29.37, Vf = 7.96, θ = 70.42, B = 1.38, ℓ = (−82.25, 26.83). Panel (a) shows the difference between actual high-fidelity output and predicted output under the SEP model; Panel (b) shows the difference between high-fidelity output and predicted output under the NONSEP model. Panels (c) and (d) show the lengths of 95% equal-tail credible interval under the SEP and NONSEP models, respectively.",
+      "page": 16,
+      "index": 6,
+      "width": 968,
+      "height": 557
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-001.webp",
+      "caption": "Figure 11: Semantic Gaussian field decoupling by our GS3LAM. GS3LAM is capable of real-time construction of 3D semantic maps that exhibit geometric, appearance, and semantic consistency, thereby enabling potential downstream real-time tasks.",
+      "page": 15,
+      "index": 1,
+      "width": 1029,
+      "height": 476
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-002.webp",
+      "caption": "Figure 10: The visualization of the semantic Gaussian fields constructed by our GS3LAM on the Replica [31] and ScanNet [3] datasets. GS3LAM demonstrates robust tracking capabilities and achieves real-time high-quality rendering at 109 FPS, along with precise 3D semantic reconstruction.",
+      "page": 15,
+      "index": 2,
+      "width": 1008,
+      "height": 530
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-003.webp",
+      "caption": "Figure 5: Qualitative comparison with SOTA methods on virtual Replica [31] and real-world ScanNet [3] datasets.",
+      "page": 7,
+      "index": 3,
+      "width": 994,
+      "height": 520
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-004.webp",
+      "caption": "Table 1: Rendering performance on ScanNet [3].",
+      "page": 7,
+      "index": 4,
+      "width": 494,
+      "height": 318
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-005.webp",
+      "caption": "Table 2: Rendering performance on Replica [31].",
+      "page": 7,
+      "index": 5,
+      "width": 494,
+      "height": 418
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-006.webp",
+      "caption": "Figure 9: Optimization bias on Replica [31]. Our proposed RSKM strategy not only improves rendering quality (higher mean PSNR 𝜇𝑃𝑆𝑁𝑅) but also enhances the global consistency of the map (lower PSNR variance 𝜎𝑃𝑆𝑁𝑅). The LCKM strategy employed in SplaTAM [8] exhibits lower PSNR in regions with high covisibility and frequent optimization iterations, thereby hindering model convergence in these areas. Conversely, in regions with fewer covisible frames, the reduced optimization iterations lead to under-optimized model, resulting in decreased PSNR.",
+      "page": 14,
+      "index": 6,
+      "width": 1054,
+      "height": 1035
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-007.webp",
+      "caption": "Figure 14: Semantic rendering on Replica [31] and ScanNet [3]. It is noteworthy that on the ScanNet dataset, which contains real data with inaccurately annotated semantic labels, our GS3LAM exhibits the capability to achieve more precise segmentation results at object boundaries.",
+      "page": 18,
+      "index": 7,
+      "width": 939,
+      "height": 1203
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-008.webp",
+      "caption": "Table 8: The comparative analysis of our GS3LAM on Replica [31] with concurrent semantic SLAM-related studies. Under competitive tracking accuracy, GS3LAM achieves state-of-the-art rendering quality and semantic reconstruction.",
+      "page": 13,
+      "index": 8,
+      "width": 990,
+      "height": 598
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-009.webp",
+      "caption": "Figure 3: The framework overview of GS3LAM. GS3LAMmodels the scene as a Semantic Gaussian Field (SG-Field). For geometricsemantic consistent keyframemapping, an adaptive 3D Gaussian expansion technique and a Random Sampling-based Keyframe Mapping (RSKM) strategy are employed. GS3LAM optimizes camera poses and SG-Field using appearance, geometry, and semantics, along with a Depth-adaptive Scale Regularization (DSR) scheme.",
+      "page": 4,
+      "index": 9,
+      "width": 1052,
+      "height": 431
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-010.webp",
+      "caption": "Figure 13: More rendering results on ScanNet [3].",
+      "page": 17,
+      "index": 10,
+      "width": 988,
+      "height": 1116
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27781v1/fig-011.webp",
+      "caption": "Figure 12: More rendering results on Replica [31].",
+      "page": 16,
+      "index": 11,
+      "width": 926,
+      "height": 1195
+    }
+  ]
+}

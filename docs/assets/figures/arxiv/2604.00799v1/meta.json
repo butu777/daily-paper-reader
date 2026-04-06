@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-001.webp",
+      "caption": "Table 6: Accuracy by inconsistent object class. We report the full results for each model, of which a subset was shown in Figure 4.",
+      "page": 15,
+      "index": 1,
+      "width": 830,
+      "height": 1077
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-002.webp",
+      "caption": "Figure 1: Synthesizing spatially inconsistent image pairs from multi-view data. Given three views (V1, V2, V3) of the same static scene, we (1) select an object O visible in all views, (2) Erase O in view V2 and inpaint to obtain a clean background, and (3) paste the instance of O from view V3 back into V2 at its original location. Because V3 is captured from a different camera pose, the pasted object has an appearance that is incompatible with the 3D geometry implied by V1 → V2, while all other objects remain consistent. This yields realistic image pairs with controlled spatial violations and no manual annotation. We label objects in V1 for our forced-choice evaluation.",
+      "page": 2,
+      "index": 2,
+      "width": 816,
+      "height": 521
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-003.webp",
+      "caption": "Figure 3: Model accuracy varies across scene attributes, but much less across the number of labels per pair. Left: We report accuracy for identifying the single spatially inconsistent object, stratified by inconsistent object depth (close/medium/far), average pair brightness (dark/medium/bright), and the augmented object’s physical plausibility. While humans remain comparatively robust across conditions, models can show substantial sensitivity to changes in the pair’s scene composition. Right: We partition the dataset based on the number of labels per pair and report accuracy. Interestingly, this has a minor effect on humans but not much of one on models. Dashed line represents random chance.",
+      "page": 7,
+      "index": 3,
+      "width": 825,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-004.webp",
+      "caption": "Table 5: Performance breakdown (% accuracy) by depth, lighting, and physical plausibility. We report the full results for each model, of which a subset was shown in Figure 3.",
+      "page": 14,
+      "index": 4,
+      "width": 830,
+      "height": 529
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-005.webp",
+      "caption": "Figure 2: Example spatial inconsistencies. AI labels are ordered as GPT-5 (LR), GEMINI 2.5 PRO (MR) and QWEN3-VL 8B INSTRUCT. Zoom in to see labels in detail.",
+      "page": 3,
+      "index": 5,
+      "width": 798,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-006.webp",
+      "caption": "Table 10: We show that Qwen3-VL 4B finetuned with additional scene diversity perform on par or better than our initial models at 3D perception and perform well on the Hypersim evaluation set.",
+      "page": 18,
+      "index": 6,
+      "width": 826,
+      "height": 217
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-007.webp",
+      "caption": "Figure 4: Accuracy varies greatly across the inconsistent object or pair scene categories. While humans are relatively consistent across all settings, the models show large amounts of variance. This suggests that their 3D understanding is brittle across our diverse visual world. Dashed line represents random chance.",
+      "page": 8,
+      "index": 7,
+      "width": 825,
+      "height": 228
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-008.webp",
+      "caption": "Figure 5: Models get similar questions wrong, but don’t pick similar answers. On the bottom left, we report the IoU between two models’ sets of incorrect questions. On the top right we take the intersection of incorrect questions between two models and report the fraction that they both produce the same wrong answer. From the last row, we find that most inconsistencies that trick the human, trick the AI models too. However, models rarely guess similar answers when wrong, suggesting large variance in 3D understanding.",
+      "page": 8,
+      "index": 8,
+      "width": 772,
+      "height": 711
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-009.webp",
+      "caption": "Table 8: Accuracy by number of labels. We report the full results for each model, of which a subset was shown in Figure 3.",
+      "page": 17,
+      "index": 9,
+      "width": 568,
+      "height": 561
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-010.webp",
+      "caption": "Table 2: Models do not succeed by detecting inpainting artifacts alone. We compare performance on our full benchmark against two controls: a self-pasting baseline that preserves inpainting artifacts while removing the inconsistency, and a no-change baseline that contains neither artifacts nor inconsistency. Across all models, self-pasting performs similarly to the no-change baseline, indicating that artifact cues by themselves do not explain benchmark performance.",
+      "page": 9,
+      "index": 10,
+      "width": 632,
+      "height": 196
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-011.webp",
+      "caption": "Table 1: Overall accuracy (%) on the spatial inconsistency identification task. We report overall accuracy for a random-choice baseline, humans, and a range of multimodal language models. We find that humans substantially outperform all tested models. Interestingly, higher reasoning budget does not necessarily yield higher accuracy. Ensembling open source models also allows them to perform at the level of large-scale proprietary models.",
+      "page": 5,
+      "index": 11,
+      "width": 672,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2604.00799v1/fig-012.webp",
+      "caption": "Table 7: Accuracy by scene class. We report the full results for each model, of which a subset was shown in Figure 4.",
+      "page": 16,
+      "index": 12,
+      "width": 830,
+      "height": 1038
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-001.webp",
+      "caption": "Fig. 2: Overview of GenSplat. Our feed-forward 3DGS framework reconstructs a 3D scene from sparse, uncalibrated robotic observations. GenSplat employs a permutationequivariant transformer architecture to predict camera poses, dense point maps, and Gaussian parameters, while leveraging pre-trained visual geometry models for 3D-prior distillation supervision. The reconstructed scenes enable geometrically consistent novel view synthesis to expand the observational manifold, significantly improving the viewpoint generalization of robotic policies.",
+      "page": 6,
+      "index": 1,
+      "width": 723,
+      "height": 307
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-002.webp",
+      "caption": "Fig. 5: Qualitative 3D geometry reconstruction on the DROID dataset. We visualize pairs of reference targets (ground truth or pseudo-labels) against GenSplat’s predicted RGB, depth, and normal maps. GenSplat accurately recovers structural highfrequency details and maintains strict spatial alignment without explicit camera calibration. Extended visual comparisons are provided in Appendix B.",
+      "page": 11,
+      "index": 2,
+      "width": 723,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-003.webp",
+      "caption": "Fig. 1: The diagram of the proposed GenSplat. Given expert demonstrations, GenSplat employs a feed-forward 3D reconstruction pipeline to render geometrically consistent novel viewpoints under controlled perturbations, explicitly boosting camera pose diversity. Experiments demonstrate that policies trained on GenSplat-augmented data achieve competitive performance across different perturbation levels, substantially outperforming those trained solely on human-collected demonstrations.",
+      "page": 2,
+      "index": 3,
+      "width": 721,
+      "height": 255
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-004.webp",
+      "caption": "Fig. 4: Policy robustness to camera pose perturbations. We evaluate 30 episodes per task on 6 real-world tasks under increasing camera perturbations and report mean success rates (in %). Policies trained with GenSplat augmented novel views data consistently outperform those trained only on source views for both π0 and Diffusion Policy.",
+      "page": 10,
+      "index": 4,
+      "width": 715,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-005.webp",
+      "caption": "Fig. 8: Effect of Rendered Views on Viewpoint Robustness. We report the mean success rate and standard deviation across three independent trials, with 30 execution episodes per task in each run.",
+      "page": 14,
+      "index": 5,
+      "width": 684,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-006.webp",
+      "caption": "Table 3: Cross-Perturbation Analysis. We report the success rates for Diffusion Policy with varying GenSplat view augmentations, evaluated on two tasks across perturbation levels from None to Large, based on 50 episodes per task.",
+      "page": 14,
+      "index": 6,
+      "width": 652,
+      "height": 185
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-007.webp",
+      "caption": "Table 1: Policy Performance and Synthesis Efficiency. We compare various NVS methods by training π0 on augmented datasets and report mean success rate and synthesis speed. Each task was evaluated 30 episodes under the Large perturbation level. Synthesis speed evaluated on the same computing device.",
+      "page": 12,
+      "index": 7,
+      "width": 706,
+      "height": 211
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29192v1/fig-008.webp",
+      "caption": "Fig. 3: Overview of the experiment setup and tasks. We design six manipulation tasks for real-world evaluation.",
+      "page": 9,
+      "index": 8,
+      "width": 716,
+      "height": 242
+    }
+  ]
+}
