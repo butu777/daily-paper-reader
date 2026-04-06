@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-001.webp",
+      "caption": "Fig. 2: UniQueR pipeline overview. Given multi-view images, a ViT encoder with alternating attention extracts per-frame tokens and decodes camera poses and point maps. A set of 3D queries is refined through cross-attention with image tokens and self-attention among queries. Each query then spawns K Gaussians, which are rendered via differentiable splatting for RGB and depth supervision.",
+      "page": 6,
+      "index": 1,
+      "width": 725,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-002.webp",
+      "caption": "Table 4: Quantitative comparison for dense-view novel-view synthesis. We report PSNR, SSIM, and LPIPS. Best and second-best are in bold and underline. Top rows: feedforward only. Bottom rows: feedforward initialization followed by per-scene 3DGS/MipSplatting optimization.",
+      "page": 11,
+      "index": 2,
+      "width": 712,
+      "height": 437
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-003.webp",
+      "caption": "Table 7: Key hyperparameters used by UniQueR.",
+      "page": 21,
+      "index": 3,
+      "width": 508,
+      "height": 267
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-004.webp",
+      "caption": "Fig. 3: Comparison of attention designs. We contrast full self-attention over concatenated image and query tokens with our decoupled design using cross-attention followed by inter-query self-attention.",
+      "page": 7,
+      "index": 4,
+      "width": 725,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-005.webp",
+      "caption": "Fig. 5: Ablation studies on (a) the number of queries, (b) the number of Gaussians per query, and (c) model capacity. Increasing any of these factors leads to consistent improvements in PSNR, demonstrating clear scaling behavior in UniQueR.",
+      "page": 14,
+      "index": 5,
+      "width": 728,
+      "height": 203
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-006.webp",
+      "caption": "Fig. 7: 3DGS and Mip-Splatting post-optimization with initializations from various methods.",
+      "page": 23,
+      "index": 6,
+      "width": 508,
+      "height": 485
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22851v1/fig-007.webp",
+      "caption": "Fig. 4: Qualitative and geometric comparison. Top rows: rendered RGB on heldout novel views. Bottom rows: rendered depth maps. AnySplat produces blank regions in RGB and holes in depth where no input pixels provide coverage, due to its pixel-aligned representation. UniQueR fills in these occluded areas through 3D queries, yielding more complete geometry and fewer rendering artifacts.",
+      "page": 13,
+      "index": 7,
+      "width": 725,
+      "height": 565
+    }
+  ]
+}

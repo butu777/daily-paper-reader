@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-001.webp",
+      "caption": "Figure 4: Results on the Real1 dataset [9]. Marked squares indicate areas where our results are sharper than the baseline. Note sharper details in the cartoon and dice sequences, as well as straighter squares in the checkers sequence in our method.",
+      "page": 6,
+      "index": 1,
+      "width": 804,
+      "height": 825
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-002.webp",
+      "caption": "Figure 5: Examples from the simulated dataset following [20]. Our results have less distortions, manifesting in straighter lines. The estimated distortions match the apparent distortions in the acquired frames.",
+      "page": 7,
+      "index": 2,
+      "width": 746,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-003.webp",
+      "caption": "Table 1: Quantitative comparison results on the Real1 dataset from [9] and TianSet [23]. We compare our method with NDIR [11], Li et al. [12], and NeRT [10]. Our method achieves the best overall performance on Real1, with the best SSIM and LPIPS across both datasets. It outperforms prior methods on most individual sequences and metrics, demonstrating consistent superiority. Minor exceptions include NDIR achieving slightly higher PSNR and SSIM on Math, Li et al. obtaining the best SSIM in isolated TianSet cases, and NeRT occasionally strong in PSNR and SSIM but substantially worse LPIPS.",
+      "page": 7,
+      "index": 3,
+      "width": 825,
+      "height": 235
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-004.webp",
+      "caption": "Figure 6: Examples of surface height reconstructions. a) Checkers set from the Real1 dataset [9]. The strong curvatures in the surface match the strong distortions in the input image. b) A ripple wave from the simulated dataset based on [20]. We show reconstructions of four frames evolving with time, where our reconstruction closely matches the ground truth used for simulation.",
+      "page": 8,
+      "index": 4,
+      "width": 788,
+      "height": 213
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-005.webp",
+      "caption": "Figure 2: Our architecture. From the left, regularized 2D spatial grids xreg and time t are inputs to a SIREN [17] network that outputs surface height per frame. The gradient of the output heights, along with its average across t, is used for calculating distortions as in Eq. 1. These are then used in another SIREN network to output the reconstructed image Iϕ(xreg) and the distorted images Itθ,ϕ. The predicted distorted images and the observed distorted images It are used in the loss calculation.",
+      "page": 4,
+      "index": 5,
+      "width": 826,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-006.webp",
+      "caption": "Figure 7: Real-world scene in a coral tank, in which distortions in 3D objects are corrected. Some loss of detail stems from limited network resolution.",
+      "page": 9,
+      "index": 6,
+      "width": 822,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07614v1/fig-007.webp",
+      "caption": "Figure 3: According to Snell’s law light passing through an interface between media with different refraction indices changes its angle (refracts). Thus, when an orthographic camera views an object submerged in water from air, the object changes its geometrical appearance as a function of the normals to the surface.",
+      "page": 5,
+      "index": 7,
+      "width": 416,
+      "height": 300
+    }
+  ]
+}

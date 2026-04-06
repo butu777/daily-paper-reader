@@ -1,0 +1,1184 @@
+Title: O3N: Omnidirectional Open-Vocabulary Occupancy Prediction
+
+URL Source: https://arxiv.org/pdf/2603.12144v1
+
+Published Time: Fri, 13 Mar 2026 01:20:05 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# O3N: Omnidirectional Open-Vocabulary Occupancy Prediction 
+
+Mengfei Duan 1,∗, Hao Shi 2,∗, Fei Teng 1, Guoqiang Zhao 1, Yuheng Zhang 1,Zhiyong Li 1,†, and Kailun Yang 1,†
+
+> 1
+
+Hunan University, 2Zhejiang University 
+
+Abstract. Understanding and reconstructing the 3D world through om-nidirectional perception is an inevitable trend in the development of au-tonomous agents and embodied intelligence. However, existing 3D oc-cupancy prediction methods are constrained by limited perspective in-puts and predefined training distribution, making them difficult to apply to embodied agents that require comprehensive and safe perception of scenes in open world exploration. To address this, we present O3N, the first purely visual, end-to-end Omnidirectional Open-vocabulary Occup-ancy predictio N framework. O3N embeds omnidirectional voxels in a polar-spiral topology via the Polar-spiral Mamba (PsM) module, en-abling continuous spatial representation and long-range context mod-eling across 360 °. The Occupancy Cost Aggregation (OCA) module in-troduces a principled mechanism for unifying geometric and semantic supervision within the voxel space, ensuring consistency between the reconstructed geometry and the underlying semantic structure. More-over, Natural Modality Alignment (NMA) establishes a gradient-free alignment pathway that harmonizes visual features, voxel embeddings, and text semantics, forming a consistent “pixel-voxel-text” representation triad. Extensive experiments on multiple models demonstrate that our method not only achieves state-of-the-art performance on QuadOcc and Human360Occ benchmarks but also exhibits remarkable cross-scene gen-eralization and semantic scalability, paving the way toward universal 3D world modeling. The source code will be made publicly available at O3N. 
+
+Keywords: Panoramic Image · Open-vocabulary Occupancy · Scene Understanding 
+
+1 Introduction 
+
+Omnidirectional images provide broader spatial coverage and richer contextual information, making them indispensable for emerging applications [29], e.g. ,autonomous driving and embodied robotics. To achieve a comprehensive un-derstanding of the surroundings, embodied agents must possess comprehensive  
+
+> ∗
+
+Equal contribution  
+
+> †
+
+Correspondence: kailun.yang@hnu.edu.cn, zhiyong.li@hnu.edu.cn 
+
+> arXiv:2603.12144v1 [cs.CV] 12 Mar 2026
+
+2 M. Duan, H. Shi et al. (b)       
+
+> mIoU (%)
+> Novel Classes
+> 14.33
+> 16.54
+> 18.15
+> 21.16
+> +Δ2.21
+> +Δ3.01
+> All Classes 10.0
+> 15.0
+> 20.0
+> OVO O3N
+> (Ours)
+> O3N
+> (Ours) O3N
+> (Ours)
+> O3N
+> (Ours)
+> OVO OVO O3N
+> (Ours) O3N
+> (Ours)
+> OVO
+> mIoU (%)
+> Novel Classes
+> 14.33
+> 16.54
+> 18.15
+> 21.16
+> +Δ2.21
+> +Δ3.01
+> All Classes 10.0
+> 15.0
+> 20.0
+> OVO O3N
+> (Ours) O3N
+> (Ours)
+> OVO
+
+(b)   
+
+> mIoU (%)
+> Novel Classes
+> 14.33
+> 16.54
+> 18.15
+> 21.16
+> +Δ2.21
+> +Δ3.01
+> All Classes 10.0
+> 15.0
+> 20.0
+> OVO O3N
+> (Ours) O3N
+> (Ours)
+> OVO
+
+(a)    
+
+> Semantic Occupancy
+> Prediction
+> road, vehicle, person,
+> bus, box ,dog ...
+
+open -vocabulary queries :    
+
+> road, vehicle, person,
+> bus, box ,dog ...
+
+open -vocabulary queries :    
+
+> road, vehicle, person,
+> bus, box ,dog ...
+
+open -vocabulary queries : 
+
+(a)    
+
+> Semantic Occupancy
+> Prediction
+> road, vehicle, person,
+> bus, box ,dog ...
+
+open -vocabulary queries : 
+
+(a)    
+
+> Semantic Occupancy
+> Prediction
+> road, vehicle, person,
+> bus, box ,dog ...
+
+open -vocabulary queries : 
+
+Fig. 1: (a) Omnidirectional Open-vocabulary Occupancy Prediction. The pro-posed O3N is capable of predicting semantic categories that were not labeled during training by providing only an omnidirectional RGB image as input, along with the required class name text. For example, a closed-set semantic occupancy prediction model might misclassify a box as road or a dog as a bicycle , whereupon the cor-responding class names can be provided to enable accurate predictions. (b) Results on the QuadOcc benchmark. O3N reaches 16 .54 mIoU, and 21 .16 Novel mIoU, respectively, achieving state-of-the-art performance. 
+
+scene coverage, accurate spatial reasoning, and generalized semantic understand-ing [46, 55, 61, 80, 81]. Panoramic vision offers single-shot 360 ° coverage with se-mantically continuous cues [1, 29] to fulfill this objective. In parallel, 3D se-mantic occupancy approaches [51, 54, 57, 69] lift 2D visual evidence into 3D space [4, 16, 32, 43, 59, 93] and enable precise spatial reasoning. Despite this, these methods assume that scene understanding is the recognition of a limited set of labels, which typically limits the models to predefined categories, caus-ing them to struggle with complex and dynamic objects in open-world environ-ments [2, 18, 83]. Thus, open-vocabulary understanding is crucial, as it enables the identification and prediction of unknown object categories without prior knowledge [7, 23, 63], facilitating flexible and scalable semantic representation. To the best of our knowledge, as illustrated in Fig. 1, this work investigates the omnidirectional open-vocabulary occupancy task for the first time, unifying omnidirectional visual perception with 3D geometric-semantic prediction under open-ended semantics, thereby providing a more comprehensive scene under-standing (see Fig. 2a). Inevitably, the challenges posed by panoramic imaging remain significant, including severe geometric distortions [75] and non-uniform sampling [29] introduced by the Equirectangular Projection (ERP). These issues limit the precise perception of spatial geometry and the effective management of high-dimensional open-vocabulary semantics. For example, due to extension dis-tortion, and latitude distortion introduced by the ERP projection, as shown in Fig. 2, regions more distant from the viewpoint occupy progressively smaller por-tions of the image. This characteristic amplifies the risk of overfitting [48, 53] in the “pixel-voxel-text” triplet feature alignment strategy, which relies on partially visible semantics under uneven data distribution, thereby leading to misalign-ment of novel semantics in the joint embedding space. To address these challenges, we propose O3N, the first pure visual, end-to-end omnidirectional open-vocabulary occupancy prediction framework. The novelty is three-fold: (1) We propose a dual-branch Polar-spiral Mamba (PsM) module to effectively capture finer-grained geometric and semantic details and alleviate O3N 3(a) 
+
+> Omnidirectional Image
+> (a)
+> Omnidirectional Image
+> (c)
+> near  far near  far
+> (c)
+> near  far
+> (b) (b) (a)
+> Omnidirectional Image
+> (c)
+> near  far
+> (b)
+
+Fig. 2: (a) Omnidirectional open-vocabulary occupancy prediction aims to perform open-vocabulary 3D occupancy prediction solely based on pure omnidirectional visual perception; (b) Regions distant from the viewpoint occupy a smaller proportion of pixels in the image due to the perspective effect and latitude distortion inherent in the equirectangular (ERP) projection; (c) Projection of voxel centers in 3D space onto an omnidirectional image. The projection points become increasingly dense with growing distance from the voxel centers to the imaging viewpoint. 
+
+learning difficulties caused by data discontinuities near the poles in a cylindrical voxel representation [35, 60, 94]. This design better aligns with panoramic ge-ometry. (2) Prior work in 2D open-vocabulary segmentation [7, 63], shows that refining the matching costs between text and pixel features via cost aggregation is beneficial for semantic learning. We propose the Occupancy Cost Aggregation (OCA) to construct a voxel–text cost volume and aggregate it with spatial and class-wise reasoning, improving robustness to overfitting in the open-vocabulary space. (3) The inherent modality gap between text, pixel, and voxel embed-dings introduces noise, increases learning complexity, and impairs generalization to unseen semantics [7, 48, 82]. To effectively narrow the semantic gap across modalities, we propose a gradient-free aggregation mechanism, called Natural Modality Alignment (NMA). Extensive experiments on the challenging QuadOcc and Human360Occ benchmarks [43] demonstrate that O3N achieves state-of-the-art open-vocabulary occupancy prediction, achieving +2 .21 mIoU/ +3 .01 Novel 
+
+mIoU on QuadOcc and +0 .86 /+1 .54 on Human360Occ over the baseline. At a glance, we deliver the following contributions: 
+
+– We introduce the omnidirectional open-vocabulary occupancy prediction task and the first purely visual, end-to-end omnidirectional open-vocabulary occupancy prediction framework: O3N. 
+
+– To fully adapt to panoramic geometry and the density distribution of visual semantic information, the Polar-spiral Mamba (PsM) module, Occupancy Cost Aggregation (OCA), and gradient-free Natural Modality Alignment (NMA) are introduced in O3N for enhanced spatial-semantic modeling. 
+
+– Extensive experiments across multiple datasets and models demonstrate that O3N outperforms state-of-the-art open-vocabulary occupancy methods and even surpasses some fully supervised approaches, verifying its efficiency. 
+
+2 Related Work 
+
+Panoramic semantic scene understanding. Panoramic understanding aims for comprehensive scene perception but is challenged by distortions and un-4 M. Duan, H. Shi et al. 
+
+even sampling [29] in omnidirectional images. For panoramic semantic segmen-tation, early methods project panoramic images into several patches for in-dependent segmentation [66, 67]. Subsequent studies have explored Unsuper-vised Domain Adaptation (UDA) methods, including explicit [31, 86, 88] and implicit [74, 75, 85, 87] knowledge alignment as well as pseudo-label genera-tion [77, 78, 89], to enable more reliable panoramic segmentation under lim-ited supervision. In addition, several specialized architectures are proposed for panoramic segmentation [5, 13, 14, 19, 21, 22, 26, 37, 47, 64, 72]. For panoramic se-mantic mapping, it aims to transform panoramic inputs into Bird’s-Eye-View (BEV) representations, where the inputs can be either surround-view fisheye images [24, 30, 42, 70] or a single panoramic image [10, 50, 58, 76]. Recently, re-search has shifted towards 3D semantic occupancy prediction, with multi-sensor, multi-view approaches achieving significant progress. By combining multiple fish-eye cameras [8, 38], depth information [60], and point clouds [68, 84, 94], these approaches greatly enhance semantic understanding and spatial geometry mod-eling in dynamic environments. Further, OneOcc [43] implements purely visual panoramic semantic occupancy prediction for legged robots. Despite significant progress in panoramic 3D semantic modeling trained on predefined categories, existing methods lack the ability to recognize unseen semantics, leading to lim-itations when encountering unknown scenes in the open world. 
+
+Open-vocabulary occupancy prediction. A dominant line of work in 3D occupancy prediction follows a closed-set paradigm, where models are trained to recognize predefined semantic categories from LiDAR or multi-view inputs [4, 15, 27, 44, 52, 59, 92]. These approaches focus on efficient spatial representa-tion [16,17,32,49,79], contextual reasoning and semantic generalization [9,36,73], yet remain limited to fixed vocabularies. Open-vocabulary occupancy prediction methods enable models to predict the occupancy of new, unseen object cate-gories from natural language input without explicit labels. OVO [48] pioneered a framework for open-vocabulary occupancy by extracting knowledge from a frozen 2D open-vocabulary segmenter and CLIP [40] text encoder into a 3D model. Subsequent research primarily focuses on multimodal fusion [18], self-supervised learning [11,53], foundation model adaptation [83,91], neural radiance fields ensembles [2], progressive gaussian modeling [65, 90], and pseudo-labeled reconstruction [25, 71] to reinforce open-vocabulary perception. Unlike existing methods that rely on fixed input perspectives and predefined training categories, our method leverages flexible omnidirectional vision and open-vocabulary under-standing to break such rigid limitations, enabling more robust generalizable scene comprehension beyond traditional closed-world assumptions. 
+
+3 Methodology 
+
+An overview of the proposed O3N framework is depicted in Fig. 3. In this work, we focus on vision-based occupancy prediction. In contrast to existing studies, the proposed method leverages omnidirectional images as visual input, ensuring the integrity and continuity of both spatial geometry and semantic informa-O3N 5OCA    
+
+> Distillation
+> vehicle, bicycle,
+> person, road,
+> sidewalk, building,
+> fence, dog, box, ……
+> vehicle, bicycle,
+> person, road,
+> sidewalk, building,
+> fence, dog, box, ……
+> Language -image
+> Encoder
+> Prototypes
+> 360°Perception
+> Omnidirectional
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> Feature
+> Extractor
+> Feature
+> Extractor
+> 2D -to -3D
+> 3D Decoder
+> PsM
+> 3D Decoder
+> PsM
+> Text embeddings
+> NMA
+> : Training only : Training only
+> OCA
+> Distillation
+> vehicle, bicycle,
+> person, road,
+> sidewalk, building,
+> fence, dog, box, ……
+> Language -image
+> Encoder
+> Prototypes
+> 360°Perception
+> Omnidirectional
+> Image
+> Feature
+> Extractor
+> 2D -to -3D
+> 3D Decoder
+> PsM
+> Text embeddings
+> NMA
+> : Training only
+
+Fig. 3: O3N architecture. O3N takes equirectangular omnidirectional image as in-put and is fully end-to-end trained. The image features and text embeddings are pre-extracted via the language-image encoder. The 3D decoder, enhanced with the proposed Polar-spiral Mamba (PsM) module, captures both geometric and semantic dependen-cies across directions. The Occupancy Cost Aggregation (OCA) and Natural Modality Alignment (NMA) modules integrate pixel, voxel, and text modalities to achieve con-sistent open-vocabulary semantic reasoning in 3D space. We efficiently train the O3N through semantic occupancy of visible classes, occupancy cost aggregation, and voxel-pixel consistency during training. 
+
+tion. To more comprehensively advance the understanding of open world, unlike other multi-modal and -stage methods [11, 18, 53, 71, 83], we introduce the first purely visual, end-to-end omnidirectional open-vocabulary occupancy prediction framework, providing a new solution for comprehensive scene understanding. Specifically, O3N includes the following components: (1) a visual feature ex-tractor for omnidirectional images; (2) a 2D-to-3D view transformation that gen-erates both 3D cube and cylindrical voxels; (3) a 3D decoder capable of learning fine-grained spatial geometry and semantic information; and (4) an occupancy prediction head. Through the close integration of these modules, O3N can not only perform closed-set semantic occupancy prediction but also demonstrate strong transferability. Furthermore, the proposed Polar-spiral Mamba (PsM, see Sec. 3.1) module enhances omnidirectional spatial perception capabilities effec-tively. For 3D open-vocabulary perception, the Occupancy Cost Aggregation (OCA, Sec. 3.2) and a gradient-free Natural Modality Alignment (NMA, Sec. 3.3) technique are proposed to enforce the “pixel-voxel-text” semantic consistency, and effectively mitigate overfitting. This unified design not only enhances perception completeness but also endows 3D occupancy prediction with semantic plasticity: a key step toward scalable world modeling. 
+
+3.1 Polar-spiral Mamba Module 
+
+Due to the limitations of angular partitioning, cylindrical voxels exhibit inherent discontinuity in data format, leading to a disruption in spatial continuity near the poles, which contradicts the original intent ( i.e ., spatial perception originates from the center, with higher precision in closer regions). Standard 3D convolution struggles to adapt to this critical characteristic, and the high computational cost 6 M. Duan, H. Shi et al. 
+
+of transformers is also prohibitive for real-world deployment. To preserve the continuity of angular space effectively, as shown in Fig. 4, we propose the Polar-spiral Mamba (PsM) module with a dual-branch framework to better utilize the intrinsic spatial structure of omnidirectional images. We utilizes Spatial-Mamba [62] to capture the intricate structures within the polar coordinate system, which offers transformer-like long sequence modeling capabilities with linear complexity. Specifically, the cylindrical voxels represen-tation Vp ∈ RC×R×P ×Z is compressed into Bird’s-Eye View (BEV) feature 
+
+Bp ∈ RC×R×P , reducing spatial redundancy and improving feature representa-tion efficiency. Then, the proposed P-SMamba scans the polar space in a spiral pattern (see the red dashed line in Fig. 4), starting from the pole and progres-sively increasing the radius. The scanning path aligns well with the properties of omnidirectional imaging, especially in the south pole regions, where informa-tion density gradually changes. It effectively captures rich spatial geometries and semantics in a progression from close to distant regions. Collapse 
+
+> P-SMamba
+> DownSample
+> Voxlization
+> P2C Sampling
+> DDR
+> DownSample
+> Conv2D
+> Spatial Mamba
+> LayerNorm
+> Sructure -aware
+> SSM
+> LayerNorm
+> FFN
+
+Fig. 4: Polar-spiral Mamba module uti-lizes a dual-branch architecture to effec-tively model the spatial structure of om-nidirectional images. P-SMamba scans the space in an outward spiral pattern, pre-cisely capturing variations in information density within polar regions. Voxel features are aggregated progressively between polar and Cartesian coordinates to generate com-prehensive features that maintain geomet-ric and semantic continuity. 
+
+In each layer, the polar BEV fea-ture Bip ∈ RCi×Ri×Pi at the i-th is voxelized into Vip ∈ RCi×Ri×Pi×Zi
+
+through reshaping operation; next, using the pre-computed cartesian–pol-ar projection relationship, we re-sample the cylindrical voxels cen-troids (c) into the corresponding cubic space. Afterwards, the fused voxel feature Vif is derived by ag-gregating cube voxel representation 
+
+Vic ∈ RCi×Hi×Wi×Di and the gath-ered voxel feature. The detailed pro-cedure is as follows: 
+
+Vif = Vic + Φρ(c)(Vip), if i > 1, (1) where Φa(b) is the sampling of b at cartesian coordinates a, and ρ(·) is the coordinate projection. PsM integrates voxel information across multiple co-ordinates, leveraging the strengths of both representations to generate acomprehensive voxel feature. 
+
+3.2 Occupancy Cost Aggregation 
+
+The uneven data distribution and sampling imbalance intensifies the risk of over-fitting in simple feature alignment strategies, resulting in misalignment of the joint embedding space for unseen classes. To address this, we propose construct-ing a refined occupancy cost to characterize the relationship between voxel and text embeddings, thereby avoiding direct discrete feature alignment. O3N 7
+
+In particular, analogous to the image–text matching cost [7], the occupancy cost is defined as the similarity between 3D voxel embeddings V and text embed-dings T, typically measured via cosine similarity. Intuitively, the occupancy cost volume can be viewed as rough 3D semantic masks grounded to their respective classes, which is calculated as follows: 
+
+C(i, l ) = Vi · Tl
+
+|| Vi|| || Tl|| , (2) where i and l denote 3D spatial positions of the voxel embedding and an index for a class, respectively. Then, we feed the occupancy cost to a single 3D convolution layer, which processes each cost slice C(: , l ) ∈ RH×W ×D×1 independently, to obtain initial occupancy cost embedding Oc ∈ RH×W ×D×Nc×do refer to [7]. Nc
+
+represents the number of cost slices, and do is the embedding dimension. Furthermore, to enhance spatial smoothness within the voxels and model the relationship of the local region, we employ Atrous Spatial Pyramid Pooling (ASPP) [6], which is beneficial to fuse information from different receptive fields, and apply spatial aggregation for each class individually. Subsequent to spatial aggregation, a linear transformer [20] for class aggregation is applied to consider the text modality, explicitly capturing relationships between different classes. Similarly, we further leverage the voxel feature V3D and text embeddings T to provide spatial structure or contextual information of the input, thereby guid-ing the overall process. Ultimately, the output is fed into the prediction head, with a residual connection for final inference. More architectural details of the lightweight occupancy cost aggregator can be seen in the supplement. However, we observe that directly supervising the aggregation learning with cross-entropy loss leads to isolated voxel semantic mappings, thereby weakening the generalization ability of the model. To tackle this issue, we utilize the scene affinity loss [4] to capture the semantic correlations among voxels. Considering the predicted probabilities of occupancy cost aggregation p and the ground truth class of voxel embeddings y, the loss Loca is defined as follows: 
+
+Loca = − 1
+
+NcNcX
+
+> l=1
+
+(Pl(p, y ) + Rl(p, y ) + Sl(p, y )) . (3) 
+
+Pl (Precision) and Rl (Recall) are the performance measures of similar class l
+
+voxels, whereas Sl (Specificity) measures the performance of dissimilar voxels (i.e . not of class l). In practice, during training, the Loca is calculated only for the voxels belonging to base classes. Experimental results demonstrate that occupancy cost aggregation not only enhances the semantic learning of voxel features but also enables the aggregated costs to yield more accurate predictions in open-vocabulary occupancy prediction. 
+
+3.3 Natural Modality Alignment 
+
+Although CLIP exhibits strong generalization ability, it struggles with the in-herent domain gap between image and text embeddings, even after extensive 8 M. Duan, H. Shi et al. 
+
+alignment during training [48, 82]. This issue is further exacerbated by the pro-jection errors inherent to panoramic images. Under the pixel-voxel feature align-ment, the “pixel-voxel-text” semantic consistency cannot be effectively guaran-teed, thereby struggling to recognize novel semantics. Moreover, since only base class semantics are available during training, directly employing a learning-based strategy will inevitably develop excessive reliance on the distribution of seen se-mantics while deteriorating the ability to understand unlimited semantics. To overcome these issues, we propose a gradient-free natural modality gap alignment strategy between text embeddings and semantic prototypes prior to occupancy cost aggregation. Specifically, it iteratively aggregates text embed-dings with prototypes of seen semantics, which are obtained by filtering the base class pixel embeddings with the Exponential Moving Average (EMA) method [3] during the training phase, achieving co-optimization in shared embedding space until convergence. During training, the corresponding text embeddings and ini-tialized prototypes can be represented by T = {Tl ∈ Rd}Lb 
+
+> l
+
+and P = {Pl ∈ Rd}Ll ,
+
+L = Lb + Ln. It is worth noting that we also introduce learnable prototypes for novel classes and initialize them to implicitly capture the unseen semantics. For convenience, we omit the class index l in the example. Firstly, the base proto-types Pb are updated by leveraging the fseg through the EMA method: 
+
+Pbt = α · Pbt−1 + (1 − α) · ( 1
+
+|Ωb|
+
+X
+
+> i∈Ωb
+
+fseg (i)) , (4) where t denotes the current training iteration, α ∈ [0 , 1] is the update rate and 
+
+Ωb is the valid pixel embedding set. Then, we define the affinity S by calculate cosine similarity between T0 
+
+> t
+
+and 
+
+P0 
+
+> t
+
+at the 0-th step of the Random Walk [12]: 
+
+S = λ T0 
+
+> t
+
+· P0
+
+> t
+
+|| T0 
+
+> t
+
+|| || P0 
+
+> t
+
+|| , (5) where λ is the scaling factor. At the k-th iteration step, the prototypes Pkt are derived by the original prototypes P0 
+
+> t
+
+and the updated text embeddings Tk−1
+
+> t
+
+from previous iteration: 
+
+Pkt = β(S)⊤Tk−1 
+
+> t
+
++ (1 − β)P0 
+
+> t
+
+. (6) Subsequently, it is utilized to update the text embeddings of this step: 
+
+Tkt = βS Pkt + (1 − β)T0 
+
+> t
+
+, (7) where β ∈ [0 , 1] is the degree that controls the domain alignment from the current state. By combining the above steps, we can obtain the overall walk formula of 
+
+Tkt in a unified and compact expression: 
+
+Tkt = ( β2A)k T0 
+
+> t
+
++ (1 − β)
+
+> k−1
+
+X
+
+> k=0
+
+(β2A)k(βS P0 
+
+> t
+
++ T0 
+
+> t
+
+), (8) O3N 9
+
+A = S(S)⊤. (9) Mathematically speaking, the whole walk process can be presented as a closed-form based on the Neumann Series [34] when k → ∞ :
+
+T∞ 
+
+> t
+
+= (1 − β)( I − β2A)−1(βS P0 
+
+> t
+
++ T0 
+
+> t
+
+), (10) where I is the identity matrix. Finally, T∞ 
+
+> t
+
+is used as the optimized text embed-dings for the subsequent occupancy cost aggregation. 
+
+3.4 Training and Inference Training. In this work, MonoScene [4] is chosen as the primary semantic oc-cupancy network due to its efficiency and flexibility [43]. Notably, to ensure the transferability, O3N is designed to be a modular and general framework built atop a variety of structurally similar fully supervised semantic occupancy archi-tectures like MonoScene [4], and SGN [33]. For voxels belonging to novel classes, we solely possess their geometric positions without semantic information. Con-sequently, we aggregate all novel classes into a new class, uniformly referred to as the unknown class. Using the base class labels during training corresponds to incorporating Lb + 1 semantic labels, referred to as processed semantic labels. During training, we employ Locc [4] to supervise the semantic occupancy head: 
+
+Locc = Lce + Lsem scal + Lgeo scal + Lf p . (11) For the open-vocabulary learning, we utilize Lvox −pix from OVO [48] and Loca 
+
+to align voxel, pixel, and textual features. Therefore, the total loss is: 
+
+L = Locc + Lvox −pix + Loca . (12) 
+
+Inference. For the base classes, we directly use the occupancy header for reliable semantic occupancy prediction. For the novel classes, we obtain V through the distillation module and generate the novel class logit by combining the similarity scores between V and the {Tl}Ln 
+
+> l
+
+with the predicted probabilities p from the OCA for accurate occupancy prediction. 
+
+4 Experiments 
+
+4.1 Experimental Setups Datasets. We evaluate methods on two omnidirectional occupancy datasets: QuadOcc [43] and Human360Occ [43]. QuadOcc is a real-world first-person 360 ◦
+
+occupancy dataset on a quadruped robot within a campus environment. It has 
+
+6 semantic classes with an additional empty class on a 64 ×64 ×8 grid ( 0.4m). Human360Occ (H3O) is a CARLA-based human-ego 360 ◦ occupancy dataset with simulated gait. It uses 10 classes along with an empty class for training, 10 M. Duan, H. Shi et al. 
+
+supports with-city (Homo, per-map 8:2 train/val) and cross-city (Heter, default 
+
+12 /4 maps) splits. More details about the datasets, class distributions, and ex-amples are provided in the supplement. 
+
+Class Split. Following mainstream open-vocabulary occupancy setups [25, 48], we choose vehicle , road , and building as novel classes in QuadOcc, which is nearly 68% of the total voxels. The remaining classes, e.g ., person , vegetation ,and terrain , are considered base classes. In Human360Occ, the road , sidewalk ,
+
+building , car , truck , bus , and two wheeler are chosen as novel classes, which is ap-proximately 75% of the total voxels. The remaining classes are the base classes, specifically vegetation , person , and pole . In particular, a significant proportion of these base classes are extremely rare in the datasets, with some classes repre-senting less than 1% of the total voxels. This presents a considerable challenge during both training and inference. However, its low labeling cost also provides the possibility for subsequent data expansion and task expansion. 
+
+Table 1: Omnidirectional 3D occupancy prediction results on the QuadOcc validation set. Bold = best, undeline = second best (within the Fully Supervised block; Open-vocabulary block marked separately). L: LiDAR; C: Camera.                                                                                                                         
+
+> Novel Class Base Class
+> Method Input mIoU
+> ■ vehicle (0.90%)
+> ■ road (52.34%)
+> ■ building (14.00%) mean
+> ■ person (2.09%)
+> ■ vegetation (22.82%)
+> ■ terrain (7.85%) mean
+> Fully-supervised
+> SSCNet [45]
+> L
+> 14.60 0.00 44.34 16.06 20.13 0.04 22.41 4.77 9.07 SSCNet-full [45] 16.38 0.71 55.14 14.93 23.59 0.04 19.66 7.76 9.15 LMSCNet [41] 18.44 0.88 57.02 16.45 24.78 0.20 24.39 11.70 12.10 OccRWKV [56] 16.69 2.05 54.17 10.29 22.17 0.35 24.92 8.38 11.22 VoxFormer-S [27]
+> C
+> 9.36 0.31 36.83 6.48 14.54 1.67 7.09 3.81 4.19 OccFormer [79] 13.02 0.29 49.46 10.36 20.04 0.37 15.00 2.64 6.00 SGN-S [33] 17.17 7.39 53.35 9.06 23.27 1.88 21.95 9.39 11.07 SGN-T [33] 17.50 8.23 52.74 10.47 23.81 2.09 23.04 8.45 11.19 MonoScene [4] 19.19 8.15 55.66 12.88 25.56 1.59 26.10 10.78 12.82 OneOcc [43] 20.56 12.16 54.41 16.03 27.53 2.86 24.91 13.01 13.59
+> Open-vocabulary
+> OVO (SGN-S) [48]
+> C
+> 13.81 2.38 44.78 5.64 17.60 0.24 19.64 10.17 10.02
+> Ours (SGN-S) 15.52 0.56 52.08 7.88 20.18 2.28 21.29 9.03 10.87 OVO [48] 14.33 2.11 46.34 6.00 18.15 0.39 18.84 12.32 10.52
+> Ours 16.54 0.52 54.22 8.76 21.16 0.79 20.17 14.80 11.92
+
+Evaluation Metric. As we aim at omnidirectional open-vocabulary occupancy prediction, our primary performance metric is the mean Intersection over Union (mIoU). For the benchmark, we report the mIoU across all classes, as well as separately for novel and base classes. O3N 11 
+
+Implementation Details. Our proposed method is transferable to any occu-pancy network. We assess its generality by applying it to two representative models: MonoScene [4] and SGN [33], keeping the parameters consistent with each original model. Among them, MonoScene [4] achieves the best performance and is therefore selected as the primary body of our method. To ensure a fair comparison, we adopt the parameter configuration of MonoScene [4], in line with OVO [48]. The model is trained for 25 epochs on 4 NVIDIA RTX 3090 GPUs with a total batch size of 4. All additional implementation details and hyperparameters are provided in the supplementary material. 
+
+Table 2: Omnidirectional 3D occupancy prediction results on H3O Homo (within-city) split. C: Camera.                                                    
+
+> Novel Class Base Class
+> Method Input mIoU
+> ■ road (34.04%)
+> ■ sidewalk (26.24%)
+> ■ building (10.00%)
+> ■ car (2.92%)
+> ■ truck (0.99%)
+> ■ bus (0.25%)
+> ■ two_wheeler (0.07%) mean
+> ■ vegetation (24.02%)
+> ■ person (0.97%)
+> ■ pole (0.50%) mean
+> Fully-supervised
+> VoxFormer-S [27]
+> C
+> 11.09 22.27 17.44 2.86 0.87 0.14 0.00 0.00 6.22 5.65 61.46 0.18 22.43 OccFormer [79] 24.88 54.11 46.41 15.14 17.57 4.30 0.00 1.65 19.88 32.84 65.08 11.72 36.55 SGN-S [33] 28.56 54.81 47.44 15.64 24.23 8.53 2.62 13.51 23.83 33.22 65.88 19.72 39.61 SGN-T [33] 28.64 54.55 44.61 15.51 23.91 7.68 4.52 15.77 23.79 35.16 65.24 19.46 39.95 MonoScene [4] 33.46 62.45 57.18 19.97 29.76 13.77 5.03 16.76 29.27 38.91 70.15 20.67 43.24 OneOcc [43] 37.29 63.82 62.92 22.86 33.74 17.79 6.47 26.58 33.45 41.03 71.13 26.55 46.24
+> Open-vocabulary
+> OVO (SGN-S) [48]
+> C
+> 21.40 39.23 24.28 12.49 16.73 1.70 0.62 0.00 13.58 33.90 66.84 18.16 39.63
+> Ours (SGN-S) 22.45 39.07 26.68 14.51 18.60 0.00 0.00 0.00 14.12 37.15 65.66 22.82 41.88 OVO [48] 23.39 38.69 14.30 18.46 21.48 3.67 0.15 0.00 13.82 40.36 70.67 26.17 45.73
+> Ours 24.25 42.08 25.55 17.40 22.49 0.00 0.00 0.03 15.36 39.16 70.20 25.61 44.99
+
+4.2 Comparison to State-of-the-Art Methods 
+
+On the real-world QuadOcc validation set, our method achieves significant im-provements on both known and novel classes. As shown in Tab. 1, when trained with only 30% of base-class annotations, our approach reaches an overall mIoU of 16 .54 , surpassing the OVO [48] ( 14 .33 ). Notably, the novel mIoU rises to 
+
+21 .16 , outperforming several fully supervised methods ( i.e ., SSCNet [45], Occ-Former [79], and VoxFormer-S [27]). These results demonstrate that, even un-der limited supervision, our framework can effectively extract and transfer rich panoramic semantic structures, maintaining strong generalization to unseen cat-egories. Moreover, when adapted to the SGN-S [33] backbone, our framework continues to deliver consistent performance gains. The performance gains from 
+
+13 .81 to 15 .52 mIoU, with both novel and base-class averages showing notable enhancement. Collectively, these results highlight the robustness and transfer-ability of the proposed framework. We further evaluate our framework on the H3O dataset, which simulates human-ego panoramic perception. As shown in 12 M. Duan, H. Shi et al. 
+
+Tab. 2, our method consistently outperforms all open-vocabulary counterparts and achieves results comparable to several fully supervised methods. Under the open-vocabulary setting, our framework attains an overall mIoU of 24 .25 . The qualitative results in Fig. 5 further demonstrate that our approach effectively captures omnidirectional spatial geometry and maintains semantic continuity. Omnidirectional Image Ground Truth O3N (Ours) OVO Omnidirectional Image Ground Truth O3N (Ours) OVO 
+
+Fig. 5: Qualitative results. O3N more effectively maintains the clarity and continu-ity of global geometry and semantics, and achieves significant improvements over the baseline in terms of perception and generalization to unknown semantics. 
+
+4.3 Ablation Studies 
+
+To validate the effectiveness of O3N, we conduct comprehensive ablation studies based on the QuadOcc dataset to dissect core module contributions. 
+
+Table 3: Ablation study of each component. PsM: Polar-spiral Mamba; OCA: Occupancy Cost Aggregation; NMA: Natural Modality Alignment. PsM OCA NMA Novel mIoU Base mIoU mIoU FPS ↑ Mem. (GB) ↓                      
+
+> 18.06 10.90 14.48 10.67 4.28
+> ✓18.59 11.05 14.82 9.98 4.31
+> ✓✓19.78 11.02 15.40 9.71 4.86
+> ✓✓✓21.16 11.92 16.54 9.41 4.97
+
+Main Components. As summarized in Tab. 3, introducing the PsM alone yields consistent improvements across all three metrics ( +0 .53 for Novel mIoU, 
+
++0 .15 for Base mIoU, and +0 .34 for overall mIoU). By modeling spatial priors in polar coordinates, PsM effectively preserves geometric continuity and im-proves voxel representation quality; notably, thanks to the linear complexity of Mamba [62], PsM incurs negligible memory overhead in practice. Furthermore, since OCA rectifies feature misalignment and strengthens voxel-wise geometric consistency, incorporating OCA further increases Novel mIoU and overall mIoU O3N 13 
+
+to 19 .78 and 15 .40 , achieving additional gains of +1 .72 and +0 .92 , respectively. With the introduction of NMA, the model achieves the best performance, reach-ing 21 .16 for Novel mIoU and 16 .54 for overall mIoU, demonstrating that the proposed cross-modality alignment mechanism effectively bridges the image–text domain gap and enhances generalization to both seen and unseen classes. In terms of efficiency, while OCA and NMA introduce modest computational costs, they yield significant performance improvements that fully justify the overhead. The full model (O3N) achieves 9.41 FPS with only 4.97 GB memory during inference, maintaining strong real-time inference performance. 
+
+Table 4: Ablation study on cylindri-cal voxel granularity under different radial and angular resolutions for the PsM module.                          
+
+> RPNovel mIoU Base mIoU mIoU Mem. (GB) 32 72 18.48 11.66 15.07 17.49
+> 90 21.16 11.92 16.54 17.53 120 20.80 11.52 16.16 17.59 180 17.88 10.35 14.11 17.72 48 90 21.08 11.19 16.14 17.58
+
+Table 5: Ablation study of OCA. 
+
+We conduct ablation study by progres-sively adding components to the aggrega-tion branch. Components Novel mIoU Base mIoU mIoU                      
+
+> Aw/o cost agg. 18.59 11.05 14.82
+> Bcost agg. 18.84 11.36 15.10
+> C B + spatial agg. 18.99 11.33 15.16
+> D C + class agg. 19.67 11.13 15.40
+> E D + embedding guidance 21.16 11.92 16.54
+
+Cylindrical Voxel Resolution. To investigate the effect of voxel resolution in the cylindrical representation, we conduct an ablation on the number of radial and angular partitions (R, P ) while fixing the vertical dimension at Z = 8 .As shown in Tab. 4, overly coarse angular divisions ( e.g. , P = 72 ) lead to degraded geometric and semantic continuity. In contrast, excessively dense di-visions ( P = 120 , 180 ) slightly enhance local detail but introduce redundant samples and increase memory consumption. The configuration (R = 32 , P =90 , Z = 8) achieves the best trade-off between segmentation accuracy and effi-ciency, yielding 21 .16 Novel mIoU, 11 .92 Base mIoU, and 16 .54 overall mIoU with moderate memory usage ( 17 .53 GB) during training. Therefore, this setting is adopted as the configuration for our model. 
+
+Occupancy Cost Aggregation. We conduct an ablation study to verify the contribution of each component within the proposed OCA. As shown in Tab. 5, starting from without cost aggregation ( A), introducing the basic cost aggrega-tion branch ( B) yields a clear improvement, confirming that modeling voxel–text similarity benefits open-vocabulary occupancy reasoning. Further incorporat-ing spatial aggregation ( C) improves structural consistency among voxels, while class aggregation ( D) effectively captures inter-class dependencies in the joint embedding space. Finally, integrating embedding guidance ( E) achieves the best performance, reaching 21 .16 Novel mIoU and 16 .54 overall mIoU. Notably, OCA yields significant gains, especially on novel categories, with a +2 .57 mIoU im-provement on novel classes and +2 .06 mIoU in overall performance. These consis-tent improvements demonstrate that progressively refined cost aggregation and 14 M. Duan, H. Shi et al. 
+
+cross-modal guidance substantially enhance both semantic alignment accuracy and generalization to unseen novel categories. 0.80         
+
+> 0.84
+> 0.88
+> 0.92
+> 0.96
+> 1.00 :Median :Average
+> w/ NMA (O3N) w/o NMA 0.80
+> 0.84
+> 0.88
+> 0.92
+> 0.96
+> 1.00
+> :Median :Average
+> w/ NMA (O3N) w/o NMA
+
+Fig. 6: Distribution of similarity scores between voxels and text em-beddings with and without NMA during inference. 13.82         
+
+> 15.69 16.54
+> 14.84 14.01
+> 15.86
+> 20.54 21.16
+> 17.93 16.93
+> 0.01 0.05 0.1 0.2 0.3
+> 0
+> 5
+> 10
+> 15
+> 20
+> 25
+> %
+> β
+> mIoU
+> mIoU-Novel
+> mIoU-Base
+
+Fig. 7: Analysis of walking probability 
+
+β in NMA learning: impact on cross-modal alignment and novel-class gen-eralization. 
+
+Effectiveness of NMA. Building upon the omnidirectional geometry-semantic consistency cost volume, NMA introduces a gradient-free alignment mechanism that avoids interference caused by modality gaps or noise in vision-language model predictions. Crucially, it decouples text-branch training, enabling the con-struction of a consistent and generalizable “P-V-T” representational triplet. To further elucidate its impact, Fig. 6 shows the distribution of similarity scores between voxels and text embeddings with and without NMA during inference. O3N demonstrates a notably tighter and more stable distribution, with the ma-jority of samples concentrated within the narrow range of 0.93 ∼0.97 . In con-trast, the w/o NMA variant shows a significantly broader distribution, with a non-negligible fraction of low-similarity samples, suggesting that its cross-modal alignment is more susceptible to noise and exhibits weaker generalization. This observation further corroborates the effectiveness of NMA in enhancing semantic generalization capability in omnidirectional open-vocabulary occupancy. 
+
+Probability of walking. We further analyze the impact of the walking prob-ability β of the NMA in Fig. 7. As β increases from 0.01 to 0.1, the model performance consistently improves and reaches its global peak at 0.1, achieving 
+
+21 .16 Novel mIoU and 16 .54 overall mIoU. This trend validates the effective-ness of our proposed gradient-free modality alignment mechanism: a moderate walking probability encourages flexible exploration and adaptive fusion among 
+
+“pixel–voxel–text” representations, thereby markedly enhancing cross-modal se-mantic consistency and generalization to unseen novel categories. In contrast, when β is too large ( i.e ., 0.2 or 0.3), excessive stochastic perturbation destabi-lizes the alignment process, leading to severe performance degradation. O3N 15 
+
+5 Conclusion 
+
+In this paper, we introduce the omnidirectional open-vocabulary occupancy pre-diction task for the first time and propose O3N, the first purely visual, end-to-end framework to unify omnidirectional visual perception, spatial geometry, and open-vocabulary semantic prediction. It enables seamless continuous spa-tial perception and long-range context modeling across 360 ° via the proposed Polar-spiral Mamba (PsM) module. Furthermore, the Occupancy Cost predic-tion (OCA) offers a unified geometric and semantic learning mechanism, en-suring that the reconstructed geometry closely aligns with the underlying se-mantics. The Natural Modality Alignment (NMA) synchronizes visual features, voxel embeddings, and textual semantics, resulting in a consistent, robust “pixel-voxel-text” triplet representation. O3N achieves state-of-the-art open-vocabulary occupancy prediction under omnidirectional visual perception, offering a new perspective for comprehensive scene understanding in open-world scenarios. 
+
+Acknowledgment 
+
+This work was partially supported by the National Natural Science Foundation of China under Grants 62473139 and No. U23A20341, the Hunan Provincial Research and Development Project under Grant 2025QK3019, and the State Key Laboratory of Autonomous Intelligent Unmanned Systems (the opening project number ZZKF2025-2-10). 
+
+References 
+
+1. Ai, H., Cao, Z., Wang, L.: A survey of representation learning, optimization strate-gies, and applications for omnidirectional vision. International Journal of Computer Vision (2025) 2 2. Boeder, S., Gigengack, F., Risse, B.: LangOcc: Open vocabulary occupancy esti-mation via volume rendering. In: 3DV (2025) 2, 4 3. Cai, Z., Ravichandran, A., Maji, S., Fowlkes, C., Tu, Z., Soatto, S.: Exponential moving average normalization for self-supervised and semi-supervised learning. In: CVPR (2021) 8 4. Cao, A.Q., de Charette, R.: MonoScene: Monocular 3D semantic scene completion. In: CVPR (2022) 2, 4, 7, 9, 10, 11, 23, 27 5. Cao Dinh, D., Kim, S.J., Cho, K.: Geometric exploitation for indoor panoramic semantic segmentation. In: NeurIPS (2024) 4 6. Chen, L.C., Zhu, Y., Papandreou, G., Schroff, F., Adam, H.: Encoder-decoder with atrous separable convolution for semantic image segmentation. In: ECCV (2018) 7, 22 7. Cho, S., Shin, H., Hong, S., Arnab, A., Seo, P.H., Kim, S.: CAT-Seg: Cost aggre-gation for open-vocabulary semantic segmentation. In: CVPR (2024) 2, 3, 7 8. Cui, W., Wang, H., Qin, W., Guo, Y., Han, G., Zhao, W., Cao, J., Zhang, Z., Zhong, J., Sun, J., Sun, P., Shi, S., Jiang, B., Ma, J., Wang, J., Cheng, H., Liu, Z., Wang, Y., Zhu, Z., Huang, G., Tang, J., Zhang, Q.: Humanoid occupancy: Enabling a generalized multimodal occupancy perception system on humanoid robots. arXiv preprint arXiv:2507.20217 (2025) 4 16 M. Duan, H. Shi et al. 
+
+9. Duan, Z., Dang, C., Hu, X., An, P., Ding, J., Zhan, J., Xu, Y., Ma, J.: SDGOCC: Semantic and depth-guided bird’s-eye view transformation for 3D multimodal oc-cupancy prediction. In: CVPR (2025) 4 10. E, W., Yuan, C., Li, L., Sun, Y., Gaus, Y.F.A., Atapour-Abarghouei, A., Breckon, T.P.: Dur360BEV: A real-world 360-degree single camera dataset and benchmark for bird-eye view mapping in autonomous driving. In: ICRA (2025) 4 11. Gao, Y., Xiang, X., Zhong, S., Wang, G.: LOC: A general language-guided frame-work for open-set 3D occupancy prediction. arXiv preprint arXiv:2510.22141 (2025) 4, 5 12. Grady, L.: Random walks for image segmentation. IEEE Transactions on Pattern Analysis and Machine Intelligence (2006) 8 13. Guttikonda, S., Rambach, J.: Single frame semantic segmentation using multi-modal spherical images. In: WACV (2024) 4 14. Hu, X., An, Y., Shao, C., Hu, H.: Distortion convolution module for semantic segmentation of panoramic images based on the image-forming principle. IEEE Transactions on Instrumentation and Measurement (2022) 4 15. Huang, Y., Zheng, W., Zhang, B., Zhou, J., Lu, J.: SelfOcc: Self-supervised vision-based 3D occupancy prediction. In: CVPR (2024) 4 16. Huang, Y., Zheng, W., Zhang, Y., Zhou, J., Lu, J.: Tri-perspective view for vision-based 3D semantic occupancy prediction. In: CVPR (2023) 2, 4 17. Huang, Y., Zheng, W., Zhang, Y., Zhou, J., Lu, J.: GaussianFormer: Scene as gaussians for vision-based 3D semantic occupancy prediction. In: ECCV (2024) 4 18. Jiang, H., Xu, Y., Zeng, Y., Xu, H., Zhang, W., Feng, J., Zhang, L.: OpenOcc: Open vocabulary 3D scene reconstruction via occupancy representation. In: IROS (2024) 2, 4, 5 19. Jiang, J., Zhu, J., Xu, Z., Chen, X., Zhao, S., Yao, H.: Gaussian constrained diffeo-morphic deformation network for panoramic semantic segmentation. In: ICASSP (2025) 4 20. Katharopoulos, A., Vyas, A., Pappas, N., Fleuret, F.: Transformers are RNNs: Fast autoregressive transformers with linear attention. In: ICML (2020) 7, 22 21. Kim, J., Jeong, S., Sohn, K.: PASTS: Toward effective distilling transformer for panoramic semantic segmentation. In: ICIP (2022) 4 22. Lan, B., Yang, L., Xu, M., Jiang, L., Wang, Y.: Deformable spherical geometry transformer for panoramic semantic segmentation. In: ICIP (2025) 4 23. Li, B., Weinberger, K.Q., Belongie, S.J., Koltun, V., Ranftl, R.: Language-driven semantic segmentation. In: ICLR (2022) 2, 24 24. Li, H., Sheng, D., Dong, Q., Wang, Z., Xu, Z., Li, T.: FishBEV: Distortion-resilient bird’s eye view segmentation with surround-view fisheye cameras. arXiv preprint arXiv:2509.13681 (2025) 4 25. Li, P., Ding, S., Zhou, Y., Zhang, Q., Inak, O., Triess, L., Hanselmann, N., Cordts, M., Zell, A.: AGO: Adaptive grounding for open world 3D occupancy prediction. arXiv preprint arXiv:2504.10117 (2025) 4, 10 26. Li, X., Wu, T., Qi, Z., Wang, G., Shan, Y., Li, X.: SGAT4PASS: Spherical geometry-aware transformer for panoramic semantic segmentation. In: IJCAI (2023) 4 27. Li, Y., Yu, Z., Choy, C.B., Xiao, C., Álvarez, J.M., Fidler, S., Feng, C., Anandku-mar, A.: VoxFormer: Sparse voxel transformer for camera-based 3D semantic scene completion. In: CVPR (2023) 4, 10, 11, 27 28. Li, Z., Wang, W., Li, H., Xie, E., Sima, C., Lu, T., Yu, Q., Dai, J.: Bevformer: learning bird’s-eye-view representation from lidar-camera via spatiotemporal trans-O3N 17 formers. IEEE Transactions on Pattern Analysis and Machine Intelligence 47 (3), 2020–2036 (2024) 27 29. Lin, X., Ge, X., Zhang, D., Wan, Z., Wang, X., Li, X., Jiang, W., Du, B., Tao, D., Yang, M.H., Qi, L.: One flight over the gap: A survey from perspective to panoramic vision. arXiv preprint arXiv:2509.04444 (2025) 1, 2, 4 30. Liu, W., Wang, W.: ArticuBEVSeg: Road semantic understanding and its applica-tion in bird’s eye view from panoramic vision system of long combination vehicles. IEEE Robotics and Automation Letters (2025) 4 31. Ma, C., Zhang, J., Yang, K., Roitberg, A., Stiefelhagen, R.: DensePASS: Dense panoramic semantic segmentation via unsupervised domain adaptation with attention-augmented context exchange. In: ITSC (2021) 4 32. Ma, Q., Tan, X., Qu, Y., Ma, L., Zhang, Z., Xie, Y.: COTR: Compact occupancy transformer for vision-based 3D occupancy prediction. In: CVPR (2024) 2, 4 33. Mei, J., Yang, Y., Wang, M., Zhu, J., Ra, J., Ma, Y., Li, L., Liu, Y.: Camera-based 3D semantic scene completion with sparse guidance network. IEEE Transactions on Image Processing (2024) 9, 10, 11, 23, 27 34. Meyer, C.D.: Matrix analysis and applied linear algebra. SIAM (2023) 9 35. Ming, Z., Berrio, J.S., Shan, M., Huang, Y., Lyu, H., Tran, N.H.K., Tseng, T.Y., Worrall, S.: OccCylindrical: Multi-modal fusion with cylindrical representation for 3D semantic occupancy prediction. arXiv preprint arXiv:2505.03284 (2025) 3 36. Oh, G., Kim, S., Ko, H., Chi, H.g., Kim, J., Lee, D., Ji, D., Choi, S., Jang, S., Kim, S.: 3D occupancy prediction with low-resolution queries via prototype-aware view transformation. In: CVPR (2025) 4 37. Orhan, S., Bastanlar, Y.: Semantic segmentation of outdoor panoramic images. Signal, Image and Video Processing (2022) 4 38. Pan, X., Du, J., Su, S., Zong, W., Wang, X., Liu, C., Chen, Q.: GenerOcc: Self-supervised framework of real-time 3D occupancy prediction for monocular generic cameras. In: IROS (2024) 4 39. Philion, J., Fidler, S.: Lift, splat, shoot: Encoding images from arbitrary camera rigs by implicitly unprojecting to 3d. In: European conference on computer vision. pp. 194–210. Springer (2020) 27 40. Radford, A., Kim, J.W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., Krueger, G., Sutskever, I.: Learning transferable visual models from natural language supervision. In: ICML (2021) 4, 24 41. Roldão, L., de Charette, R., Verroust-Blondet, A.: LMSCNet: Lightweight multi-scale 3D semantic completion. In: 3DV (2020) 10, 27 42. Samani, E.U., Tao, F., Reddy, D.H., Ding, S., Banerjee, A.G.: F2BEV: Bird’s eye view generation from surround-view fisheye camera images for automated driving. In: IROS (2023) 4 43. Shi, H., Wang, Z., Guo, S., Duan, M., Wang, S., Chen, T., Yang, K., Wang, L., Wang, K.: OneOcc: Semantic occupancy prediction for legged robots with a single panoramic camera. In: CVPR (2026) 2, 3, 4, 9, 10, 11, 23, 25, 27 44. Shi, Y., Cheng, T., Zhang, Q., Liu, W., Wang, X.: Occupancy as set of points. In: ECCV (2024) 4 45. Song, S., Yu, F., Zeng, A., Chang, A.X., Savva, M., Funkhouser, T.A.: Semantic scene completion from a single depth image. In: CVPR (2017) 10, 11 46. Sun, Y., Contreras, J., Ortiz, J.: Dynamic focused masking for autoregressive em-bodied occupancy prediction. In: NeurIPS (2025) 2 47. Tan, T., Chen, B., Cao, H., Yan, C., Ma, Y., Dai, F.: DASC-SPT: Towards self-supervised panoramic semantic segmentation. In: WACV (2025) 4 18 M. Duan, H. Shi et al. 
+
+48. Tan, Z., Dong, Z., Zhang, C., Zhang, W., Ji, H., Li, H.: OVO: Open-vocabulary occupancy. arXiv preprint arXiv:2305.16133 (2023) 2, 3, 4, 8, 9, 10, 11, 23, 24, 25, 27, 28 49. Tang, P., Wang, Z., Wang, G., Zheng, J., Ren, X., Feng, B., Ma, C.: SparseOcc: Rethinking sparse latent representation for vision-based semantic occupancy pre-diction. In: CVPR (2024) 4 50. Teng, Z., Zhang, J., Yang, K., Peng, K., Shi, H., Reiß, S., Cao, K., Stiefelhagen, R.: 360BEV: Panoramic semantic mapping for indoor bird’s-eye view. In: WACV (2024) 4 51. Tian, X., Jiang, T., Yun, L., Mao, Y., Yang, H., Wang, Y., Wang, Y., Zhao, H.: Occ3D: A large-scale 3D occupancy prediction benchmark for autonomous driving. In: NeurIPS (2023) 2 52. Tong, W., Sima, C., Wang, T., Chen, L., Wu, S., Deng, H., Gu, Y., Lu, L., Luo, P., Lin, D., Li, H.: Scene as occupancy. In: ICCV (2023) 4 53. Vobecky, A., Siméoni, O., Hurych, D., Gidaris, S., Bursuc, A., Pérez, P., Sivic, J.: POP-3D: Open-vocabulary 3D occupancy prediction from images. In: NeurIPS (2023) 2, 4, 5 54. Wang, G., Wang, Z., Tang, P., Zheng, J., Ren, X., Feng, B., Ma, C.: OccGen: Gen-erative multi-modal 3D occupancy prediction for autonomous driving. In: ECCV (2024) 2 55. Wang, H., Wei, X., Zhang, X., Li, J., Bai, C., Li, Y., Lu, M., Zheng, W., Zhang, S.: EmbodiedOcc++: Boosting embodied 3D occupancy prediction with plane regu-larization and uncertainty sampler. In: MM (2025) 2 56. Wang, J., Yin, W., Long, X., Zhang, X., Xing, Z., Guo, X., Zhang, Q.: OccRWKV: Rethinking efficient 3D semantic occupancy prediction with linear complexity. In: ICRA (2025) 10 57. Wang, X., Zhu, Z., Xu, W., Zhang, Y., Wei, Y., Chi, X., Ye, Y., Du, D., Lu, J., Wang, X.: OpenOccupancy: A large scale benchmark for surrounding semantic occupancy perception. In: ICCV (2023) 2 58. Wei, J., Zheng, J., Liu, R., Hu, J., Zhang, J., Stiefelhagen, R.: OneBEV: Using one panoramic image for bird’s-eye-view semantic mapping. In: ACCV (2024) 4 59. Wei, Y., Zhao, L., Zheng, W., Zhu, Z., Zhou, J., Lu, J.: SurroundOcc: Multi-camera 3D occupancy prediction for autonomous driving. In: ICCV (2023) 2, 4 60. Wu, C., Li, J., Cao, J., Li, M., Du, S., Li, Y.: OmniOcc: Cylindrical voxel-based semantic occupancy prediction for omnidirectional vision systems. IEEE Access (2025) 3, 4 61. Wu, Y., Zheng, W., Zuo, S., Huang, Y., Zhou, J., Lu, J.: EmbodiedOcc: Embodied 3D occupancy prediction for vision-based online scene understanding. In: ICCV (2025) 2 62. Xiao, C., Li, M., Zhang, Z., Meng, D., Zhang, L.: Spatial-Mamba: Effective visual state space models via structure-aware state fusion. In: ICLR (2025) 6, 12 63. Xie, B., Cao, J., Xie, J., Khan, F.S., Pang, Y.: SED: A simple encoder-decoder for open-vocabulary semantic segmentation. In: CVPR (2024) 2, 3 64. Xu, J., Xu, C., Zhao, J., Han, C., Li, H.: Mamba4PASS: Vision mamba for panoramic semantic segmentation. Displays (2025) 4 65. Yan, C., Xu, D.: Progressive gaussian transformer with anisotropy-aware sampling for open vocabulary occupancy prediction. arXiv preprint arXiv:2510.04759 (2025) 466. Yang, K., Hu, X., Bergasa, L.M., Romera, E., Wang, K.: PASS: Panoramic annular semantic segmentation. IEEE Transactions on Intelligent Transportation Systems (2020) 4 O3N 19 67. Yang, K., Hu, X., Chen, H., Xiang, K., Wang, K., Stiefelhagen, R.: DS-PASS: Detail-sensitive panoramic annular semantic segmentation through SwaftNet for surrounding sensing. In: IV (2020) 4 68. Yang, L., Zheng, L., Ai, W., Liu, M., Li, S., Lin, Q., Yan, S., Bai, J., Ma, Z., Zhu, X.: MetaOcc: Spatio-temporal fusion of surround-view 4D radar and camera for 3D oc-cupancy prediction with dual training strategies. arXiv preprint arXiv:2501.15384 (2025) 4 69. Yang, T., Qian, Y., Yan, W., Wang, C., Yang, M.: AdaptiveOcc: Adaptive octree-based network for multi-camera 3D semantic occupancy prediction in autonomous driving. IEEE Transactions on Circuits and Systems for Video Technology (2025) 270. Yogamani, S., Unger, D., Narayanan, V., Kumar, V.R.: FisheyeBEVSeg: Surround view fisheye cameras based bird’s-eye view segmentation for autonomous driving. In: CVPRW (2024) 4 71. Yu, Z., Pang, B., Liu, L., Zhang, R., Peng, Q., Luo, M., Yang, S., Chen, M., Cao, S.Y., Shen, H.L.: Language driven occupancy prediction. In: ICCV (2025) 4, 5 72. Yuan, Z., Wang, J., Lv, Y., Wang, D., Fang, Y.: Laformer: Vision transformer for panoramic image semantic segmentation. IEEE Signal Processing Letters (2023) 4 73. Zhang, J., Ding, Y., Liu, Z.: OccLoff: Learning optimized feature fusion for 3D occupancy prediction. In: WACV (2025) 4 74. Zhang, J., Yang, K., Ma, C., Reiß, S., Peng, K., Stiefelhagen, R.: Bending reality: Distortion-aware transformers for adapting to panoramic semantic segmentation. In: CVPR (2022) 4 75. Zhang, J., Yang, K., Shi, H., Reiß, S., Peng, K., Ma, C., Fu, H., Torr, P.H.S., Wang, K., Stiefelhagen, R.: Behind every domain there is a shift: Adapting distortion-aware vision transformers for panoramic semantic segmentation. IEEE Transac-tions on Pattern Analysis and Machine Intelligence (2024) 2, 4 76. Zhang, Q., Zhang, Z., Cui, W., Sun, J., Cao, J., Guo, Y., Han, G., Zhao, W., Wang, J., Sun, C., Zhang, L., Cheng, H., Chen, Y., Wang, L., Tang, J., Xu, R.: HumanoidPano: Hybrid spherical panoramic-LiDAR cross-modal perception for humanoid robots. arXiv preprint arXiv:2503.09010 (2025) 4 77. Zhang, W., Liu, Y., Zheng, X., Wang, L.: GoodSAM: Bridging domain and ca-pacity gaps via segment anything model for distortion-aware panoramic semantic segmentation. In: CVPR (2024) 4 78. Zhang, W., Liu, Y., Zheng, X., Wang, L.: GoodSAM++: Bridging domain and capacity gaps via segment anything model for panoramic semantic segmentation. arXiv preprint arXiv:2408.09115 (2024) 4 79. Zhang, Y., Zhu, Z., Du, D.: OccFormer: Dual-path transformer for vision-based 3D semantic occupancy prediction. In: ICCV (2023) 4, 10, 11, 27 80. Zhang, Z., Zhang, Q., Cui, W., Shi, S., Guo, Y., Han, G., Zhao, W., Ren, H., Xu, R., Tang, J.: RoboOcc: Enhancing the geometric and semantic scene understanding for robots. arXiv preprint arXiv:2504.14604 (2025) 2 81. Zhang, Z., Zhang, Q., Cui, W., Shi, S., Guo, Y., Han, G., Zhao, W., Sun, J., Cao, J., Wang, J., Cheng, H., Ju, X., Che, Z., Xu, R., Tang, J.: Occupancy world model for robots. arXiv preprint arXiv:2505.05512 (2025) 2 82. Zhao, Z., Li, X., Shi, L., Imanpour, N., Wang, S.: DPSeg: Dual-prompt cost volume learning for open-vocabulary semantic segmentation. In: CVPR (2025) 3, 8 83. Zheng, J., Tang, P., Wang, Z., Wang, G., Ren, X., Feng, B., Ma, C.: VEON: Vocabulary-enhanced occupancy prediction. In: ECCV (2024) 2, 4, 5 20 M. Duan, H. Shi et al. 
+
+84. Zheng, L., Liu, J., Guan, R., Yang, L., Lu, S., Li, Y., Bai, X., Bai, J., Ma, Z., Shen, H., Zhu, X.: Doracamom: Joint 3D detection and occupancy prediction with multi-view 4D radars and cameras for omnidirectional perception. arXiv preprint arXiv:2501.15394 (2025) 4 85. Zheng, X., Pan, T., Luo, Y., Wang, L.: Look at the neighbor: Distortion-aware unsupervised domain adaptation for panoramic semantic segmentation. In: ICCV (2023) 4 86. Zheng, X., Zhou, P.Y., Vasilakos, A.V., Wang, L.: 360SFUDA++: Towards source-free UDA for panoramic segmentation by learning reliable category prototypes. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025) 4 87. Zheng, X., Zhou, P., Vasilakos, A.V., Wang, L.: Semantics distortion and style matter: Towards source-free UDA for panoramic segmentation. In: CVPR (2024) 488. Zheng, X., Zhu, J., Liu, Y., Cao, Z., Fu, C., Wang, L.: Both style and distor-tion matter: Dual-path unsupervised domain adaptation for panoramic semantic segmentation. In: CVPR (2023) 4 89. Zhong, D., Zheng, X., Liao, C., Lyu, Y., Chen, J., Wu, S., Zhang, L., Hu, X.: Om-niSAM: Omnidirectional segment anything model for UDA in panoramic semantic segmentation. In: ICCV (2025) 4 90. Zhou, C., Luo, Y., Zhang, H., Jiang, Z., Chen, C.: Monocular open vocabulary occupancy prediction for indoor scenes. In: CVPR (2026) 4 91. Zhou, X., Wang, J., Wang, Y., Wei, Y., Dong, N., Yang, M.H.: AutoOcc: Automatic open-ended semantic occupancy annotation via vision-language guided gaussian splatting. In: ICCV (2025) 4 92. Zhu, B., Wang, Z., Li, H.: nuCraft: Crafting high resolution 3D semantic occupancy for unified 3D scene understanding. In: ECCV (2024) 4 93. Zuo, S., Zheng, W., Han, X., Yang, L., Pan, Y., Lu, J.: QuadricFormer: Scene as superquadrics for 3D semantic occupancy prediction. In: NeurIPS (2025) 2 94. Zuo, S., Zheng, W., Huang, Y., Zhou, J., Lu, J.: PointOcc: Cylindrical tri-perspective view for point-based 3D semantic occupancy prediction. arXiv preprint arXiv:2308.16896 (2023) 3, 4 O3N 21 
+
+In the supplementary materials, we provide comprehensive descriptions of frameworks and various voxel projections, structural details of the lightweight occupancy cost aggregator, as well as a thorough experimental description that includes datasets, all hyperparameters, ablation studies on the input Field of View (FoV), additional qualitative results, and expanded dataset evaluations. Furthermore, we discuss the limitations of the proposed method and highlight potential future research directions, along with the associated social impacts. 
+
+A Additional Methodological Details 
+
+A.1 Unified and cohesive solution. 
+
+O3N builds upon the existing occupancy architecture to facilitate 3D under-standing from a single input. As in Fig. S1, O3N introduces three intertwined designs, PsM, OCA, and NMA, that jointly address the unique challenges: geo-metric distortion , semantic generalization , and cross-modal alignment . Regular Cartesian grids misalign with the 360 ° field of view without PsM, causing spa-tial misregistration that corrupts both geometry and semantics; OCA builds upon PsM to ensure geometric-semantic consistency in voxel space, enabling se-mantic propagation across entire 3D regions, whereas existing methods rely on discrete closed-set supervision; finally, integrating NMA closes the loop, which constructs a robust “pixel-voxel-text” representational triplet. Without the align-ment, backpropagating through the text encoder forces the model to overfit to training semantics, impairing generalization to unseen concepts. 360°Perception   
+
+> Omnidirectional
+> Image
+> 360°Perception
+> Omnidirectional
+> Image Classes
+> Occupancy
+> Prediction
+> (w/ PsM )
+> Language -image
+> Encoder
+> Language -image
+> Encoder
+
+V
+
+TNMA OCA 
+
+Intertwined    
+
+> (c) Ours (O3N)
+> 360°Perception
+> Omnidirectional
+> Image Classes
+> Occupancy
+> Prediction
+> (w/ PsM )
+> Language -image
+> Encoder
+
+V
+
+TNMA OCA 
+
+Intertwined  
+
+> (c) Ours (O3N) (b) Open -vocabulary Occupancy Prediction
+
+Separate 
+
+> Classes
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> Language -image
+> Encoder
+> Language -image
+> Encoder
+
+V
+
+T
+
+Separate 
+
+> Classes
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> Language -image
+> Encoder
+
+V
+
+T
+
+> (b) Open -vocabulary Occupancy Prediction
+
+Separate 
+
+> Classes
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> Language -image
+> Encoder
+
+V
+
+T  
+
+> (a) Semantic Occupancy Prediction
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> or Pinhole
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> or
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> or
+> (a) Semantic Occupancy Prediction
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> or
+> 360°Perception
+> Omnidirectional
+> Image Classes
+> Occupancy
+> Prediction
+> (w/ PsM )
+> Language -image
+> Encoder
+
+V
+
+TNMA OCA 
+
+Intertwined  
+
+> (c) Ours (O3N) (b) Open -vocabulary Occupancy Prediction
+
+Separate 
+
+> Classes
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> Language -image
+> Encoder
+
+V
+
+T
+
+> (a) Semantic Occupancy Prediction
+> Occupancy
+> Prediction
+> Pinhole
+> Image
+> 360°Perception
+> Omnidirectional
+> Image
+> or
+
+Fig. S1: Comparison of the existing semantic occupancy (a), open-vocabulary occupancy (b) paradigms and ours (c). 
+
+A.2 Cubic vs. Cylindrical Voxel Projections 
+
+We visualize how different voxel parameterizations project onto an equirectan-gular omnidirectional image in QuadOcc. In Fig. S2, the points indicate the pro-jected voxel centers, and the color bars show the normalized depth distribution of 22 M. Duan, H. Shi et al. 
+
+occupied voxels along each azimuth ray. Traditional axis-aligned Cartesian cubic voxels, when projected onto a panoramic image in the world coordinate system, form fan-shaped regions: voxels at different heights yield similar depth patterns along inclined rays, and distant structures, such as roads, terrain, and building facades, are compressed into narrow bands near the equatorial zone. While this configuration enables uniform metric sampling in 3D space, it disrupts the angu-lar regularity inherent to panoramic imagery. In contrast, camera-centric omni-directional cylindrical voxels employ equal step sizes in both azimuth and height, producing nearly horizontal sampling rows whose projections follow the equidis-tant cylindrical-projection parameterization and maintain the circular continuity of distant structures. This complementarity motivates combining the two voxel meshes and applying the PsM module to jointly preserve near-field metric fidelity and far-field azimuthal coherence. near far near far near far        
+
+> (a) Projection of cubic voxels (b) Projection of cylindrical voxels
+> near far
+> (a) Projection of cubic voxels (b) Projection of cylindrical voxels
+
+Fig. S2: Cubic vs. cylindrical voxel projections on an omnidirectional im-age. The projection of Cartesian cubic voxels in the omnidirectional image reflects the sparsity and imbalance of projection points. 
+
+A.3 Occupancy Cost Aggregation 
+
+To enhance spatial smoothness within the voxels and model the relationship of the local region, as illustrated in Fig. S3, we employ Atrous Spatial Pyramid Pooling (ASPP) [6], which is beneficial to fuse information from different recep-tive fields, and apply spatial aggregation for each class individually. Subsequent to spatial aggregation, a linear transformer [20] for class aggregation is applied to consider the text modality, explicitly capturing relationships between different classes. Similarly, we further leverage the voxel feature V3D and text embeddings 
+
+T to provide spatial structure or contextual information of the input, thereby guiding the overall process. Finally, the output is fed into the prediction head, with a residual connection for final inference. O3N 23 Linear 
+
+> Embedding
+> Conv3D
+> Self
+> Attention
+> MLP
+> Head
+> ASPP ASPP
+> Linear
+> Embedding
+> Conv3D
+> Self
+> Attention
+> MLP
+> Head
+> ASPP
+> Fig. S3: Architectural details of the lightweight occupancy cost aggregator.
+
+B Experimental Setup 
+
+B.1 Datasets 
+
+We evaluate methods on two omnidirectional occupancy datasets: QuadOcc [43] and Human360Occ [43]. Fig. S4 illustrates sample omnidirectional images from the QuadOcc and Human360Occ datasets, along with the corresponding voxel frequency distributions across semantic classes, providing a clear overview of their scene diversity and inherent class imbalance. QuadOcc is a real-world first-person 360 ◦ occupancy dataset on a quadruped robot within a campus envi-ronment. It contains 7 scenes for training, 3 scenes for validation/test, totaling 
+
+24 K frames standardized day/dusk/night coverage. It has 6 semantic classes with an additional empty class on a 64 ×64 ×8 grid ( 0.4m). Each sample covers a range of [−12 .8m, −12 .8m, −1.2m, 12 .8m, 12 .8m, 2.0m], with a fine voxel size of 
+
+[0 .4m, 0.4m, 0.4m] on a 64 ×64 ×8 grid, reflecting embodied compute and lower speed than cars. Human360Occ (H3O) is a CARLA-based human-ego 360 ◦ oc-cupancy dataset with simulated gait. H3O contains 160 sequences, totaling 8K
+
+frames over 16 maps and multiple weathers/times. Each sample covers a range of [−12 .8m, −12 .8m, −2.4m, 12 .8m, 12 .8m, 0.8m], provides semantic occupancy labels at 64 ×64 ×8 (native) and 128 ×128 ×16 grid. It uses 10 classes along with an empty class for training, supports with-city (Homo, per-map 8:2 train/val) and cross-city (Heter, default 12 /4 maps) splits. 
+
+B.2 Implementation Details 
+
+Our proposed method is transferable to any occupancy network. We assess its generality by applying it to two representative models: MonoScene [4] and SGN [33], keeping the parameters consistent with each original model. Among them, MonoScene [4] achieves the best performance and is therefore selected as the primary body of our method. To ensure a fair comparison, we adopt the parameter configuration of MonoScene [4], in line with OVO [48], and adjust the weight decay coefficient from 1×10 −4 to 1×10 −3 to mitigate overfitting. The model is trained for 25 epochs on 4 NVIDIA RTX 3090 GPUs with a total batch size of 4. In the PSM module, the cylindrical voxels with a shape of ( R:32 ,
+
+P :90 , Z:8 ), representing ( r, θ, z) in the polar coordinate, and the depths of P-SMamba are set to 2 and 4. The distillation module consists of 4 convolution 24 M. Duan, H. Shi et al. Novel Class Base Class vehicle road building person vegetation terrain  
+
+> 0.0
+> 1.0
+> 2.0
+> 3.0
+> 4.0
+> 5.0
+> 6.0
+> 7.0
+> 8.0
+> 9.0 1E+7
+> Frequency
+
+Class Name 
+
+Novel Class Base Class road sidewalk building car truck bus two whe. vegetation person pole  
+
+> 0.0
+> 2.0
+> 4.0
+> 6.0
+> 8.0
+> 10.0 1E+6
+> Frequency
+
+Class Name  
+
+> 0.017 0.066 0.133
+
+(b) F requency of voxels in QuadOcc dataset (c) F requency of voxels in Human360Occ dataset 
+
+Novel Class Base Class vehicle road building person vegetation terrain  
+
+> 0.0
+> 1.0
+> 2.0
+> 3.0
+> 4.0
+> 5.0
+> 6.0
+> 7.0
+> 8.0
+> 9.0 1E+7
+> Frequency
+
+Class Name 
+
+Novel Class Base Class road sidewalk building car truck bus two whe. vegetation person pole  
+
+> 0.0
+> 2.0
+> 4.0
+> 6.0
+> 8.0
+> 10.0 1E+6
+> Frequency
+
+Class Name  
+
+> 0.017 0.066 0.133
+
+(b) F requency of voxels in QuadOcc dataset (c) F requency of voxels in Human360Occ dataset 
+
+> Human360Occ Human360Occ
+
+(a) Image s from the QuadOcc and Human360Occ dataset s
+
+> QuadOcc QuadOcc
+> Human360Occ
+
+(a) Image s from the QuadOcc and Human360Occ dataset s
+
+> QuadOcc
+
+Novel Class Base Class vehicle road building person vegetation terrain  
+
+> 0.0
+> 1.0
+> 2.0
+> 3.0
+> 4.0
+> 5.0
+> 6.0
+> 7.0
+> 8.0
+> 9.0 1E+7
+> Frequency
+
+Class Name 
+
+Novel Class Base Class road sidewalk building car truck bus two whe. vegetation person pole  
+
+> 0.0
+> 2.0
+> 4.0
+> 6.0
+> 8.0
+> 10.0 1E+6
+> Frequency
+
+Class Name  
+
+> 0.017 0.066 0.133
+
+(b) F requency of voxels in QuadOcc dataset (c) F requency of voxels in Human360Occ dataset 
+
+> Human360Occ
+
+(a) Image s from the QuadOcc and Human360Occ dataset s
+
+> QuadOcc
+
+Fig. S4: Images and the frequency of voxels for each semantic category in the QuadOcc and Human360Occ datasets. 
+
+layers that align voxel features to 512 dimensions. We utilize the text encoder from CLIP [40] to extract textual features, with an embedding dimension of 512 ;in addition, following LSeg [23], we extract high-resolution pixel-level image fea-tures fseg . The hyperparameters do, α, λ, and β are set to 128 , 0.9, 1.0, and 0.1,respectively. 
+
+C More Results 
+
+C.1 Performance Analysis under Different Field of View 
+
+We reduce the horizontal Field of View (FoV) by cropping the omnidirectional image without fine-tuning the model. Using forward-centered cropping ensures that the effective input spatial range decreases proportionally as the FoV nar-rows. As shown in Fig. S5, the proposed O3N method substantially outperforms the baseline OVO [48] in both novel semantic recognition and overall perfor-mance. In particular, under small-FoV settings, O3N demonstrates enhanced O3N 25 360°(100%)       
+
+> 180°(50.0%)
+> 270°(75.0%)
+> 90°(25.0%)
+> 360°(100%)
+> 180°(50.0%)
+> 270°(75.0%)
+> 90°(25.0%)
+> (a) Novel mIoU 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> 16
+> 18
+> 20
+> 22
+> 24
+> 18.15
+> 4.55
+> 7.22
+> 8.87
+> 9.97
+> 11.75
+> 14.32
+> 16.27
+> 21.17
+> 9.62
+> 11.02
+> 11.44
+> 11.57
+> 13.45
+> 16.8
+> 19.8
+> OVO
+> Ours
+> 360°(100%)
+> 180°(50.0%)
+> 270°(75.0%)
+> 90°(25.0%)
+> (a) Novel mIoU 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> 16
+> 18
+> 20
+> 22
+> 24
+> 18.15
+> 4.55
+> 7.22
+> 8.87
+> 9.97
+> 11.75
+> 14.32
+> 16.27
+> 21.17
+> 9.62
+> 11.02
+> 11.44
+> 11.57
+> 13.45
+> 16.8
+> 19.8
+> OVO
+> Ours
+> 360°(100%)
+> 180°(50.0%)
+> 270°(75.0%)
+> 90°(25.0%)
+> 360°(100%)
+> 180°(50.0%)
+> 270°(75.0%)
+> 90°(25.0%)
+> (b) mIoU 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> 16
+> 18
+> 14.33
+> 4.87 7.18
+> 8.77
+> 9.39
+> 10.54
+> 12.15
+> 13.4
+> 16.54
+> 6.73
+> 8.54
+> 10.04
+> 10.62
+> 11.87
+> 13.84
+> 15.62
+> OVO
+> Ours
+> 360°(100%)
+> 180°(50.0%)
+> 270°(75.0%)
+> 90°(25.0%)
+> (b) mIoU 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> 16
+> 18
+> 14.33
+> 4.87 7.18
+> 8.77
+> 9.39
+> 10.54
+> 12.15
+> 13.4
+> 16.54
+> 6.73
+> 8.54
+> 10.04
+> 10.62
+> 11.87
+> 13.84
+> 15.62
+> OVO
+> Ours
+
+Fig. S5: FoV ablation on QuadOcc dataset (horizontal crop at eval only; no retraining). Both our proposed O3N and OVO [48] are trained once at 360 ◦ omnidi-rectional images, and evaluated at narrower FoVs via forward-centered cropping. 
+
+spatial awareness, enabling more accurate interpretation and reconstruction of the local environment. Furthermore, the O3N consistently improves perception accuracy across various FoV configurations, demonstrating its suitability for fish-eye, panoramic, and other pinhole camera setups. This robust performance high-lights the ability to effectively correlate voxel, visual, and textual embeddings in the open world. As the FoV increases, it fully leverages visual cues from the sur-rounding scene, converting them into contextual spatial information to achieve more complete and semantically enriched occupancy reconstruction. 
+
+C.2 More Qualitative Results 
+
+In Fig. S6, we provide more qualitative results for open-vocabulary occupancy prediction on QuadOcc [43] and Human360Occ [43] datasets. The predictions generated by O3N exhibit distinctly clearer geometric structures and improved semantic discrimination, particularly for unseen classes like vehicles and the over-all scene layout. In contrast, the instances generated by the baseline: OVO [48], appear to be influenced by semantic misalignment in the feature space, resulting in vague shapes and semantic ambiguity. 
+
+C.3 Generalization under more challenging semantic shifts and indoor scenarios. 
+
+We extend our evaluation to investigate the robustness of O3N under more ex-treme semantic distribution shifts and its applicability to indoor environments. While standard benchmarks provide a solid foundation, understanding model behavior under significant domain gaps is crucial for real-world deployment. To evaluate performance under severe semantic distribution shifts, we supplement our evaluation with experiments on H3O-Heter, a cross-city split with extreme intra-category visual-semantic variations, as shown Table S1. O3N demonstrates robustness under significant semantic distribution shifts, outperforming OVO by 26 M. Duan, H. Shi et al. Omnidirectional Image Ground Truth OVO O3N (Ours) Omnidirectional Image Ground Truth OVO O3N (Ours) 
+
+Fig. S6: Qualitative visualization results on the QuadOcc and Human360Occ datasets. 
+
+0.7% in novel mIoU and 0.69% in overall mIoU. To further extend our evalua-tion to an indoor dataset NYUv2 in Table S2, our method consistently achieves superior performance, particularly on unseen semantics ( +1 .48% ). 
+
+D Discussions 
+
+D.1 Limitations and Future Work 
+
+The performance of omnidirectional open-vocabulary occupancy prediction is de-pendent on the vision-language models, but a vision-language model tailored for omnidirectional vision is scarce in the literature. The extracted open-vocabulary 2D image pixel features are prone to semantic shifts, limited generalization, and distribution bias in valid voxel sampling. Future research could explore self-supervised learning methods for omnidirectional visual scenes to enhance the generalizability in semantic understanding. Despite these limitations, O3N ad-vances comprehensive scene understanding by unifying omnidirectional visual perception with 3D geometric-semantic prediction under open-ended semantics within a purely visual, end-to-end framework. O3N 27 
+
+Table S1: Omnidirectional 3D occupancy prediction results on Hu-man360Occ Heter (cross-city) split. C: Camera. 
+
+Novel Class Base Class 
+
+Method Input mIoU 
+
+> ■ road (34.04%)
+> ■ sidewalk (26.24%)
+> ■ building (10.00%)
+> ■ car (2.92%)
+> ■ truck (0.99%)
+> ■ bus (0.25%)
+> ■ two_whe. (0.07%)
+
+mean 
+
+> ■ veg. (24.02%)
+> ■ person (0.97%)
+> ■ pole (0.50%)
+
+mean 
+
+Fully-supervised 
+
+VoxFormer-S [27] 
+
+C
+
+10.63 19.02 15.82 2.84 0.95 0.10 0.00 0.01 5.53 5.86 61.62 0.10 22.53 OccFormer [79] 20.87 47.00 39.01 10.14 11.84 1.52 0.05 0.77 15.76 24.85 66.60 6.93 32.79 SGN-S [33] 20.60 43.47 24.70 9.19 17.21 8.21 1.85 5.08 15.67 20.27 61.10 14.89 32.09 SGN-T [33] 20.02 42.57 23.94 9.42 18.22 10.21 1.55 3.11 15.57 15.84 63.44 11.93 30.40 MonoScene [4] 24.15 49.68 41.41 11.04 20.34 10.36 1.98 2.79 19.66 20.57 69.68 13.69 34.65 OneOcc [43] 32.23 58.60 48.28 16.34 30.68 19.35 12.87 14.16 28.61 25.98 72.89 23.11 40.66 
+
+Open-vocabulary 
+
+OVO [48] C 18.29 29.89 9.99 12.36 15.09 2.01 0.23 0.00 9.94 22.23 68.30 22.85 37.79 
+
+Ours 18.98 31.79 15.61 10.59 16.46 0.00 0.00 0.00 10.64 22.79 69.63 22.89 38.44 
+
+Table S2: 3D occupancy prediction results on NYUv2 . C: Camera. 
+
+Novel Class Base Class 
+
+Method Input mIoU 
+
+> ■ bed (7.08%)
+> ■ table (4.31%)
+> ■ other (14.19%)
+
+mean 
+
+> ■ ceiling (1.37%)
+> ■ floor (17.58%)
+> ■ wall (15.26%)
+> ■ window (1.99%)
+> ■ chair (3.01%)
+> ■ sofa (4.70%)
+> ■ tvs (0.47%)
+> ■ furniture (30.04%)
+
+mean 
+
+Fully-supervised 
+
+LMSCNet rgb [41] 
+
+C
+
+15.88 32.03 6.57 4.39 14.33 4.49 88.41 4.63 0.25 3.94 15.44 0.02 14.51 16.46 SGN-S [33] 27.71 48.59 14.08 12.07 24.91 14.67 93.56 13.36 10.35 14.64 37.47 15.75 30.31 28.76 MoneScene [4] 26.94 48.19 15.13 12.94 25.42 8.89 93.50 12.06 12.57 13.72 36.11 15.22 27.96 27.50 
+
+Open-vocabulary 
+
+OVO ∗ [48] C 21.13 29.37 3.91 8.34 13.88 6.91 92.47 8.52 7.72 9.92 31.97 8.54 24.77 23.85 
+
+Ours 23.21 31.92 8.01 6.14 15.36 10.48 93.57 9.41 10.32 12.29 32.86 15.03 25.26 26.15  
+
+> ∗denotes results reproduced using the official code implementation.
+
+D.2 Failure Case Analysis 
+
+Fig. S7 presents two typical failure cases of O3N. Depth ambiguity is an inherent challenge in monocular 3D reconstruction. While depth-based Lift-Splat-Shoot (LSS) projection [39] is common in pinhole vision, panoramic depth estimation contains substantial noise in the predicted depth maps, which severely compro-mises spatial perception accuracy. Given these challenges, we adopt the Fea-tures Line of Sight 2D-to-3D Projection (FLoSP) projection strategy [4, 33], verified in OneOcc [43], as it is more concise and robust than learnable LSS [39] and cross-attention mechanism [28], and optimal for panoramic settings. How-ever, the FLoSP method is insensitive to overall spatial depth, so in the first case, nearly all methods using FLoSP exhibit misalignment in spatial range per-ception. Specifically, when the sidewalk is adjacent to vegetation, all methods demonstrate additional prediction errors. Furthermore, due to the visual similar-ity between the pole and sidewalk, both MonoScene and OVO fail to detect the pole, while O3N accurately reconstructs the occupancy state of the pole. This 28 M. Duan, H. Shi et al. 
+
+demonstrates that O3N can effectively perceive both geometric and semantic information in space, thereby showcasing enhanced generalization ability. Omnidirectional Image Ground Truth MonoScene OVO Ours (O3N) Omnidirectional Image Ground Truth MonoScene OVO Ours (O3N) 
+
+Fig. S7: Failure case analysis on H3O Homo (with-city). Similar to MonoScene [48], O3N employs the same 2D-to-3D projection strategy (FLoSP), re-sulting in limited sensitivity to spatial depth. This limitation causes inaccuracies in accurately perceiving the full spatial extent of the scene. 
+
+In the second case, in a rainy street scene at dusk, due to the dim lighting and interference from rain-reflected light, MonoScene misidentifies most of the sidewalk as unoccupied ( empty ). OVO and O3N also encounter similar issues, but, compared to OVO, O3N more robustly reconstructs the occupancy state of the entire scene and demonstrates clearer semantic awareness. For example, OVO reconstructs the sidewalk as a building, while O3N reconstructs it as road, which is more semantically similar to the sidewalk. These failures demonstrate that while current 2D-to-3D projection strate-gies can effectively extend omnidirectional images into 3D space, they still have inherent limitations in spatial localization and are prone to structural misjudg-ments. Therefore, enhancing the spatial depth perception of models to miti-gate projection-induced geometric biases constitutes an important direction for future research. Furthermore, to address complex environmental factors, such as insufficient lighting and reflections caused by rain or snow, large-scale data augmentation and domain adaptation across different weather conditions and scenes can improve the robustness and generalization performance, especially in extreme weather and previously unseen scenarios. 
+
+D.3 Societal Impacts 
+
+Omnidirectional open-vocabulary occupancy prediction has the potential to sig-nificantly enhance the safety of autonomous driving systems and the perceptual intelligence of smart devices, while also accelerating the adoption of embodied AI technologies in healthcare, manufacturing, and service robotics. However, the method remains imperfect in prediction accuracy, and in practical applications, these limitations and the associated uncertainties must be carefully considered.

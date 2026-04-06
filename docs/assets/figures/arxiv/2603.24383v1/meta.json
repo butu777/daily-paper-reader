@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24383v1/fig-001.webp",
+      "caption": "Figure 5. Additional visualization result on the 3D-FUTURE dataset [11].",
+      "page": 15,
+      "index": 1,
+      "width": 1024,
+      "height": 562
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24383v1/fig-002.webp",
+      "caption": "Figure 6. Qualitative analysis of VLM understanding. The text annotation is “Pull the smalltable, and set it back down.”",
+      "page": 15,
+      "index": 2,
+      "width": 1034,
+      "height": 563
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24383v1/fig-003.webp",
+      "caption": "Figure 4. Qualitative comparisons on the FullBodyManipulation dataset [26]. Compared to state-of-the-art methods, our approach generates more realistic and physically plausible human-object interactions.",
+      "page": 7,
+      "index": 3,
+      "width": 1018,
+      "height": 1127
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24383v1/fig-004.webp",
+      "caption": "Figure 3. User study on the 3D-Future dataset [11].",
+      "page": 13,
+      "index": 4,
+      "width": 494,
+      "height": 250
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24383v1/fig-005.webp",
+      "caption": "Figure 1. Qualitative results on the FullBodyManipulation dataset [26]. The three images on the left side are the reference inputs, while the right side shows the motion sequences generated from them. Despite imperfections in these reference images, the generated HOI motions remain plausible and well aligned with the textual semantics.",
+      "page": 12,
+      "index": 5,
+      "width": 1029,
+      "height": 366
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24383v1/fig-006.webp",
+      "caption": "Figure 7. Qualitative analysis of VLM understanding. The text annotation is “Kick the base of the floorlamp, and set it back down.”",
+      "page": 16,
+      "index": 6,
+      "width": 1034,
+      "height": 561
+    }
+  ]
+}

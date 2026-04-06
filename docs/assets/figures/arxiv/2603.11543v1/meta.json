@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-001.webp",
+      "caption": "Table 3: Ablation on the core components of Mango-GS. We report results from progressively adding each component to a baseline.",
+      "page": 10,
+      "index": 1,
+      "width": 814,
+      "height": 208
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-002.webp",
+      "caption": "Figure 1: An overview of the Mango-GS framework. Our method is driven by a set of decoupled control nodes, each comprising a canonical position and a feature code. A dense 3D Gaussian cloud is associated with these nodes via a learned k-NN relationship based on both position and features. A temporal attention network takes the canonical node positions and a time window [0, T ] as input, processing them through MLP layers and temporal attention blocks to predict the nodes’ deformations over the entire time window. This learned motion is then propagated back to the Gaussian cloud to produce the final dynamic scene representation for each frame. The entire model is optimized end-to-end with a temporal input masking scheme and a composite loss, which includes a top-k hard-frame photometric loss, and a motion-aware temporal loss.",
+      "page": 3,
+      "index": 2,
+      "width": 829,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-003.webp",
+      "caption": "Figure 4: Visualization comparison between baselines and our methods from the Neural 3D Video dataset. The main differences are highlighted and zoomed in with boxes.",
+      "page": 8,
+      "index": 3,
+      "width": 826,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-004.webp",
+      "caption": "Table 1: Quantitative comparison on two datasets. Best is bold and second-best is underlined.",
+      "page": 8,
+      "index": 4,
+      "width": 830,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-005.webp",
+      "caption": "Figure 5: Qualitative comparison on HyperNeRf. Our method offers sharp results. Differences are highlighted with boxes.",
+      "page": 9,
+      "index": 5,
+      "width": 829,
+      "height": 646
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-006.webp",
+      "caption": "Figure 2: Position-only nodes versus decoupled nodes with position and code. We visualize 24 Gaussians (red) in high motion region and its three corresponding nodes (white). With the decoupled design, Gaussians attach to semantically consistent nodes rather than merely following spatial neighbors, which struggle under large motion.",
+      "page": 5,
+      "index": 6,
+      "width": 829,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11543v1/fig-007.webp",
+      "caption": "Figure 7: Sequence of 12 consecutive inference results from Mango-GS (T = 6). Each group displays a complete inference output at specific timestamps.",
+      "page": 16,
+      "index": 7,
+      "width": 829,
+      "height": 1000
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-001.webp",
+      "caption": "Table 1: Video evaluation results across visual quality, motion quality and content consistency dimensions. Best results are bolded, and second-best results are underlined.",
+      "page": 11,
+      "index": 1,
+      "width": 719,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-002.webp",
+      "caption": "Fig. 7: Visualizations of the 4D Gaussian representations, RGB videos, and depth maps produced by RoboStereo. RoboStereo generates precise future trajectories conditioned on action instructions, exhibiting high visual fidelity and geometric consistency.",
+      "page": 11,
+      "index": 2,
+      "width": 723,
+      "height": 404
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-003.webp",
+      "caption": "Fig. 11: Qualitative results of real-world deployment. The robotic arm is instructed to clear target cubes from a desktop with a prism serving as a distractor. The VLA jointly optimized via IEPL and OEPL exhibits emergent self-correction and fine-grained micro-adjustment capabilities. These critical recovery behaviors absent in the imitation learning baseline.",
+      "page": 21,
+      "index": 3,
+      "width": 723,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-004.webp",
+      "caption": "Fig. 3: Illustration of Test-Time Policy Augmentation (TTPA).",
+      "page": 7,
+      "index": 4,
+      "width": 723,
+      "height": 191
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-005.webp",
+      "caption": "Fig. 4: Illustration of Imitative-Evolutionary Policy Learning (IEPL).",
+      "page": 8,
+      "index": 5,
+      "width": 723,
+      "height": 193
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-006.webp",
+      "caption": "Fig. 9: Visualization of fine-grained geometric reasoning enabled by IEPL on the Three_Piece_Assembly_D0 task. The base policy (top row) produces coarse actuation and fails to satisfy precise 3D geometric constraints. In contrast, the IEPLoptimized policy (bottom row), guided by dense visual imitation rewards from RoboStereo’s imagined trajectories, performs continuous micro-adjustments, achieving accurate part insertion.",
+      "page": 19,
+      "index": 6,
+      "width": 723,
+      "height": 218
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-007.webp",
+      "caption": "Table 2: Video evaluation results across physics adherence, 3D accuracy and controllability dimensions. Best results are bolded, and second-best results are underlined.",
+      "page": 12,
+      "index": 7,
+      "width": 723,
+      "height": 192
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-008.webp",
+      "caption": "Table 7: Summary of video quality evaluation metrics in WorldArena [33].",
+      "page": 24,
+      "index": 8,
+      "width": 723,
+      "height": 826
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-009.webp",
+      "caption": "Fig. 5: Illustration of Open-Exploration Policy Learning (OEPL).",
+      "page": 9,
+      "index": 9,
+      "width": 723,
+      "height": 194
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12639v1/fig-010.webp",
+      "caption": "Fig. 10: Visualization of emergent self-correction via OEPL on the Square_D0 task. The base policy (top row) exhibits open-loop failure propagation: after an initial grasp failure, it erroneously treats the failed state as successful and blindly executes the subsequent transport trajectory. In contrast, the OEPL-optimized VLA policy (bottom row) autonomously detects the grasp slip and initiates a corrective re-grasping maneuver, achieving robust task completion.",
+      "page": 20,
+      "index": 10,
+      "width": 723,
+      "height": 236
+    }
+  ]
+}

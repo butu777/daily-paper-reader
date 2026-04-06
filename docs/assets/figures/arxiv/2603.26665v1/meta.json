@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-001.webp",
+      "caption": "Table 3: Surface mesh reconstruction on synthetic data. We evaluate geometric accuracy using Chamfer Distance (CD, ↓) and Normal Error (↓). The results demonstrate the superior precision of our reconstruction compared to baseline methods.",
+      "page": 11,
+      "index": 1,
+      "width": 721,
+      "height": 187
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-002.webp",
+      "caption": "Table 2: Novel view synthesis accuracy on synthetic data. The results highlight that our proposed appearance model is essential for accurately recovering object appearance from sparse multi-view observations.",
+      "page": 11,
+      "index": 2,
+      "width": 721,
+      "height": 383
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-003.webp",
+      "caption": "Fig. 13: Effectiveness of diffuse and specular components for novel view synthesis. Our full model can faithfully reproduce both specular highlights and diffuse shading.",
+      "page": 25,
+      "index": 3,
+      "width": 723,
+      "height": 534
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-004.webp",
+      "caption": "Fig. 14: Visualization of specular and diffuse components. In the second column of the specular components, we show the results with increased brightness for better visibility. Our method successfully decomposes the object appearance into specular and diffuse components, except for the challenging case of the ottoman.",
+      "page": 26,
+      "index": 4,
+      "width": 723,
+      "height": 742
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-005.webp",
+      "caption": "Fig. 9: Additional Visualization of Recovered Surface Normals. Our recovered surface normals are at least comparable to those of the baselines, suggesting the robustness of our method.",
+      "page": 21,
+      "index": 5,
+      "width": 723,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-006.webp",
+      "caption": "Fig. 18: Surface normals and mesh models recovered from real-world datasets.",
+      "page": 30,
+      "index": 6,
+      "width": 723,
+      "height": 559
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-007.webp",
+      "caption": "Fig. 16: Comparison with our method without alternating estimation (“w/o Alternating Estimation”). In the “10 frames,” “15 frames,” and “29 frames” settings, the object rotates by approximately 39, 26, and 13 degrees, respectively, between adjacent frames. Our full method successfully recovers geometry and appearance even in the temporally sparsest setting.",
+      "page": 29,
+      "index": 7,
+      "width": 722,
+      "height": 351
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-008.webp",
+      "caption": "Fig. 10: Additional Novel View Synthesis Results. Our appearance model improves the fidelity of novel view synthesis on different objects. The ottoman (the second row) remains challenging due to its limited surface-normal variation.",
+      "page": 22,
+      "index": 8,
+      "width": 723,
+      "height": 424
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-009.webp",
+      "caption": "Fig. 11: Qualitative comparison with DG-Mesh [21]. While DG-Mesh supports deformable objects, it struggles with the sparse inputs provided by static cameras.",
+      "page": 23,
+      "index": 9,
+      "width": 723,
+      "height": 405
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-010.webp",
+      "caption": "Fig. 15: Qualitative comparison with per-Gaussian SH. In particular, our full model yields sharper reconstructions of fine surface details (e.g ., the wrinkles on the bunny).",
+      "page": 28,
+      "index": 10,
+      "width": 717,
+      "height": 590
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-011.webp",
+      "caption": "Fig. 6: Surface normals and mesh models recovered from real-world datasets.",
+      "page": 13,
+      "index": 11,
+      "width": 723,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-012.webp",
+      "caption": "Fig. 7: Visualization of alternating estimation progress. We show the recovered geometry and object poses (represented as effective camera views) at several timesteps. As the temporal window expands and the effective camera coverage becomes more informative, the geometric accuracy of the reconstruction progressively improves.",
+      "page": 13,
+      "index": 12,
+      "width": 722,
+      "height": 230
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-013.webp",
+      "caption": "Fig. 3: Motion-Aware Appearance Modeling. (a) For moving objects, specular reflection is a function of incident radiance from the reflected viewing direction ωr, which evolves with object pose. (b) Similarly, diffuse reflection depends on the timevarying surface normal n relative to the static environment. (c) Our model factorizes appearance into specular (e) and diffuse (f) components by evaluating the surface normal and reflected viewing directions in the world coordinate system. (d) Unlike standard 3DGS, which optimizes independent Spherical Harmonics (SH) for each primitive, our approach employs shared SH coefficients θd and θs across all foreground Gaussians to robustly capture the global illumination field.",
+      "page": 8,
+      "index": 13,
+      "width": 706,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-014.webp",
+      "caption": "Fig. 4: Visualization of recovered surface normals. The error maps on the right visualize per-pixel estimation discrepancies. These results demonstrate that proper appearance modeling is essential for effectively leveraging radiometric cues to reconstruct fine surface details.",
+      "page": 12,
+      "index": 14,
+      "width": 723,
+      "height": 405
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-015.webp",
+      "caption": "Table 5: Comparison with per-Gaussian SH, a variant of our method that optimizes SH coefficients independently for each Gaussian. We report (a) surface normal accuracy and (b) novel view synthesis quality on synthetic data. Optimizing per-Gaussian SH can be unstable on complex objects (e.g ., the bunny), leading to degraded performance.",
+      "page": 27,
+      "index": 15,
+      "width": 721,
+      "height": 375
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-016.webp",
+      "caption": "Fig. 12: Effectiveness of diffuse and specular components for surface normal recovery. Modeling both diffuse and specular components is critical for recovering accurate surface normals on objects with diverse material properties, where viewdependent effects can otherwise bias the reconstruction.",
+      "page": 24,
+      "index": 16,
+      "width": 723,
+      "height": 574
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26665v1/fig-017.webp",
+      "caption": "Fig. 2: Method Overview. Given sparse multi-view videos and an initial set of canonical 2D Gaussians (a), our framework recovers per-frame object poses while iteratively refining the Gaussian geometry via differentiable rendering. To ensure robust convergence under sparse supervision, we employ an alternating optimization that switches between 6-DoF object pose estimation (b) and canonical Gaussian refinement (c) using the aggregated temporal information from all processed frames.",
+      "page": 5,
+      "index": 17,
+      "width": 708,
+      "height": 198
+    }
+  ]
+}

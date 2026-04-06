@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-001.webp",
+      "caption": "Table 2: Ablation studies of memory retrieval strategies (top) and memory injection mechanisms (bottom) on the Re10K Dataset. Bold means the best and underline means the second best.",
+      "page": 11,
+      "index": 1,
+      "width": 671,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-002.webp",
+      "caption": "Fig. 4: Qualitative comparison on the out-of-distribution scenes. Red dashed boxes denote the generated artifacts.",
+      "page": 26,
+      "index": 2,
+      "width": 721,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-003.webp",
+      "caption": "Fig. 1: Visual comparison of the frozen and adaptive NVS modules. The purple dashed boxes indicate warping errors introduced by the frozen NVS module, which causes inaccurate camera motion in the generated results (highlighted by red dashed boxes). The adaptive NVS module suppresses these unreliable warped regions, allowing the model to fall back on its internal generative priors to produce convincing results with accurate camera motion.",
+      "page": 21,
+      "index": 3,
+      "width": 717,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-004.webp",
+      "caption": "Table 1: Ablation studies of different feature layers for memory retrieval on the Re10K dataset. Time costs are averaged per video clip and reported in seconds (s).",
+      "page": 22,
+      "index": 4,
+      "width": 671,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-005.webp",
+      "caption": "Fig. 2: Limitations of existing memory mechanisms. (Top-Left) Explicit geometrybased methods (e.g., Gen3C [27]) suffer from scale estimation ambiguity, leading to inaccurate camera navigation (e.g., colliding with the wall) and revisit inconsistencies. (Top-Right) Implicit FoV-based methods (e.g., WorldPlay [30]) fail under occlusions, as FoV overlap ignores actual visual visibility. This retrieves irrelevant historical frames, causing repeated semantic content and inconsistent revisits. (Bottom) Visual examples. Frames with matching colors denote the same viewpoint and should be strictly consistent. Red circles highlight inconsistencies, and red box indicates the repeated content.",
+      "page": 3,
+      "index": 5,
+      "width": 725,
+      "height": 857
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-006.webp",
+      "caption": "Fig. 6: Ablation of memory retrieval strategies. Black dashed arrows link corresponding frames that should remain consistent, and red circles highlight visual inconsistencies. Temporal and random strategies fail to maintain scene consistency. Geometry-, FoVand I3D-TopK-based approaches improve revisit consistency but still exhibit artifacts, while our full I3D-based retrieval strategy robustly maintains strict consistency.",
+      "page": 13,
+      "index": 6,
+      "width": 681,
+      "height": 541
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-007.webp",
+      "caption": "Fig. 5: Our visual results on the RealEstate10K dataset. Black dashed arrows link corresponding frames that should remain consistent.",
+      "page": 27,
+      "index": 7,
+      "width": 723,
+      "height": 1008
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23413v1/fig-008.webp",
+      "caption": "Fig. 3: Overview of the proposed I3DM framework. Left: 3D-aware Memory Retrieval. For each historical frame in the memory bank, we first extract 3D-aware intermediate features using a pre-trained NVS model. A lightweight scoring network then evaluates their spatial relevance to the target view to select the most relevant frames. Right: 3D-aligned Memory Injection. The retrieved frames are processed by an Adaptive NVS Module to align them with the target view. These aligned results are then used to condition the Wan-DiT backbone for consistent video scene generation.",
+      "page": 5,
+      "index": 8,
+      "width": 721,
+      "height": 271
+    }
+  ]
+}

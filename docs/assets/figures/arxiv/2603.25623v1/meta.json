@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25623v1/fig-001.webp",
+      "caption": "Fig. 1: Accurate surface reconstruction (right) produced by 3QFPI from a set of 3D radar point clouds (left) from the Radar Forest dataset. The mesh is coloured according to surface normals.",
+      "page": 1,
+      "index": 1,
+      "width": 487,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25623v1/fig-002.webp",
+      "caption": "Fig. 5: Comparison of completion ratios using every nth point cloud from the Radar Forest dataset as input. Except for Poisson, the completion of classical meshing methods declines quickly with sparse input, whereas neural implicit methods remain more robust.",
+      "page": 6,
+      "index": 2,
+      "width": 412,
+      "height": 308
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25623v1/fig-003.webp",
+      "caption": "Fig. 7: Reconstruction of view-dependent intensities. A corner reflector on a wall (a) is observed from multiple viewing directions in the ”wall w/o window” dataset. The intensities of points on the wall decrease with lower incidence angles (b), and our model can reconstruct these view-dependent intensities with low reconstruction errors (c).",
+      "page": 7,
+      "index": 3,
+      "width": 1026,
+      "height": 255
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25623v1/fig-004.webp",
+      "caption": "TABLE I: Quantitative evaluation of the surface reconstruction quality on the Radar Forest and SNAIL-Radar dataset using lidar point clouds as ground truth. We compare accuracy and completion errors (m), and accuracy ratio, completion ratio and F-score (%) with a threshold of 0.2m. Distances above 0.4m are omitted from the accuracy calculation, and the accuracy outlier ratio is additionally reported. To assess local planarity of surfaces, we evaluate the shape, mean, and variance of the Gamma distribution fitted to the histogram of angles between adjacent triangles (see fig. 4). Overall, 3QFPI achieves the best accuracy and preserves planar surface patches, while Poisson and SHINE-Mapping achieve the best completion. The best results per metric are highlighted in bold.",
+      "page": 4,
+      "index": 4,
+      "width": 960,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25623v1/fig-005.webp",
+      "caption": "Fig. 3: Surface reconstruction quality of different methods on the Radar Forest dataset (a–h), and a corner of the SNAIL-Radar basketball court dataset showing a basket and a building in the background (i–p). For reference, we include an image of the scene (from a different angle) and the lidar-based reconstruction created with SHINE-Mapping; meshes are coloured by surface normals. The comparison indicates that 3QFPI produces more accurate and smoother locally planar surfaces from noisy data. In particular, the reconstruction of the building in (p) is closest to the lidar reference (m).",
+      "page": 4,
+      "index": 5,
+      "width": 1052,
+      "height": 757
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25623v1/fig-006.webp",
+      "caption": "Fig. 4: Outlines of the histograms of angles between adjacent mesh triangles for surface reconstructions from the Radar Forest and SNAIL-Radar datasets. For both datasets, 3QFPI produces the largest proportion of small angles, indicating better preservation of locally planar regions, such as at the ground or walls.",
+      "page": 5,
+      "index": 6,
+      "width": 484,
+      "height": 318
+    }
+  ]
+}

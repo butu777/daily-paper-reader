@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11515v1/fig-001.webp",
+      "caption": "Fig. 3. Simulation setup of inertial confinement fusion in 2D with sinusoidal energy initialization in the x-axis and a perturbed interface to trigger RMI [42].",
+      "page": 8,
+      "index": 1,
+      "width": 527,
+      "height": 333
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11515v1/fig-002.webp",
+      "caption": "Fig. 1. MADA system architecture. The framework orchestrates three specialized agents: the Job Management Agent (JMA) manages simulations on HPC via Flux, the Geometry Agent (GA) generates meshes through Cubit, and the Inverse Design Agent (IDA) explores the design space. Agents communicate with tools via the Model Context Protocol (MCP).",
+      "page": 4,
+      "index": 2,
+      "width": 850,
+      "height": 468
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11515v1/fig-003.webp",
+      "caption": "Fig. 8. Selected configurations from the agent’s reasoning trace. Round 1 explores diverse patterns; Round 2 identifies the optimal alternating configuration; Round 3 confirms the boundary optimum.",
+      "page": 10,
+      "index": 3,
+      "width": 434,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11515v1/fig-004.webp",
+      "caption": "Fig. 6. Maximizing RMI: comparison of 100 L-BFGS-B optimization runs against 5 MADA runs. Each line shows the best objective versus number of evaluations (higher is better). MADA converges to a strong local optimum (objective 277). Right: density field for the best configuration found by MADA.",
+      "page": 10,
+      "index": 4,
+      "width": 527,
+      "height": 272
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11515v1/fig-005.webp",
+      "caption": "Fig. 7. Minimizing RMI: comparison of 100 L-BFGS-B optimization runs against 5 MADA runs. Each line shows the best objective versus number of evaluations (lower is better). MADA reaches the global optimum (objective 9) in under 40 evaluations across all runs. Right: density field for the best configuration found by MADA.",
+      "page": 10,
+      "index": 5,
+      "width": 527,
+      "height": 272
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11515v1/fig-006.webp",
+      "caption": "Fig. 5. Visualization of the high-velocity impact problem that results in the formation of RMI from [53].",
+      "page": 9,
+      "index": 6,
+      "width": 529,
+      "height": 295
+    }
+  ]
+}

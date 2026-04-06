@@ -1,0 +1,166 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-001.webp",
+      "caption": "Fig. 16: Qualitative failure analysis on a 3-hop ego-centric question. All three models fail to correctly identify the perspective.",
+      "page": 26,
+      "index": 1,
+      "width": 716,
+      "height": 446
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-002.webp",
+      "caption": "Fig. 17: Qualitative failure analysis on a 3-hop ego-centric question. All three models fail to correctly identify the perspective.",
+      "page": 26,
+      "index": 2,
+      "width": 716,
+      "height": 448
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-003.webp",
+      "caption": "Fig. 24: Qualitative failure analysis on a 2-hop exo-centric question. All three models fail to correctly determine the spatial relation based on the 3D distance.",
+      "page": 30,
+      "index": 3,
+      "width": 717,
+      "height": 496
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-004.webp",
+      "caption": "Fig. 25: Qualitative failure analysis on a 2-hop exo-centric question. All three models fail to recognize the attribute condition.",
+      "page": 30,
+      "index": 4,
+      "width": 717,
+      "height": 487
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-005.webp",
+      "caption": "Fig. 1: A multi-hop spatial reasoning example for an embodied agent in the real-world scenario.",
+      "page": 2,
+      "index": 5,
+      "width": 725,
+      "height": 192
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-006.webp",
+      "caption": "Fig. 22: Qualitative failure analysis on a 2-hop ego-centric question. All three models fail on relation recognition.",
+      "page": 29,
+      "index": 6,
+      "width": 716,
+      "height": 499
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-007.webp",
+      "caption": "Fig. 23: Qualitative failure analysis on a 2-hop exo-centric question. All three models fail to recognize the attribute condition.",
+      "page": 29,
+      "index": 7,
+      "width": 708,
+      "height": 456
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-008.webp",
+      "caption": "Fig. 15: Qualitative failure analysis on a 3-hop ego-centric question. All three models recognized the position condition “in front of”, but failed to incorporate it into their final predictions.",
+      "page": 14,
+      "index": 8,
+      "width": 725,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-009.webp",
+      "caption": "Fig. 2: Comparison of existing benchmarks (single-hop) and MultihopSpatial benchmark. In the question text, colored spans denote the queried reasoning components: Perspective, Attribute, Position, and Relation.",
+      "page": 3,
+      "index": 9,
+      "width": 723,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-010.webp",
+      "caption": "Fig. 20: Qualitative failure analysis on a 2-hop ego-centric question. GPT, Gemini, and Claude fail on perspective, position, and relation, respectively.",
+      "page": 28,
+      "index": 10,
+      "width": 714,
+      "height": 464
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-011.webp",
+      "caption": "Fig. 21: Qualitative failure analysis on a 2-hop ego-centric question. GPT and Gemini fail on position recognition, whereas Claude fails on attribute recognition.",
+      "page": 28,
+      "index": 11,
+      "width": 712,
+      "height": 483
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-012.webp",
+      "caption": "Table 1: Benchmark results across different hop counts and Ego/Exo per-",
+      "page": 8,
+      "index": 12,
+      "width": 725,
+      "height": 702
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-013.webp",
+      "caption": "Fig. 3: Compositional structure and category definitions in MultihopSpatial.",
+      "page": 4,
+      "index": 13,
+      "width": 723,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-014.webp",
+      "caption": "Fig. 13: Effect of model scale on MCQ Accuracy (top) and Acc@50IoU (bottom) across overall and per-hop settings. Solid lines indicate exo-centric and dashed lines indicate ego-centric performance.",
+      "page": 12,
+      "index": 14,
+      "width": 716,
+      "height": 248
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-015.webp",
+      "caption": "Fig. 19: Qualitative failure analysis on a 3-hop exo-centric question. GPT and Claude fail to recognize the attribute condition, whereas Gemini fails on relation recognition.",
+      "page": 27,
+      "index": 15,
+      "width": 716,
+      "height": 445
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-016.webp",
+      "caption": "Fig. 18: Qualitative failure analysis on a 3-hop exo-centric question. GPT and Gemini fail on attribute condition recognition, whereas Claude fails on position condition recognition.",
+      "page": 27,
+      "index": 16,
+      "width": 714,
+      "height": 445
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-017.webp",
+      "caption": "Fig. 5: All model performance across hop count and ego/exo perspectives.",
+      "page": 9,
+      "index": 17,
+      "width": 713,
+      "height": 382
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-018.webp",
+      "caption": "Fig. 27: Screenshot of the data verification interface. Reviewers verify samples based on the criteria and provide corrections and comments.",
+      "page": 31,
+      "index": 18,
+      "width": 725,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-019.webp",
+      "caption": "Fig. 26: Screenshot of the data annotation interface. Annotators write a question-answer pair, select a view type, and draw a bounding box.",
+      "page": 31,
+      "index": 19,
+      "width": 725,
+      "height": 508
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18892v1/fig-020.webp",
+      "caption": "Fig. 4: Example MultihopSpatial questions for 2-hop and 3-hop reasoning under ego-centric (top) and exo-centric (bottom) views. We omit the phrase “and provide the bounding box coordinate of the region related to your answer” for brevity.",
+      "page": 5,
+      "index": 20,
+      "width": 714,
+      "height": 465
+    }
+  ]
+}

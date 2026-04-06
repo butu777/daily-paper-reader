@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.22972v1/fig-001.webp",
+      "caption": "Fig. 3: Qualitative comparison with baselines. We compare with state-of-the-art methods for 3D scene generation leveraging image, panorama, and video generative model priors [10,14,30,39,41,47]. Since these methods focus on a single-room setting, we show our results focusing on one of our generated rooms within our multi-room generation. Most baselines lack explicit 3D structure, leading to view inconsistencies, particularly for challenging viewpoints close to objects (as views are typically synthesized with wider range for easier scene coverage and consistency). SpatialGen [14] mitigates this with 3D box-based layout conditioning, but struggles to maintain realistic local detail. In contrast, our mesh scaffold anchors synthesis geometrically, enabling much stronger multi-view consistency and more realistic appearance across diverse views.",
+      "page": 10,
+      "index": 1,
+      "width": 725,
+      "height": 844
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22972v1/fig-002.webp",
+      "caption": "Fig. 5: Ablation of mesh scaffold conditioning. Using only the structural mesh without initial textures (depth only) produces large inconsistencies at the local and object level. Using our scaffold mesh with objects but without initial textures (depth+objects) preserves object coherency, but still exhibits inconsistencies on structural elements. Structural conditioning with initial texture, but with objects represented as bounding boxes (depth+walls+bboxes), does not sufficiently constrain 3D consistency. Our full mesh scaffold with initial texture achieves strong local and global 3D consistency.",
+      "page": 13,
+      "index": 2,
+      "width": 652,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22972v1/fig-003.webp",
+      "caption": "Fig. 4: WorldMesh generates a diverse range of complex 3D scenes, varying both in spatial layouts and visual themes. We show rendered views from different rooms within each multi-room generated environment, including transitional viewpoints between rooms, demonstrating that stylistic coherence and 3D consistency are maintained throughout.",
+      "page": 12,
+      "index": 3,
+      "width": 688,
+      "height": 977
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22972v1/fig-004.webp",
+      "caption": "Fig. 2: Overview of WorldMesh. To generate a complex, multi-room 3D scene from a text prompt, we decompose this problem into first constructing the global scene structure as a mesh scaffold (top), and then using the scaffold mesh as anchor for realistic local appearance (bottom). The text prompt is used to generate a text-based floor plan, which we construct in 3D to use as depth conditioning for an image synthesis model Φ, in order to reconstruct estimated 3D objects in each room. The structural elements and 3D objects constitute the scaffold mesh M, for which initial wall textures are generated with Φ. M then serves as a geometric anchor for iterative image synthesis using Φ to generate images {Ii}. Finally, the output scene S is optimized with geometryregularized 3DGS, against both images {Ii} and rendered depth from M.",
+      "page": 5,
+      "index": 4,
+      "width": 716,
+      "height": 231
+    }
+  ]
+}

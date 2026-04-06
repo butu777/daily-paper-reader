@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-001.webp",
+      "caption": "Fig. 1: Scatter plot comparison of maximum 10-m wind speed (WS10M) predictions across different methods. Panels (a–i) display the correlation between predicted and observed (IBTrACS) values for 2,242 test samples pooled across all forecast lead times from the 2024 Northwest Pacific dataset. Solid lines denote the global linear regression fit with 95% confidence intervals, contrasted against the ideal 1:1 reference (dashed lines). The rightmost column illustrates the marginal distributions via box plots overlaid on kernel density estimates (KDEs), while the inset values represent the global Mean Bias and RMSE metrics.",
+      "page": 6,
+      "index": 1,
+      "width": 706,
+      "height": 657
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-002.webp",
+      "caption": "Fig. 2: Evaluation of maximum 10-meter wind speed forecasts across lead times. (a) RMSE versus forecast lead time, with numbers in parentheses denoting sample sizes. (b) Box-and-whisker plots of forecast bias (model minus observation), where boxes represent the interquartile range (IQR) and horizontal lines indicate the median. Both panels compare standard baselines—FuXi (blue), ERA5 (red), ECMWF-HRES (orange), and WRF (green)—against the proposed 3DTCR framework: pre-trained models using ERA5 (beige) or FuXi (pink) inputs, and the final SFT model (purple).",
+      "page": 7,
+      "index": 2,
+      "width": 706,
+      "height": 709
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-003.webp",
+      "caption": "Fig. 5: Ablation analysis of 3DTCR using different training strategies. Comparison of Critical Success Index (CSI) scores for maximum 10-m wind speed (WS10M) at lead times of 1 to 5 days, as an indicator of extreme intensity forecasting skill. Panels (a–f) correspond to six increasing intensity thresholds ranging from 13.9 to 32.7 m/s. The bar groups illustrate the FuXi baseline alongside 3DTCR variants trained using different optimization strategies (Pre-training, SFT, and E2E) and multi-task loss settings (with or without MMD).",
+      "page": 14,
+      "index": 3,
+      "width": 706,
+      "height": 744
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-004.webp",
+      "caption": "Fig. 6: Schematic diagram of the overall framework of the 3DTCR model. (a)Training stage: The model is first pre-trained on ERA5 reanalysis data via Rectified Flow to learn the velocity field, followed by fine-tuning (indicated by blue arrows) with both ERA5 and operational FuXi forecast data using an MMD loss to align latent feature distributions. (b) Inference stage: FuXi forecasts are dynamically tracked and cropped to TC-centered regions, serving as inputs to the 3DTCR model to reconstruct high-resolution TC vortex structures at each time step, enabling improved TC forecasting.",
+      "page": 18,
+      "index": 4,
+      "width": 706,
+      "height": 615
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-005.webp",
+      "caption": "Table 1: RMSE Performance of 10-meter Maximum Wind Speed Prediction (Lower is Better ↓)",
+      "page": 8,
+      "index": 5,
+      "width": 706,
+      "height": 422
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-006.webp",
+      "caption": "Fig. 4: Multi-level wind speed profiles and spectral analysis for Typhoon KONG-REY. Evolution of wind speed characteristics across different atmospheric levels: 200 hPa (first row), 500 hPa (second row), 700 hPa (third row), 850 hPa (fourth row), and 10-meter height (fifth row). Each row shows: wind speed profiles along distance (first column), probability density functions of wind speed (second column), wind speed power spectra (third column), and kinetic energy spectra (fourth column). Results are compared among ERA5 reanalysis (red), FuXi forecast (blue), 3DTCR model (purple), and WRF 3km simulation (green). Power and kinetic energy spectra are displayed in log-log scale, revealing the multi-scale characteristics and energy cascade of the typhoon circulation.",
+      "page": 12,
+      "index": 6,
+      "width": 706,
+      "height": 888
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13049v1/fig-007.webp",
+      "caption": "Fig. 3: Typhoon KONG-REY multi-variable field reconstruction at 18-h forecast lead time. Reconstruction comparison of the TC vortex structure through 2-meter temperature (T2M, K), 10-meter u/v wind components (U10M, V10M, m/s), mean sea level pressure (MSL, hPa), and 10-meter wind speed (WS10M, m/s), initialized at 12 UTC October 29, 2024. Rows from top to bottom: Interpolation (FuXi), 3DTCR reconstruction, and WRF 3km simulation (ground truth).",
+      "page": 9,
+      "index": 7,
+      "width": 706,
+      "height": 452
+    }
+  ]
+}

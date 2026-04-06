@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07704v1/fig-001.webp",
+      "caption": "Figure 4. Gallery of PARSE-10K",
+      "page": 6,
+      "index": 1,
+      "width": 1020,
+      "height": 449
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07704v1/fig-002.webp",
+      "caption": "Figure 2. An illustrative example of our Part-centric Assembly Graph (PAG). The left panel shows a PARSE-generated scene, where several regions governed by spatial relation constraints are highlighted. The middle panel presents the corresponding PAG: object nodes are visualized as full circular nodes, while part nodes are shown as partially clipped nodes attached to their parent object; the sub-PAGs corresponding to the highlighted regions are also emphasized. The right panel zooms into one such sub-PAG, where we annotate, for each part node, the oriented face used in defining its relational constraint.",
+      "page": 3,
+      "index": 2,
+      "width": 1015,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07704v1/fig-003.webp",
+      "caption": "Figure 3. Controllable Scene Synthesis via Part-Aware Spatial Configuration Solver. (a) Coarse Localization: The solver first prunes the 2D support surface of occupied regions (red), then further contracts the feasible space using object-level spatial relations (orange). (b) Part-Level Alignment: Precise geometric alignment is achieved by enforcing constraints (e.g., coplanarity) between specific surfaces identified by the solver. This drastically shrinks the pose space from which a final pose is sampled. (c) Fine-Grained Relational Control: Specifying different part-level geometric relations in the PAG results in distinct and predictable arrangements, showcasing the framework’s fine-grained controllability.",
+      "page": 4,
+      "index": 3,
+      "width": 998,
+      "height": 312
+    }
+  ]
+}

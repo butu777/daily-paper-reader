@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-001.webp",
+      "caption": "Figure 4. Stereo video generation comparison with SOTA methods augmented by post-hoc stereo conversion. Our method directly generates stereo video in an end-to-end manner, enabling better preservation of inter-view detail consistency and tonal coherence.",
+      "page": 6,
+      "index": 1,
+      "width": 1022,
+      "height": 648
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-002.webp",
+      "caption": "Figure 11. Stereo Video Generation on Embodided Scenarios.",
+      "page": 15,
+      "index": 2,
+      "width": 492,
+      "height": 798
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-003.webp",
+      "caption": "Figure 10. The summary of quantitative feedback in the user study. (a) Camera Conformity (b) Temporal Consistency (c) Image Quality (d) Overall.",
+      "page": 15,
+      "index": 3,
+      "width": 428,
+      "height": 376
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-004.webp",
+      "caption": "Figure 2. World Model Comparison. StereoWorld incorporates metric-scale geometry, producing output modalities that are more compatible with pretrained models. Moreover, it can be applied end-to-end for VR visualization, ensuring better consistency of fine-grained details between the left and right views.",
+      "page": 2,
+      "index": 4,
+      "width": 477,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-005.webp",
+      "caption": "Figure 5. Visualization of camera trajectory comparison from methods with different camera conditioning types.",
+      "page": 7,
+      "index": 5,
+      "width": 481,
+      "height": 251
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-006.webp",
+      "caption": "Table 2. Comparison of stereo video with SOTA methods on visual quality, camera accuracy, view synchronization and FPS.",
+      "page": 7,
+      "index": 6,
+      "width": 1031,
+      "height": 203
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-007.webp",
+      "caption": "Figure 9. More StereoWorld Results with Anaglyph.",
+      "page": 14,
+      "index": 7,
+      "width": 1020,
+      "height": 1248
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-008.webp",
+      "caption": "Figure 8. Attention mask configuration in distillation process.",
+      "page": 13,
+      "index": 8,
+      "width": 461,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-009.webp",
+      "caption": "Figure 6. Stereo disparity comparison. Notably, our approach does not rely on any depth supervision during training.",
+      "page": 8,
+      "index": 9,
+      "width": 1014,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-010.webp",
+      "caption": "Figure 7. Comparison of different camera-condition strategies.",
+      "page": 8,
+      "index": 10,
+      "width": 488,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-011.webp",
+      "caption": "Figure 3. Illustration of StereoWorld. Given a pair of stereo images and a conditional camera trajectory, StereoWorld first encodes conditional and noisy video latents from different viewpoints and timesteps using a unified camera–frame RoPE representation. It then performs denoising through a DiT equipped with stereo attention, ultimately producing the final stereo video.",
+      "page": 4,
+      "index": 11,
+      "width": 952,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-012.webp",
+      "caption": "Figure 15. Failure Case. Note that the blue road sign does not exist at the beginning of the sequence; however, as the viewpoint advances, it gradually emerges and increases in size.",
+      "page": 16,
+      "index": 12,
+      "width": 494,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17375v1/fig-013.webp",
+      "caption": "Figure 12. Long Video Distillation Results.",
+      "page": 16,
+      "index": 13,
+      "width": 491,
+      "height": 563
+    }
+  ]
+}

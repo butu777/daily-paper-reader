@@ -1,0 +1,767 @@
+Title: Feeling the Space: Egomotion-Aware Video Representation for Efficient and Accurate 3D Scene Understanding
+
+URL Source: https://arxiv.org/pdf/2603.17980v1
+
+Published Time: Thu, 19 Mar 2026 01:38:17 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# Feeling the Space: Egomotion-Aware Video Representation for Efficient and Accurate 3D Scene Understanding 
+
+Shuyao Shi and Kang G. Shin ⋆
+
+University of Michigan, Ann Arbor, USA 
+
+{syshi,kgshin}@umich.edu 
+
+Abstract. Recent Multimodal Large Language Models (MLLMs) have shown high potential for spatial reasoning within 3D scenes. However, they typically rely on computationally expensive 3D representations like point clouds or reconstructed Bird’s-Eye View (BEV) maps, or lack phys-ical grounding to resolve ambiguities in scale and size. This paper sig-nificantly enhances MLLMs with egomotion modality data, captured by Inertial Measurement Units (IMUs) concurrently with the video. In par-ticular, we propose a novel framework, called Motion-MLLM , introduc-ing two key components: (1) a cascaded motion-visual keyframe filtering module that leverages both IMU data and visual features to efficiently select a sparse yet representative set of keyframes, and (2) an asymmet-ric cross-modal fusion module where motion tokens serve as intermedi-aries that channel egomotion cues and cross-frame visual context into the visual representation. By grounding visual content in physical ego-motion trajectories, Motion-MLLM can reason about absolute scale and spatial relationships across the scene. Our extensive evaluation shows that Motion-MLLM makes significant improvements in various tasks re-lated to 3D scene understanding and spatial reasoning. Compared to state-of-the-art (SOTA) methods based on video frames and explicit 3D data, Motion-MLLM exhibits similar or even higher accuracy with sig-nificantly less overhead (i.e., 1.40 × and 1.63 × higher cost-effectiveness, respectively). 
+
+## 1 Introduction 
+
+Rapid advances in Multimodal Large Language Models (MLLMs) [1, 2, 5, 34, 40, 51] have demonstrated strong capabilities in jointly reasoning over multimodal inputs such as images, videos, and audio to produce contextually grounded re-sponses [30, 33, 38, 48]. This progress has led to the adoption of MLLMs in real-world applications such as embodied AI [36, 67], robotic navigation [62, 68], and autonomous driving [13, 21]. A shared requirement across these applications is 
+
+spatial intelligence , i.e., the ability to understand and reason about the 3D struc-ture of the physical world. Despite excelling at textual and 2D visual understand-ing tasks, existing MLLMs remain limited in 3D spatial reasoning [10, 59].  
+
+> ⋆
+
+Corresponding author. 
+
+> arXiv:2603.17980v1 [cs.CV] 18 Mar 2026
+
+2 S. Shi et al. (b) 2D MLLM              
+
+> Text 2D Video/Images
+> Text
+> Encoder
+> 2D
+> Encoder
+> Geometric
+> Encoder
+> Visual Tokens
+> Large Language Model
+> Text Tokens
+> (a) 3D MLLM
+> Text 2D Video/Images
+> Text
+> Encoder
+> 2D
+> Encoder
+> 3D
+> Encoder
+> Fused Tokens
+> Large Language Model
+> Text Tokens
+> 3D Inputs
+> (c) Motion -MLLM (Ours)
+> Text 2D Video/Images
+> Text
+> Encoder
+> 2D & Geometric
+> Encoder
+> Motion
+> Encoder
+> Motion -Enriched Visual Tokens
+> Large Language Model
+> Text Tokens
+> Egomotion
+
+Fig. 1: Comparison of (a) 3D-input, (b) 2D-input, and (c) our egomotion-input ap-proaches for spatial reasoning in MLLMs. 
+
+Existing studies on 3D spatial reasoning in MLLMs generally follow two di-rections, as shown in Fig. 1. One line of work incorporates explicit 3D data, such as point clouds [14, 25, 57], depth maps [66, 69], or BEV maps [47], into the model. These methods achieve effective spatial awareness but rely on special-ized sensors or computation-intensive processing pipelines, incurring significant overhead. Another line of work avoids explicit 3D input and instead extracts geometric features directly from 2D video [35, 45, 55, 65]. While more practical, they cannot recover reliable metric scale from monocular geometry, thus limiting their capability to resolve ambiguities in distance and size. In this paper, we introduce egomotion as a new input modality for MLLMs (Fig. 1), captured by low-cost Inertial Measurement Units (IMUs) that are widely deployed on video-capturing platforms such as smartphones, robots, and vehi-cles [7]. Our motivation stems from how humans perceive their surroundings: we do not rely on vision only but continuously integrate bodily motion cues to understand the space. For instance, eye movements and head rotation provide information on the relative positions of objects we see, while the distance we travel helps us judge the scale of a room or the size of an object. Similarly, the egomotion data recorded by IMUs measures physical movements, providing reli-able metric anchors that ground visual observations in the real-world scale. This allows MLLMs to resolve the distance and size ambiguities that limit vision-only approaches, without incurring the overhead of explicit 3D representations. We propose Motion-MLLM , a novel framework built on two key components designed to synergistically leverage the motion modality. First, we introduce a 
+
+cascaded motion-visual keyframe filtering module that selects a sparse yet repre-sentative set of keyframes from the video sequence. It employs a three-stage cas-cade progressing from lightweight egomotion checks to demanding visual feature analysis, so that computationally expensive operations are performed only for a small subset of informative frames. We then design an asymmetric cross-modal fusion module that integrates visual and egomotion features through two-layer cross-attention fusion. Specifically, we adopt a GRU (Gated Recurrent Unit) based encoder to compress variable-length IMU segments between keyframes into motion tokens, which are then fused with visual tokens through a bidirec-tional attention layer followed by a unidirectional layer. In this design, motion tokens serve as intermediaries that channel egomotion cues and cross-frame con-Egomotion-Aware Video Representation for 3D Scene Understanding 3
+
+text into the visual representation, producing egomotion-enriched visual tokens. By grounding visual content in physical egomotion trajectories, Motion-MLLM en-ables large language models (LLMs) to reason about absolute scale and spatial relationships across the scene. Extensive experiments have been conducted on various 3D scene understand-ing and spatial reasoning benchmarks. On VSI-Bench [59], Motion-MLLM achieves an overall score of 60.3, a +9 .6 improvement over the SOTA, outperforming models with substantially larger parameter counts (up to 78B [70]) using only 
+
+∼4B parameters. On ScanQA [3] and SQA3D [43] benchmarks, Motion-MLLM 
+
+significantly outperforms all 2D-input baselines and achieves accuracy compara-ble to those methods that rely on explicit 3D data such as point clouds, depth maps and reconstructed BEV maps. On visual grounding (ScanRefer [12]) and dense captioning (Scan2Cap [16]) tasks, Motion-MLLM rivals or even outperforms 3D-input methods without requiring explicit 3D data. Moreover, Motion-MLLM 
+
+achieves 1.40 × and 1.63 × higher cost-effectiveness than SOTA 2D- and 3D-input methods, respectively, demonstrating Motion-MLLM ’s more accurate spatial rea-soning than vision-only approaches while incurring significantly lower overhead than using explicit 3D representations. In summary, we make the following main contributions: 
+
+– Development of Motion-MLLM , a novel framework that significantly enhances MLLMs with egomotion data captured by low-cost IMU sensors, providing lightweight yet reliable metric anchors for 3D spatial reasoning without re-quiring expensive explicit 3D representations; 
+
+– Proposal of a cascaded motion-visual keyframe filtering module that pro-gressively filters redundant frames from lightweight egomotion checks to de-manding visual feature analysis, significantly reducing computational cost while preserving informative content; 
+
+– Design of an asymmetric cross-modal fusion module where motion tokens channel egomotion cues and cross-frame visual context into the visual rep-resentation through two-layer cross-attention; and 
+
+– Extensive experimentation on five scene understanding benchmarks, demon-strating that Motion-MLLM significantly outperforms 2D-input baselines and achieves comparable or superior accuracy to 3D-input methods, with 1.40 ×
+
+and 1.63 × higher cost-effectiveness, respectively. 
+
+## 2 Related Work 
+
+3D MLLMs for Scene Understanding. Recent advances extend LLMs for 3D scene understanding by incorporating explicit 3D representations such as point clouds, depth maps, or reconstructed 3D structures [14, 22, 25, 27–29, 47, 54, 57, 66,69]. PointLLM [57] and Point-Bind [22] use point cloud encoders to let LLMs perceive 3D objects. LL3DA [14] operates on point cloud scenes and further supports interactive visual prompts such as 3D bounding boxes. Chat3D [54] and Chat-Scene [27] adopt object-level scene representations to bridge 3D scenes with language. LLaVA-3D [69] projects 2D features into 3D space using depth maps, 4 S. Shi et al. 
+
+GPT4Scene [47] constructs BEV maps through 3D reconstruction, and Video-3D LLM [66] injects 3D position encodings into video representations. While effective, these methods rely on point clouds, depth maps, or 3D reconstruction inputs, which are expensive to acquire or computationally heavy. In contrast, our method uses lightweight egomotion data from IMU sensors to provide metric spatial grounding. 
+
+2D MLLMs for Scene Understanding. Another line of work enhances spa-tial reasoning using only 2D images or videos, avoiding explicit 3D input [35, 45, 55, 65]. SpaceR [45] and VideoChat [35] attempt to elicit 3D reasoning di-rectly from existing VLMs without introducing additional geometry encoders. VG-LLM [65] employs a visual geometry encoder to extract 3D prior informa-tion from video sequences. Spatial-MLLM [55] extracts geometric features from video to boost spatial reasoning. These approaches reduce the dependency on 3D inputs but remain limited in resolving ambiguities in absolute scale and dis-tance. Our method addresses this limitation by augmenting geometric features with egomotion data from IMU sensors, which provides the absolute metric scale that monocular geometry cannot reliably recover. 
+
+Motion Modality for Scene Understanding. Motion has long been a key part of 3D vision, especially in areas like autonomous driving and robotics [9,20, 31,56,58]. Traditional systems like ORB-SLAM3 [9] and newer neural approaches like SplaTAM [31] or GS-SLAM [58] show how tracking camera movement is essential for building accurate, high-fidelity maps. In the MLLM field, Omni-modality models like PandaGPT [50] and One-LLM [23] have begun incorporat-ing IMU data to expand their reasoning. SensorLLM [37] and LLM4HAR [26] align IMU data with text, though they mostly focus on recognizing human ac-tivities. Newer frameworks like HIS-GPT [64] and VMRMOT [42] have also inte-grated motion dynamics to better capture human-scene interactions and improve multi-object tracking. In contrast, our work treats IMU data as a critical signal for both visual filtering and physical grounding. By integrating egomotion data into the MLLM reasoning process, we provide a lightweight yet reliable metric anchor that vision-only models lack. To the best of our knowledge, we are the first to utilize concurrent egomotion data for spatial reasoning in MLLMs. 
+
+## 3 Design of Motion-MLLM 
+
+We propose a novel framework, Motion-MLLM , that enhances MLLMs for 3D scene understanding by introducing egomotion as an explicit input modality alongside visual observations. Fig. 2 shows the overall architecture of Motion-MLLM .It takes two synchronized inputs: 2D video streams and concurrently captured IMU data that records camera motion. IMU sensors are commonly available on widely deployed video-capturing platforms, including smartphones, robotic sys-tems, and autonomous vehicles. We detail two key components of Motion-MLLM :(1) a cascaded motion-visual keyframe filtering module (Sec. 3.1) that selects information-rich frames from the video stream in a computationally efficient manner; and (2) an asymmetric cross-modal feature fusion module (Sec. 3.2) Egomotion-Aware Video Representation for 3D Scene Understanding 52D Video Egomotion (IMU) Data  Language Instruction    
+
+> If I sit on the green chair and face the
+> computer, the blackboard is on my ___?
+> A. Front B. Left
+> C. Right D. Back
+
+Cascaded Motion -Visual Keyframe Filtering (§ 3.1 )   
+
+> Motion Gate Geometry Change
+> Detection
+> Visual Token
+> Analysis
+> 2D &Geometric
+> Encoder
+
+Asymmetric Cross -Modal Feature Fusion ( § 3.2 ) 
+
+> GRU -based Motion Encoder Asymmetric Cross -Attention Fusion
+> Motion
+> Tokens
+> Visual Tokens (only keyframes)
+
+Large Language Model  
+
+> Egomotion -Enriched Visual Tokens
+> Text Encoder
+> Text Tokens Answer: D. Back
+
+Fig. 2: Architecture of Motion-MLLM . The \ and icons indicate trainable and frozen modules, respectively. 
+
+that integrates visual and motion features through two-layer cross-modal atten-tion. 
+
+3.1 Cascaded Motion-Visual Keyframe Filtering 
+
+Due to the limited GPU memory and the high data redundancy in consecutive video frames, MLLMs can typically process only a small subset of frames from a scene video. A common solution [5, 59] is uniform sampling of frames. However, uniform sampling often wastes the frame budget on static or repetitive video segments while missing brief, dynamic events in the video contents. Some recent works [55,66] propose to select frames whose geometric features maximally cover the underlying 3D scene. These methods extract 3D features from a large num-ber of candidate frames and rely on additional 3D inputs such as depth maps, incurring substantial computational overhead. To overcome these limitations, we introduce a motion-visual keyframe fil-tering module, which selects frames based on both camera motion and visual content. Our key insight is that egomotion data can provide an effective yet lightweight criterion for keyframe selection: a keyframe should be selected when it corresponds to a significant change in camera pose. To implement this effi-ciently, we propose a cascaded filtering pipeline. Instead of evaluating all criteria on every frame, this pipeline progresses from computationally inexpensive checks to more demanding analyses, ensuring that expensive computations (e.g., visual feature extraction) are reserved for a small and valuable subset of candidate frames. Specifically, the filtering process unfolds in up to three stages for each incoming frame (see Sec. A.1 for the complete algorithm and its details): 
+
+Stage 1: Motion Gate. The IMU sensor records 6-axis inertial data (3-axis accelerometer and 3-axis gyroscope) concurrently with the video, providing mea-surements between consecutive frames. For a candidate frame ft, the trans-6 S. Shi et al. GRU -Based Motion Encoder    
+
+> IMU
+> Segments
+> GRU
+> Encoder
+> Motion
+> Tokens 𝐌
+> Visual
+> Tokens 𝐕
+> Asymmetric Cross -Attention Fusion
+> Attention
+> FFN
+> Add & Norm
+> Q
+> K
+> V
+> Attention
+> FFN
+> Add & Norm
+> Q
+> K
+> V
+> Layer 1
+> Attention
+> FFN
+> Add & Norm
+> Q
+> K
+> V
+> Layer 2
+> Egomotion -Enriched
+> Visual Tokens ഥ𝐕
+> 𝐌′
+> 𝐕′
+
+Fig. 3: Illustration of asymmetric cross-modal feature fusion. 
+
+lational displacement d( ˆfj , f t) and the rotation angle θ( ˆfj , f t) since the most recently selected keyframe ˆfj can be easily obtained by integrating the ac-celerometer and gyroscope readings. A frame ft is discarded if d( ˆfj , f t) < τ d
+
+and θ( ˆfj , f t) < τ θ , where τd and τθ are predefined translation and rotation thresholds. This check is very simple and fast but can discard the vast majority of redundant frames where the camera is static or moves very slowly. 
+
+Stage 2: Lightweight Geometric Change Detection. This stage performs a lightweight check on the frames that pass the motion gate. It employs a sparse feature tracker from a SLAM front end [9] to avoid full feature extraction. Specif-ically, it calculates the average parallax of features that are tracked in the last keyframe. A high parallax value indicates a substantial geometric change in the frame content. If the parallax is not significant, the frame is discarded, else it is considered a keyframe candidate and proceeds to the final stage. 
+
+Stage 3: Visual Token Analysis. This stage first extracts visual features from each candidate frame ft that passed the preceding checks. Following [55], we obtain a fused visual token vt by integrating 2D features from the MLLM’s 2D visual encoder (e.g., Qwen2.5-VL’s visual encoder [5]) with geometric features from the VGGT backbone [53]. Since the cascaded pipeline filters out most frames in the first two stages, both 2D and geometric encoders run only on the small subset that passed the inexpensive egomotion and parallax checks. We then calculate the cosine distance between vt and the visual token vj of the most recently selected keyframe ˆfj . If the distance exceeds a threshold τv ,the candidate is selected as a new keyframe. In particular, the N final selected keyframes yield visual tokens V = {v1, . . . , vN } that are directly input to the cross-modal fusion module (Sec. 3.2), avoiding redundant feature extraction. 
+
+3.2 Asymmetric Cross-Modal Feature Fusion 
+
+While the keyframe filtering module reduces redundancy in the input video, we need to integrate visual and egomotion information into an egomotion-aware video representation for 3D scene understanding. As illustrated in Fig. 3, we first encode IMU data segments into compact motion features. We then design an asymmetric cross-attention mechanism that fuses them with the visual features. 
+
+GRU-based Motion Encoder. Between consecutive keyframes ˆfi−1 and ˆfi,the IMU segment Si ∈ RLi×6 has variable length Li because keyframes are non-Egomotion-Aware Video Representation for 3D Scene Understanding 7
+
+uniformly selected. We employ a Gated Recurrent Unit (GRU) [17] to encode each segment. GRU-based encoders naturally handle variable-length temporal sequences and have been validated for IMU data processing in prior navigation work [11, 24]. We utilize the final hidden state of the GRU as the motion token 
+
+mi, encoding the cumulative egomotion between consecutive keyframes ˆfi−1
+
+and ˆfi. For the first keyframe ˆf1, we introduce a learnable start token m1. The resulting motion tokens form M = {m1, . . . , mN }, where N is the number of selected keyframes. Each motion token has a one-to-one correspondence with the visual tokens from the keyframe filtering stage. 
+
+Asymmetric Two-Layer Cross-Attention Fusion. We design a two-layer cross-attention fusion module to integrate the visual and egomotion modalities. As shown in Fig. 3, this module takes visual tokens V and motion tokens M
+
+and produces egomotion-enriched visual tokens ¯V, which maintains the same dimensionality as V to minimize the impact on the MLLM’s feature space. We first apply a bidirectional cross-attention layer where both modalities query each other. In the motion-to-vision direction, motion tokens serve as keys and values, providing absolute metric scale and egomotion trajectories that com-plement the geometric information in the visual tokens. In the vision-to-motion direction, visual tokens serve as keys and values to enrich motion features with visual context about the scenes. The two attention operations are computed as: 
+
+V′ = Attn( VW vQ, MW mK , MW mV )
+
+M′ = Attn( MW mQ , VW vK , VW vV ) (1) where Attn( Q, K, V ) = softmax( QK T
+
+> √dk
+
+)V and all W are learnable projection matrices. Each attention output is then refined with a residual-connected feed-forward network (FFN) [52] to obtain visual tokens V′ and motion tokens M′.Next, we fuse V′ and M′ with a unidirectional cross-attention layer. Only vi-sual tokens query motion tokens in this layer, creating a visual →motion →visual information pathway. Since M′ already carries visual context from other keyframes (absorbed in the first layer), this unidirectional attention layer enables motion-guided inter-frame visual communication, where motion tokens act as bridges that relay visual information across frames along physically grounded egomo-tion trajectories. The attention is computed as: 
+
+¯V = Attn( V′WQ, M′WK , M′WV ) (2) followed by a similar residual-connected FFN as in the first layer. This asymmet-ric design retains only visual tokens as the final output, while motion tokens are discarded after channeling egomotion and cross-frame information into the visual tokens. Finally, the enriched visual tokens ¯V are fed into the MLLM alongside the text prompt through the standard visual-language pipeline. 8 S. Shi et al. 
+
+## 4 Experimental Evaluation 
+
+4.1 Experimental Setup Datasets and motion data acquisition. We conducted experiments across three spatial reasoning benchmarks and two 3D scene understanding task bench-marks. For spatial reasoning, our model is tested on ScanQA [3], SQA3D [43], and VSI-Bench [59]. For the visual grounding task, our model is tested on Scan-Refer [12], which aims to locate the target object’s bounding box in camera coordinates along with its corresponding frame index. For the dense captioning task, we utilize the Scan2Cap [16] benchmark, which requires generating de-scriptive captions for all objects within a scene. Motion-MLLM takes egomotion data as input, which is absent from these existing datasets. Therefore, a crucial step is to preprocess these benchmarks to synthesize camera egomotion data in the format of a typical IMU sensor output (i.e., 3-axis accelerometer and 3-axis gyroscope data). For datasets that already contain camera extrinsic and intrinsic parameters (ScanQA, SQA3D, ScanRefer, and Scan2Cap), we fit B-splines [41] to the discrete camera poses and calculate the analytical derivatives to generate linear acceleration and angular velocity. For VSI-Bench, which only provides raw video, we first employ GLOMAP [46], a global structure-from-motion system, to recover camera poses and then synthesize the IMU data from the poses. Details of our egomotion data synthesis process are provided in Sec. A.2. 
+
+Implementation and training details. Motion-MLLM is built upon the Qwen2.5-VL-3B [4] model and comprises approximately 4B parameters in total. We lever-age the 2D visual encoder from Qwen2.5-VL [5] and the VGGT backbone [53] as the geometric encoder to produce visual tokens V, and Qwen2.5-VL’s LLM backbone for processing textual inputs and generating responses. Our goal is to build a single generalist model capable of handling multiple tasks. To achieve this, we train Motion-MLLM on a mixture of datasets (Sec. A.3), including the training split of ScanQA [3], SQA3D [43], ScanRefer [12], and Scan2Cap [16]. We follow [66] to randomly sample and train on a single task type of data for each batch. For general tasks like question answering, we use a standard cross-entropy loss. For the visual grounding task, we employ a specifically designed visual grounding loss to supervise proposal selection more accurately. During training, we employ a two-stage strategy. In the first stage, we freeze the 2D visual encoder, the VGGT backbone, and the LLM backbone, training only our newly introduced motion encoder and cross-attention modules using a learning rate of 1e-4 for one epoch. This allows the model to first learn to encode egomotion data and fuse it with visual features. In the second stage, we continue to keep the visual encoder and the VGGT backbone frozen but unfreeze the LLM backbone, fine-tuning the motion encoder, cross-attention modules, and the LLM end-to-end for another epoch to holistically adapt all components. For this main training stage, we utilize the Adam optimizer [32] with a global batch size of 32. We warm up the learning rate to a peak of 1e-5 over the first 3% of steps, then decayed linearly. We preprocess the video for each scan to 640 × 480 
+
+resolution. All experiments were conducted on a cluster of 8 NVIDIA RTX 4000 Ada GPUs, and the complete training process took approximately 15 hours. Egomotion-Aware Video Representation for 3D Scene Understanding 9
+
+Table 1: Evaluation Results on ScanQA [3] and SQA3D [43]. We use the val set of ScanQA and test set of SQA3D for evaluation. “–” indicates the number is not avail-able. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively.                                                                                                                                                           
+
+> Methods Input ScanQA (val) SQA3D (test)
+> 2D 3D M BLEU-1 BLEU-4 METEOR ROUGE-L CIDEr EM@1 EM@R1
+> Task-Specific Models
+> ScanQA [3] !30.2 10.1 13.1 33.3 64.9 47.2 -SQA3D [43] !30.5 11.2 13.5 34.5 -46.6 -3D-VisTA [71] !-10.4 13.9 35.7 69.6 48.5 -
+> 2D-Input Models
+> Qwen2.5-VL-3B [5] !22.5 3.8 9.7 25.4 47.4 43.4 45.9 Qwen2.5-VL-7B [5] !27.8 3.0 11.4 29.3 53.9 46.5 49.8 GPT-4v [1] !--13.5 33.4 59.6 --Gemini-1.5 Pro [51] !--11.3 35.4 68.3 --LLaVA-Video-7B [63] !39.7 3.1 17.7 44.6 88.7 48.5 -VideoChat2 [35] !-9.6 9.5 28.2 49.2 37.3 -Spatial-MLLM [55] !44.4 14.8 18.4 45.0 91.8 55.9 58.7
+> 3D/2.5D-Input Models
+> 3D-LLM [25] !!39.3 12.0 14.5 35.7 69.4 --LL3DA [14] !-13.5 15.9 37.3 76.8 --Chat-Scene [27] !!43.2 14.3 18.0 41.6 87.7 54.6 57.5 LEO [29] !!-13.2 20.0 49.2 24.5 50.0 -GPT4Scene-HDM [47] !!44.4 15.5 18.9 46.5 96.3 60.6 63.3
+> Video-3D LLM [66] !!47.1 16.2 19.8 49.0 102.1 58.6 -LLaVA-3D [69] !!-16.4 20.8 49.6 103.1 60.1 -
+> Egomotion-Input Model
+> Motion-MLLM -4B !!46.5 15.8 20.3 48.0 100.4 60.2 62.4
+
+4.2 Spatial Reasoning Benchmarks Evaluation on ScanQA and SQA3D. ScanQA [3] and SQA3D [43] are two 3D question-answering benchmarks built upon indoor scenes from the Scan-Net [18] dataset. Due to the absence of a test set for ScanQA, we conduct the evaluation on the validation set, which consists of 4,675 QA pairs focused on spatial relationships. We follow the standard protocol by evaluating answer quality using CIDEr, BLEU-1, BLEU-4, METEOR, and ROUGE-L metrics. For SQA3D, we evaluate the model on its test set, which contains 3,519 QA pairs requiring reasoning about the environment given a specific position and orien-tation within the 3D scene, and report exact-match accuracy (EM@1) and its refined variant (EM@R1). As shown in Tab. 1, Motion-MLLM significantly out-performs task-specific models and 2D-input models across all metrics on both the ScanQA and SQA3D benchmarks, achieving a +8 .6 CIDEr improvement and a +4 .3 EM@1 improvement over the strongest 2D-input baseline (Spatial-MLLM). This indicates that introducing the egomotion modality significantly enhances the model’s ability to understand spatial and positional relationships. Among models utilizing 3D or 2.5D input, only Video-3D LLM [66] (on ScanQA), 10 S. Shi et al. 
+
+Table 2: Evaluation Results on VSI-Bench [59]. For baselines, we follow the setting of VSI-Bench to set frame numbers. For Motion-MLLM , we utilize the keyframes selected by its motion-visual keyframe filtering module.                                                                                                                                  
+
+> Methods Numerical Question Multiple-Choice Question Avg.
+> Obj. Cnt. Abs. Dist. Obj. Size Room Size Rel. Dist. Rel. Dir. Route Plan Appr. Order.
+> Proprietary Models (API)
+> GPT-4o [1] 46.2 5.3 43.8 38.2 37.0 41.3 31.5 28.5 34.0 Gemini-1.5 Pro [51] 56.2 30.9 64.1 43.6 51.3 46.3 36.0 34.6 45.4
+> Open-source Models
+> VILA-1.5-40B [39] 22.4 24.8 48.7 22.7 40.5 25.7 31.5 32.9 31.2 LLaVA-OneVision-72B [33] 43.5 23.9 57.6 37.5 42.5 39.9 32.5 44.6 40.2 LLaVA-Video-72B [63] 48.9 22.8 57.4 35.3 42.4 36.7 35.0 48.6 40.9 Qwen2.5-VL-3B [5] 24.3 24.7 31.7 22.6 38.3 41.6 26.3 21.2 30.6 Qwen2.5-VL-7B [5] 40.9 14.8 43.4 10.7 38.6 38.5 33.0 29.8 33.0 Qwen2.5-VL-72B [5] 25.1 29.3 54.5 38.8 38.2 37.0 34.0 28.9 37.0 InternVL3-78B [70] 71.2 53.7 44.4 39.5 55.9 39.5 28.9 54.5 48.5
+> Spatial Reasoning Models
+> Spacer [45] 57.8 28.2 59.9 47.1 40.1 45.4 33.5 52.1 45.5 VG LLM-4B [65] 66.0 37.8 55.2 59.2 44.6 45.6 33.5 36.4 47.3 VG LLM-8B [65] 67.9 37.7 58.6 62.0 46.6 40.7 32.4 59.2 50.7
+> Spatial-MLLM-4B [55] 65.3 34.8 63.1 45.1 41.3 46.2 33.5 46.3 48.4
+> Motion-MLLM -4B 72.5 49.2 69.5 66.9 57.8 56.7 40.5 59.6 60.3
+
+GPT4Scene [47] (on SQA3D), and LLaVA-3D [69] (on ScanQA and SQA3D) sur-pass Motion-MLLM . However, these models rely on point clouds or depth maps as input, which incur high costs in data collection and computation. In com-parison, Motion-MLLM achieves performance comparable to that of the SOTA 3D input model LLaVA-3D [69] and GPT4Scene [47] ( −2.7 CIDEr and −0.4
+
+EM@1) using low-cost and lightweight egomotion (IMU) data, and outperforms other 3D-dependent models such as 3D-LLM [25], LL3DA [14], Chat-Scene [27], and LEO [29]. 
+
+Evaluation on VSI-Bench. VSI-Bench [59] contains over 5, 000 question-answer pairs curated from ScanNet [18], ScanNet++ [60], and ARKitScenes [6]. It comprises eight subtasks (i.e., object counting, relative direction, absolute distance, route planning, object size, room size, relative distance, and appear-ance order) categorized into two answer types: Numerical Answer (NA) and Multiple-Choice Answer (MCA). Following the official metric setting, we evalu-ate NA using relative accuracy and MCA using mean accuracy, presenting the quantitative results in Tab. 2. Since VSI-Bench contains only 2D video data, we evaluate Motion-MLLM using synthesized IMU data and compare it with 2D-input baselines. Despite possessing only ∼4B parameters, Motion-MLLM significantly outperforms all proprietary and open-source models, including those with sub-stantially larger parameter counts (e.g., 40B or 72B). Motion-MLLM achieves the best score on nearly all eight subtasks and raises the overall average to 60.3, a 
+
++9 .6 improvement over the strongest prior baseline (VG LLM-8B, 50.7). Specif-ically, Motion-MLLM exhibits superior accuracy on measurement-oriented tasks such as absolute/relative distance and object/room size (e.g., +5 .4 on object size), indicating that egomotion data compensates for the lack of absolute spa-tial measurement in 2D video. Motion-MLLM also outperforms baselines on view-Egomotion-Aware Video Representation for 3D Scene Understanding 11 
+
+Table 3: Evaluation of 3D scene understanding tasks. "–" indicates the num-ber is not available. For ScanRefer, the content in "()" indicates results with proposal refinement [29]. “2D”, “3D”, and “M” specify the model’s input type as 2D data (im-ages/videos), 3D data (point clouds/depth maps), and egomotion data, respectively.                                                                                                  
+
+> Methods Input ScanRefer Scan2Cap
+> 2D 3D M Acc@0.25 ↑Acc@0.5 ↑C@0.5 ↑B-4@0.5 ↑M@0.5 ↑R@0.5 ↑
+> Task-Specific Models
+> ScanRefer [12] !37.3 24.3 ----Scan2Cap [16] !--39.1 23.3 22.0 44.8 3D-VisTA [71] !50.6 45.8 66.9 34.0 --
+> 2D-Input Models
+> SPAR-7B [61] !31.9 (48.8) 12.4 (43.1) ----VG LLM-4B [65] !36.4 (53.5) 11.8 (47.5) 78.6 40.9 28.6 62.4 VG LLM-8B [65] !41.6 (57.6) 14.9 (50.9) 80.0 41.5 28.9 62.6
+> 2.5D/3D-Input Models
+> Grounded 3D-LLM [15] !47.9 44.1 70.2 35.0 --Chat-Scene [27] !!55.5 50.2 77.1 36.5 --GPT4Scene-HDM [47] !!62.6 57.0 -40.6 -59.3 LLaVA-3D [69] !!54.1 42.4 79.2 41.1 30.2 63.4
+> Video-3D LLM [66] !!58.1 51.7 80.0 40.2 28.5 61.7
+> Egomotion-Input Models
+> Motion-MLLM -4B !!61.4 55.3 79.0 41.6 30.0 64.0
+
+integration tasks such as relative direction and appearance order (e.g., +10 .4
+
+on relative direction). We attribute this to our asymmetric cross-modal design, where motion features serve as bridges that connect observations across different viewpoints, enabling the model to reason about spatial-temporal relationships such as viewing direction and traversal order. In contrast, Spatial-MLLM [55] and VG LLM [65] extract geometric features from video but lack the absolute metric grounding, limiting their ability to resolve scale ambiguity and reason across different viewpoints. 
+
+4.3 3D Scene Understanding Tasks 
+
+We further assess Motion-MLLM ’s capabilities in visual grounding and dense cap-tioning using the ScanRefer [12] and Scan2Cap [16] benchmarks, respectively. Unlike general question answering, these tasks differ fundamentally by requir-ing explicit grounding mechanisms that link textual descriptions to specific 3D spatial structures. The quantitative results are summarized in Tab. 3. 
+
+Visual Grounding on ScanRefer. ScanRefer [12] contains 36 , 665 object descriptions paired with axis-aligned bounding boxes across 562 indoor scans. We follow the standard protocol to calculate Acc@0.25 and Acc@0.5, defined as the percentage of samples where the Intersection over Union (IoU) between the predicted and ground-truth bounding boxes exceeds thresholds of 0.25 and 0.5,respectively. As shown in Tab. 3, Motion-MLLM achieves an Acc@0.25 of 61 .4
+
+and an Acc@0.5 of 55 .3 on the ScanRefer benchmark with only ∼4B parame-ters, without requiring external 3D data such as point clouds or depth maps. 12 S. Shi et al. 
+
+It significantly outperforms the strongest 2D-input baseline (VG LLM-8B [65]), surpassing its refined scores by margins of +3 .8 and +4 .4, respectively. More im-portantly, Motion-MLLM rivals and even outperforms methods relying on heavy explicit 3D inputs, such as LLaVA-3D ( 54 .1 Acc@0.25) and Video-3D LLM ( 58 .1
+
+Acc@0.25). This performance gain highlights the effectiveness of our asymmet-ric cross-modal fusion mechanism, which integrates continuous motion features to ground visual content in physical space. This enables Motion-MLLM to infer absolute distances and sizes from egomotion cues, compensating for the lack of depth maps or point clouds typically required for this task. 
+
+Dense Captioning on Scan2Cap. We evaluate Motion-MLLM on the val split of Scan2Cap [16], which contains 9,508 object descriptions across 141 indoor scans. We report CIDEr (C), BLEU-4 (B-4), METEOR (M), and ROUGE (R) scores, computed only for objects detected with an IoU of 0.5 or higher against the ground truth. As shown in Tab. 3, Motion-MLLM achieves a B-4@0.5 score of 
+
+41 .6 and an R@0.5 score of 64 .0, setting a new best across all baselines, includ-ing those utilizing explicit 3D data. Furthermore, its C@0.5 score of 79 .0 and M@0.5 score of 30 .0 are highly competitive, nearly matching top-performing 3D-input models such as Video-3D LLM [66] and LLaVA-3D [69]. Compared to visual grounding, the performance improvement in dense captioning is rel-atively smaller, as this task relies less on the precise absolute scale estimation provided by egomotion data. However, the consistent gains over 2D-input base-lines demonstrate that leveraging the egomotion modality enables better object localization within the 3D scene and a more accurate understanding of spatial relationships, resulting in more precise and contextually grounded captions. 
+
+4.4 Cost-Effectiveness of Motion-MLLM 
+
+We conduct a comprehensive evaluation of the ScanQA [3] and SQA3D [43] benchmarks to assess the cost-effectiveness of Motion-MLLM . Beyond the stan-dard Exact Match (EM) accuracy, we introduce a Cost-Effectiveness (CE) met-ric, defined as the ratio of exact match accuracy to end-to-end inference time: 
+
+CE = EM % 
+
+> T
+
+. A higher CE value indicates that the model achieves high accu-racy with minimal latency. We compare Motion-MLLM against SOTA 2D- and 3D-input models under different frame sampling strategies, including uniform sampling (128 and 32 frames) and method-specific adaptive strategies. The re-sults are summarized in Tab. 4. 
+
+Superior efficiency under uniform frame sampling. Under uniform sam-pling, increasing the number of input frames yields higher accuracy but incurs a significant computational overhead. However, Motion-MLLM demonstrates su-perior cost-effectiveness to both 2D- and 3D-input baselines. Compared to 2D baselines (e.g., Spatial-MLLM [55]), our model achieves significantly higher ac-curacy ( 29 .1% vs. 26 .2% on ScanQA with 32 frames) while maintaining compara-ble latency ( 0.90 s vs. 0.88 s). Compared to heavy 3D-input models, Motion-MLLM 
+
+achieves competitive accuracy (within 1.5% of LLaVA-3D [69]) while drastically Egomotion-Aware Video Representation for 3D Scene Understanding 13 
+
+Table 4: Cost-effectiveness comparison on ScanQA [3] and SQA3D [43]. 
+
+“MC” represents the maximum coverage sampling adopted by Spatial-MLLM [55] and Video-3D LLM [66]. “MV Filtering” denotes the motion-visual keyframe filtering method we design. “T” represents the end-to-end time consumption. “CE” is the cost-effectiveness metric we define. Bold and underline denote the best-performing methods in Motion-MLLM and baselines, respectively.                                                                                                                                  
+
+> Methods Input Sampling Strategy # Frames ScanQA SQA3D
+> 2D 3D M EM(%) ↑T( s)↓CE( s−1)↑EM(%) ↑T( s)↓CE( s−1)↑
+> Qwen2.5-VL-3B [5] !Uniform 128 17.1 2.45 0.07 49.4 2.39 0.21 Uniform 32 15.5 0.72 0.22 45.7 0.71 0.64 Spatial-MLLM [55] !
+> Uniform 128 28.8 3.06 0.09 62.2 3.01 0.21 Uniform 32 26.2 0.88 0.30 58.5 0.87 0.67 MC ∼23 25.9 0.79 0.33 57.6 0.79 0.73 GPT4Scene-HDM [47] !!Uniform 128 30.8 4.24 0.07 64.7 4.18 0.15 Uniform 32 28.2 1.35 0.21 61.4 1.34 0.46 LLaVA-3D [69] !!Uniform 128 33.0 3.90 0.08 63.1 3.85 0.16 Uniform 32 30.6 1.29 0.24 60.1 1.27 0.47 Video-3D LLM [66] !!
+> Uniform 128 31.7 3.45 0.09 60.8 3.36 0.18 Uniform 32 30.1 1.22 0.25 58.6 1.19 0.49 MC ∼18 29.5 0.98 0.30 57.7 0.97 0.59
+> Motion-MLLM -4B !!
+> Uniform 128 31.5 3.10 0.10 62.8 3.05 0.21 Uniform 32 29.1 0.90 0.32 59.5 0.88 0.68 MV Filtering ∼21 29.8 0.61 0.49 60.2 0.59 1.02
+
+reducing overhead ( ∼ 1.4× faster than LLaVA-3D). This efficiency improvement is attributed to our lightweight motion encoder and cross-modal fusion, which enable robust scene understanding without relying on heavy 3D data processing. 
+
+Benefits of egomotion-guided keyframe filtering. As shown in Tab. 4, 
+
+Motion-MLLM exhibits the best CE scores on both ScanQA and SQA3D bench-marks, surpassing SOTA 2D- and 3D-input models by factors of 1.40 × and 
+
+1.63 ×, respectively. Compared to 32-frame uniform sampling, our motion-visual (MV) keyframe filtering achieves comparable accuracy (e.g., 29 .8% vs. 29 .1% 
+
+on ScanQA) using only ∼ 21 keyframes, indicating that egomotion data pro-vides effective evidence for identifying information-rich frames. Notably, Spatial-MLLM [55] and Video-3D LLM [66] adopt adaptive sampling via maximum cov-erage (MC), selecting ∼23 and ∼18 frames, respectively, compared to ∼21 for our MV filtering. However, the MC approach evaluates spatial coverage across all candidate frames using the geometry encoder or depth-based 3D projection, in-curring substantial overhead. In contrast, Motion-MLLM utilizes lightweight ego-motion data to filter redundancy, achieving higher accuracy ( 29 .8% vs. 25 .9% 
+
+and 29 .5% on ScanQA) with 23% and 38% lower latency ( 0.61 s vs. 0.79 s and 
+
+0.98 s) than Spatial-MLLM and Video-3D LLM, respectively. 
+
+4.5 Ablation Study Effectiveness of cascaded motion-visual keyframe filtering. As shown in Tab. 5, compared to uniform sampling, the “Full MV Filtering” approach 14 S. Shi et al. 
+
+Table 5: Ablation study on ScanQA [3] and SQA3D [43]. “Full MV Filtering” refers to evaluating all criteria on every frame during motion-visual keyframe filtering. “Concat+MLP” first concatenates the 2D visual and egomotion tokens along the feature dimension, followed by an MLP to transform them into the embedding space.                                                  
+
+> Type ScanQA SQA3D
+> EM(%) ↑T( s)↓CE( s−1)↑EM(%) ↑T( s)↓CE( s−1)↑
+> Qwen2.5-VL-3B (Backbone) 15.5 0.72 0.22 45.7 0.71 0.64
+> Frame Sampling Strategy
+> Uniform 32-frame 29.1 0.90 0.32 59.5 0.88 0.68 Full MV Filtering 29.8 0.96 0.31 60.3 0.93 0.65 Cascaded MV Filtering (Ours) 29.8 0.61 0.49 60.2 0.59 1.02
+> Feature Connector
+> Concat+MLP 19.2 0.58 0.33 41.5 0.55 0.75 Single-Layer Cross-Attention 26.1 0.60 0.44 55.2 0.57 0.96 Asymmetric Cross-Attention (Ours) 29.8 0.61 0.49 60.2 0.59 1.02
+
+improves accuracy to 29 .8% by selecting informative frames but increases la-tency to 0.96 s due to the computational overhead of calculating visual criteria for every frame. Our cascaded MV filtering addresses this challenge by hierarchi-cally filtering frames, employing lightweight egomotion checks to rapidly discard redundancy before applying heavier visual criteria. This design achieves compa-rable accuracy to the Full variant ( 29 .8% on ScanQA, 60 .2% on SQA3D) while reducing inference time by ∼ 36% (0.61 s vs. 0.96 s), resulting in the highest cost-effectiveness (CE) scores of 0.49 and 1.02 on ScanQA and SQA3D, respectively. 
+
+Effectiveness of asymmetric cross-modal fusion. The results in Tab. 5 show that the Concat+MLP baseline exhibits significantly lower accuracy ( 19 .2% 
+
+on ScanQA), indicating that directly concatenating visual and motion tokens fails to effectively correlate camera motion with visual content. The single-layer cross-attention, which allows visual tokens to query raw motion features, im-proves accuracy to 26 .1% but remains suboptimal because of the limited quality of information that motion features can provide. Our asymmetric design further allows motion tokens to learn visual context before passing information back to the visual stream, leading to the best accuracy on both benchmarks ( 29 .8% 
+
+on ScanQA and 60 .2% on SQA3D). Moreover, this substantial accuracy gain (+10 .6% over Concat+MLP) incurs negligible latency cost ( +0 .03 s), showing that the module is both highly effective and computationally efficient. 
+
+## 5 Conclusion 
+
+We proposed Motion-MLLM , a framework that enhances MLLMs with egomotion data from IMU sensors for 3D scene understanding. Motion-MLLM introduces two key components: a cascaded motion-visual keyframe filtering module that efficiently selects informative frames by progressing from lightweight IMU-based checks to demanding visual analysis, and an asymmetric cross-modal fusion mod-ule where motion tokens channel egomotion cues and cross-frame visual context Egomotion-Aware Video Representation for 3D Scene Understanding 15 
+
+into the visual representation. Experiments on five benchmarks demonstrate that 
+
+Motion-MLLM significantly outperforms 2D-input baselines and exhibits accuracy comparable to 3D-input methods, while achieving 1.40 × and 1.63 × higher cost-effectiveness, respectively. 
+
+## References 
+
+1. Achiam, J., Adler, S., Agarwal, S., Ahmad, L., Akkaya, I., Aleman, F.L., Almeida, D., Altenschmidt, J., Altman, S., Anadkat, S., et al.: Gpt-4 technical report. arXiv preprint arXiv:2303.08774 (2023) 2. Alayrac, J.B., Donahue, J., Luc, P., Miech, A., Barr, I., Hasson, Y., Lenc, K., Men-sch, A., Millican, K., Reynolds, M., et al.: Flamingo: a visual language model for few-shot learning. Advances in neural information processing systems 35 , 23716– 23736 (2022) 3. Azuma, D., Miyanishi, T., Kurita, S., Kawanabe, M.: Scanqa: 3d question answer-ing for spatial scene understanding. In: proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 19129–19139 (2022) 4. Bai, J., Bai, S., Yang, S., Wang, S., Tan, S., Wang, P., Lin, J., Zhou, C., Zhou, J.: Qwen-vl: A frontier large vision-language model with versatile abilities. arXiv preprint arXiv:2308.12966 1(2), 3 (2023) 5. Bai, S., Chen, K., Liu, X., Wang, J., Ge, W., Song, S., Dang, K., Wang, P., Wang, S., Tang, J., Zhong, H., Zhu, Y., Yang, M., Li, Z., Wan, J., Wang, P., Ding, W., Fu, Z., Xu, Y., Ye, J., Zhang, X., Xie, T., Cheng, Z., Zhang, H., Yang, Z., Xu, H., Lin, J.: Qwen2.5-vl technical report (2025), https://arxiv.org/abs/2502.13923 
+
+6. Baruch, G., Chen, Z., Dehghan, A., Dimry, T., Feigin, Y., Fu, P., Gebauer, T., Joffe, B., Kurz, D., Schwartz, A., et al.: Arkitscenes: A diverse real-world dataset for 3d indoor scene understanding using mobile rgb-d data. arXiv preprint arXiv:2111.08897 (2021) 7. Brossard, M., Barrau, A., Bonnabel, S.: Ai-imu dead-reckoning. IEEE Transactions on Intelligent Vehicles 5(4), 585–595 (2020) 8. Burri, M., Nikolic, J., Gohl, P., Schneider, T., Rehder, J., Omari, S., Achtelik, M.W., Siegwart, R.: The EuRoC micro aerial vehicle datasets. The International Journal of Robotics Research 35 (10), 1168–1176 (2016) 9. Campos, C., Elvira, R., Rodríguez, J.J.G., Montiel, J.M., Tardós, J.D.: Orb-slam3: An accurate open-source library for visual, visual–inertial, and multimap slam. IEEE transactions on robotics 37 (6), 1874–1890 (2021) 10. Chen, B., Xu, Z., Kirmani, S., Ichter, B., Sadigh, D., Guibas, L., Xia, F.: Spa-tialvlm: Endowing vision-language models with spatial reasoning capabilities. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition. pp. 14455–14465 (2024) 11. Chen, C., Lu, X., Markham, A., Trigoni, N.: Ionet: Learning to cure the curse of drift in inertial odometry. In: Proceedings of the AAAI conference on artificial intelligence. vol. 32 (2018) 12. Chen, D.Z., Chang, A.X., Nießner, M.: Scanrefer: 3d object localization in rgb-d scans using natural language. In: European conference on computer vision. pp. 202–221. Springer (2020) 13. Chen, L., Sinavski, O., Hünermann, J., Karnsund, A., Willmott, A.J., Birch, D., Maund, D., Shotton, J.: Driving with llms: Fusing object-level vector modality for explainable autonomous driving. In: 2024 IEEE International Conference on Robotics and Automation (ICRA). pp. 14093–14100. IEEE (2024) 16 S. Shi et al. 14. Chen, S., Chen, X., Zhang, C., Li, M., Yu, G., Fei, H., Zhu, H., Fan, J., Chen, T.: Ll3da: Visual interactive instruction tuning for omni-3d understanding reasoning and planning. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 26428–26438 (2024) 15. Chen, Y., Yang, S., Huang, H., Wang, T., Xu, R., Lyu, R., Lin, D., Pang, J.: Grounded 3d-llm with referent tokens. arXiv preprint arXiv:2405.10370 (2024) 16. Chen, Z., Gholami, A., Nießner, M., Chang, A.X.: Scan2cap: Context-aware dense captioning in rgb-d scans. In: Proceedings of the IEEE/CVF conference on com-puter vision and pattern recognition. pp. 3193–3203 (2021) 17. Cho, K., Van Merriënboer, B., Gulçehre, Ç., Bahdanau, D., Bougares, F., Schwenk, H., Bengio, Y.: Learning phrase representations using rnn encoder–decoder for statistical machine translation. In: Proceedings of the 2014 conference on empirical methods in natural language processing (EMNLP). pp. 1724–1734 (2014) 18. Dai, A., Chang, A.X., Savva, M., Halber, M., Funkhouser, T., Nießner, M.: Scannet: Richly-annotated 3d reconstructions of indoor scenes. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 5828–5839 (2017) 19. Forster, C., Carlone, L., Dellaert, F., Scaramuzza, D.: On-manifold preintegration for real-time visual–inertial odometry. IEEE transactions on robotics 33 (1), 1–21 (2016) 20. Gholami, M., Rezaei, A., Weimin, Z., Mao, S., Zhou, S., Zhang, Y., Akbari, M.: Spatial reasoning with vision-language models in ego-centric multi-view scenes. arXiv preprint arXiv:2509.06266 (2025) 21. Guo, Z., Yagudin, Z., Lykov, A., Konenkov, M., Tsetserukou, D.: Vlm-auto: Vlm-based autonomous driving assistant with human-like behavior and understanding for complex road scenes. arXiv preprint arXiv:2405.05885 (2024) 22. Guo, Z., Zhang, R., Zhu, X., Tang, Y., Ma, X., Han, J., Chen, K., Gao, P., Li, X., Li, H., et al.: Point-bind & point-llm: Aligning point cloud with multi-modality for 3d understanding, generation, and instruction following. arXiv preprint arXiv:2309.00615 (2023) 23. Han, J., Gong, K., Zhang, Y., Wang, J., Zhang, K., Lin, D., Qiao, Y., Gao, P., Yue, X.: Onellm: One framework to align all modalities with language. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 26584–26595 (2024) 24. Herath, S., Yan, H., Furukawa, Y.: Ronin: Robust neural inertial navigation in the wild: Benchmark, evaluations, & new methods. In: 2020 IEEE international conference on robotics and automation (ICRA). pp. 3146–3152. IEEE (2020) 25. Hong, Y., Zhen, H., Chen, P., Zheng, S., Du, Y., Chen, Z., Gan, C.: 3d-llm: In-jecting the 3d world into large language models. Advances in Neural Information Processing Systems 36 , 20482–20494 (2023) 26. Hong, Z., Song, Y., Li, Z., Yu, A., Zhong, S., Ding, Y., He, T., Zhang, D.: Llm4har: Generalizable on-device human activity recognition with pretrained llms. In: Pro-ceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2. pp. 4511–4521 (2025) 27. Huang, H., Chen, Y., Wang, Z., Huang, R., Xu, R., Wang, T., Liu, L., Cheng, X., Zhao, Y., Pang, J., et al.: Chat-scene: Bridging 3d scene and large language models with object identifiers. Advances in Neural Information Processing Systems 
+
+37 , 113991–114017 (2024) 28. Huang, J., Ma, X., Linghu, X., Fan, Y., He, J., Tan, W., Li, Q., Zhu, S.C., Chen, Y., Jia, B., et al.: Leo-vl: Towards 3d vision-language generalists via data scaling with efficient representation. arXiv preprint arXiv:2506.09935 (2025) Egomotion-Aware Video Representation for 3D Scene Understanding 17 29. Huang, J., Yong, S., Ma, X., Linghu, X., Li, P., Wang, Y., Li, Q., Zhu, S.C., Jia, B., Huang, S.: An embodied generalist agent in 3d world. arXiv preprint arXiv:2311.12871 (2023) 30. Huang, R., Li, M., Yang, D., Shi, J., Chang, X., Ye, Z., Wu, Y., Hong, Z., Huang, J., Liu, J., et al.: Audiogpt: Understanding and generating speech, music, sound, and talking head. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 38, pp. 23802–23804 (2024) 31. Keetha, N., Karhade, J., Jatavallabhula, K.M., Yang, G., Scherer, S., Ramanan, D., Luiten, J.: Splatam: Splat track & map 3d gaussians for dense rgb-d slam. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 21357–21366 (2024) 32. Kingma, D.P., Ba, J.: Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980 (2014) 33. Li, B., Zhang, Y., Guo, D., Zhang, R., Li, F., Zhang, H., Zhang, K., Zhang, P., Li, Y., Liu, Z., et al.: Llava-onevision: Easy visual task transfer. arXiv preprint arXiv:2408.03326 (2024) 34. Li, J., Li, D., Savarese, S., Hoi, S.: Blip-2: Bootstrapping language-image pre-training with frozen image encoders and large language models. In: International conference on machine learning. pp. 19730–19742. PMLR (2023) 35. Li, K., He, Y., Wang, Y., Li, Y., Wang, W., Luo, P., Wang, Y., Wang, L., Qiao, Y.: Videochat: Chat-centric video understanding. Science China Information Sciences 
+
+68 (10), 200102 (2025) 36. Li, X., Zhang, M., Geng, Y., Geng, H., Long, Y., Shen, Y., Zhang, R., Liu, J., Dong, H.: Manipllm: Embodied multimodal large language model for object-centric robotic manipulation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 18061–18070 (2024) 37. Li, Z., Deldari, S., Chen, L., Xue, H., Salim, F.D.: Sensorllm: Aligning large lan-guage models with motion sensors for human activity recognition. In: Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing. pp. 354–379 (2025) 38. Lin, B., Ye, Y., Zhu, B., Cui, J., Ning, M., Jin, P., Yuan, L.: Video-llava: Learning united visual representation by alignment before projection. In: Proceedings of the 2024 conference on empirical methods in natural language processing. pp. 5971– 5984 (2024) 39. Lin, J., Yin, H., Ping, W., Molchanov, P., Shoeybi, M., Han, S.: Vila: On pre-training for visual language models. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 26689–26699 (2024) 40. Liu, H., Li, C., Wu, Q., Lee, Y.J.: Visual instruction tuning. Advances in neural information processing systems 36 , 34892–34916 (2023) 41. Lovegrove, S., Patron-Perez, A., Sibley, G.: Spline fusion: A continuous-time repre-sentation for visual-inertial fusion with application to rolling shutter cameras. In: BMVC. vol. 2, p. 8 (2013) 42. Lv, W., Zhang, N., Sun, H., Jiang, H., Zhao, K., Xiao, J., Zeng, D.: Vision-motion-reference alignment for referring multi-object tracking via multi-modal large lan-guage models. arXiv preprint arXiv:2511.17681 (2025) 43. Ma, X., Yong, S., Zheng, Z., Li, Q., Liang, Y., Zhu, S.C., Huang, S.: Sqa3d: Situated question answering in 3d scenes. arXiv preprint arXiv:2210.07474 (2022) 44. Mourikis, A.I., Roumeliotis, S.I.: A multi-state constraint kalman filter for vision-aided inertial navigation. In: Proceedings 2007 IEEE international conference on robotics and automation. pp. 3565–3572. IEEE (2007) 18 S. Shi et al. 45. Ouyang, K., Liu, Y., Wu, H., Liu, Y., Zhou, H., Zhou, J., Meng, F., Sun, X.: Spacer: Reinforcing mllms in video spatial reasoning. arXiv preprint arXiv:2504.01805 (2025) 46. Pan, L., Baráth, D., Pollefeys, M., Schönberger, J.L.: Global structure-from-motion revisited. In: European Conference on Computer Vision. pp. 58–77. Springer (2024) 47. Qi, Z., Zhang, Z., Fang, Y., Wang, J., Zhao, H.: Gpt4scene: Understand 3d scenes from videos with vision-language models. arXiv preprint arXiv:2501.01428 (2025) 48. Qian, R., Dong, X., Zhang, P., Zang, Y., Ding, S., Lin, D., Wang, J.: Streaming long video understanding with large language models. Advances in Neural Information Processing Systems 37 , 119336–119360 (2024) 49. Qin, T., Li, P., Shen, S.: Vins-mono: A robust and versatile monocular visual-inertial state estimator. IEEE transactions on robotics 34 (4), 1004–1020 (2018) 50. Su, Y., Lan, T., Li, H., Xu, J., Wang, Y., Cai, D.: Pandagpt: One model to instruction-follow them all. arXiv preprint arXiv:2305.16355 (2023) 51. Team, G., Georgiev, P., Lei, V.I., Burnell, R., Bai, L., Gulati, A., Tanzer, G., Vin-cent, D., Pan, Z., Wang, S., et al.: Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context. arXiv preprint arXiv:2403.05530 (2024) 52. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, Ł., Polosukhin, I.: Attention is all you need. Advances in neural information pro-cessing systems 30 (2017) 53. Wang, J., Chen, M., Karaev, N., Vedaldi, A., Rupprecht, C., Novotny, D.: Vggt: Visual geometry grounded transformer. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 5294–5306 (2025) 54. Wang, Z., Huang, H., Zhao, Y., Zhang, Z., Zhao, Z.: Chat-3d: Data-efficiently tuning large language model for universal dialogue of 3d scenes. arXiv preprint arXiv:2308.08769 (2023) 55. Wu, D., Liu, F., Hung, Y.H., Duan, Y.: Spatial-mllm: Boosting mllm capabilities in visual-based spatial intelligence. arXiv preprint arXiv:2505.23747 (2025) 56. Xu, B., Mei, Y., Liu, X., Zheng, S., Jin, Q.: Egodtm: Towards 3d-aware egocentric video-language pretraining. arXiv preprint arXiv:2503.15470 (2025) 57. Xu, R., Wang, X., Wang, T., Chen, Y., Pang, J., Lin, D.: Pointllm: Empowering large language models to understand point clouds. In: European Conference on Computer Vision. pp. 131–147. Springer (2024) 58. Yan, C., Qu, D., Xu, D., Zhao, B., Wang, Z., Wang, D., Li, X.: Gs-slam: Dense vi-sual slam with 3d gaussian splatting. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 19595–19604 (2024) 59. Yang, J., Yang, S., Gupta, A.W., Han, R., Fei-Fei, L., Xie, S.: Thinking in space: How multimodal large language models see, remember, and recall spaces. In: Pro-ceedings of the Computer Vision and Pattern Recognition Conference. pp. 10632– 10643 (2025) 60. Yeshwanth, C., Liu, Y.C., Nießner, M., Dai, A.: Scannet++: A high-fidelity dataset of 3d indoor scenes. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 12–22 (2023) 61. Zhang, J., Chen, Y., Zhou, Y., Xu, Y., Huang, Z., Mei, J., Chen, J., Yuan, Y.J., Cai, X., Huang, G., et al.: From flatland to space: Teaching vision-language models to perceive and reason in 3d. arXiv preprint arXiv:2503.22976 (2025) 62. Zhang, J., Wang, K., Xu, R., Zhou, G., Hong, Y., Fang, X., Wu, Q., Zhang, Z., Wang, H.: Navid: Video-based vlm plans the next step for vision-and-language navigation. arXiv preprint arXiv:2402.15852 (2024) 63. Zhang, Y., Wu, J., Li, W., Li, B., Ma, Z., Liu, Z., Li, C.: Llava-video: Video instruction tuning with synthetic data. arXiv preprint arXiv:2410.02713 (2024) Egomotion-Aware Video Representation for 3D Scene Understanding 19 64. Zhao, J., Hou, R., Tian, Z., Chang, H., Shan, S.: His-gpt: Towards 3d human-in-scene multimodal understanding. arXiv preprint arXiv:2503.12955 (2025) 65. Zheng, D., Huang, S., Li, Y., Wang, L.: Learning from videos for 3d world: En-hancing mllms with 3d vision geometry priors. arXiv preprint arXiv:2505.24625 (2025) 66. Zheng, D., Huang, S., Wang, L.: Video-3d llm: Learning position-aware video rep-resentation for 3d scene understanding. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 8995–9006 (2025) 67. Zheng, D., Huang, S., Zhao, L., Zhong, Y., Wang, L.: Towards learning a generalist model for embodied navigation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 13624–13634 (2024) 68. Zhou, G., Hong, Y., Wu, Q.: Navgpt: Explicit reasoning in vision-and-language navigation with large language models. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 38, pp. 7641–7649 (2024) 69. Zhu, C., Wang, T., Zhang, W., Pang, J., Liu, X.: Llava-3d: A simple yet effective pathway to empowering lmms with 3d-awareness. arXiv preprint arXiv:2409.18125 (2024) 70. Zhu, J., Wang, W., Chen, Z., Liu, Z., Ye, S., Gu, L., Tian, H., Duan, Y., Su, W., Shao, J., et al.: Internvl3: Exploring advanced training and test-time recipes for open-source multimodal models. arXiv preprint arXiv:2504.10479 (2025) 71. Zhu, Z., Ma, X., Chen, Y., Deng, Z., Huang, S., Li, Q.: 3d-vista: Pre-trained trans-former for 3d vision and text alignment. In: Proceedings of the IEEE/CVF Inter-national Conference on Computer Vision. pp. 2911–2921 (2023) 20 S. Shi et al. 
+
+## A Additional Method Details 
+
+A.1 Details about Cascaded Motion-Visual Keyframe Filtering 
+
+Our keyframe filtering module applies three cascaded stages to each candidate frame ft, evaluated against the most recently selected keyframe ˆfj . Each stage acts as a progressively more expensive filter: (1) Stage1 uses IMU-derived motion estimates; (2) Stage2 uses sparse feature tracking; and (3) Stage3 uses visual token comparison. Below are the implementation details for each stage. 
+
+Stage 1: Motion Gate. The translational displacement between the candidate frame ft and the last keyframe ˆfj is obtained by double-integrating gravity-corrected accelerometer readings: 
+
+d( ˆfj , f t) = ∥∆pj→t∥2 , (3) where ∆pj→t is the position change estimated from double integration. The rotation angle is obtained by first integrating the gyroscope readings to form a relative rotation matrix ∆Rj→t, then extracting the angle: 
+
+θ( ˆfj , f t) = arccos 
+
+ tr( ∆Rj→t) − 12
+
+
+
+. (4) A candidate frame ft is discarded if both conditions hold: d( ˆfj , f t) < τ d and 
+
+θ( ˆfj , f t) < τ θ . We set τd = 0 .2 m and τθ = 15 ◦ based on the geometric properties of typical indoor scenes. At indoor object distances ( 1 ∼ 5 m), a translation below 0.2 m produces insufficient parallax for meaningful geometric change. Similarly, a rotation below 15 ◦ introduces less than 27% new field of view given the camera’s typical horizontal FOV ( ∼55 ◦). 
+
+Stage 2: Lightweight Geometric Change Detection. This stage follows the sparse feature tracking approach used in visual-inertial odometry systems [44,49]. Let {pjk}Kk=1 be K sparse feature points detected in the last keyframe ˆfj . These points are tracked to the candidate frame ft using a widely deployed feature tracker [9], yielding matched points {ptk}. The average parallax is computed as: 
+
+¯p( ˆfj , f t) = 1
+
+K′
+
+> K′
+
+X
+
+> k=1
+
+ptk − pjk 2
+
+, (5) where K′ is the number of successfully tracked points. A candidate is discarded if ¯p( ˆfj , f t) < τ p, with τp = 15 pixels. This is a conservative threshold that retains candidates with moderate geometric change for further evaluation in Stage 3. 
+
+Stage 3: Visual Token Analysis. Following the dual-encoder architecture in Spatial-MLLM [55], the 2D encoder (Qwen2.5-VL’s visual encoder [5]) produces features v2D , and the spatial encoder (VGGT backbone [53]) produces features Egomotion-Aware Video Representation for 3D Scene Understanding 21 
+
+Algorithm 1 Cascaded Motion-Visual Keyframe Filtering 
+
+Require: Video frames {f1, . . . , f T }, IMU data, thresholds τd, τθ , τp, τv
+
+Ensure: Keyframe set K, visual tokens V
+
+1: K ← { f1} ; ˆfj ← f1
+
+2: for t = 2 to T do 
+
+3: Compute d( ˆfj , f t) and θ( ˆfj , f t) from IMU 4: if d( ˆfj , f t) < τ d and θ( ˆfj , f t) < τ θ then 
+
+5: continue {Stage 1: insufficient motion} 6: end if 
+
+7: Compute average parallax ¯p( ˆfj , f t)
+
+8: if ¯p( ˆfj , f t) < τ p then 
+
+9: continue {Stage 2: insufficient geometric change} 10: end if 
+
+11: Extract visual token vt
+
+12: if 1 − cos( vt, vj ) < τ v then 
+
+13: continue {Stage 3: visually similar} 14: end if 
+
+15: K ← K ∪ { ft} ; ˆfj ← ft
+
+16: end for 
+
+v3D . The 3D features v3D are rearranged to align with v2D in spatial and tem-poral dimensions, yielding v′
+
+> 3D
+
+. The fused visual token for candidate frame ft is: 
+
+vt = MLP 2D (v2D ) + MLP 3D (v′
+
+> 3D
+
+). (6) The cosine distance between vt and the last keyframe’s visual token vj deter-mines whether ft is selected as a new keyframe. Specifically, ft is selected if the cosine distance exceeds τv = 0 .4 (corresponding to a cosine similarity of 0.6). Since vt encodes both 2D appearance and 3D geometric structure, the cosine distance captures changes in both modalities. This threshold is tuned on the ScanQA [3] and SQA3D [43] datasets. 
+
+Algorithm and Filtering Statistics. The complete cascaded filtering proce-dure is summarized in Algorithm 1. On our experimental benchmarks (ScanQA [3], SQA3D [43], VSI-Bench [59], ScanRefer [12], and Scan2Cap [16], mostly derived from ScanNet [18]), input videos contain on average ∼1,000 frames at 30 FPS. Stage1 retains ∼8% (∼80 frames), Stage2 retains ∼38% of those ( ∼30 frames), and Stage3 retains ∼70% of those ( ∼21 keyframes). The cascaded design ensures that expensive visual feature extraction in Stage3 is applied to less than 3% of the original frames. 
+
+A.2 Egomotion Data Synthesis 
+
+Existing 3D scene understanding and spatial reasoning benchmarks lack raw IMU sensor data, as they were originally designed for vision-only or point-cloud-based methods. To enable training and evaluation with egomotion input, we synthesize realistic 6-axis IMU measurements (3-axis accelerometer and 3-axis 22 S. Shi et al. 
+
+> Table 6: IMU noise model parameters used in egomotion data synthesis.
+
+Parameter Symbol Value 
+
+Accelerometer noise density σa 2.0 × 10 −2 m/s 2/√Hz Gyroscope noise density σg 1.5 × 10 −3 rad/s/ √Hz Accelerometer bias random walk σba 3.0 × 10 −3 m/s 3/√Hz Gyroscope bias random walk σbg 2.0 × 10 −5 rad/s 2/√Hz 
+
+gyroscope) from the video data of these benchmarks. For each scan, we define the world coordinate frame as the body (camera) frame at the initial time step 
+
+t0. All poses and measurements are expressed relative to this frame, with the gravity vector g = [0 , 0, −9.81] ⊤ m/s 2 determined by the known orientation of the first camera with respect to the gravity direction. 
+
+Pose-based Synthesis. Datasets derived from ScanNet [18], such as ScanQA [3], SQA3D [43], ScanRefer [12], and Scan2Cap [16], originally provide per-frame camera-to-world transformation matrices Ti ∈ SE (3) at the video frame rate (30 FPS). We fit cubic B-splines [41] to the discrete position trajectory p(t) ∈ R3
+
+and rotation trajectory R(t) ∈ SO (3) separately, yielding a continuous-time rep-resentation that allows analytical computation of derivatives at arbitrary time instants. The noise-free accelerometer and gyroscope readings in the body frame are: 
+
+˜a(t) = R(t)⊤ (¨ p(t) − g) , ˜ω(t) = 
+
+
+
+R(t)⊤ ˙R(t)
+
+∨
+
+, (7) where ¨p(t) is the linear acceleration in the world frame obtained from the second derivative of the position spline, and (·)∨ extracts the angular velocity vector from the skew-symmetric matrix R⊤ ˙R.
+
+Video-based Synthesis. VSI-Bench [59] provides only raw video without cam-era pose annotations. We extract frames from each video and use GLOMAP [46], a global structure-from-motion system, to recover camera poses. We then apply the same B-spline fitting and differentiation pipeline described above to synthe-size IMU measurements from the recovered poses. 
+
+Noise Model and Sampling Rate. To simulate realistic sensor characteristics, we augment the ideal readings with additive white noise and slowly drifting bias, following the standard continuous-time IMU noise model [19]: 
+
+a(t) = ˜ a(t) + ba(t) + na, na ∼ N (0, σ 2
+
+> a
+
+I)
+
+ω(t) = ˜ ω(t) + bg (t) + ng , ng ∼ N (0, σ 2 
+
+> g
+
+I) (8) where the biases ba(t) and bg (t) evolve as Brownian motions with ˙ba ∼ N (0, σ 2
+
+> ba
+
+I)
+
+and ˙bg ∼ N (0, σ 2 
+
+> bg
+
+I). We use noise parameters representative of a consumer-grade MEMS IMU, as listed in Tab. 6. All IMU data is synthesized at 200 Hz, matching common consumer sensor sampling rates [8]. Egomotion-Aware Video Representation for 3D Scene Understanding 23                             
+
+> Table 7: Training and evaluation data statistics. All training sets are derived from ScanNet [18]. †Scan2Cap reuses ScanRefer annotations with a different task for-mulation.
+> Dataset Task #Train #Eval #Scenes (train)
+> ScanQA [3] 3D QA 25,563 4,675 562 SQA3D [43] Situated QA 26,623 3,519 518 ScanRefer [12] Visual Grounding 36,665 9,508 562 Scan2Cap †[16] Dense Captioning 36,665 9,508 562
+> Total (training) 125,516
+> VSI-Bench [59] Spatial Reasoning -5,131 -
+
+A.3 Training Data Statistics 
+
+We train Motion-MLLM on a mixture of four datasets, including ScanQA [3], SQA3D [43], ScanRefer [12], and Scan2Cap [16], all derived from ScanNet [18] indoor scans. Tab. 7 summarizes the dataset composition. Following [66], each training batch is randomly sampled from a single task type. VSI-Bench [59] is used only for evaluation, as it draws from additional data sources (Scan-Net++ [60] and ARKitScenes [6]) and lacks a public training split. 
+
+A.4 Prompts of Motion-MLLM 
+
+Fig. 4 shows the prompts used in Motion-MLLM for each task. We adopt the default system prompt of Qwen2.5-VL [5], “You are a helpful assistant,” for all tasks. The user prompt contains video frames and IMU data as multimodal in-put, followed by a task-specific text instruction. All tasks use a unified <answer> 
+
+tag format for response extraction. For question answering (ScanQA [3], SQA3D [43], and VSI-Bench [59]), the model is instructed to answer concisely. For SQA3D, the situation description is prepended to the question. For VSI-Bench, the prompt appends a type-specific template depending on the question type (multiple choice, numerical, or ver-bal). For visual grounding (ScanRefer [12]), the model outputs a JSON dic-tionary containing the frame index and an axis-aligned 3D bounding box. For dense captioning (Scan2Cap [16]), the model describes the object at a given 3D location. 
+
+## B Additional Evaluation Results 
+
+B.1 Full Quantitative Results on ScanQA and SQA3D 
+
+Tab. 8 extends Tab. 1 with the complete metric suite on ScanQA [3], additionally reporting EM-1, BLEU-2, and BLEU-3. The results are fully consistent with the main findings: Motion-MLLM achieves the best EM-1 among 2D-input models 24 S. Shi et al. System Prompt: "You are a helpful assistant. You are provided with a video of a scene as a sequence of frames 
+
+(<image><image>··· <image> ) and the corresponding IMU sensor data ( <imu> ) recording the camera's egomotion ." 
+
+3D Question Answering ( ScanQA & SQA3D) 
+
+𝐗 User : <image><image>··· <image> <imu> 
+
+What color is the couch near the window ? Answer 
+
+the question concisely within <answer></answer> 
+
+tags. 
+
+𝐗 Agent : <answer> gray </answer> 
+
+Dense Captioning ( ScanCap )
+
+𝐗 User : <image><image>··· <image> <imu> 
+
+Carefully watch the video and describe the object located at 
+
+[1.35, -0.62, 0.78] in detail within <answer></answer> tags. 
+
+𝐗 Agent : <answer> A rectangular wooden A rectangular wooden 
+
+in the center of the room, surrounding by four chairs on each side. 
+
+</answer> 
+
+Spatial Reasoning (VSI -Bench) 
+
+𝐗 User : <image><image>··· <image> <imu> 
+
+Question + {Type Template} 
+
+Type Template 
+
+• MC : “Answer with the option’s letter from the 
+
+given choices within <answer></answer> tags.” 
+
+• Numerical : “Answer with the numerical value 
+
+within <answer></answer> tags.” 
+
+• Verbal: “Answer with the question simply within 
+
+<answer></answer> tags.” 
+
+Visual Grounding ( ScanRefer )
+
+𝐗 User : <image><image>··· <image> <imu> 
+
+Localize the object described below in the video. 
+
+Text: The black office chair in front of the desk near the window. 
+
+Output a JSON dictionary with the frame index in “frame” and 
+
+the axis -aligned 3D bounding box in “bbox_3d” in the frame’s 
+
+coordinates. 
+
+𝐗 Agent :
+
+``` json 
+
+[
+
+{“frame”: 5. “bbox_3d”: [ -1.42, 0.37, 0.85, 0.62, 0.58, 0.93]}, 
+
+…
+
+]
+
+``` 
+
+Fig. 4: Prompts used for each task in Motion-MLLM . All tasks share the same system prompt and receive video frames along with IMU data as input. Each task uses a task-specific user prompt with a unified <answer> tag format for response extraction. 
+
+(29 .8 vs. 26 .3 for Spatial-MLLM) and remains comparable with top 3D-input models across all BLEU levels, confirming that the trends in Tab. 1 hold across the full metric set. Tab. 9 provides a question-type breakdown on SQA3D [43]. Motion-MLLM 
+
+outperforms all 2D-input models across nearly all question types, with the largest gains on spatially-grounded and situational categories (i.e., What , Is , Can ). Com-pared to 3D/2.5D-input models, Motion-MLLM achieves comparable or superior scores on most question types, demonstrating that lightweight egomotion data can match the spatial grounding capability of expensive 3D inputs. The compar-atively smaller improvement on How questions, which are typically quantitative count tasks, suggests that egomotion cues are less decisive when visual infor-mation dominates. These per-type results are consistent with the conclusion in Sec. 4.2. 
+
+B.2 Qualitative Results 
+
+We provide qualitative examples to visualize the evaluation results of Motion-MLLM 
+
+on ScanQA [3] (Fig.5), SQA3D [43] (Fig.6), VSI-Bench [59] (Fig.7), ScanRe-fer [12] (Fig. 8), and Scan2Cap [16] (Fig. 9). These examples show that Motion-MLLM 
+
+correctly answers spatial questions, localizes described objects, and generates grounded captions across diverse indoor scenes. Egomotion-Aware Video Representation for 3D Scene Understanding 25 
+
+Table 8: Full evaluation Results on ScanQA [3]. We use the val set of ScanQA for evaluation. Reported metrics include EM-1, BLEU-1 to BLEU-4, METEOR, ROUGE-L, and CIDEr. "–" indicates the number is not available. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively. 
+
+Methods Input ScanQA (val) 
+
+2D 3D M EM-1 BLEU-1 BLEU-2 BLEU-3 BLEU-4 METEOR ROUGE-L CIDEr 
+
+Task-Specific Models 
+
+ScanQA [3] ! 21.1 30.2 20.4 15.1 10.1 13.1 33.3 64.9 3D-VisTA [71] ! 22.4 - - - 10.4 13.9 35.7 69.6 
+
+2D-Input Models 
+
+Qwen2.5-VL-3B [5] ! 15.4 22.5 13.1 8.1 3.8 9.7 25.4 47.4 Qwen2.5-VL-7B [5] ! 19.0 27.8 13.6 6.3 3.0 11.4 29.3 53.9 LLaVA-Video-7B [63] ! - 39.7 26.6 9.3 3.1 17.7 44.6 88.7 VideoChat2 [35] ! 19.2 - - - 9.6 9.5 28.2 49.2 Spatial-MLLM [55] ! 26.3 44.4 28.8 21.9 14.8 18.4 45.0 91.8 
+
+3D/2.5D-Input Models 
+
+3D-LLM [25] ! ! 20.5 39.3 25.2 18.4 12.0 14.5 35.7 69.4 Chat-Scene [27] ! ! 21.6 43.2 29.1 20.6 14.3 18.0 41.6 87.7 LEO [29] ! ! 24.5 - - - 13.2 20.0 49.2 24.5 GPT4Scene-HDM [47] ! ! 28.2 44.4 30.3 22.3 15.5 18.9 46.5 96.3 Video-3D LLM [66] ! ! 30.1 47.1 31.7 22.8 16.2 19.8 49.0 102.1 LLaVA-3D [69] ! ! 30.6 - - - 16.4 20.8 49.6 103.1 
+
+Egomotion-Input Model 
+
+Motion-MLLM -4B ! ! 29.8 46.5 31.2 22.2 15.8 20.3 48.0 100.4 
+
+Table 9: Evaluation Results on SQA3D [43]. We use the test set of SQA3D for evaluation. We additionally report the average EM@1 for different question types, including What , Is , How , Can , Which , and Others . "–" indicates the number is not avail-able. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively. 
+
+Methods Input SQA3D (test) 
+
+2D 3D M What Is How Can Which Others Avg. (EM@1) Avg. (EM@R1) 
+
+Task-Specific Models 
+
+SQA3D [43] ! 31.6 63.8 46.0 69.5 43.9 45.3 46.6 -3D-VisTA [71] ! 34.8 63.3 45.4 69.8 47.2 48.1 48.5 -
+
+2D-Input Models 
+
+Qwen2.5-VL-3B [5] ! 34.8 52.1 39.8 52.7 45.6 47.0 43.4 45.9 Qwen2.5-VL-7B [5] ! 39.7 56.6 41.1 55.9 47.6 47.2 46.5 49.8 LLaVA-Video-7B [63] ! 42.7 56.3 47.5 55.3 50.1 47.2 48.5 -Spatial-MLLM [55] ! 45.9 71.6 55.1 69.5 52.0 53.0 55.9 58.7 
+
+3D/2.5D-Input Models 
+
+Chat-Scene [27] ! ! 45.4 67.0 52.0 69.5 49.9 55.0 54.6 57.5 GPT4Scene-HDM [47] ! ! 55.9 69.9 50.8 68.7 53.3 60.4 60.6 63.3 
+
+Video-3D LLM [66] ! ! 51.1 72.4 55.5 69.8 51.3 56.0 58.6 -
+
+Egomotion-Input Model 
+
+Motion-MLLM -4B ! ! 54.1 72.0 54.8 70.3 53.0 58.9 60.2 62.4 26 S. Shi et al. Video 
+
+Question : To what side of the bed is the wooden table located? 
+
+Motion -MLLM : Left . Ground Truth : Left .
+
+Question : What is to the right of the closet? 
+
+Motion -MLLM : A white door . Ground Truth : Door .
+
+Question : The brown guitar is to the right of what? 
+
+Motion -MLLM : A white closet . Ground Truth : White rectangular closet .
+
+Fig. 5: Qualitative examples on ScanQA [3]. Video 
+
+Question : To what side of the bed is the wooden table located? 
+
+Motion -MLLM : Left . Ground Truth : Left .
+
+Question : What is to the right of the closet? 
+
+Motion -MLLM : A white door . Ground Truth : Door .
+
+Question : The brown guitar is to the right of what? 
+
+Motion -MLLM : A white closet . Ground Truth : White rectangular closet .
+
+Fig. 6: Qualitative examples on SQA3D [43]. Egomotion-Aware Video Representation for 3D Scene Understanding 27 Video 
+
+Question : You are a robot beginning at the printer and facing the window . You want to navigate to the 
+
+lamp . You will perform the following actions (Note : for each [please fill in], choose either 'turn back,' 
+
+'turn left,' or 'turn right .') : 1. Go forward until the desk chair . 2. [Please fill in] 3. Go forward until the 
+
+sofa . 4. [please fill in] 5. Go forward until the other sofa by the window . 6. [please fill in] 7. Go 
+
+forward until the lamp . You have reached the final destination .
+
+A. Turn Right, Turn Left, Turn Right B. Turn Left, Turn Left, Turn Right 
+
+C. Turn Back, Turn Right, Turn Left D. Turn Back, Turn Right, Turn Right 
+
+Motion -MLLM : A Ground Truth : A
+
+Question : What is the size of this room (in square meters)? If multiple rooms are shown, estimate the 
+
+size of the combined space .
+
+Motion -MLLM : 24 .5 Ground Truth : 26 .4Video 
+
+Question : If I am standing by the tv and facing the bed, is the table to my front -left, front -right, back -
+
+left, or back -right? The directions refer to the quadrants of a Cartesian plane (if I am standing at the 
+
+origin and facing along the positive y-axis) .
+
+A. Back Left B. Back Right 
+
+C. Front Right D. Front Left 
+
+Motion -MLLM : C Ground Truth : C
+
+Question : Measuring from the closest point of each object, what is the distance between the table and 
+
+the bed (in meters)? 
+
+Motion -MLLM : 2.05 Ground Truth : 1.9
+
+Fig. 7: Qualitative examples on VSI-Bench [59]. 28 S. Shi et al. Video 
+
+Question : The recycling bin has a kitchen cabinet to its right . the recycling bin is boxy and blue .
+
+Please locate its position with the coordinate of center x, y, z and its length, width and height .
+
+Motion -MLLM : [1.25 , 1.51 , 0.32 , 0.54 , 0.36 , 0.85 ]
+
+Ground Truth : [1.48 , 1.64 , 0.41 , 0.57 , 0.32 , 0.77 ]
+
+Question : The object is a small black microwave oven situated under a shelf . It looks to have a digital 
+
+timer . Please locate its position with the coordinate of center x, y, z and its length, width and height .
+
+Motion -MLLM : [1.60 , -1.20 , 0.89, 0.40 , 0.43 , 0.32 ]
+
+Ground Truth : [1.54 , -1.06 , 1.00 , 0.44 , 0.51 , 0.30 ]
+
+Fig. 8: Qualitative examples of visual grounding on ScanRefer [12]. Video 
+
+Question : Carefully watch the video and describe the object located at [-0.95 , 0.48 , 0.12 ] in detail .
+
+Motion -MLLM : A blue trash bin is located besides a white heater . It is in front of a white table .
+
+Ground Truth : A blue trash bin . It is under a white table .
+
+Question : Carefully watch the video and describe the object located at [1.28 , -1.38 , 0.67 ] in detail .
+
+Motion -MLLM : A white dresser is located against the wall on the right side of the bed, and it is 
+
+located to the left of the white door .
+
+Ground Truth : A white dresser is between the wall and the bed . It is in the right corner .
+
+Fig. 9: Qualitative examples of dense captioning on Scan2Cap [16].

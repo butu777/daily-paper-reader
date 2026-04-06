@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-001.webp",
+      "caption": "Table 3. Performance comparison on CULane benchmarks. For Normal, Snow, Rain, Fog, Night, and Dusk, the metric is F1@50 to provide a clearer comparison across different environmental conditions. Best results are in bold, second best are underlined.",
+      "page": 6,
+      "index": 1,
+      "width": 906,
+      "height": 696
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-002.webp",
+      "caption": "Figure 8. Examples of other datasets.",
+      "page": 11,
+      "index": 2,
+      "width": 516,
+      "height": 253
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-003.webp",
+      "caption": "Figure 6. Comparison with Real-World Samples.",
+      "page": 11,
+      "index": 3,
+      "width": 468,
+      "height": 746
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-004.webp",
+      "caption": "Figure 7. Comparison with Suppression Module.",
+      "page": 11,
+      "index": 4,
+      "width": 500,
+      "height": 508
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-005.webp",
+      "caption": "Figure 4. Ablation Study. Experiment #1, #2, #3, and #4 demonstrate the generation results of using Canny or InstructPix2Pix individually, as well as the effects of their combined order.",
+      "page": 7,
+      "index": 5,
+      "width": 1023,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-006.webp",
+      "caption": "Figure 2. Overview of the proposed HG-Lane. The input image is first processed into a fused control map combining color-based masks, Canny edges and lane annotations. In Stage-I, a Canny-ControlNet enforces lane geometry during reverse diffusion in latent space. In Stage-II, an InstructPix2Pix ControlNet optionally refines appearance for “night” and “dusk”. Finally, the latent is decoded back to pixel space. All components are pretrained; no fine-tuning is required.",
+      "page": 3,
+      "index": 6,
+      "width": 941,
+      "height": 549
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-007.webp",
+      "caption": "Table 7. Performance on CLRNet (ResNet-18).",
+      "page": 8,
+      "index": 7,
+      "width": 475,
+      "height": 265
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10128v1/fig-008.webp",
+      "caption": "Figure 3. Results of some baselines. The green lines in the figure represent the predicted values, while blue lines represent ground truth.",
+      "page": 5,
+      "index": 8,
+      "width": 986,
+      "height": 409
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-001.webp",
+      "caption": "Fig. 1: Rank–performance curves (accuracy/success relative to full fine-tuning; 1.0 = full FT). LLM (LLaMA-7B) reaches near-full-FT performance with very small ranks (r ∈ {4,8}), whereas VLA (π0-3.5B) improves steadily and only approaches parity around r ≈ 128, consistent with a higher intrinsic dimension in the VLA transfer setting.",
+      "page": 1,
+      "index": 1,
+      "width": 378,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-002.webp",
+      "caption": "TABLE I: Trainable parameters, active ranks, and multi-task success rates across various fine-tuning strategies. Active rank denotes effective rank k per token in average across all layers.",
+      "page": 6,
+      "index": 2,
+      "width": 896,
+      "height": 350
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-003.webp",
+      "caption": "TABLE II: Comparison of task success rates across varying LoRA ranks under single-task and multi-task training.",
+      "page": 6,
+      "index": 3,
+      "width": 896,
+      "height": 415
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-004.webp",
+      "caption": "Fig. 2: VLA models are pre-trained on diverse manipulation tasks and robot embodiment (e.g., Franka Emika, WidowX, UR5e, Stretch) data. We compare transfers to a seen embodiment (Franka) versus an unseen embodiment (PiPER). Unseenembodiment transfer changes both the robot’s kinematic specification (DoF, link lengths, joint limits) and the perception geometry (camera intrinsics/extrinsics, viewpoint) and workspace scale, which pushes the update to require a higher intrinsic rank; by contrast, when the embodiment is seen, adaptation primarily compensates for perception/scale shifts and works with a lower rank.",
+      "page": 2,
+      "index": 4,
+      "width": 1046,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-005.webp",
+      "caption": "Fig. 6: Layer-wise distributions of active rank learned by LoRA-SP on validation data. Results are shown for (a) vision tower, (b) language model, and (c) action expert, for both SmolVLA (top) and π0 (bottom) backbones. Each boxplot shows min–LQ–median–UQ–max of the active rank across inputs. The vision tower consistently requires the highest ranks, the action expert shows wide variability, while the language model layers remain comparatively low and stable. This pattern highlights strong heterogeneity across modules and underscores the limitation of using a single global rank for VLA adaptation.",
+      "page": 7,
+      "index": 5,
+      "width": 1052,
+      "height": 519
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-006.webp",
+      "caption": "Fig. 7: Real-world experimental setup for four tasks: (a) Open the Pot, (b) Pour the Block into the Basket, (c) Press the Button, and (d) Pick and Place the Grape in the Basket.",
+      "page": 7,
+      "index": 6,
+      "width": 433,
+      "height": 441
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-007.webp",
+      "caption": "Fig. 3: Rank sensitivity in single- and multi-task LoRA finetuning on π0 model. (a) LoRA modules trained independently on each single task. While single-task modules also require higher ranks to reach full performance, their variance across tasks is lower than in the multi-task setting. Together, the results highlight the difficulty of choosing a single global rank that balances efficiency and accuracy across tasks, motivating rank-adaptive allocation. (b) Multi-task LoRA fine-tuning across four manipulation tasks. Success rate increases with rank but exhibits substantial variance across tasks, reflecting interference and heterogeneous capacity needs.",
+      "page": 3,
+      "index": 7,
+      "width": 485,
+      "height": 662
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-008.webp",
+      "caption": "Fig. 4: Spectral Rank Variation by Embodiment During π0 Fine-tuning. Number of singular values required to capture 99% of the total energy (normalized by the full rank) across different layers and modules. We compare π0 models fine-tuned on in-domain and out-of-domain data. The in-domain model is fine-tuned on the DROID dataset, which uses the robotic arm (Franka Panda) included in π0’s pretraining data. The out-of-domain model is fine-tuned on a dataset collected with the AgileX PiPER robotic arm, an embodiment absent from the pretraining data. The results show that the required rank varies by embodiment, and generalizing to a novel embodiment demands higher-rank to achieve comparable performance.",
+      "page": 4,
+      "index": 8,
+      "width": 1034,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07404v1/fig-009.webp",
+      "caption": "Fig. 5: LoRA-SP (Select–Prune). (I) Overview: a wide vector bank (U,V ) is trained together with a router on the backbone W0. (II) Select: the router produces vector-level scores that act as singular values, forming an input- and layer-conditioned update ∆W =U Σ(x)V ; the histogram illustrates the spectral energy distribution across vectors. (III) Prune: only the smallest set of basis vectors whose cumulative energy exceeds the target η are kept, progressively reducing the active rank while maintaining accuracy.",
+      "page": 5,
+      "index": 9,
+      "width": 1048,
+      "height": 285
+    }
+  ]
+}

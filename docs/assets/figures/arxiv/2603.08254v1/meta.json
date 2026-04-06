@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.08254v1/fig-001.webp",
+      "caption": "Figure 5. Point map reconstruction. DynamicVGGT reconstructs denser, smoother, and more geometrically consistent point maps than VGGT, maintaining temporal coherence even under large viewpoint or scene changes. Zoom in for better view.",
+      "page": 7,
+      "index": 1,
+      "width": 483,
+      "height": 477
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08254v1/fig-002.webp",
+      "caption": "Figure 2. Proposed DynamicVGGT training framework. Given a sequence of multi-view images {V1, V2, V3}, the model first encodes them using a pretrained DINOv2 backbone to extract patch tokens and camera tokens for each view, while motion tokens are initialized as learnable parameters that encode temporal priors. The patch and camera tokens are processed by the Alternating-Attention (AA) blocks to model intra-frame spatial geometry, whereas the Motion-aware Temporal Attention (MTA) blocks operate in parallel to model inter-frame temporal dependencies using the motion tokens. The resulting temporal features TA are then fed into a Dynamic 3D Gaussian Head (DGSHead) for dynamic 3DGS reconstruction and a Future Point Head for future point prediction.",
+      "page": 3,
+      "index": 2,
+      "width": 948,
+      "height": 462
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08254v1/fig-003.webp",
+      "caption": "Figure 6. Scene Reconstruction and Novel View Synthesis. Given input frames 0, 2, and 4, DynamicVGGT reconstructs the corresponding scenes and synthesizes novel views for the next frame. For both KITTI and Waymo, multi-view inputs are used; for Waymo, we visualize the front-camera results due to limited view overlap. The model achieves high-quality reconstruction and realistic novel view generation across dynamic driving scenes.",
+      "page": 8,
+      "index": 3,
+      "width": 1002,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08254v1/fig-004.webp",
+      "caption": "Figure 3. Dynamic task formulation. We formulate dynamic point maps by designing two complementary tasks that model point-wise motion over time. The Future Point Head learns implicit motion through inter-frame point consistency, while the Dynamic 3D Gaussian Splatting Head provides explicit motion supervision via scene flow to refine dynamic geometry.",
+      "page": 4,
+      "index": 4,
+      "width": 404,
+      "height": 394
+    }
+  ]
+}

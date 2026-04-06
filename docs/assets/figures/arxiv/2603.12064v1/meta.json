@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.12064v1/fig-001.webp",
+      "caption": "Fig. 5: Qualitative reconstruction results on MultiCamRobolab datasets.",
+      "page": 14,
+      "index": 1,
+      "width": 720,
+      "height": 213
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12064v1/fig-002.webp",
+      "caption": "Fig. 2: Method Overview. Given multiple video inputs: Our method first uses a feed-forward model for initialization to achieve a global scale anchor and initialized poses (Step1). Then, we build a spatio-temporal connection graph during tracking to estimate camera poses and maintain a consistent scale (Step2). At last, we leverage the dense optical flow, estimated poses, and achieved connection graph to refine per-pixel depth to get a consistent scene and refined camera poses.",
+      "page": 5,
+      "index": 2,
+      "width": 725,
+      "height": 192
+    }
+  ]
+}

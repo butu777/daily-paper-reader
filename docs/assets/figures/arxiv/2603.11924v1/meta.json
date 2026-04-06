@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-001.webp",
+      "caption": "Figure 5. Statistical distribution of Catalytic Reaction Understanding in the Chem4D benchmark. (a) The distribution of the number of atoms. (b) The distribution of the reaction barrier (eV). (c) The distribution of the reaction enthalpy (eV).",
+      "page": 15,
+      "index": 1,
+      "width": 1003,
+      "height": 325
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-002.webp",
+      "caption": "Table 1. Reaction product prediction results on Transition1x and RDG1. We evaluate models on the task of predicting product SMILES from reaction trajectories. BLEU measures sequence-level similarity between predicted and ground-truth SMILES. EXACT and Levenshtein distance assess string-level accuracy, while MACCS, RDK, and Morgan report fingerprint-based structural similarity. VALIDITY measures the fraction of chemically valid predictions, and MAE of reaction barriers and enthalpies evaluates energetic consistency. Results are reported for in-distribution (ID) and multiple out-of-distribution (OOD) settings with unseen reactants, products, or both. Overall, Chem4DLLM achieves strong performance across string, structural, and energetic metrics, particularly in challenging OOD regimes.",
+      "page": 7,
+      "index": 2,
+      "width": 981,
+      "height": 609
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-003.webp",
+      "caption": "Figure 4. Statistical distribution of Reaction Product Prediction in the Chem4D benchmark. (a) The distribution of the number of atoms. (b) The distribution of the reaction barrier (eV). (c) The distribution of the reaction enthalpy (eV).",
+      "page": 14,
+      "index": 3,
+      "width": 1003,
+      "height": 325
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-004.webp",
+      "caption": "Figure 6. Sample of Reaction Product Prediction",
+      "page": 18,
+      "index": 4,
+      "width": 506,
+      "height": 506
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-005.webp",
+      "caption": "Figure 7. Sample of Catalytic Reaction Understanding",
+      "page": 18,
+      "index": 5,
+      "width": 506,
+      "height": 407
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-006.webp",
+      "caption": "Figure 2. Overview of the Chem4D benchmark. This benchmark is a suit which encompasses three distinct categories: (1) Reaction Product Prediction, involving the analysis of bond breaking/forming events and reaction barriers (derived fr m Transition1x and RGD1); (2) Catalytic Reaction, covering complex surface interactions such as desorption (derived from OC20). For eac category, the figure illustrates the workflow from the user query and 4D input, through the identification of key physical events, to the generation of the final scientific narrative.",
+      "page": 4,
+      "index": 6,
+      "width": 813,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-007.webp",
+      "caption": "Table 3. Example inputs for Chem3D-style (3D) and 4D-text-based models. Both settings aim to predict the product SMILES, reaction barrier, and reaction enthalpy, but differ in how geometric information is provided.",
+      "page": 17,
+      "index": 7,
+      "width": 910,
+      "height": 527
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11924v1/fig-008.webp",
+      "caption": "Figure 3. The Chem4DLLM model architecture. (1) A 4D equivariant graph encoder (UMA) processes each 3D frame Xt into a graph embedding; (2) A projector transforms the graph embeddings into vectors that are additively fused with the embeddings of the corresponding special <graph> tokens; (3) The language model (Qwen3-8B) takes the resulting embedding sequence E as a prefix and autoregressively generates the output.",
+      "page": 5,
+      "index": 8,
+      "width": 490,
+      "height": 321
+    }
+  ]
+}

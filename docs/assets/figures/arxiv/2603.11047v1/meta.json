@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11047v1/fig-001.webp",
+      "caption": "Figure 4: Reconstruction results on various lighting conditions. Boxes on ground-truth highlight specular and Fresnel reflection. Please refer to Tab. 1 for quantitative results. Mesh credit: DigitalSouls (2019); 3Dji (2025); Virtual Museums of Małopolska (2020).",
+      "page": 6,
+      "index": 1,
+      "width": 829,
+      "height": 711
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11047v1/fig-002.webp",
+      "caption": "Figure 5: Single image to 3D results. The input image is shown at the center of each set with black border. The rendering at the input view is shown with the input image. Please refer to Tab. 3 for quantitative results. Mesh credit: Eleanie (2025); Rigsters (2017); 3d-coat (2015); 3Dji (2025).",
+      "page": 7,
+      "index": 2,
+      "width": 812,
+      "height": 905
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11047v1/fig-003.webp",
+      "caption": "Figure 2: Overview of the 3D latent representation. Given samples of the surface light field of the scene, we learn a latent representation that reconstruct the full surface light field information. The encoder (pink block) condenses input information into the latent representation. We jointly supervise the latent representation to contain full 3D geometry and view-dependent radiance information beyond the input samples. In the architectures, we design localized attention pattern to improve efficiency and support 1 million input tokens.",
+      "page": 3,
+      "index": 3,
+      "width": 804,
+      "height": 189
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11047v1/fig-004.webp",
+      "caption": "Figure 6: Fidelity to input view. Our image-to-3d generative model respects the coordinate system of the input view. In contrast, existing state-of-the-art techniques, e.g., TRELLIS (Xiang et al., 2025), do not. Mesh credit: Virtual Museums of Małopolska (2016); animanyarty (2022).",
+      "page": 9,
+      "index": 4,
+      "width": 812,
+      "height": 235
+    }
+  ]
+}

@@ -1,0 +1,872 @@
+Title: 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in Vision-Language Models
+
+URL Source: https://arxiv.org/pdf/2603.07751v1
+
+Published Time: Tue, 10 Mar 2026 01:26:14 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+# 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in Vision-Language Models 
+
+Shaoxiong Zhan * 1 Yanlin Lai * 1 Zheng Liu * 1 Hai Lin 1
+
+Shen Li 2 Xiaodong Cai 1 Zijian Lin 1 Wen Huang 1 Hai-Tao Zheng 1
+
+Abstract 
+
+Current Large Language Models have achieved Olympiad-level logic, yet Vision-Language Mod-els paradoxically falter on elementary spatial tasks like block counting. This capability mismatch re-veals a critical “spatial intelligence gap,” where models fail to construct coherent 3D mental repre-sentations from 2D observations. We uncover this gap via diagnostic analyses showing the bottle-neck is a missing view-consistent spatial interface rather than insufficient visual features or weak rea-soning. To bridge this, we introduce 3ViewSense ,a framework that grounds spatial reasoning in Or-thographic Views. Drawing on engineering cogni-tion, we propose a “Simulate-and-Reason” mecha-nism that decomposes complex scenes into canon-ical orthographic projections to resolve geometric ambiguities. By aligning egocentric perceptions with these allocentric references, our method facil-itates explicit mental rotation and reconstruction. Empirical results on spatial reasoning benchmarks demonstrate that our method significantly outper-forms existing baselines, with consistent gains on occlusion-heavy counting and view-consistent spatial reasoning. The framework also improves the stability and consistency of spatial descrip-tions, offering a scalable path toward stronger spatial intelligence in multimodal systems. 
+
+1. Introduction 
+
+The advent of Large Vision-Language Models (VLMs) has revolutionized multimodal understanding. However, a startling paradox remains: while state-of-the-art models (e.g., GPT-4o, GPT-5 class) exhibit Olympiad-level sym-
+
+> 1
+
+Shenzhen International Graduate School, Tsinghua University, Shenzhen, China 2School of Software Engineering, Chongqing University, Chongqing, China. Correspondence to: Shaox-iong Zhan <zhanshaoxiongthu@gmail.com >, Hai-Tao Zheng 
+
+<zheng.haitao@sz.tsinghua.edu.cn >.
+
+Preprint. March 10, 2026. 
+
+bolic logic (Guo et al., 2025; Jaech et al., 2024; Zhan et al., 2025), they often falter on elementary spatial tasks, such as counting stacked blocks under occlusion (Cai et al., 2025). This capability mismatch reveals a critical spatial intelli-gence gap: models possess powerful deductive engines but lack a coherent 3D mental representation mechanism to ground their reasoning in the physical world, leading to severe performance degradation when reasoning over uncer-tain, partially observed spatial regions. To identify the root cause of this gap, we conducted a di-agnostic investigation. First, we question whether the vi-sual encoder is the bottleneck. In our visual information sufficiency test, we freeze the visual features and train a lightweight probe on the block counting task. The probe achieves high accuracy ( 55 .8% ) where the full VLM fails, proving that the encoder successfully extracts sufficient ge-ometric information (detailed in Appendix C.3). Second, we study the reasoning interface. Prior work shows that strengthening the language model (or language-only supervision) can substantially improve VLM reason-ing (He et al., 2024). Accordingly, we augment the im-age input with an additional orthographic three-view con-text (front/left/top) generated from image descriptions. As illustrated in Figure 1, conditioning the same model on both the image and this three-view contextual description leads to a dramatic improvement in reasoning accuracy (e.g., Gemini-3-pro improves by over 30% absolute, detailed in Appendix C.4). This implies that the reasoning engine is in-trinsically capable but lacks a structured spatial interface to reliably access and organize the relevant visual information. Synthesizing these findings, we hypothesize that the spatial intelligence gap stems neither from “blind” encoders nor “dumb” reasoners, but from a misalignment in the inference process: current models lack a stable view-consistent inter-mediate representation to bridge egocentric perception and logical reasoning. Without this bridge, visual features are not effectively translated into spatial concepts, leading to reasoning drift and hallucinations. To bridge this gap, we introduce 3ViewSense , a framework that grounds spatial reasoning in orthographic views. In-1
+
+> arXiv:2603.07751v1 [cs.CV] 8 Mar 2026
+
+3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs Problem: <image> How many blocks are there in the picture? Return your final response within \boxed{}.     
+
+> Three-View Description (w/ 3-View Hint):
+> •Front view: column heights = [3, 1, 1]
+> •Left view: column heights = [3, 1, 1]
+> •Top view: occupancy = [[1,0,1], [0,0,1], [0,1,1]] Front View Left View Answer: \boxed{7} image 3-view Desc. Top View
+> GPT-5 Gemini-3-pro Claude-Sonnet-4.5 010 20 30 40 50 60 Accuracy (%) 15.8 13.8 19.0 28.6 43.8 46.0 Block Count w/ 3-View Hint
+
+Figure 1. Motivation for explicit three-view reasoning. Providing explicit orthographic three-view descriptions (front/left/top) improves block-counting performance under occlusion, highlighting the role of view-consistent spatial representations. 
+
+spired by the way engineering drawings define 3D struc-ture through standard projections, 3ViewSense follows a simulate-and-reason pipeline that first induces a view-consistent spatial representation and then performs explicit reasoning on top of it. Concretely, 3ViewSense separates the learning objective into two stages (Section 3.3). In Stage I, Orthographic Men-tal Simulation (OMS) is trained to generate structured ortho-graphic descriptions from an egocentric image. In Stage II, View-Grounded Reasoning (VGR) is trained to solve spatial queries by conditioning on the induced orthographic views and producing the final answer. Starting from the Stage II model, we further apply GRPO-based reinforcement learn-ing to refine correctness under math-verifiable rewards while preserving view-grounded reasoning behavior. This design is motivated by our diagnostic findings: spatial reasoning becomes substantially more reliable when the model can mentally infer and complete information from other ortho-graphic views to form a view-consistent representation. Following the 3ViewSense framework, we train mod-els on our in-domain dataset OrthoMind-3D to acquire orthographic-view mental simulation and view-grounded reasoning. Experiments show that 3ViewSense consistently improves reasoning accuracy on both in-domain and out-of-domain splits, and the gains also transfer to other spa-tial reasoning benchmarks (e.g., SPBench-SI: 27.1 →54.2; ViewSpatial: 33.5 →72.9). Our contributions are as follows: (1) We introduce 
+
+OrthoMind-3D , a diagnostic benchmark that exposes key failure modes of spatial reasoning under occlusion and perspective shifts. (2) Based on this diagnosis, we propose 3ViewSense, a Simulate-and-Reason framework that grounds reasoning in mentally induced orthographic views. (3) 3ViewSense delivers strong accuracy gains on OrthoMind-3D (in-domain and out-of-domain) and transfers to other spatial reasoning benchmarks. 
+
+2. Related Work 
+
+2.1. Spatial Reasoning with VLMs 
+
+The landscape of spatial capabilities in Vision-Language Models (VLMs) has evolved significantly, progressing from elementary visual perception tasks (Li et al., 2025a; Bai et al., 2023) to intricate spatial reasoning that demands deep mental simulation (Yin et al., 2025; Chen et al., 2025b; Lee et al., 2025). Recent efforts to bridge the spatial intelligence gap in VLMs generally fall into three paradigms. 
+
+Auxiliary Modalities and Tool Usage. To overcome the limitations of RGB-only inputs, works augment VLMs with 3D encoders (Wu et al., 2025a; Chen et al., 2025b; Wang et al., 2025) or fine-tune with vision-centric data like seg-mentation masks (Chen et al., 2025a; Liu et al., 2025; Wang et al., 2024; Fan et al., 2025; Ma et al., 2024). Beyond internal integration, some work (Zhou et al., 2025; Su et al., 2025; Wu et al., 2025b) adopts a tool-centric approach to exploit the planning and programming abilities of LLMs to actively call external vision modules as executable tools. While effective, these methods often incur high computa-tional overhead and dependency on external models. 
+
+Advanced Training Strategies To elicit stronger reasoning capabilities without relying on external tools, recent studies have turned to specialized training paradigms. SpatialLad-der (Li et al., 2025c) employs progressive curriculum learn-ing, while recent Reinforcement Learning (RL) methods (Liao et al., 2025; Ouyang et al., 2025) incentivize models to self-correct reasoning paths. 
+
+Mental Modeling and Perspective Taking. A parallel stream of research focuses on internalizing spatial under-standing through Spatial Mental Models. MindCube (Yin et al., 2025) and APC (Lee et al., 2025) utilize cognitive maps or mental imagery to hallucinate plausible 3D struc-tures from 2D inputs to overcome egocentric bias. 23ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+Distinct from methods relying on auxiliary data, unstruc-tured RL, or implicit imagery, 3ViewSense introduces a structured “Simulate-and-Reason” mechanism grounded in orthographic views, offering a computationally efficient and geometrically rigorous path to spatial intelligence. 
+
+2.2. Benchmarking Spatial Reasoning 
+
+The evaluation of spatial intelligence in Vision-Language Models (VLMs) has evolved from static, object-centric recognition to dynamic, space-centric reasoning. Founda-tionally, CV-Bench (Tong et al., 2024) establishes vision-centric grounding by reformulating traditional vision tasks into VQA formats, while OmniSpatial (Jia et al., 2025) formalizes the transition from “Object-level” perception to high-level “Space-level” reasoning. To address multi-dimensional complexities, SPBench (Li et al., 2025c) pro-vides a hierarchical suite spanning single-image and multi-view modalities, and ViewSpatial-Bench (Li et al., 2025b) specifically probes the gap between egocentric (camera-centered) and allocentric (entity-centered) spatial frames. Furthermore, cognitive-oriented benchmarks such as Mind-Cube (Yin et al., 2025), Sphere (Zhang et al., 2024), and Open3D-VQA (Zhang et al., 2025) evaluate internal “men-tal models” by testing reasoning under occlusion or within unconstrained 3D environments. Despite these advances, existing benchmarks lack the diagnostic granularity needed for rigorous 2D–3D alignment, particularly for evaluating mental rotation and orthogonal projection. OrthoMind-3D is designed to address this gap. 
+
+3. Methodology 
+
+3.1. Problem Formulation 
+
+We consider the problem of spatial reasoning in Vision-Language Models (VLMs). Formally, given an egocentric 2D image Iego ∈ I and a natural language query q ∈Q, the goal is to predict the correct answer a ∈ A that typically involves understanding 3D spatial relationships, object counting, or perspective taking. 
+
+Standard VLM Inference. Conventional VLMs approach this task by directly modeling the conditional probability distribution P (a|Iego , q ). The optimal answer a∗ is obtained by maximizing this likelihood: 
+
+a∗ = arg max 
+
+> a∈A
+
+P (a | Iego , q ). (1) However, this end-to-end formulation treats spatial reason-ing as a black-box mapping. As discussed in Section 1, this is inherently ill-posed because a single 2D image Iego 
+
+creates ambiguity regarding the underlying 3D structure (e.g., depth occlusion), often leading to spatial hallucina-tions when complex reasoning is required. 
+
+3ViewSense Formulation. To bridge this spatial intelli-gence gap, we propose to explicitly model the mental im-agery of the scene’s 3D structure. Drawing inspiration from engineering cognition, we introduce a set of latent variables 
+
+V = {vf ront , v lef t , v top }, representing the canonical Or-thographic Views (front, top, and left projections) of the scene. We reformulate the reasoning process as a two-stage proba-bilistic framework: (1) Mental Simulation , where the model infers the orthographic views from the egocentric input, and (2) View-Grounded Reasoning , where the answer is derived based on these explicit spatial priors. Mathematically, we decompose the objective using the chain rule of probability. The inference of answer a is conditioned on both the input and the generated orthographic mental images: 
+
+P (a | Iego , q ) = X
+
+> V
+
+P (a | V , I ego , q )·P (V | Iego , q ). (2) Since integrating over all possible view combinations is intractable, we approximate this by maximizing the joint probability through a deterministic “Simulate-and-Reason” pipeline. We first generate the most probable set of ortho-graphic views ˆV:
+
+ˆV = arg max 
+
+> V
+
+Pθsim (V | Iego , q ), (3) where Pθsim represents our Orthographic Mental Simulator. Subsequently, the final answer is predicted by reasoning over these structured views: 
+
+a∗ = arg max 
+
+> a∈A
+
+Pθreason (a | ˆV, I ego , q ). (4) By introducing ˆV, we transform the abstract 3D spatial reasoning task into a tractable pattern recognition problem on structured 2D planes, reducing geometric ambiguity. 
+
+3.2. Datasets Construction 
+
+To systematically develop and evaluate the spatial intelli-gence of Vision-Language Models, specifically their ability to perform mental perspective reasoning, we curate a diag-nostic dataset named OrthoMind-3D . Rather than aiming for explicit 3D reconstruction from 2D inputs, this bench-mark serves a dual purpose: (1) to rigorously evaluate the extent to which orthographic mental simulation can enhance reasoning precision and mitigate spatial hallucinations in complex geometric scenarios; and (2) to enable the model to learn this “Simulate-and-Reason” process by inferring latent orthographic views from single-view egocentric inputs to support more robust decision-making. As illustrated in Figure 2, the data curation pipeline is bifur-cated into two streams: In-Domain data synthesized for ex-plicit orthographic training, and Out-of-Domain (OOD) data 33ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs In -domain Dataset Out -of -domain Dataset                      
+
+> Randomly
+> Generation
+> Data
+> Verification
+> Block Count Object Reasoning
+> QA
+> Extraction
+> Uniqueness
+> Unambiguity
+> Block Count Object Count Object Position
+> Block Count Object Reasoning
+> Sandbox
+> Engine
+> Randomly Sample Prompt
+> Nano Banana
+> QA Extraction &Verified By Human
+> AI Image Generation
+> AIGC
+
+Figure 2. The construction pipeline of our OrthoMind-3D dataset. To bridge the gap between visual perception and mental spatial reasoning, we curate data from two distinct domains. For In-Domain data, we utilize programmatic synthesis with strict geometric constraints to train the model’s orthographic projection capabilities. For Out-of-Domain data, we employ sandbox game engines and generative AI techniques to evaluate the model’s robustness and generalization in unstructured environments. 
+
+designed to assess generalization robustness. The dataset covers two primary tasks: Block Counting , which targets volumetric reasoning and complex occlusion handling in 3D structures, and Object Reasoning , which evaluates capabil-ities in both relative spatial positioning and general object enumeration. To ensure fine-grained analysis, both tasks are further stratified into attribute-specific (e.g., querying color/size) and single-attribute sub-tasks. For comprehen-sive statistics and detailed visualization examples of the collected data, please refer to Appendix B.1. 
+
+Block Counting Task. The core challenge in counting stacked blocks from a single viewpoint lies in the ambigu-ity of depth. To train a model that can reliably deduce 3D structures via orthographic views, it is imperative that the mapping from the provided three views (top, front, left) to the total cube count is bijective. For the In-Domain subset, we employ programmatic synthesis to generate block config-urations. However, random stacking often yields ambiguous structures where multiple 3D configurations correspond to the same projections. To enforce strict bijectivity between the 3D configuration and its 2D projections, we derive a necessary and sufficient uniqueness condition. Formally, a stack configuration H (where Hx,y denotes the height at position x, y ) is uniquely determined if and only if every occupied position satisfies: 
+
+∀(x, y ), [Hx,y = 1 ∧ (M c = 1 ∨ M r = 1)] 
+
+| {z }
+
+> Case I: Base-Level Dominance
+
+∨ [Hx,y > 1 ∧ (Hx,y > O c ∨ Hx,y > O r )] 
+
+| {z }
+
+> Case II: Multi-Level Occlusion
+
+(5) where M c, M r denote the global maximums of the corre-sponding column/row, and Oc, O r represent the maximum heights of other blocks in the same line (excluding (x, y )). We rigorously filter synthetic data to ensure this condition holds (proof in Appendix A.1). For the Out-of-Domain subset, we assess robustness using a voxel-based sandbox engine. Deviating from rigid in-domain grids, blocks are stochastically scattered to form unstructured, high-entropy piles. We manually sample these scenes from diverse viewpoints to introduce natural perspec-tive variations. 
+
+Object Reasoning Task. This task assesses capabilities in both relative spatial positioning and object enumeration. For In-Domain data, we utilize a 3D rendering engine. Objects are arranged on a single horizontal plane to decouple spatial reasoning from vertical occlusion. We define two sub-tasks: 
+
+Object Counting and Object Positioning . For positioning, we discretize spatial relations into 8 directions (e.g., “front”, “front-left”). To handle ambiguity near the boundary of the axis, we treat both the cardinal and intermediate directions as valid labels if the object aligns within the 5◦ margin of a canonical axis. For Out-of-Domain data, we synthesize photorealistic scenes using Gemini-3-Pro-Image (Nano Banana). We em-ploy diverse prompts specifying random object attributes and environments. As detailed in Appendix B.2, we enforce constraints like “non-overlapping” and “high-angle perspec-tive” to ensure task feasibility. Finally, all synthesized data undergoes manual verification to guarantee the accuracy of spatial relation labels. 
+
+3.3. 3ViewSense Training Framework 
+
+We propose a modular training framework that decouples 
+
+what spatial abilities the model should acquire from how 
+
+these abilities are optimized. Conceptually, 3ViewSense consists of two capability-oriented stages: (i) Orthographic 
+
+43ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs Stage I: Orthographic Mental Simulation (OMS) Stage II: View -Grounded Reasoning (VGR)     
+
+> Orthographic
+> View Induction
+> Structured Orthographic Views
+> Front View :view -specific spatial descriptions ..
+> Left View :view -specific spatial descriptions ..
+> Top View :view -specific spatial descriptions ..
+> Json format
+
+🔥            
+
+> Infer scene structure; generate
+> front ,left ,top orthographic
+> views as ordered JSON.
+> Block Count
+> Object Count
+> Object Position
+> OrthoMind -3D Tasks
+> Deterministic View Construction
+> Teacher LLM
+> I see a 3D structure composed of blocks... Looking
+> at the front -facing plane , I notice three distinct
+> vertical ... Next, I turn to look from the left side
+> to understand the depth of the structure... Finally,
+> I look down from the top to confirm the footprint
+> and the total count... Calculating the sum, 6+1=7...
+> \boxed{7}
+> Orthographic
+> Description
+
+# +
+
+🔥   
+
+> ✅
+> SFT GRPO
+
+🔥 
+
+Figure 3. The training framework of 3ViewSense . Stage I learns to induce canonical front, left, and top orthographic views from an egocentric input. Stage II performs view-grounded reasoning by integrating the inferred views to generate reasoning traces and final answers, with reinforcement learning for refinement. 
+
+Mental Simulation (OMS), which equips the model with the ability to internally infer canonical orthographic views from an egocentric observation; and (ii) View-Grounded Reasoning (VGR), which trains the model to leverage these inferred views to solve spatial reasoning tasks. Figure 3 illustrates the overall training pipeline that instan-tiates the proposed “Simulate-and-Reason paradigm”. The framework introduces an explicit intermediate representa-tion in the form of structured orthographic views, enabling the model to first internalize spatial structure and then reason over it in a view-grounded manner. 
+
+Stage I: Orthographic Mental Simulation (OMS). Stage I focuses on learning the mental simulation process defined in Eq. 3, namely inducing a set of canonical orthographic views V = {vfront , v left , v top } from a single egocentric obser-vation. In our implementation, OMS is trained via super-vised fine-tuning (SFT) using programmatically extracted orthographic annotations from the synthetic In-Domain data (Section 3.2). Each view is represented as a structured de-scription that captures view-specific spatial information. For block counting tasks, views encode visible block primitives with stacking and occlusion cues; for object reasoning tasks, views are represented as ordered perceptual sequences (e.g., left-to-right or back-to-front scan order). An illustrative ex-ample of the three-view description and the Stage-I (OMS) instruction is provided in Appendix Figure 7. The model is optimized with standard maximum-likelihood sequence learning to generate the structured three-view representation conditioned on (Iego , q ), yielding the Stage-I SFT model 
+
+M SFT stage1 .
+
+Stage II: View-Grounded Reasoning (VGR). Stage II op-timizes the view-grounded objective in Eq. 4, learning to predict answers by explicitly conditioning on the inferred orthographic views ˆV. While ˆV provides strong structural priors, solving challenging tasks (e.g., counting under oc-clusion or perspective taking) further requires integrating evidence across multiple projections into a coherent 3D mental model. 
+
+Stage-II SFT initialization. 
+
+We first perform supervised fine-tuning to teach the model to generate three-view-grounded natural-language reason-ing and the final answer. Specifically, we construct view-grounded reasoning traces that follow a human-like inte-gration order (front → left → top), written in a first-person mental simulation style and avoiding explicit format refer-ences (Appendix 9). These traces are generated by a strong teacher model and filtered by the correctness of the final-answer, resulting in an initialized reasoner in SFT M SFT stage2 .
+
+GRPO-based RL refinement. Starting from M SFT stage2 , we further refine the reasoner with Group Relative Policy Opti-mization (GRPO) (Shao et al., 2024). Motivated by recent findings that online RL is less prone to catastrophic forget-ting than SFT and can better preserve previously learned ca-pabilities (Shenfeld et al., 2025), we adopt GRPO to (i) mit-igate potential generalization degradation under large-scale training and (ii) encourage the model to internalize teacher-generated view-grounded traces as its own reasoning process rather than merely imitating surface forms. Given a context 
+
+c (including Iego , q, and ˆV), we sample a group of G com-pletions {oi}Gi=1 ∼ πθold (· | c) and assign each completion a scalar verified reward Ri. We compute a group-normalized advantage ˆAi = ( Ri −μR)/(σR +δ), where μR and σR are the mean and standard deviation of {Rj }Gj=1 , and optimize 53ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+Table 1. Main results on OrthoMind-3D. We report accuracy (%) for block counting and object reasoning, covering both cardinality queries and attribute-conditioned (attr.) queries, as defined in Section 4.2. “–” denotes entries where the model cannot produce outputs in the required format for evaluation. Block Counting Object Reasoning Model Block Count Block Count (Attr.) Object Count Object Position Object Count (Attr.) Object Position (Attr.) Proprietary Models GPT-4o 15.8 53.2 68.3 39.3 71.2 47.2 Gemini-2.0-Flash 18.2 54.0 69.7 62.7 86.4 62.6 GPT-5 15.8 50.7 64.0 60.3 77.6 66.0 Gemini-3-pro 13.8 80.2 83.3 71.6 93.2 93.6                                                                                                 
+
+> Claude-Sonnet-4.5 19.0 63.4 26.7 54.3 61.8 73.4 Specialized Spatial Reasoning Models SpatialLadder-3B 8.4 27.4 39.6 25.3 49.2 25.6 Spatial-MLLM-4B (Wu et al., 2025a) 1.8 24.8 37.7 –24.4 –SpaceOm-4B (Yin et al., 2025) 10.4 47.2 63.6 17.6 60.2 25.4 SpaceQwen2.5-VL-3B-Instruct (Jia et al., 2025) 10.6 48.6 55.0 16.0 63.0 13.4 Open Source Models XiaoMiMo-VL-7B-RL 18.2 59.2 64.3 44.3 77.4 59.2 GLM4.1V-9B 15.0 42.5 46.6 39.0 68.6 46.2 InternVL3.5-4B 10.6 53.2 51.6 40.0 68.2 50.8 InternVL3.5-8B 15.6 54.5 55.3 41.0 73.2 55.8 Qwen2.5-VL-7B 9.2 42.1 63.3 23.6 70.0 36.4 Qwen2.5-VL-3B 10.4 47.4 58.3 16.6 60.0 16.6 Qwen3-VL-8B-Instruct 10.6 43.8 62.0 47.6 76.6 60.2 Qwen3-VL-4B-Instruct 6.2 43.4 59.0 41.0 74.8 45.6 3ViewSense-4B-sft (ours) 33.4 63.1 97.0 91.0 95.4 91.8 3ViewSense-4B-rl-strict (ours) 95.0 88.2 98.7 93.3 97.4 93.2 3ViewSense-4B-rl-slack (ours) 94.4 88.6 98.7 92.3 98.4 93.4
+
+the clipped objective: 
+
+JGRPO (θ) = Ec, {oi}
+
+h 1
+
+G
+
+> G
+
+X
+
+> i=1
+
+min 
+
+
+
+ri(θ) ˆAi, clip  ri(θ), 1 − ϵ, 1 + ϵ ˆAi
+
+
+
+− β DKL (πθ ∥πref )
+
+i
+
+.
+
+(6) where ri(θ) = πθ (oi | c)/π θold (oi | c).
+
+Math-verified reward design. For OrthoMind-3D, ground-truth answers fall into two types: (i) integer counts and (ii) discrete relative directions. We distinguish two reward settings: Strict reward. Rstrict (ˆ a, a ) = I[ˆ a = a], yielding 
+
+M strict RL . Slack reward. We provide partial credit, yielding 
+
+M slack RL . For counting, we use Rcount (ˆ y, y ) = max {0, 1 −
+
+0.2 |ˆy −y|} (equivalently 1, 0.8, 0.6, 0.4, 0.2, 0 for |ˆy −y| =0, 1, 2, 3, 4, ≥ 5). For direction, we set Rdir = 1 for an exact match, Rdir = 0 .5 if the prediction shares at least one axis with the ground truth (e.g., left vs. front-left ), and 0
+
+otherwise. 
+
+4. Experiments 
+
+4.1. Experimental Setup 
+
+We follow the training framework in Section 3.3 and train on the In-Domain split of OrthoMind-3D (Section 3.2). Out-of-Domain data are reserved for evaluation. We use Qwen3-VL-4B-Instruct (Team, 2025) as the base model to evaluate the effectiveness and generalization of 3ViewSense and OrthoMind-3D. 
+
+Stage I (OMS SFT). We fine-tune the model to generate structured orthographic three-view descriptions from a sin-gle egocentric input. In total, we use 19.5k training instances and a detailed breakdown is reported in Appendix C.2. 
+
+Stage II (VGR SFT). We further fine-tune the model to perform view-grounded natural-language reasoning condi-tioned on the three views and output the final answer. By comparing the correctness of the answers produced along the reasoning chains, we filter the samples and finally obtain 21k training instances. The reasoning traces are generated by Gemini-3-Flash using the prompt in Appendix 9. 
+
+RL refinement (GRPO). For the RL variants reported in our main results, we further optimize the Stage II model with GRPO as described in Section 3.3. We use 30k RL instances, including 10k re-sampled from the Stage II pool and 20k newly generated instances. We report two reward settings, strict and slack, matching the definitions in Section 3.3. 
+
+4.2. Evaluation Evaluation datasets. We evaluate on OrthoMind-3D and several public benchmarks. OrthoMind-3D is split into In-Domain (ID) and Out-of-Domain (OOD) subsets (Sec-tion 3.2). For ID evaluation, we strictly de-duplicate against all training data and then sample a disjoint held-out test set. We cover two task families (Block Counting and Object Rea-soning), and report both cardinality queries and attribute-conditioned queries (e.g., color). Appendix Table 8 summa-rizes the split composition. 
+
+Additional benchmarks. We additionally evaluate on 63ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+CLeVR (Johnson et al., 2017) (1,000 random samples), CV-Bench 2D (Tong et al., 2024) (1,438), SPBench-SI (Li et al., 2025c) counting/relative-position (306), OmniSpatial (Jia et al., 2025) Perspective Taking (Egocentric, 102), and ViewSpatial (Li et al., 2025b) Camera perspective (2,769). details of the filtering and subsampling procedure can be seen in Appendix C.1. 
+
+Metric and protocol. We report (pass@1) accuracy un-der identical decoding settings across models, using exact-match after normalization for both integer counting and discrete direction labels. We compare against proprietary models, specialized spatial reasoning models, and open-source VLMs. 
+
+5. Results & Analysis 
+
+5.1. Main Results In-domain results on OrthoMind-3D. We first evaluate models on the in-domain split (Table 1) across three groups: proprietary models, specialized spatial reasoning models, and open-source VLMs. Even on the seemingly simple block counting task, most models perform poorly; more-over, cardinality-only counting is substantially harder than attribute-conditioned counting, likely because salient at-tributes (e.g., color) turn the problem into easier attribute-specific counting rather than true 3D enumeration. Our 3ViewSense model improves over open-source baselines after SFT but remains imperfect on counting, while GRPO refinement with both strict and slack rewards further lifts in-domain performance to consistently high accuracy across tasks, which is expected given the simplicity of OrthoMind-3D queries. 
+
+OOD generalization and transfer to public benchmarks. 
+
+We further evaluate on the OrthoMind-3D OOD split and other spatial benchmarks (Table 2). 3ViewSense shows strong generalization at similar parameter scale, and RL refinement notably mitigates the weaker OOD performance of SFT-only models where slack reward tends to generalize better than strict reward. On external benchmarks, gains transfer clearly to SPBench-SI and ViewSpatial, while re-sults on CLeVR may be affected by potential data leakage due to its widespread use in training. 
+
+5.2. In-depth Analysis In-Context Learning Analysis. We ask whether a model can acquire three-view mental reasoning purely from a few in-context demonstrations, without any parameter updates. Using the few-shot instruction and teaching examples in Ap-pendix B.2, we evaluate multiple models on the OrthoMind-3D in-domain test set; results are summarized in Figure 4. We observe that only the strongest proprietary models show limited improvements under ICL, while most open-source VLMs degrade. This suggests that three-view reasoning is not merely a prompt-following skill: without an internal-ized view-consistent representation, the model struggles to reliably translate egocentric visual cues into orthographic constraints, and the additional steps introduced by ICL can amplify misalignment rather than correcting it. 
+
+Explicit Three-View Description Analysis. Next, we test whether providing an explicit orthographic three-view de-scription can directly improve spatial reasoning. Across models, injecting the three-view description yields substan-tial gains, especially on occlusion-heavy block counting, indicating that many models possess sufficient symbolic capacity once the spatial structure is exposed through a view-consistent interface. While the effectiveness varies across models and tasks, these differences suggest that the benefit of external spatial cues depends on a model’s ability to coherently integrate multi-view information. Overall, the results support our core insight: the primary bottleneck lies in the absence of a stable intermediate spatial representation, motivating 3ViewSense to explicitly learn to induce and in-tegrate orthographic views rather than relying on ad-hoc prompting or external annotations at inference time. 20 40 60 80 Accuracy (%) Block Counting (Overall)     
+
+> GPT-5 Gemini-3-pro XiaoMiMo-VL-7B-RL GLM4.1V-9B InternVL3.5-4B InternVL3.5-8B Qwen2.5-VL-7B Qwen3-VL-4B Qwen3-VL-8B 20 40 60 80 Accuracy (%)
+> Object Reasoning (Overall) -w/ ICL
+> 0
+> 20
+> 40 Accuracy (%) Cardinality Block Counting GPT-5-chat Gemini-3-pro Claude-Sonnet-4.5 XiaoMiMo-VL-7B-RL GLM4.1V-9B InternVL3.5-4B InternVL3.5-8B Qwen2.5-VL-7B Qwen3-VL-4B Qwen3-VL-8B
+> 60
+> 80
+> 100 Accuracy (%) Object Reasoning (Overall) Baseline w/ 3-view Desc. ( ↑)w/ 3-view Desc. ( ↓)(A) ICL Experiment Results (B) Three-View Context Hint Experiment Results
+
+Figure 4. In-context learning (ICL) and explicit orthographic three-view description study on OrthoMind-3D (in-domain). ICL yields limited improvements only for the strongest proprietary models, while explicit three-view descriptions substantially improve perfor-mance for most models, supporting the need for a view-consistent intermediate representation. 
+
+Model Response Analysis. Table 3 shows that the base model exhibits extreme verbosity on block counting (e.g., 
+
+> 10 k tokens), suggesting that, without explicit spatial representation, the model tends to revisit uncertain spatial hypotheses, which can cause drift and hallucinated inter-mediate states and eventually hurt accuracy. In contrast, 3ViewSense consistently produces concise outputs by guid-ing the model to reason from an engineering-inspired three-view perspective: it first forms view-consistent orthographic mental sketches and then composes the final answer, reduc-ing ambiguity and redundant deliberation. This qualitative behavior is further illustrated in Appendix C.5 (Figure 12). 73ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+Table 2. OOD generalization on OrthoMind-3D and comparison on public benchmarks. We report accuracy (%) under the same evaluation protocol as Section 4.2. ↑ indicates relative improvement over the base model; ↓ indicates relative drop. Model (A) OrthoMind-3D (OOD Task) (B) Other Spatial Benchmarks Block Count Block Count (Attr.) Object Count Object Position CLeVR CV-Bench (2D) OmniSpatial SPBench (SI) ViewSpatial SpatialLadder-3B 19.6 43.0 22.2 15.6 73.2 68.6 67.6 40.8 36.2 SpaceOm-4B 23.4 61.7 46.2 19.2 28.6 43.1 23.5 – 21.4 SpaceQwen2.5-VL-3B-Instruct 21.2 62.5 51.8 16.5 96.9 68.8 69.6 29.7 34.8 InternVL3.5-4B 33.1 65.9 54.6 34.8 80.9 66.1 59.8 28.1 30.1 Qwen2.5-VL-3B 26.8 58.7 47.2 20.1 76.1 94.0 77.5 43.5 60.9 Qwen3-VL-4B-Instruct 21.2 57.8 50.9 46.7 88.6 68.8 61.8 27.1 33.5 Qwen3-VL-8B-Instruct 25.5 64.7 56.5 55.0 85.8 84.7 79.4 37.6 54.7 3ViewSense-4B-sft (ours) 31.1 ( ↑46.7%) 62.1 ( ↑7.4%) 32.4 ( ↓36.3%) 72.5 ( ↑55.2%) 65.5 ( ↓26.1%) 80.0 ( ↑16.3%) 66.7 ( ↑7.9%) 52.6 ( ↑94.1%) 71.9 ( ↑114.6%) 3ViewSense-4B-rl-strict (ours) 33.2 ( ↑56.6%) 71.1 (↑23.0%) 49.1 ( ↓3.5%) 74.3 ( ↑59.1%) 74.9 ( ↓15.5%) 83.3 ( ↑21.1%) 65.7 ( ↓1.5%) 52.0 ( ↑91.9%) 72.2 ( ↑115.5%) 3ViewSense-4B-rl-slack (ours) 38.7 (↑82.5%) 70.2 ( ↑21.5%) 50.9 ( ↑0.0%) 76.1 (↑63.0%) 76.5 ( ↓13.7%) 85.1 ( ↑23.7%) 67.6 ( ↑2.9%) 54.2 (↑100.0%) 72.9 (↑117.6%) 
+
+Table 3. Average response length (tokens) across benchmarks. For this simple task, the base model tends to produce overly verbose reasoning (over thinking) and can even suffer reduced accuracy; 3ViewSense substantially reduces this redundancy. Model Block Count Block Count (Attr.) SPBench-SI ViewSpatial Qwen3-VL-4B-Instruct 10218.9 6531.1 451.6 952.1 3ViewSense-4B-sft 350.4 375.2 250.1 261.7 3ViewSense-4B-rl-strict 377.1 378.9 273.5 266.6 3ViewSense-4B-rl-slack 375.2 389.4 281.5 270.9 
+
+Table 4. Ablation study on the two-stage SFT design. We report accuracy (%) on OrthoMind-3D (In-Domain and Out-of-Domain) and two public benchmarks (SPBench-SI and ViewSpatial). Stage OrthoMind-3D SPBench-SI ViewSpatial ID OOD OMS-SFT (only) 48.7 41.3 26.5 36.4 VGR-SFT (only) 70.3 46.6 50.2 68.8 Two-stage SFT (OMS →VGR) 71.0 48.5 52.6 71.9 
+
+5.3. Ablation Study SFT stage ablation. Table 4 shows that OMS-SFT alone is insufficient for solving downstream spatial queries, whereas VGR-SFT brings substantial improvements by explicitly learning to integrate the induced views for answer predic-tion; importantly, the full two-stage SFT (OMS →VGR) achieves the best overall performance and yields consis-tent gains over VGR-SFT only (notably on OrthoMind-3D OOD: 46.6 →48.5, SPBench-SI: 50.2 →52.6, and ViewS-patial: 68.8 →71.9), indicating that OMS provides a more stable view-induction interface that improves robustness and generalization under domain shift. 
+
+RL stage analysis. Figure 5 shows the cumulative reward curves during GRPO training under two initialization set-tings. Directly launching RL from the Stage I OMS-SFT checkpoint leads to high-variance reward oscillations with-out a sustained upward trend, reflecting unstable, format-or heuristic-driven exploration that often results in training collapse and degraded downstream performance. In con-trast, initializing from the Stage II VGR-SFT model yields a steadily increasing reward with substantially reduced vari-ance, indicating that view-grounded SFT provides a critical inductive bias: the policy already conditions on inferred (3). RL from VGR -SFT              
+
+> (Slack Reward)
+> (4). RL from VGR -SFT
+> (Strict Reward)
+> (1). RL from OMS -SFT
+> (Slack Reward)
+> (2). RL from OMS -SFT
+> (Strict Reward)
+
+Figure 5. RL ablation on initialization. We compare GRPO reward trajectories when starting RL from the Stage I OMS-SFT model versus from the Stage II VGR-SFT model. 
+
+orthographic views and produces verifiable intermediate rea-soning, allowing RL to consistently reinforce correct spatial behavior. This ablation shows that while OMS SFT is im-portant, a dedicated view-grounded warm-start is essential for stable and effective RL optimization. 
+
+6. Conclusion 
+
+Vision-language models often fail on spatial tasks like block counting under occlusion, suggesting a spatial intelligence gap caused by the lack of a stable, view-consistent repre-sentation. We propose 3ViewSense, a simulate-and-reason framework that induces orthographic views and performs view-grounded reasoning, and we introduce OrthoMind-3D to diagnose occlusion-heavy counting and object reasoning. Across in-domain, out-of-domain, and public benchmarks, 3ViewSense yields accuracy gains and better robustness and conciseness, with additional improvements from RL refine-ment. Nonetheless, orthographic mental simulation is not universally sufficient, and performance can degrade when view induction is unreliable or when tasks require richer pri-ors beyond geometric projections. Future work will extend view-consistent reasoning to more open-world scenes and more complex interactions, and explore how models can adaptively choose such structured representations. 83ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+References 
+
+Bai, J., Bai, S., Yang, S., Wang, S., Tan, S., Wang, P., Lin, J., Zhou, C., and Zhou, J. Qwen-vl: A versa-tile vision-language model for understanding, localiza-tion, text reading, and beyond, 2023. URL https: //arxiv.org/abs/2308.12966 .Cai, Z., Wang, Y., Sun, Q., Wang, R., Gu, C., Yin, W., Lin, Z., Yang, Z., Wei, C., Shi, X., et al. Has gpt-5 achieved spatial intelligence? an empirical study. arXiv preprint arXiv:2508.13142 , 3, 2025. Chen, Z., Luo, X., and Li, D. Visrl: Intention-driven vi-sual perception via reinforced reasoning. arXiv preprint arXiv:2503.07523 , 2025a. Chen, Z., Zhang, M., Yu, X., Luo, X., Sun, M., Pan, Z., Feng, Y., Pei, P., Cai, X., and Huang, R. Think with 3d: Geometric imagination grounded spatial reasoning from limited views. arXiv preprint arXiv:2510.18632 , 2025b. Fan, Z., Zhang, J., Li, R., Zhang, J., Chen, R., Hu, H., Wang, K., Qu, H., Wang, D., Yan, Z., et al. Vlm-3r: Vision-language models augmented with instruction-aligned 3d reconstruction. arXiv preprint arXiv:2505.20279 , 2025. Guo, D., Yang, D., Zhang, H., Song, J., Wang, P., Zhu, Q., Xu, R., Zhang, R., Ma, S., Bi, X., et al. Deepseek-r1 incentivizes reasoning in llms through reinforcement learning. Nature , 645(8081):633–638, 2025. He, W., Xi, Z., Zhao, W., Fan, X., Ding, Y., Shan, Z., Gui, T., Zhang, Q., and Huang, X. Distill visual chart reasoning ability from llms to mllms. arXiv preprint arXiv:2410.18798 , 2024. Jaech, A., Kalai, A., Lerer, A., Richardson, A., El-Kishky, A., Low, A., Helyar, A., Madry, A., Beutel, A., Car-ney, A., et al. Openai o1 system card. arXiv preprint arXiv:2412.16720 , 2024. Jia, M., Qi, Z., Zhang, S., Zhang, W., Yu, X., He, J., Wang, H., and Yi, L. Omnispatial: Towards comprehensive spatial reasoning benchmark for vision language models. 
+
+arXiv preprint arXiv:2506.03135 , 2025. Johnson, J., Hariharan, B., Van Der Maaten, L., Fei-Fei, L., Lawrence Zitnick, C., and Girshick, R. Clevr: A diagnostic dataset for compositional language and ele-mentary visual reasoning. In Proceedings of the IEEE conference on computer vision and pattern recognition ,pp. 2901–2910, 2017. Lee, P. Y., Je, J., Park, C., Uy, M. A., Guibas, L., and Sung, M. Perspective-aware reasoning in vision-language models via mental imagery simulation. arXiv preprint arXiv:2504.17207 , 2025. Li, B., Zhang, Y., Guo, D., Zhang, R., Li, F., Zhang, H., Zhang, K., Zhang, P., Li, Y., Liu, Z., and Li, C. LLaVA-onevision: Easy visual task transfer. Transac-tions on Machine Learning Research , 2025a. ISSN 2835-8856. URL https://openreview.net/forum? id=zKv8qULV6n .Li, D., Li, H., Wang, Z., Yan, Y., Zhang, H., Chen, S., Hou, G., Jiang, S., Zhang, W., Shen, Y., et al. Viewspatial-bench: Evaluating multi-perspective spatial localization in vision-language models. arXiv preprint arXiv:2505.21500 , 2025b. Li, H., Li, D., Wang, Z., Yan, Y., Wu, H., Zhang, W., Shen, Y., Lu, W., Xiao, J., and Zhuang, Y. Spatialladder: Pro-gressive training for spatial reasoning in vision-language models. arXiv preprint arXiv:2510.08531 , 2025c. Liao, Z., Xie, Q., Zhang, Y., Kong, Z., Lu, H., Yang, Z., and Deng, Z. Improved visual-spatial reasoning via r1-zero-like training. arXiv preprint arXiv:2504.00883 , 2025. Liu, Y., Chi, D., Wu, S., Zhang, Z., Hu, Y., Zhang, L., Zhang, Y., Wu, S., Cao, T., Huang, G., et al. Spatialcot: Advancing spatial reasoning through coordinate align-ment and chain-of-thought for embodied task planning. 
+
+arXiv preprint arXiv:2501.10074 , 2025. Ma, C., Lu, K., Cheng, T.-Y., Trigoni, N., and Markham, A. Spatialpin: Enhancing spatial reasoning capabilities of vision-language models through prompting and interact-ing 3d priors. Advances in neural information processing systems , 37:68803–68832, 2024. Ouyang, K., Liu, Y., Wu, H., Liu, Y., Zhou, H., Zhou, J., Meng, F., and Sun, X. Spacer: Reinforcing mllms in video spatial reasoning. arXiv preprint arXiv:2504.01805 ,2025. Shao, Z., Wang, P., Zhu, Q., Xu, R., Song, J., Bi, X., Zhang, H., Zhang, M., Li, Y., Wu, Y., et al. Deepseekmath: Push-ing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 , 2024. Shenfeld, I., Pari, J., and Agrawal, P. Rl’s razor: Why online reinforcement learning forgets less. arXiv preprint arXiv:2509.04259 , 2025. Sheng, G., Zhang, C., Ye, Z., Wu, X., Zhang, W., Zhang, R., Peng, Y., Lin, H., and Wu, C. Hybridflow: A flexible and efficient rlhf framework. In Proceedings of the Twentieth European Conference on Computer Systems , pp. 1279– 1297, 2025. Su, Z., Li, L., Song, M., Hao, Y., Yang, Z., Zhang, J., Chen, G., Gu, J., Li, J., Qu, X., et al. Openthinkimg: Learning to think with images via visual tool reinforcement learning. 
+
+arXiv preprint arXiv:2505.08617 , 2025. 93ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+Team, Q. Qwen3 technical report, 2025. URL https: //arxiv.org/abs/2505.09388 .Tong, P., Brown, E., Wu, P., Woo, S., IYER, A. J. V., Akula, S. C., Yang, S., Yang, J., Middepogu, M., Wang, Z., et al. Cambrian-1: A fully open, vision-centric exploration of multimodal llms. Advances in Neural Information Processing Systems , 37:87310–87356, 2024. Wang, J., Chen, M., Karaev, N., Vedaldi, A., Rupprecht, C., and Novotny, D. Vggt: Visual geometry grounded transformer. In Proceedings of the Computer Vision and Pattern Recognition Conference , pp. 5294–5306, 2025. Wang, X., Zhang, S., Li, S., Kallidromitis, K., Li, K., Kato, Y., Kozuka, K., and Darrell, T. Segllm: Multi-round rea-soning segmentation. arXiv preprint arXiv:2410.18923 ,2024. Wu, D., Liu, F., Hung, Y.-H., and Duan, Y. Spatial-mllm: Boosting mllm capabilities in visual-based spatial intelli-gence. arXiv preprint arXiv:2505.23747 , 2025a. Wu, M., Yang, J., Jiang, J., Li, M., Yan, K., Yu, H., Zhang, M., Zhai, C., and Nahrstedt, K. Vtool-r1: Vlms learn to think with images via reinforcement learning on multi-modal tool use. arXiv preprint arXiv:2505.19255 , 2025b. Yin, B., Wang, Q., Zhang, P., Zhang, J., Wang, K., Wang, Z., Zhang, J., Chandrasegaran, K., Liu, H., Krishna, R., et al. Spatial mental modeling from limited views. In 
+
+Structural Priors for Vision Workshop at ICCV’25 , 2025. Zhan, S., Lai, Y., Lu, Z., Lin, D., Yang, Z., and Tan, F. Math-smith: Towards extremely hard mathematical reasoning by forging synthetic problems with a reinforced policy. 
+
+arXiv preprint arXiv:2508.05592 , 2025. Zhang, W., Ng, W. E., Ma, L., Wang, Y., Zhao, J., Li, B., and Wang, L. Sphere: A hierarchical evaluation on spatial perception and reasoning for vision-language models. arXiv e-prints , pp. arXiv–2412, 2024. Zhang, W., Zhou, Z., Zheng, Z., Gao, C., Cui, J., Li, Y., Chen, X., and Zhang, X.-P. Open3dvqa: A benchmark for comprehensive spatial reasoning with multimodal large language model in open space. arXiv preprint arXiv:2503.11094 , 2025. Zheng, Y., Zhang, R., Zhang, J., Ye, Y., Luo, Z., Feng, Z., and Ma, Y. Llamafactory: Unified efficient fine-tuning of 100+ language models. In Proceedings of the 62nd Annual Meeting of the Association for Computa-tional Linguistics (Volume 3: System Demonstrations) ,Bangkok, Thailand, 2024. Association for Computational Linguistics. URL http://arxiv.org/abs/2403. 13372 .Zhou, Z., Chen, D., Ma, Z., Hu, Z., Fu, M., Wang, S., Wan, Y., Zhao, Z., and Krishna, R. Reinforced visual perception with tools. arXiv preprint arXiv:2509.01656 ,2025. 10 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+A. Preliminary Analysis 
+
+A.1. Uniqueness Conditions for Three-View Counting Definition A.1 (Notation) . For a W × L grid, let Hx,y ∈ N be the height at position (x, y ). Define: 
+
+M cx = max  
+
+> y′
+
+Hx,y ′ (front view) ,M ry = max  
+
+> x′
+
+Hx′,y (side view) ,Ocx,y = max   
+
+> y′̸=y
+
+Hx,y ′ (others in same column) ,Orx,y = max   
+
+> x′̸=x
+
+Hx′,y (others in same row) .
+
+The three views are V(H) = ( {Hx,y > 0}, {M cx}, {M ry }).
+
+Theorem A.2 (Uniqueness) . A configuration H is uniquely determined by V(H) if and only if for every (x, y ) with 
+
+Hx,y > 0,
+
+(Hx,y = 1 ∧ (M cx = 1 ∨ M ry = 1)) ∨ (Hx,y > 1 ∧ (Hx,y > O cx,y ∨ Hx,y > O rx,y )) . (7) 
+
+Proof. 1. Sufficiency ( ⇒). Assume Eq.(7) holds. For any (x, y ) with Hx,y > 0:• If Hx,y = 1 and M cx = 1 , then all nonzero cells in column x must be 1. Thus Hx,y is forced to 1. The case M ry = 1 is symmetric. • If Hx,y > 1 and Hx,y > O cx,y , then Hx,y is the unique maximum in its column, so Hx,y = M cx. The case Hx,y > O rx,y 
+
+symmetrically forces Hx,y = M ry .Thus each Hx,y is uniquely determined by the views, implying uniqueness of the entire configuration. 
+
+2. Necessity ( ⇐). We prove the contrapositive. Suppose there exists (x0, y 0) violating Eq.(7). Then Hx0,y 0 > 0 and: • Either Hx0,y 0 = 1 with M cx0 > 1 and M ry0 > 1, or • Hx0,y 0 > 1 with Hx0,y 0 ≤ Ocx0,y 0 and Hx0,y 0 ≤ Orx0,y 0 .In both cases, we can construct an alternative configuration H′ with the same views: • In the first case, choose y1 such that Hx0,y 1 = M cx0 > 1. Let H′ 
+
+> x0,y 0
+
+= 0 , H′ 
+
+> x0,y 1
+
+= M cx0 , and keep other heights unchanged. Adjustments can be made to maintain M ry0 (e.g., by increasing another cell in row y0). • In the second case, since Hx0,y 0 is not a unique maximum in its row or column, we can decrease it by 1 and increase another cell in the same row/column without changing M cx0 or M ry0 .In either construction, V(H′) = V(H) but H′̸ = H, contradicting uniqueness. 
+
+Corollary A.3. If condition Eq. (7) holds, the total block count P 
+
+> x,y
+
+Hx,y is uniquely determined by the three views. 
+
+B. Additional Method Details 
+
+B.1. Datasets Details 
+
+This section provides qualitative examples and annotation formats for OrthoMind-3D. Figure 6 shows representative samples from the in-domain and out-of-domain subsets, covering both block counting and object reasoning. Figure 7 illustrates the orthographic three-view description format and the Stage-I (OMS) instruction used for supervised fine-tuning. 11 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+B.2. Prompt Template 
+
+This section summarizes the prompt templates used in our data generation and evaluation. Figure 8 presents the template for synthesizing photorealistic multi-object scenes with controllable spatial layouts. Figure 9 provides the template for converting orthographic three-view descriptions into natural-language reasoning traces for Stage-II supervision. Figure 10 and Figure 11 list the instructions and teaching demonstrations used in the in-context learning study. 
+
+C. Additional Experiments Details 
+
+C.1. Benchmark Subsampling Procedure 
+
+Our main experiments focus on single-image, egocentric spatial queries. To ensure comparability across public benchmarks with heterogeneous task definitions, we apply a unified filtering and sampling procedure and report the resulting instance counts. 
+
+CV-Bench. We restrict CV-Bench to its 2D category (denoted as CV-Bench 2D) and evaluate on all 1,438 instances in this subset. 
+
+CLeVR. We randomly sample 1,000 instances from CLeVR for evaluation. 
+
+SPBench. We use the SPBench-SI split (single-image input) and keep only questions whose answer types match our setting: counting and relative-position classification. This yields 306 instances. 
+
+OmniSpatial. OmniSpatial contains four tasks; we use only Perspective Taking and further restrict to the Egocentric subset, resulting in 102 instances. 
+
+ViewSpatial. We evaluate on the Camera perspective category and include all 2,769 instances in this subset. 
+
+C.2. Experiments Settings Reproducibility. We report the key hyperparameters for our two-stage training pipeline, where both Orthographic Mental Simulation (OMS) and View-Grounded Reasoning (VGR) are trained with supervised fine-tuning (SFT), followed by GRPO-based reinforcement learning for refining the VGR stage. We use LLaMA-Factory (Zheng et al., 2024) for SFT (OMS and VGR) and verl (Sheng et al., 2025) for the GRPO refinement. Table 5 summarizes the hyperparameter settings.                           
+
+> Table 5. Training hyperparameters for SFT and RL (GRPO, Stage II refinement).
+> SFT (Training Hyperparameters)
+> Hyperparameter Value per device train batch size 1gradient accumulation steps 8bf16 true data seed 42 gradient checkpointing true lr scheduler type cosine warmup ratio 0.1 num train epochs 1max pixels 262144 min pixels 1024 deepspeed stage3
+> RL (Training Hyperparameters)
+> Hyperparameter Value RL algorithm GRPO Training epochs 5Train batch size 512 Actor learning rate 1.0×10 −6
+> Max prompt length 8192 Max response length 16384 Rollout samples / prompt 8KL regularization enabled ( β= 0 .01 )Reward function custom (slack / strict)
+
+Stage II reasoning traces are generated by Gemini-3-Flash using the prompt template in Appendix 9. We report two RL variants using strict and slack reward settings (Section 3.3).  
+
+> Table 6. Training data statistics and splits for OMS SFT (Stage I).
+
+Stage Total Block count Distinct block count Object reasoning Distinct object reasoning OMS SFT (Stage I) 19,544 6,000 5,000 3,544 5,000 Stage II (VGR SFT) data are sampled from the Stage I pool. 12 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs  
+
+> Table 7. Additional training data statistics.
+
+Stage Total VGR SFT (Stage II) 21,000 RL (GRPO) 30,000 (10,000 from Stage II + 20,000 new) 
+
+OrthoMind-3D evaluation split. Table 8 reports the instance counts for each evaluation split (In-Domain vs. Out-of-Domain) and task category. Attribute-conditioned queries specify an explicit attribute (e.g., color), while cardinality queries evaluate pure counting or spatial reasoning without attribute cues.                        
+
+> Table 8. OrthoMind-3D evaluation split statistics. “Attribute-conditioned” denotes queries that specify explicit attributes (e.g., color).
+> Split Task #ID Block counting (cardinality) 500 ID Block counting (attribute-cond.) 2,202 ID Object reasoning: counting 300 ID Object reasoning: positioning 300 ID Object reasoning: counting (attr.) 500 ID Object reasoning: positioning (attr.) 500 OOD Block counting (cardinality) 235 OOD Block counting (attribute-cond.) 235 OOD Object reasoning: counting 108 OOD Object reasoning: positioning 109
+
+C.3. Experiment Details for Visual Information Sufficiency 
+
+Multimodal Large Language Models (VLMs) frequently struggle with geometric reasoning tasks. We conducted a diagnostic probing experiment to determine whether these errors stem from the visual encoder’s inability to capture spatial information or the language model’s failure to utilize these features. We hypothesize that if a lightweight classifier is capable of achieving high accuracy using frozen visual features, this result would demonstrate that the visual encoder has already extracted sufficient information. Consequently, the failure must stem from the downstream reasoning process. Through this probing analysis, we can therefore explicitly identify the locus of the performance bottleneck. 
+
+Experimental Setup. We utilize the Block Counting dataset in OrthoMind-3D to predict the total number of stacked cubes. The ground truth labels y lie in the range Ygt = {2, . . . , 38 }. We selected Qwen3-VL-4B-Instruct as the base model. Formally, let Ev (·) denote the frozen visual encoder of the VLM. For each input image x, we extract the visual representation vector z ∈ Rd:
+
+z = Ev (x), where d = 2560 . (8) We then train a lightweight Multi-Layer Perceptron (MLP) probe, denoted as fθ : Rd → RC , parameterized by θ. To simulate a realistic setting where the probe is agnostic to the specific upper bound of the dataset, we set the number of output classes to C = 50 , which is a superset of the ground truth label space ( |Y gt | < C ). The probe is trained to minimize the standard cross-entropy loss LCE on the training set Dtrain :
+
+θ∗ = arg min 
+
+> θ
+
+X
+
+> (xi,y i)∈D train
+
+LCE (fθ (Ev (xi)) , y i). (9) We experimented with MLP depths ranging from 2 to 4 layers to evaluate the linear separability and non-linear information content of z.
+
+Results and Analysis. The classification accuracy of the probes on the test split is reported in Table 9. Simple MLP probes achieved remarkable accuracy. The 4-layer MLP reached 55.8% and substantially outperformed current state-of-the-art VLMs on this task. Even the most lightweight 2-layer MLP achieved 43.2%. Additionally, we observe that accuracy improves consistently as the probe depth increases. This trend suggests that the geometric information is implicitly encoded in the visual features and requires non-linear transformations to be decoded effectively. Crucially, even the deepest 4-layer probe is negligible in size compared to the massive parameter count of the LLM. 13 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs  
+
+> Table 9. Block Counting Probe Accuracy on Qwen3-VL Visual Features.
+
+Probe Architecture Layers Accuracy MLP [512, 256] 2 43.2% MLP [1024, 512, 256] 3 50.4% MLP [1024, 512, 256, 128] 4 55.8% This significant performance gap provides compelling evidence that the visual encoder is not a “visual blind spot.” Instead, it demonstrates that the encoder successfully extracts fine-grained quantitative features sufficient for this task. Consequently, it indicates that the LLM fails to correctly align or utilize these available visual features during its reasoning process. This finding strongly justifies the necessity of our proposed method to bridge this reasoning gap. 
+
+C.4. Experiment Results for 3-view Description Reasoning 
+
+Table 10 studies whether providing an explicit orthographic three-view description (front/left/top) can directly improve spatial reasoning accuracy. We report the original single-view setting (“–”) and the setting augmented with a three-view description (“w/ 3-view Desc.”).                                               
+
+> Table 10. Effect of explicit orthographic three-view descriptions on OrthoMind-3D. We report accuracy (%) for Cardinality Block Counting and Object Reasoning (Overall). Colored numbers indicate the relative change compared to the single-view baseline (green: improvement; red: drop). Model Cardinality Block Counting Object Reasoning (Overall) –w/ 3-view Desc. (Rel. ↑)–w/ 3-view Desc. (Rel. ↑)GPT-5 15.8 28.6 (+81.0%) 68.2 88.9 (+30.4%) Gemini-3-pro 13.8 43.8 (+217.4%) 87.4 98.0 (+12.1%) Claude-Sonnet-4.5 19.0 46.0 (+142.1%) 57.4 93.8 (+63.4%) XiaoMiMo-VL-7B-RL 18.2 35.6 (+95.6%) 63.1 60.1 (-4.7%) GLM4.1V-9B 15.0 10.8 (-28.0%) 51.9 57.1 (+10.0%) InternVL3.5-4B 10.6 12.2 (+15.1%) 54.4 57.6 (+5.9%) InternVL3.5-8B 15.6 16.8 (+7.7%) 58.4 61.2 (+4.8%) Qwen2.5-VL-7B 9.2 10.8 (+17.4%) 49.6 54.1 (+9.1%) Qwen3-VL-4B-Instruct 6.2 15.2 (+145.2%) 56.4 69.7 (+23.6%) Qwen3-VL-8B-Instruct 10.6 16.4 (+54.7%) 63.3 67.3 (+6.3%)
+
+Overall, adding a three-view description improves most models, with the largest gains on occlusion-heavy block counting. Proprietary models benefit most (e.g., Gemini-3-pro: +217.4%), suggesting that a structured, view-consistent representation is often the key bottleneck. Open-source VLMs show mixed results: while many improve, some degrade (e.g., GLM4.1V-9B on block counting; XiaoMiMo-VL-7B-RL on object reasoning), implying that extra views can introduce noise when fusion is weak. These results motivate 3ViewSense, which internalizes orthographic-view abstraction and learns to fuse views into a coherent 3D mental model. 
+
+C.5. Qualitative Model Response Examples 
+
+We qualitatively compare responses from the base model and 3ViewSense on occlusion-heavy block counting. As shown in Figure 12, the base model often produces lengthy and repetitive reasoning with unstable intermediate hypotheses, whereas 3ViewSense yields more concise and structured traces by explicitly grounding the reasoning process in orthographic-view mental simulation. 
+
+C.6. Analysis of the cumulative reward curve in the RL stage 
+
+Figure 13 shows the cumulative reward trajectory during GRPO-based RL, initialized from the Stage II VGR SFT model. Both strict and slack reward settings exhibit a consistent upward trend without sustained oscillation or collapse, suggesting stable policy improvement under math-verifiable supervision. Compared to the strict reward, the slack reward typically yields smoother training dynamics due to denser partial-credit feedback (Section 3.3), while the strict reward can be higher-variance because any small prediction error leads to zero reward. Overall, these curves indicate that RL effectively refines answer 14 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+correctness while preserving the view-grounded reasoning behavior learned during SFT. 
+
+D. Limitation and Future Work 
+
+Our core insight is that many VLM failures on spatial reasoning stem from the lack of a view-consistent intermediate representation, and our contributions are OrthoMind-3D for diagnosing these failure modes and 3ViewSense for learning a simulate-and-reason pipeline that induces orthographic views for view-grounded reasoning. The main limitation is that not all spatial reasoning problems are well captured by three orthographic views alone, since many tasks require additional physical and semantic priors (e.g., support relations, affordances, and dynamics) beyond geometry. Future work will focus on learning mechanisms that estimate view-induction uncertainty and adaptively decide when to invoke orthographic mental simulation, expanding the intermediate representation beyond three fixed views via task-dependent or hybrid spatial abstractions, and integrating view-grounded reasoning into larger general-purpose multimodal models with continual learning to preserve the induced reasoning behavior while reducing catastrophic forgetting. 15 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs Image 
+
+Specific Block Count 
+
+Cardinality Block Count 
+
+Out -of -Domain Block Count 
+
+Problem: <image> \nHow many blocks are there in the picture? 
+
+Answer: 7
+
+Image Problem: <image> \nHow many green blocks are there in the picture? 
+
+Answer: 2
+
+Image 
+
+Problem (Specific): <image> \nHow many green blocks are there in the picture? 
+
+Problem (Cardinality): <image> \nHow many blocks are there in the picture? 
+
+Answer: 3
+
+Answer: 6
+
+Image 
+
+Object Count & Position 
+
+Count: <image> \n How many cone are there in this image? 
+
+Image 
+
+Image 
+
+Position: <image> \n In which direction is the bigger cone relative to the sphere ?
+
+Answer: 2
+
+Answer: front right 
+
+Specific Object Count & Position 
+
+Count: <image> \n How many yellow cuboid are there in this image? 
+
+Position: <image> \n In which direction is the red cylinder relative to the red sphere ?
+
+Answer: 1
+
+Answer: back left 
+
+Out -of -Domain Object Count & Position 
+
+Count: <image> \n How many headphones are there in this image? 
+
+Position: <image> \n In which direction is the red headphones relative to the 
+
+white coke can ?
+
+Answer: 4
+
+Answer: front left 
+
+Figure 6. Sample visualization of the OrthoMind-3D dataset. We show examples from the in-domain and out-of-domain subsets for two task families: block counting (top) and object reasoning (bottom). In-domain data are generated with strict geometric constraints, while out-of-domain data are photorealistic and less structured to evaluate generalization. 
+
+16 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs “First , from the front side perspective , we describe the visible cubes in each column. \nIn the front 
+
+view, in the first column from the left, from bottom to top we can see a cube, then a cube, then a 
+
+cube. \nIn the front view, in the second column from the left, from bottom to top we can see a cube, 
+
+then a cube. \nIn the front view, in the third column from the left, from bottom to top we can see a 
+
+cube. \n Second, from the left side perspective , we describe the visible cubes in each column. \nIn the 
+
+left view, in the first column from the left, from bottom to top we can see a cube, then a cube, then a 
+
+cube. \nIn the left view, in the second column from the left, from bottom to top we can see a 
+
+cube. \nIn the left view, in the third column from the left, from bottom to top we can see a cube. \n
+
+Finally , from the top side perspective , we look at each column from left to right and describe what is 
+
+on top of each stack from front to back. \nIn the top view, in the first column from the left, from 
+
+front to back we have a cube, then no cube, then a cube. \nIn the top view, in the second column from 
+
+the left, from front to back we have a cube, then no cube, then a cube. \nIn the top view, in the third 
+
+column from the left, from front to back we have no cube, then a cube, then no cube ." 
+
+3-View Description 
+
+{
+
+"front -view ": [{"x": 0, "y": 1, "z": 0}, ... 
+
+{" x": 2, "y": 0, "z": 2}], 
+
+"left -view ": [{"x": 2, "y": 0, "z": 0}, ... 
+
+{" x": 2, "y ": 2, "z": 0}], 
+
+"top -view ": [{"x ": 2, "y ": 0, "z": 2}, ... 
+
+{" x": 2, "y": 1, "z": 0}] 
+
+}
+
+Json format 
+
+“First , from the front side perspective (Can obtain the left -right relationship of objects), we can see 
+
+from left to right, the order is a cone, a cuboid, a bigger cylinder, a smaller cylinder, a smaller sphere, 
+
+a bigger sphere. \n Second , from the left side perspective (Can obtain the back -front relationship of 
+
+objects), we can see from back to front, the order is a bigger cylinder, a cone, a bigger sphere, a 
+
+smaller cylinder, a cuboid, a smaller sphere. \n Finally , from the top side perspective (Can confirm its 
+
+positional relationship both left -right and back -front), we can see from the overall perspective, there 
+
+are 2 cylinders, 1 cuboid, 2 spheres, 1 cone, we can see from left to right, the order is a cone, a cuboid, 
+
+a bigger cylinder, a smaller cylinder, a smaller sphere, a bigger sphere, we can see from back to front, 
+
+the order is a bigger cylinder, a cone, a bigger sphere, a smaller cylinder, a cuboid, a smaller sphere .”
+
+3-View Description  
+
+> {
+> "front -view ": {
+> "from -left -to -right": ["cone",
+> "cuboid "...],},
+> "left -view ": {
+> "from -back -to -front": ["bigger
+> cylinder", "cone" ...],},
+> "top -view ": {
+> "from -left -to -right": ["cone",
+> "cuboid"...],
+> "from -back -to -front": ["bigger
+> cylinder", "cone" ...]}
+> }
+
+Json format 
+
+Instruction for Stage1 SFT (Object Reasoning): <image> \nFirst , scan the image to identify and verify all geometric objects present (candidate set: 
+
+bigger red square pyramid, smaller green square pyramid, bigger black square pyramid, bigger blue square pyramid, smaller blu e s quare pyramid, bigger 
+
+yellow square pyramid, bigger yellow cone, smaller black cone), and understand their counts and relative spatial relationship s. Then analyze the scene 
+
+from three viewpoints: front, left, and top. In the front view, list the visible objects ordered from left to right; in the l eft view, list the visible 
+
+objects ordered from back to front; in the top view, provide two ordered lists: from left to right and from back to front. Ou tpu t only one JSON 
+
+object that follows the schema below, with no additional text or explanation. \n { \"front -view \":{ \"from -left -to -right \":List}, \"left -view \":{ \"from -
+
+back -to -front \":List}, \"top -view \":{ \"from -left -to -right \":List, \"from -back -to -front \":List}} 
+
+Instruction for Stage1 SFT (Block Counting): <image> \nFirst , carefully inspect the blocks in the image to understand the overall structure and count. 
+
+Then analyze the 2D projections from three viewpoints: Front, Left, and Top. Finally, output a JSON object that provides the int eger -grid 2D 
+
+coordinates of the blocks in each view. \n { \"front -view \":[{ \"x \":int, \"y \":int, \"z \":int}], \"left -view \":[{ \"x \":int, \"y \":int, \"z \":int}], \"top -
+
+view \":[{ \"x \":int, \"y \":int, \"z \":int}]}" 
+
+Figure 7. Example of the orthographic three-view description and the Stage-I (OMS) instruction used for training. 
+
+17 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+A. Prompt for Generative AI-based Randomized Spatial Object Placement 
+
+1. Systematic Prompt Template 
+
+A wide-angle photorealistic 3D render of [Selected Objects] haphazardly scattered across a [Selected Environment] .The scene features significant negative space around objects. Items are placed on the same horizontal plane (floor) but with random orientations. Each object is strictly isolated, no overlapping, no touching, widely spaced apart. High angle shot, depth of field, soft volumetric lighting, Octane render, 8k resolution, ultra-detailed. 
+
+2. Definition of Hyperparameters 
+
+• [Selected Objects] : A randomized set of N items (where 2 ≤ N ≤ 6) selected from a predefined library. Each item can be further modified by: 
+
+– Quantity : Numerical count and pluralization (e.g., “3 oranges”). 
+
+– Visual Attributes : Randomized modifiers including color (red, purple, etc.), scale (tiny, giant), and material state (matte, shiny, dusty, damaged). 
+
+– Uniqueness Constraint : If required, a rule is appended: “Every single object must be distinct in visual appearance to be easily identifiable.” • [Selected Environment] : The background setting and floor texture, chosen from: 
+
+– Modern living room (light wood texture) 
+
+– Clean white gallery floor 
+
+– Minimalist concrete studio 
+
+– Marble hall surface 
+
+– Open wooden deck 
+
+3. Spatial Configuration Rules 
+
+• Ground-Plane Constraint : All objects are anchored to the same vertical coordinate ( z-axis) to ensure they rest naturally on the surface. • Non-Occlusion Principle : Objects are distributed with a focus on ”negative space,” ensuring that each object’s silhouette is fully visible from a high-angle perspective. • Stochastic Orientation : Objects are rotated randomly along their local axes to simulate a non-artificial, ”haphazard” distribution. 
+
+Figure 8. Prompt design for image generation using generative AI models. 
+
+18 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+B. Prompt for Conversion from Three-View to Natural Language Reasoning 
+
+System Prompt 
+
+You are a spatial reasoner who mentally reconstructs a 3D scene from partial viewpoints. You do not describe data; you form an internal 3D mental image and reason within it. 
+
+Reasoning Generation Prompt ## Role 
+
+You are a spatial reasoner who directly perceives a 3D scene. You do not read data or analyze formats; you mentally see a solid block structure. 
+
+## Task 
+
+Given a Problem and Three views (front, left, top), write a single continuous reasoning narrative that reconstructs the scene, solves the problem, and ends with the final answer in \boxed {} .
+
+## How to read the views 
+
+The views may appear in two forms. 1) Block list format 
+
+Each view lists blocks like ‘ {x,y,z,color,visible }‘. Interpret fields as spatial cues: • ‘x‘: larger values correspond to positions further to the left • ‘y‘: larger values correspond to positions further to the front • ‘z‘: larger values correspond to positions higher up • ‘color‘: indicates block color (optional) • ‘visible=false‘: the block exists but is not seen from this view Blocks will not float, and do not mention coordinate values or field names. Convert everything into spatial phrases (leftmost, back row, top layer, stacked above, hidden behind and so on). 2) Ordered list format 
+
+Views provide sequences like ‘from-left-to-right‘ or ‘from-back-to-front‘. Treat them as your scan order in that view and describe the relative layout accordingly. 
+
+## Reasoning constraints 
+
+• First examine the front view to infer left–right and vertical relations. • Then examine the left view to resolve front–back structure and occlusion. • Next examine the top view to determine the overall layout and coverage. • Finally integrate all observations into a single coherent 3D mental model. • When counting blocks, determine the quantity based on vertical stacking and use explicit numerical reasoning rather than purely verbal description. 
+
+## Output rules 
+
+• Output only the reasoning as plain paragraphs (no headings, no lists). • First-person present tense (“I see. . . I turn. . . I check. . . ”). • Forbidden phrases: “JSON”, “data”, “input”, “provided”, “coordinates”, or any literal field names like x, y, z. • This answer should be derived through reasoning, do not reveal that an answer was provided. 
+
+## Input 
+
+Problem: {PROBLEM }
+
+(Internal check only) Answer: {ANSWER }
+
+Three views: {THREE VIEW JSON }
+
+Figure 9. Detailed prompt for LLM-based three-view to natural language reasoning conversion. 
+
+19 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+C. In-Context Learning Experiment Instruction 
+
+Instruction: Three-View Spatial Reasoning 
+
+You are an expert visual-spatial reasoning model. You must strictly follow these steps to analyze the input image and answer the question: 1. Front View Analysis: Describe the shapes and arrangement visible when looking at the object(s) directly from the front. 2. Left View Analysis: Describe the shapes and arrangement visible when looking at the object(s) directly from the left side. 3. Top View Analysis (Plan View): Describe the shapes and arrangement visible when looking down at the object(s) from above. 4. Synthesized Reasoning: Combine the analyses from the three views to accurately locate, identify, and count the objects. 5. Final Answer: The final response must be placed inside the \boxed {} format. 
+
+C.1 Teaching Demonstration for Block Counting 
+
+Teaching Demonstration 
+
+Question: How many blocks are there in the picture? Return your final response within \boxed {} .Reasoning: Step 1: Front View Analysis I see three columns of blocks from the front. The leftmost column has no visible blocks. The middle column has two blocks stacked vertically. The rightmost column has one block at the bottom level. Step 2: Left View Analysis Looking from the left side, I see three columns as well. The column nearest to me has two stacked blocks. The middle column has one block. The farthest column has one block. Step 3: Top View Analysis From above, the layout is clear. I see blocks arranged in a grid of three columns (left, middle, right) and three rows (front, middle, back). The top view shows: in the middle column, there are three blocks in a vertical line from front to back; in the right column, there are two blocks — one in the middle row and one in the back row; the left column appears empty from the top. Step 4: Synthesized Reasoning Combining the views, I can reconstruct the 3D arrangement. The front view’s middle column (two blocks) corresponds to the top view’s middle column having three blocks front-to-back, meaning one of them is hidden behind the front stack from the front perspective. The front view’s right column (one block) matches the top view showing two blocks in that column, meaning the back one is hidden. The left view helps confirm the left column has blocks only in the back rows, not visible from the front. Counting all unique block positions from the combined grid, there are blocks at these coordinates: (middle column, front row, bottom), (middle column, middle row, bottom), (middle column, back row, bottom), (right column, middle row, bottom), (right column, back row, bottom), and (left column, back row, bottom) — six blocks in total. Step 5: Final Answer \boxed {6}
+
+Figure 10. In-Context Learning Experiment Instruction and Teaching Demonstration for Block Counting Task. 
+
+20 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs 
+
+C.2 Teaching Demonstration for Object Counting 
+
+Teaching Demonstration 
+
+Question: How many cylinder are there in this image? Return your final response within \boxed {} .Reasoning: Step 1: Front View Analysis I am scanning the arrangement of 3D geometric shapes from the front perspective to establish their lateral order. Looking from left to right, I distinctly identify a sequence of objects: first a large cube, then a cone, followed by a square pyramid. Continuing the scan to the right, I see a small sphere, a larger sphere, a small cube, and a rectangular cuboid. Finally, positioned at the very far right of this lineup, I observe a single cylinder. Step 2: Left View Analysis Shifting my perspective to the left side to assess the depth and relative positioning, I track the objects again. In this projection, I can distinguish the large cube, the cuboid, and the small sphere. I also clearly see the cylinder positioned within the depth of the field, located near the square pyramid and the cone. This view confirms the existence of the cylindrical shape observed in the front view. Step 3: Top View Analysis Observing the scene from a top-down “bird’s-eye” view allows me to verify the total inventory of all items without occlusion. From this vantage point, I can categorize every shape present. I observe a total set consisting of two spheres, two cubes, one cone, one cuboid, and one square pyramid. Crucially, in this complete collection, I identify exactly one object with the circular cross-section and vertical sides characteristic of a cylinder. Step 4: Synthesized Reasoning By cross-referencing all three views, I can establish a definitive count. The front view highlighted one cylinder at the end of the row. The side view corroborated its position in space. The top view provided a comprehensive inventory, explicitly isolating the distinct shapes and confirming that only one of them is a cylinder. There are no duplicates or hidden cylinders. Step 5: Final Answer \boxed {1}
+
+C.3 Teaching Demonstration for Object Position Reasoning 
+
+Teaching Demonstration 
+
+Question: In which direction is the square pyramid relative to the smaller sphere? Answer the question from the choices: [“front”, “back”, “right”, “left”, “front left”, “front right”, “back left”, “back right”] Return your final response within \boxed {} .Reasoning: Step 1: Front View Analysis I start by examining the front view to determine the horizontal (left-right) alignment of the objects. Looking across the scene from left to right, I see a sequence of objects: a bigger cube, a cone, a square pyramid, followed by a smaller sphere, and then others. This observation clearly establishes that the square pyramid is positioned to the left of the smaller sphere. Step 2: Left View Analysis Next, I look at the left side view to understand the depth (back-front) relationship. In this perspective, the arrangement from left to right represents the order from the back of the scene to the front. I observe the smaller sphere appearing earlier in the sequence (further to the “left” or back), followed by the square pyramid which appears later (further to the “right” or front). This indicates that the square pyramid is located in front of the smaller sphere. Step 3: Top View Analysis Finally, I examine the top view to confirm these spatial coordinates. From this overhead perspective, I can verify both axes simultaneously. On the left-right axis, the square pyramid is clearly to the left of the smaller sphere. On the top-down axis (representing back-to-front), the smaller sphere is positioned closer to the “top” (back) edge, while the square pyramid is closer to the “bottom” (front) edge. Step 4: Synthesized Reasoning By synthesizing the observations from all three views, I can pinpoint the relative location: 1. Left-Right: The square pyramid is to the left of the smaller sphere. 2. Front-Back: The square pyramid is in front of the smaller sphere. Combining these two directional components, the square pyramid is located to the front left of the smaller sphere. Step 5: Final Answer \boxed {front left }
+
+Figure 11. In-Context Learning Experiment Instruction and Teaching Demonstration for Object Reasoning. 
+
+21 3ViewSense: Spatial and Mental Perspective Reasoning from Orthographic Views in VLMs To determine the number of blocks in the picture, we need to count all the individual cubes that make up the 3D structure. \n\nLo oking at the image, the structure is composed of: \n\n- A central 
+
+vertical column of 3 cubes stacked on top of each other. \n- To the left of the bottom cube of that column, there is a cube attac hed to its left side. \n- To the right of the bottom cube of that 
+
+column, there is a cube attached to its right side. \n- Above the middle cube of the vertical column, there is a cube attached to its right side (so it’s on the same level as the middle cube, but to 
+
+the right). \n\nWait — let’s break it down more carefully. \n\nActually, the structure looks like this: \n\n- There is a **vertical stack of 3 cubes** in the center -left: bottom, middle, top. \n- To the 
+
+**left of the bottom cube** of the stack, there is **one more cube** — so now we have 4 cubes in the left part. \n- To the **righ t of the middle cube** of the stack, there is **one cube** —
+
+so now we have 5 cubes. \n- To the **right of the top cube** of the stack, there is **one cube** — so now we have 6 cubes. \n\nWai t — let me visualize it again. \n\nActually, looking at the 
+
+image: \n\nThe structure has: \n\n- A **vertical column** of 3 cubes (bottom, middle, top) — that’s 3. \n- To the **left** of the * *bottom** cube of the column, there is **one cube** — that’s 
+
+4 total. \n- To the **right** of the **middle** cube of the column, there is **one cube** — that’s 5 total. \n- To the **right** o f the **top** cube of the column, there is **one cube** —
+
+that’s 6 total. \n\nBut wait — the cube to the right of the top cube is connected to the top cube? Or is it a separate piece? \n\nLooking at the image, the structure appears to be: \n\n- A 3 -cube 
+
+vertical tower (left to right: bottom, middle, top). \n- To the **left** of the **bottom** cube: one cube — so now 4 cubes. \n- To the **right** of the **middle** cube: one cube — so now 5 
+
+cubes. \n- To the **right** of the **top** cube: one cube — so now 6 cubes. \n\nBut visually, the cube to the right of the top cub e is **not** directly attached to the top cube — it’s attached to 
+
+the cube that is to the right of the middle cube? Or is it? \n\nActually, looking at the image more carefully, it’s a **corner st ructure**: \n\n- There’s a vertical stack of 3 cubes: bottom, middle, 
+
+top — aligned vertically. \n- To the **left** of the bottom cube, there’s a cube — so now we have 4 cubes in a 2x2 base? Not quit e. \n- To the **right** of the middle cube, there’s a cube — so 
+
+now we have 5 cubes. \n- To the **right** of the top cube, there’s a cube — so now 6 cubes. \n\nBut wait — the cube to the right o f the top cube is probably attached to the **top cube**, so 
+
+it’s on the same level as the top cube. \n\nActually, the image is: \n\n- A 3x2 base? No. \n\nLet me count the cubes by levels. \n\n**Bottom layer**: \n\n- There are 3 cubes in the bottom layer: 
+
+one in the center -left, one to its right, and one to the right of that? Wait. \n\nActually, looking at the image, it’s a **corner ** shape: \n\n- The structure has **4 cubes** in the bottom layer? Or 
+
+3? \n\nWait — let me count again. \n\nActually, the image shows: \n\n- A vertical column of 3 cubes (bottom, middle, top) — that’s 3. \n- To the **left** of the bottom cube: one cube — so now 
+
+4. \n- To the **right** of the middle cube: one cube — so now 5. \n- To the **right** of the top cube: one cube — so now 6. \n\nBut is the cube to the right of the top cube attached to the top 
+
+cube? Yes, because they are adjacent. \n\nSo total = 6 cubes. \n\nBut wait — is there a cube to the right of the middle cube that is on the same level as the middle cube? Yes. \n\nAnd the cube to 
+
+the right of the top cube is on the same level as the top cube. \n\nSo total = 6. \n\nWait — let me count again. \n\nAlternative ap proach: \n\n- The structure is made of 6 individual cubes. \n\nYes, 
+
+that’s correct. \n\nLooking at the image, it’s a 3D shape that looks like: \n\n- A 3 -cube tower (vertical). \n- Attached to the lef t of the bottom cube: 1 cube. \n- Attached to the right of the middle 
+
+cube: 1 cube. \n- Attached to the right of the top cube: 1 cube. \n\nThat’s 3 + 1 + 1 + 1 = 6. \n\nAlternatively, the structure has :\n\n- 3 cubes in the front row (bottom, middle, top) — but they are 
+
+stacked vertically. \n- 1 cube to the left of the bottom cube. \n- 1 cube to the right of the middle cube. \n- 1 cube to the right of the top cube. \n\nTotal: 6. \n\nYes. \n\nSo the answer is 
+
+6. \n\n\\boxed{6 }
+
+I begin by examining the front view of the structure . On the left side, I see a stack of two blocks. Moving to the center, there is a taller column that reaches three 
+
+blocks high. On the right side, I see a single block at the base level. This indicates a structure with varying heights and d ept hs. \n\nNext , I look at the structure from 
+
+the left side to understand its depth. In the back row, I see a stack of two blocks on the left and a stack of three blocks in the center. In the front row, I see a si ngle 
+
+block on the right. This confirms that the right side of the structure is actually two blocks deep, with one block in the fro nt and another directly behind it. \n\nFinally ,
+
+I look down from the top to confirm the footprint . I see a block in the back -left corner, a block in the back -center, and two blocks in the front -right area, arranged 
+
+one behind the other. This confirms there are four distinct vertical stacks. \n\nTo find the total number of blocks, I count the height of each stack: \n- The back -left 
+
+stack has 2 blocks. \n- The back -center stack has 3 blocks. \n- The front -right stack has 1 block. \n- The stack directly behind it on the right has 1 block. \n\nAdding 
+
+these together, I calculate 2 + 3 + 1 + 1 = 7 blocks in total. \n\n\\boxed{7 }
+
+Original Model 
+
+3ViewSense Model 
+
+Overthinking a simple problem leads to an incorrect answer. 
+
+✅
+
+❌
+
+Structured, step -by -step mental reasoning reduces counting hallucinations .
+
+How many blocks are there 
+
+in the picture? Return your 
+
+final response within 
+
+\\boxed{}. 
+
+Question 
+
+Figure 12. Qualitative examples of model responses on block counting under occlusion. Compared to the base model, 3ViewSense produces more concise and structured reasoning, improving robustness and accuracy. Test Validation 
+
+Test Validation 
+
+(B) Reward Accumulation Curve and Test Validatio n (Strict Reward Mode) 
+
+(A) Reward Accumulation Curve and Test Validatio n (Slack Reward Mode) 
+
+Figure 13. Cumulative reward curves during GRPO-based RL refinement. We report the training dynamics under two reward settings: strict reward (exact match) and slack reward (partial credit) as defined in Section 3.3. 
+
+22

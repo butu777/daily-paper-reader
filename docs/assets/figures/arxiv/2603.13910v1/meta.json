@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-001.webp",
+      "caption": "Fig. 3: Visual comparison of 3D reconstruction results for different methods.",
+      "page": 11,
+      "index": 1,
+      "width": 654,
+      "height": 339
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-002.webp",
+      "caption": "Fig. 9: Qualitative validation of generated panoramic image with and without depth and semantic ControlNets. When only using the text prompt as input, the resulting panoramic image significantly differs from the depth and semantic renderings, making this unusable for our approach of generating a 3D proxy to ground the subsequent generation. Using semantics in addition to the text prompt already leads to a good alignment of generated scenes, however it can still generate degenerate object shapes (see first row highlighted in red) due to missing 3D geometry information. In contrast, using the text prompt and the depth map results in generating detailed geometry and accurate object poses, but can mix up object types with very similar geometry (see second row highlighted in red: a window above the bed instead of two framed pictures). Our approach, using text as well as semantics and depth as guidance signals eliminates both shortcomings.",
+      "page": 25,
+      "index": 2,
+      "width": 681,
+      "height": 344
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-003.webp",
+      "caption": "Fig. 10: Visual comparison of generated panoramic images from different panorama generators. Each row depicts a separate example, whereas we first show the semantic and depth renderings corresponding to the text prompt, and then the generated panoramic image from the different methods. The visualization highlights limitations of different panorama generators: MVDiffusion [45] often fails to generate plausible scene layouts. Diffusion360 [12] tends to ignore important objects described in the text prompt, for example the table with laptop in the first row. This is also backed by the low CLIPScore in the corresponding quantitative evaluation in the main paper. LayerPano3D [52] often generates panorama images with blurry borders on the top and the bottom (see first and second row), which leads to artifacts when used for 3D reconstruction. Our guided panoramic image generator is able to accurately follow the text prompt and to generate plausible layouts by utilizing the depth and semantic guidance signals provided by our global scene layout.",
+      "page": 26,
+      "index": 3,
+      "width": 685,
+      "height": 350
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-004.webp",
+      "caption": "Table 1: Quantitative comparison of panoramic image generators. Our guided panorama generator achieves the highest CLIP score, highlighting the high alignment between input text prompt and generated panorama. The competitive results for the other metrics show the overall high quality of our generated panoramic images.",
+      "page": 10,
+      "index": 4,
+      "width": 639,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-005.webp",
+      "caption": "Fig. 6: Visualization of our annotations. 9D object poses and 2D semantic masks transferred from the 3D proxy align well with novel views of the final 3DGS scene and enable reliable 3D Gaussian segmentation via clustering. Compared to predictions of SegFormer [50], a specialist model trained for 2D indoor scene segmentation, our transferred annotations are more precise.",
+      "page": 14,
+      "index": 5,
+      "width": 686,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-006.webp",
+      "caption": "Fig. 11: Scene Expansion Example. After a first scene is generated, our frame work enables seamless iterative scene expansion. First, the previous 3D proxy as well as a textual description of the new scene is given as input to Holodeck [54]. This enables us to extend the 3D proxy in the global world coordinate frame. Then, each room can be generated independently, whereas the generated results will automatically align due to the 3D proxy guidance. To seamlessly connect the rooms, we can remove the gaussians of the connector component by utilizing the corresponding semantic and pose information. Note that our scene expansion application is iterative and single scenes can be generated independently, hence large scenes generation with multiple rooms can be achieved without increasing memory or computation demands.",
+      "page": 28,
+      "index": 6,
+      "width": 714,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-007.webp",
+      "caption": "Fig. 4: Scene bounding comparison of 3D reconstruction results for different methods. Our 3DGS point cloud follows the scene geometry accurately, while other methods have significant distortions and floaters. Note that 3D scenes of competitor methods are in relative scale and have been manually re-scaled for better visualization. In contrast, our method provides results in absolute metric scale.",
+      "page": 12,
+      "index": 7,
+      "width": 688,
+      "height": 240
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-008.webp",
+      "caption": "Table 4: Depth alignment error Ldpt over the coarse-to-fine resolution schedule for different camera scale parameter settings for a common trajectory.",
+      "page": 27,
+      "index": 8,
+      "width": 725,
+      "height": 544
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-009.webp",
+      "caption": "Fig. 8: Additional visual comparison of 3D reconstructions for different methods. The visualizations show rendered novel views from comparable camera positions for each method. Note that the camera poses for the rendered novel views highly deviate from the training views to showcase the limitations of the different methods.",
+      "page": 24,
+      "index": 9,
+      "width": 525,
+      "height": 438
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-010.webp",
+      "caption": "Fig. 7: Comparison of 3D reconstruction results using different loss terms.",
+      "page": 24,
+      "index": 10,
+      "width": 708,
+      "height": 211
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13910v1/fig-011.webp",
+      "caption": "Fig. 2: Method Overview. Given a text prompt describing an indoor scene, we",
+      "page": 5,
+      "index": 11,
+      "width": 609,
+      "height": 298
+    }
+  ]
+}

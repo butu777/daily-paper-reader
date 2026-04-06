@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26638v1/fig-001.webp",
+      "caption": "Fig. 4: RoMA v2 correspondence visualization on distorted images after rigid-body masking. The dense green correspondence lines confirm that the learned matcher successfully bridges extreme viewpoint changes on the raw 4K frames, overcoming wide-FOV fisheye distortion.",
+      "page": 6,
+      "index": 1,
+      "width": 512,
+      "height": 587
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26638v1/fig-002.webp",
+      "caption": "Fig. 2: Data collection in a commercial dealership. The 14-camera dual-pillar rig captures 4K video as the vehicle traverses the highly cluttered, unconstrained capture volume. To maximize coverage in a single pass, cameras are mounted on both the driver’s and passenger’s sides across three vertical tiers (16, 55, and 97 inches), featuring front-, side-, and rear-facing yaw orientations.",
+      "page": 6,
+      "index": 2,
+      "width": 512,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26638v1/fig-003.webp",
+      "caption": "Fig. 5: Representative successful sparse point cloud produced by the full pipeline, visualized from multiple viewpoints for the same vehicle. The sparse point cloud forms a coherent vehicle shell with limited background structure, providing a stable geometric scaffold for downstream Gaussian Splatting.",
+      "page": 7,
+      "index": 3,
+      "width": 512,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26638v1/fig-004.webp",
+      "caption": "Fig. 6: Sparse point cloud failure modes from ablations. (a) SIFT Features + COLMAP Matcher: Relying on classical keypoints rather than our mask-guided learned matcher results in massive point cloud fragmentation and noise, as classical methods fail to establish reliable tracks across highly specular automotive clear coats. (b) w/o Camera Rig Extrinsics: Without CAD-derived relative pose priors, the wide-baseline optimization suffers from inter-camera drift, producing fragmented reconstructions. (c) SAM 3 Masks w/o Motion Gating: Relying purely on semantic instance masks without temporal motion gating causes the instance tracking to drift onto parked distractor vehicles in the background when the primary target is partially absent. (d) w/o Masks: Correspondences are dominated by the static dealership environment, producing a background-centric “room-like” reconstruction (cube/planes) with little vehicle geometry.",
+      "page": 7,
+      "index": 4,
+      "width": 512,
+      "height": 323
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26638v1/fig-005.webp",
+      "caption": "Fig. 7: End-to-end rendering examples (license plates and driver masked for privacy). Left: Original images captured from the cluttered dealership environment. Middle: Complete vehicle rendering masks (Mrender) applied to isolate the vehicle and explicitly retain the wheels. Right: 3DGUT Gaussian Splatting renders from the corresponding viewpoints.",
+      "page": 8,
+      "index": 5,
+      "width": 512,
+      "height": 333
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26638v1/fig-006.webp",
+      "caption": "Fig. 1: Overview of the proposed end-to-end 3D exterior reconstruction pipeline. (1) Camera Calibration: One-time estimation of fisheye intrinsics and CAD-derived relative rig extrinsics. (2) Data Acquisition: Drive-through video capture of the moving vehicle using a 14-camera dual-pillar rig. (3) Rigid Vehicle Isolation: SAM 3 and motion-gating isolate the dynamic vehicle while explicitly subtracting non-rigid wheel rotations to satisfy epipolar constraints. (4) Feature Matching: The RoMa v2 learned matcher extracts robust dense correspondences directly on the raw, distorted frames. (5) Structure-from-Motion (SfM): Rig-aware global bundle adjustment geometrically verifies matches and estimates the camera poses using static structural hardware priors. (6) Gaussian Splatting: A distortionaware 3D-GS architecture (3DGUT) renders the final photorealistic, interactive 3D model.",
+      "page": 3,
+      "index": 6,
+      "width": 1054,
+      "height": 323
+    }
+  ]
+}

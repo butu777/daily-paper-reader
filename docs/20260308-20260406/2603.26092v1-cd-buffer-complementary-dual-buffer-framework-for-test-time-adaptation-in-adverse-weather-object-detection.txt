@@ -1,0 +1,560 @@
+Title: CD-Buffer: Complementary Dual-Buffer Framework for Test-Time Adaptation in Adverse Weather Object Detection
+
+URL Source: https://arxiv.org/pdf/2603.26092v1
+
+Published Time: Mon, 30 Mar 2026 00:31:59 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# CD-Buffer: Complementary Dual-Buffer Framework for Test-Time Adaptation in Adverse Weather Object Detection 
+
+# Youngjun Song 1 Hyeongyu Kim 1 Dosik Hwang 1,2†
+
+> 1
+
+# Yonsei University 2 Korea Institute of Science and Technology   
+
+> {yjuuun, lion4309, dosik.hwang}@yonsei.ac.kr https://wkfsksdl99.github.io/cd_buffer/
+
+# Abstract 
+
+Test-Time Adaptation (TTA) enables real-time adaptation to domain shifts without off-line retraining. Recent TTA methods have predominantly explored additive approaches that introduce lightweight modules for feature refinement. Recently, a subtractive approach that removes domain-sensitive channels has emerged as an alternative direc-tion. We observe that these paradigms exhibit comple-mentary effectiveness patterns: subtractive methods ex-cel under severe shifts by removing corrupted features, while additive methods are effective under moderate shifts requiring refinement. However, each paradigm operates effectively only within limited shift severity ranges, fail-ing to generalize across diverse corruption levels. This leads to the following question: can we adaptively bal-ance both strategies based on measured feature-level do-main shift? We propose CD-Buffer, a novel complemen-tary dual-buffer framework where subtractive and additive mechanisms operate in opposite yet coordinated directions driven by a unified discrepancy metric. Our key innovation lies in the discrepancy-driven coupling: Our framework couples removal and refinement through a unified discrep-ancy metric, automatically balancing both strategies based on feature-level shift severity. This establishes automatic channel-wise balancing that adapts differentiated treatment to heterogeneous shift magnitudes without manual tuning. Extensive experiments on KITTI, Cityscapes, and ACDC datasets demonstrate state-of-the-art performance, consis-tently achieving superior results across diverse weather conditions and severity levels. 
+
+# 1. Introduction 
+
+Object detection (OD) is a fundamental task in computer vision that classifies objects and localizes them with bound-ing boxes [26]. Recent advances in deep learning have sig- 
+
+> †Corresponding author.
+
+nificantly improved OD performance, enabling applications in robotics [39], autonomous driving [9], security, medical imaging [23], and logistics [21]. In particular, AI-based ob-ject detection remains central to autonomous driving sys-tems and continues to attract active research attention [2]. However, real-world driving scenarios introduce a crit-ical challenge: domain shift caused by weather variations can drastically degrade detector performance when models are trained only on clear-weather data [1]. Domain shift arises when the test data distribution diverges from the train-ing distribution [10]. Adverse conditions such as rain, snow, and fog cause scattering, occlusions, and reduced visibility, which corrupt image quality and widen the domain gap [1]. Consequently, detectors trained primarily on clear-weather datasets suffer from substantial performance drops under these conditions [27, 28, 41]. To address such degradation, Domain Adaptation (DA) methods employ transfer or unsupervised learning strate-gies to align feature distributions [11, 35]. However, these methods typically require pre-collected target data [4], ex-tensive retraining [36], or even target annotations [5], which are impractical for dynamic real-world applications like au-tonomous driving. Test-Time Adaptation (TTA) provides a more practical alternative by updating source-trained mod-els on-line using only test streams, eliminating the need for labeled target data or off-line retraining [6]. Most existing TTA methods fine-tune batch normal-ization (BN) layers to adjust feature statistics through affine parameter updates [16, 18, 22, 32, 38, 40]. Al-though computationally efficient, these methods depend heavily on batch size, leading to instability under small-batch conditions. To overcome this, recent works have ex-plored structural modifications. Additive approaches intro-duce lightweight adapter modules to learn target-specific refinements while preserving source knowledge [15, 29, 30, 37], whereas subtractive approaches prune domain-sensitive channels to focus adaptation on robust features without adding parameters [33]. These two paradigms exhibit distinct behaviors depend-   
+
+> arXiv:2603.26092v1 [cs.CV] 27 Mar 2026 Figure 1. Adaptation Performance Across Fog Severities. Ad-ditive method [15] excels under moderate shifts but struggle under severe corruption, while subtractive method [33] shows the op-posite pattern. Our CD-Buffer achieves consistent performance across all severities by adaptively balancing both strategies.
+
+ing on the degree of domain shift. Our preliminary analy-sis reveals distinct effectiveness patterns: under severe do-main shifts where features are heavily corrupted, subtractive methods prove effective by removing detrimental channels, while additive methods less effective as refinement modules struggle to correct severely degraded features. Conversely, under moderate shifts where features require subtle adjust-ment, additive methods excel through fine-grained refine-ment, whereas subtractive methods risk removing channels that could benefit from correction rather than removal. This observation highlights a core limitation: no single approach consistently performs well across varying shift severities in real-world conditions. Motivated by this, we introduce CD-Buffer, a novel com-plementary dual-buffer framework where adaptation strat-egy is determined individually for each channel based on measured domain shift severity. Our approach measures channel-wise discrepancy from source statistics and adapts accordingly through two coordinated mechanisms. The subtractive buffer employs learnable mask scores to sup-press severely shifted channels, while the additive buffer provides compensation through lightweight adapters, with the compensation strength inversely proportional to the de-gree of suppression. This mechanism enables channel-wise differentiation: severely shifted features are suppressed and compensated, moderately shifted features are refined, and stable features remain largely unaffected, all driven by a unified discrepancy metric. Our contributions are summa-rized as follows: • We reveal that additive and subtractive TTA paradigms are complementary: subtractive methods are more effec-tive under severe shifts, while additive methods perform better under moderate shifts. • We propose a discrepancy-driven dual-buffer framework that automatically balances channel suppression and com-pensation through a shared discrepancy metric. • Extensive experiments on adverse weather detection benchmarks demonstrate that our method achieves state-of-the-art performance across various severities. 
+
+# 2. Related Work 
+
+2.1. Object Detection 
+
+OD aims to simultaneously predict object categories and localize them with bounding boxes. Modern detectors are broadly categorized into two-stage and one-stage architec-tures. Two-stage detectors like Faster R-CNN [26] em-ploy a cascaded structure where a Region Proposal Network (RPN) first generates candidate regions followed by a clas-sifier that predicts categories and refines coordinates. While achieving high accuracy through this sequential processing with anchor-based proposals, computational bottlenecks re-main due to the multi-stage pipeline. One-stage detectors [17, 24, 25] address this by performing detection and classi-fication simultaneously through a unified pipeline, achiev-ing significant speedup at the cost of accuracy trade-offs. Our work builds upon Faster R-CNN as the base detector architecture. 
+
+2.2. Test-Time Adaptation 
+
+Test-time adaptation addresses domain shift between source and target domains without access to target labels or off-line retraining. Research focuses on two key aspects: where to adapt in the model and how to optimize without supervision. Full-parameter adaptation methods like AdaContrast [3] and CoTTA [34] update entire model weights through self-supervised learning or teacher-student consistency losses with stochastic weight restoration to mitigate catastrophic forgetting. While achieving strong adaptation by leverag-ing full model capacity, these approaches incur substantial computational and memory costs, limiting practicality un-der real-time constraints. Normalization-based adaptation offers a more efficient alternative by adjusting only batch normalization layers, based on the hypothesis that domain-related knowledge re-sides in BN statistics [32]. AdaBN [18] recalculates BN statistics from target batches without parameter optimiza-tion, while TENT [32] optimizes BN affine parameters through entropy minimization, achieving adaptation with minimal memory overhead. However, these Normalization-based methods rely on batch statistics estimation, leading to performance degradation with small batch sizes. Recent work also explores architectural modifications through additive and subtractive approaches. Additive approaches introduce lightweight modules while freezing pre-trained weights [15, 29, 30, 37]. L-TTA [29] inserts lightweight CNN layers at the network input, EcoTTA [30] adds parallel meta-networks to each block, and Buffer Layer [15] inserts modules in residual paths. These ap-proaches preserve source knowledge and avoid batch-size dependency but introduce additional parameters. Conversely, subtractive approaches remove detrimen-tal components [19, 33]. Wang et al. [33] observed that domain-sensitive channels can negatively impact per-formance, proposing channel pruning to suppress these channels while concentrating adaptation on robust features. While achieving efficiency without added parameters, this risks information loss and struggles under moderate shifts where features could benefit from refinement rather than re-moval. These complementary paradigms exhibit a fundamental characteristic: their relative effectiveness varies with do-main shift magnitude. Additive methods excel when fea-tures require subtle adjustments, while subtractive methods prove superior when features are severely corrupted. 
+
+2.3. Test-Time Adaptation for Object Detection 
+
+OD poses unique TTA challenges by requiring simultane-ous localization and classification, necessitating specialized adaptation strategies. ActMAD [20] estimates feature distributions across mul-tiple network layers, aligning each with source statistics through L1 regularization while updating all parameters, enabling location-aware alignment. WHW [37] introduces lightweight adapter modules in parallel to backbone blocks, updating only adapters while considering both image-level and object-level feature distributions. PruningTTA [33] propose a subtractive approach, pruning domain-sensitive channels measured at both image and object levels with stochastic reactivation to prevent inadvertent removal of useful channels. While achieving efficiency and strong per-formance on adverse weather detection, this method faces risks of information loss. These methods exhibit complementary trade-offs. Ad-ditive approaches preserve knowledge and provide fine-grained refinement but show limited effectiveness under se-vere shifts, as they may struggle to recover severely cor-rupted features. Subtractive approaches are effective under severe shifts by removing corrupted channels but risk in-formation loss and are less effective under moderate shifts, where features would benefit more from refinement than removal. Critically, existing methods rely on a single paradigm, achieving strong performance only within spe-cific shift severity ranges. This limitation is problematic be-cause domain shifts exhibit varying magnitudes even within a single scene: some feature channels may be severely cor-rupted while others remain largely intact. Yet no existing method addresses this heterogeneity explicitly. They ap-ply uniform treatment across all channels regardless of in-dividual shift severity. This observation motivates our uni-fied framework that dynamically balances both strategies through channel-wise adaptive modulation, enabling differ-entiated treatment based on measured feature-level domain shift. 
+
+# 3. Methods 
+
+3.1. Overview 
+
+We propose the complementary dual-buffer (CD-Buffer) framework, where subtractive and additive mechanisms are driven by the same discrepancy metric in opposite direc-tions. The framework leverages a unified domain discrep-ancy metric to adaptively modulate features at the channel level. Channels with severe domain shifts are suppressed by the subtractive buffer while simultaneously receiving strong compensation from the additive buffer through inverse soft masking. Channels with moderate shifts undergo balanced refinement, and stable channels experience minimal inter-vention. This discrepancy-driven modulation operates in a channel-wise adaptive manner, enabling robust adaptation across heterogeneous shift severities. Figure 2 illustrates our framework architecture. We com-pute domain discrepancy by comparing target feature statis-tics with pre-computed source statistics. This metric drives two complementary buffers: the subtractive buffer sup-presses severely shifted channels via learnable mask scores, while the additive buffer provides adaptive compensation with strength inversely proportional to suppression extent. Both mechanisms are unified through feature alignment op-timization, creating automatic balancing between removal and refinement based on measured feature-level domain shift. 
+
+3.2. Feature-Level Domain Discrepancy Score 
+
+To quantify the degree of feature-level domain shift, we measure distance between source and target features. Fol-lowing prior work [33], we compute this feature at both image-level and instance-level to capture comprehensive domain shifts relevant for object detection tasks. During source training, we pre-compute source feature statistics. at each input of BN layer l, mean of source im-age features ¯Xcs ∈ RC×H×W and mean of instance fea-ture ¯xcs ∈ RC×h×w computed by RoI alignment operation. where H × W , h × w are feature dimensions. At test time, we extract corresponding target features Xct ∈ RC×H×W
+
+and xct ∈ RC×h×w from per batch. The feature-level do-main discrepancy for channel c combines both levels: 
+
+DI =
+
+PNn=1 ∥Xct − ¯Xcs ∥1
+
+N HW  (1) Figure 2. Overview of the proposed CD-Buffer framework. We compute feature-level domain discrepancy Dc by comparing target and pre-computed source statistics. This metric drives two complementary buffers: the Subtractive Buffer suppresses severely shifted channels via discrepancy-weighted regularization on learnable mask scores, while the Additive Buffer provides adaptive compensation through lightweight convolutions with inverse soft masking, where aggressively suppressed channels receive stronger compensation. Both buffers are unified by feature alignment loss, enabling differentiated adaptation where severely shifted features are both suppressed and compensated, while stable features undergo minimal intervention. 
+
+DO =
+
+PMm=1 ∥xct − ¯xcs∥1
+
+M hw  (2) Then DI and DO are normalized and subsequently added as shown in the equation below 
+
+D = DI + DO (3) where N is batch size, M is number of instances. Higher 
+
+D indicates severe channel-specific shift requiring interven-tion, while lower D suggests a moderate shift. 
+
+3.3. Subtractive Buffer Module 
+
+The subtractive buffer eliminates features that exhibit severe domain shift, which would otherwise significantly degrade model performance. Based on the measured feature-level domain discrepancy D, we selectively remove corrupted features while preserving stable features. We introduce learnable mask scores s ∈ RC parame-terized with learnable parameter θ and initialized from BN weight magnitudes sc = |γc|. The forward pass applies channel-suppression to after batch normalized features: 
+
+F s 
+
+> out
+
+= diag (mhard ) · BN (F ; γ, β ) (4) where mhard ∈ { 0, 1}C is a binary mask determined by the mask scores s, F is input feature map, γ, β are BN affine parameters. 
+
+Discrepancy-Weighted Regularization. The key mecha-nism linking domain discrepancy to channel suppression is a weighted regularization applied to mask scores: 
+
+Lmask = 1
+
+C
+
+X
+
+> c
+
+∥Dc · sc∥1 (5) This creates direct coupling: channels with high discrep-ancy Dc receive stronger gradients to decrease their mask scores sc, promoting sparsity and eventual suppression. Channels with low discrepancy experience weak regulariza-tion, allowing their scores to remain high and preserving the channels. 
+
+Feature Suppression Mask Generation. The binary mask is determined by thresholding the learned scores: 
+
+mhard =
+
+(
+
+1, if |sc| ≥ τ
+
+0, otherwise  (6) where the threshold τ is computed dynamically from the network-wide score distribution: 
+
+τ = Percentile  {| s(l) 
+
+> c
+
+| : ∀l, c }, ρ target 
+
+ (7) This ensures precise control over the channel suppression ratio ρtarget . To enable gradient flow through the discrete binary mask, we employ a reparameterization trick. We compute a hard binary mask mhard through equation 6, and a differentiable soft mask msoft = σ(( |s| − τ )/λ S ), then combine via: 
+
+m = mhard + ( msoft − sg (msoft ))  (8) where σ(·) represents sigmoid function with temperature parameter λS , sg (·) denotes stop-gradient operation. Additionally, we apply stochastic reactivation to sup-pressed channels, preventing the permanent removal of po-tentially useful ones. 
+
+3.4. Additive Buffer Module 
+
+To realign shifted feature distributions and compensate for information lost through channel suppression, we intro-duce an additive buffer composed of lightweight learn-able adapters. Each adapter consists of parallel 1 × 1 and 
+
+3 × 3 convolutions that refine intermediate features and in-ject them via residual connections. Critically, the adapta-tion strength of these modules is inversely modulated by the same channel-wise discrepancy metric D used in the sub-tractive buffer, serving two complementary purposes: (1) providing strong compensation for aggressively suppressed channels to recover lost information, and (2) adaptively scaling refinement intensity according to the degree of fea-ture shift. Severely shifted channels receive substantial ad-justment, while stable channels undergo minimal modifica-tion. This dual functionality enables automatic balancing between removal and compensation without manual tuning. 
+
+Fadd = Conv 1×1(F ) + Conv 3×3(F )2 ⊙ α (9) The out features are added to the residual path with learn-able channel-wise scaling factor α ∈ RC initialized near zero ( 10 −2) to preserve source knowledge initially. The key innovation is inverse soft masking that links both buffers through the same mask scores. We compute a soft proba-bilistic mask ˆmsoft ∈ Rc from the subtractive buffer’s mask scores s:
+
+ˆmsoft = σ
+
+ |s| − τλA
+
+
+
+(10) 
+
+ˆm−1 
+
+> soft
+
+= k · N orm (1 − ˆmsoft ) (11) 
+
+F aout = diag ( ˆm−1 
+
+> soft
+
+) · Fadd  (12) with smoother temperature λA > λ S and k serves as a scaling parameter that controls the range of additive mod-ulation. This mechanism enables implicit coordination be-tween subtraction and compensation, allowing both buffers to adaptively respond to the degree of feature shift based on the discrepancy metric. 
+
+3.5. Optimization Strategy 
+
+The optimization objective combines feature alignment with conditional masking regularization. We minimize sta-tistical divergence between target and source distributions: 
+
+Lalign = X
+
+> l
+
+ ∥μlt − ¯μls∥1 + ∥σlt − ¯σls∥1
+
+ (13) Here, μ and σ denote the mean and variance of the feature distributions, respectively, and t and s indicate the target and source domains. The total loss is 
+
+L = Lalign + λreg · L mask  (14) where λreg is balance parameter. Beyond channel-level modulation, we employ layer-level gradient scaling that concentrates computational effort on severely shifted layers. For this layer-level adaptation, we aggregate channel discrepancies: 
+
+Dl = 1
+
+C
+
+X
+
+> c
+
+Dlc (15) After backpropagation but before the optimizer step, we amplify additive buffer gradients proportionally to layer dis-crepancy Dl. We jointly optimize three sets of parameters: the additive buffer parameters, the BN affine parameters 
+
+(γ, β ), and the mask scores s.
+
+# 4. Experiments 
+
+4.1. Datasets 
+
+Source Domain. We train source models on two large-scale clear-weather driving datasets: KITTI [12] and Cityscapes [7]. KITTI comprises 7,481 training images and 7,518 test images with 8 object categories. Cityscapes provides 2,975 training images, 500 validation images, and 1,525 test im-ages (without labels) across 8 categories. Both datasets cap-ture clean daytime driving conditions. 
+
+Target Domain. For test-time adaptation, we construct ad-verse weather test sets using physics-based rendering. Fol-lowing Halder et al. [13], we synthesize fog and rain ef-fects on KITTI test images, creating KITTI-Fog with three visibility levels (50m, 75m, 150m) and KITTI-Rain with three precipitation rates (75mm, 100mm, 200mm). For Cityscapes validation images, we apply fog synthesis fol-lowing Sakaridis et al.[27] with two severity parameters (0.01,0.02). Additionally, we evaluate on ACDC [28], a real-world adverse weather dataset containing fog, rain, night, and snow conditions with the same object classes as Cityscapes. We adapt the Cityscapes-trained source model to each ACDC weather condition without accessing source data or target labels during adaptation. 
+
+4.2. Implementation Details 
+
+We implement our proposed TTA framework on Faster R-CNN with ResNet-50 backbone. Source model training details are provided in the supplementary material. The subtractive buffer is applied to all BN layers in bottle-neck blocks, while additive buffers are inserted into residual shortcut paths. Source feature statistics are pre-computed off-line over the entire training set. Key hyperparameters are set as follows: Loss balance parameter λreg = 0 .05 , suppression temperature λS = 0 .05 ,compensation temperature λA = 0 .1, target channel sup-pression ratio 5% , learning rate η = 1 ×10 −4, and batch size 
+
+16 . We evaluate adaptation performance using mAP@50, the standard metric for object detection. To ensure sta-tistical stability, all experimental results are reported as the mean of three independent runs with different random seeds. 
+
+4.3. Baselines 
+
+We compare our method against the following baselines representing different TTA paradigms: • Direct Test serves as the lower bound, evaluating the source model directly on target domains without adap-tation to measure the performance gap caused by domain shift. • BufferTTA [15] introduces lightweight Buffer Layers as additive adapters, optimized through entropy minimiza-tion to encourage confident predictions on unlabeled tar-get data. • PruningTTA [33] applies channel-sensitivity-based pruning to remove domain-sensitive channels, using KL divergence loss to align feature distributions between source and target domains. • ActMAD [20] aligns feature statistics across all BN lay-ers through multi-level distribution matching, minimizing L1 distance between target and source feature means and variances. • WHW [37] inserts weighted adapter modules in paral-lel to backbone blocks, employing KL divergence loss to align both image-level and instance-level feature distribu-tions for object detection. 
+
+4.4. Main results 
+
+To comprehensively evaluate our framework, we conduct two types of experiments: discrete TTA with controlled severities to analyze performance across varying shift mag-nitudes, and continual TTA under progressive shifts to assess adaptation stability. All results are reported using mAP@50. Table 1. presents results on KITTI fog/rain and Cityscapes fog, Table 2. shows ACDC real-world condi-tions, and Table 3. demonstrates continual adaptation under progressive domain shifts. 
+
+Discrete TTA Results. Table 1. demonstrates our method’s superior and consistent performance across varying domain shift severities. Existing methods exhibit inconsistent per-formance depending on weather type and severity. Act-MAD shows comparable performance under severe condi-tions but experiences significant degradation under moder-ate corruption KITTI rain 100mm/75mm, Cityscapes fog 0.01. Similar inconsistency appears in Pruning TTA, Buffer TTA, and WHW.  
+
+> (a) KITTI Fog 50m
+> (b) KITTI Fog 75m
+> (c) KITTI Fog 150m
+> Figure 3. Continual test-time adaptation (TTA) performance on KITTI Fog across different severities. The plots show the evolu-tion of mAP@50 over adaptation steps for (a) 50m, (b) 75m, and (c) 150m fog distances. Our method (blue) achieves the fastest and most stable improvement, maintaining superior accuracy through-out adaptation.
+
+Notably, additive approaches BufferTTA, WHW achieve relatively strong performance under moderate shifts, par-ticularly evident on KITTI rain scenarios, but suffer sub-stantial degradation under severe conditions KITTI fog 50m/75m. Conversely, the subtractive approach like Prun-ingTTA exhibits the opposite pattern, confirming the com-plementary characteristics of the two paradigms. This in-consistency is also observed in Table 2. on the ACDC dataset. From a feature distribution perspective, severe domain shifts generate many features with large distances from source statistics. In such cases, subtractive methods prove effective by removing detrimental features and concen-trating adaptation on robust channels. Under moderate KITTI fog KITTI rain Cityscapes foggy corruption/severity fog/50m fog/75m fog/150m rain/200mm rain/100mm rain/75mm fog/0.02 fog/0.01 Direct Test 21.27 30.84 50.45 47.11 65.32 69.03 11.87 18.38 
+
+Buffer TTA [15] 23.21 33.12 52.50 50.96 69.28 73.43 14.67 21.53 
+
+Pruning TTA [33] 33.97 42.83 58.58 50.94 65.42 69.27 17.39 20.90 
+
+ActMAD [20] 39.65 49.95 60.18 56.37 62.94 64.63 16.53 21.74 
+
+WHW [37] 34.38 42.91 63.54 61.17 73.15 74.33 14.72 20.98 
+
+Ours 44.80 56.06 68.42 63.22 71.40 73.03 18.39 21.79     
+
+> Table 1. Quantitative results of object detection under various adverse weather conditions. Performance (mAP@50) is reported for KITTI
+> →KITTI (fog, rain) and Cityscapes →Cityscapes Foggy scenarios with different corruption severities. The proposed method (Ours) achieves the best or comparably high performance in most cases, while other methods show inconsistent trends depending on severity. In contrast, our method maintains robust and stable performance across diverse weather severities.
+
+Cityscapes → ACDC corruption fog snow rain night Direct Test 16.50 11.04 7.82 4.83 
+
+Buffer TTA [15] 24.16 17.18 11.70 6.98 
+
+Pruning TTA [33] 19.76 14.93 11.59 6.39 
+
+ActMAD [20] 18.39 10.56 9.78 5.56 
+
+WHW [37] 23.41 16.99 12.52 6.73 
+
+Ours 24.45 15.41 13.71 8.92     
+
+> Table 2. Object detection results (mAP@50) for Cityscapes →
+> ACDC across four corruption types (fog, snow, rain, night). The proposed method (Ours) achieves the best or comparably high per-formance with robust behavior across conditions.
+
+shifts where feature distances are smaller, additive methods are more effective by refining features toward alignment. Our method addresses both scenarios through feature-level discrepancy-driven modulation: applying aggressive sup-pression to severely shifted features while providing refine-ment via additive buffers for moderately shifted features. Simultaneously, suppressed channels receive strong com-pensation from the additive buffer, whereas the remain-ing channels are softly scaled according to their distance from source statistics. This mechanism enables consistently strong performance across diverse severities and conditions. Figure 3. illustrates performance trajectory across adap-tation steps on KITTI fog with three severity levels. Our method demonstrates stable improvement trends with rapid adaptation, while ActMAD shows sharp initial gains but un-stable convergence. The comparison again reveals incon-sistent adaptation capabilities of baseline methods depend-ing on severity, whereas our method maintains consistency throughout the adaptation process as well as in final perfor-mance. In particular, Figure 3c. shows that our method not only adapts to the target domain most rapidly but also sus-tains the highest performance throughout adaptation, high-lighting its superior consistency and robustness. 
+
+Continual TTA Results. Table 3. presents the contin-ual TTA results on KITTI Fog across three severity lev-els, where models adapt over 10 rounds by using the output of each severity as initialization for the next. Our method consistently achieves the best or second-best performance across all rounds and severity transitions, yielding the high-est overall mAP@50. As shown in Figure 3., ActMAD exhibits rapid ini-tial adaptation but suffers from instability during extended adaptation cycles. This instability reflects the inherent lim-itations of full-parameter update strategies, which tend to accumulate errors and induce catastrophic forgetting under continuously shifting domains [31]. In contrast, other meth-ods achieve slower yet steadier convergence, although often with limited capacity to adapt to more severe shifts. Our method demonstrates both rapid early-stage adapta-tion and consistently improving performance across rounds. The complementary dual-buffer mechanism enables this behavior by simultaneously suppressing out-of-distribution features and applying scaled refinement to channels requir-ing adjustment, producing strong initial performance and stable transitions across domain shifts. Furthermore, unlike Pruning TTA, which directly regu-larizes BN affine parameters γ for channel suppression and risks irreversible information loss, our method introduces independent learnable mask scores for both suppression and compensation, thereby minimizing degradation of source knowledge. Moreover, while adapter-based approaches rely solely on learnable parameters for adaptation, our frame-work explicitly guides updates based on the measured dis-crepancy between source and target features. This princi-pled guidance substantially enhances adaptation efficiency and robustness, enabling reliable continual TTA under di-verse and progressively evolving domain shifts. 
+
+4.5. Ablation study 
+
+Table 4. resents an ablation study evaluating the contribu-tion of each component in our framework. We analyze the impact of the discrepancy-driven masking loss Lmask , sub-tractive buffer, additive buffer, and layer-wise scaling. 
+
+Importance of Discrepancy-Driven Guidance. The most KITTI → KITTI fog (50m → 75m → 150m) Round1 Round2 Round5 Round10 Average 50m 75m 150m 50m 75m 150m 50m 75m 150m 50m 75m 150m Direct Test 21.27 30.84 50.45 21.27 30.84 50.45 21.27 30.84 50.45 21.27 30.84 50.45 34.19 
+
+Buffer TTA [15] 22.85 32.48 52.11 23.56 32.45 52.24 24.15 34.52 54.06 27.65 38.93 58.85 37.82 
+
+Pruning TTA [33] 24.45 39.45 60.15 30.09 43.78 62.02 33.96 44.97 62.05 32.60 43.07 57.79 44.53 
+
+ActMAD [20] 42.07 54.55 64.65 42.21 52.31 61.03 38.87 47.71 54.11 34.22 41.41 46.66 48.32 
+
+WHW [37] 23.96 39.14 65.51 39.21 51.53 68.43 42.38 52.18 68.32 43.74 52.68 54.96 50.17 
+
+Ours 34.90 52.70 69.93 44.51 57.29 70.72 46.53 58.30 68.02 45.40 56.14 63.51 55.66 
+
+Table 3. Continual test-time adaptation (TTA) results for the KITTI → KITTI fog scenario. This experiment simulates progressive domain shift where fog severity gradually increases (50 m → 75 m → 150 m). Each model continuously adapts over 10 rounds, using outputs from one severity level as initialization for the next. The results demonstrate the robustness of each method under incremental domain changes, with Ours consistently achieving superior or stable performance across all adaptation rounds and the highest overall average mAP@50.                                         
+
+> Lmask BN layer Subtractive Additive Grad scaling mAP@50
+> –✓–––8.69 –✓✓––15.69
+> ✓✓✓––16.81
+> ✓✓–✓–18.66
+> ✓✓✓✓–18.74 –✓✓✓✓18.97
+> ✓✓✓✓✓19.13
+
+Table 4. Ablation study evaluating the contribution of each com-ponent in our framework. A checkmark ( ✓) indicates that the cor-responding component is enabled. All experiments are performed on the Cityscapes Fog 0.02 dataset. 
+
+critical finding concerns the role of Lmask . Adapting only BN layers achieves 8.69 mAP@50, whereas introducing the subtractive buffer with Lmask significantly improves perfor-mance to 16.81 (+8.12). However, removing Lmask while keeping the subtractive buffer causes performance to drop to 15.69, as the mask scores are updated solely through the alignment loss without explicit discrepancy guidance. This comparison validates the critical role of discrepancy-weighted regularization: without it, the framework lacks ex-plicit guidance on which channels to suppress based on do-main shift severity. The Lmask term encodes our core princi-ple that channels with higher feature-level discrepancy Dc
+
+receive stronger regularization, providing explicit guidance for both suppression and compensation. The additive buffer alone surpasses the subtractive buffer by +1.85 mAP@50, indicating that feature refinement provides stronger baseline adaptation than suppression under severe domain shift. Figure 4. analyzes the sensitivity of our framework to key hyperparameters: regularization weight λreg and chan-nel suppression ratio ρt. The regularization weight ex-hibits a clear optimal range around 0.05, where insuffi-cient regularization (0.01) fails to suppress corrupted chan-nels while excessive regularization (0.5) causes severe in-formation loss. Similarly, the suppression ratio shows sta-ble performance within 2-3%, with degradation occurring    
+
+> (a) Effect of λreg (b) Effect of ρtarget
+
+Figure 4. Effect of key hyperparameters on TTA performance:(a) regularization weight λreg and (b) pruning ratio ρtarget .
+
+when too few channels are suppressed or too many are re-moved. We selected the hyperparameters in a balanced manner based on these experimental observations. 
+
+# 5. Conclusion 
+
+We presented CD-Buffer, a complementary dual-buffer framework for test-time adaptation in adverse weather ob-ject detection. We revealed that existing additive and sub-tractive TTA methods exhibit complementary failure pat-terns depending on domain shift severity, motivating our unified approach that dynamically balances both strategies based on feature-level domain discrepancy. Our framework introduces a subtractive buffer with learnable mask scores for channel suppression and an ad-ditive buffer providing inverse-modulated compensation, both unified by discrepancy-driven guidance. Extensive ex-periments demonstrate state-of-the-art performance across KITTI, Cityscapes, and ACDC datasets, consistently out-performing existing methods across diverse weather con-ditions and severity levels. Ablation studies validate that discrepancy-driven coupling is essential for synergistic dual-buffer adaptation. Acknowledgements. This work was supported by the Na-tional Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (No. RS-2025- 16070382, RS-2025-02215070, RS-2025-02217919), Artificial Intelli-gence Graduate School Program at Yonsei University (RS-2020-II201361), the Korea Institute of Science and Tech-nology (KIST) Institutional Program under Grant 26E0170. 
+
+# References 
+
+[1] Mario Bijelic, Tobias Gruber, Fahim Mannan, Florian Kraus, Werner Ritter, Klaus Dietmayer, and Felix Heide. See-ing through fog without seeing fog: Deep multimodal sen-sor fusion in unseen adverse weather. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 11682–11692, 2020. 1 [2] Holger Caesar, Varun Bankiti, Alex H Lang, Sourabh Vora, Venice Erin Liong, Qiang Xu, Anush Krishnan, Yu Pan, Gi-ancarlo Baldan, and Oscar Beijbom. nuscenes: A multi-modal dataset for autonomous driving. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11621–11631, 2020. 1 [3] Dian Chen, Dequan Wang, Trevor Darrell, and Sayna Ebrahimi. Contrastive test-time adaptation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition , pages 295–305, 2022. 2 [4] Yuhua Chen, Wen Li, Christos Sakaridis, Dengxin Dai, and Luc Van Gool. Domain adaptive faster r-cnn for object de-tection in the wild. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 3339–3348, 2018. 1 [5] Ying Chen, Xu Ouyang, Kaiyue Zhu, and Gady Agam. Semi-supervised domain adaptation for semantic segmenta-tion. arXiv preprint arXiv:2110.10639 , 2021. 1 [6] Sungha Choi, Seunghan Yang, Seokeon Choi, and Sun-grack Yun. Improving test-time adaptation via shift-agnostic weight regularization and nearest source prototypes. In Eu-ropean Conference on Computer Vision , pages 440–458. Springer, 2022. 1 [7] Marius Cordts, Mohamed Omran, Sebastian Ramos, Timo Rehfeld, Markus Enzweiler, Rodrigo Benenson, Uwe Franke, Stefan Roth, and Bernt Schiele. The cityscapes dataset for semantic urban scene understanding. In Proceed-ings of the IEEE conference on computer vision and pattern recognition , pages 3213–3223, 2016. 5 [8] Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. Imagenet: A large-scale hierarchical image database. In 2009 IEEE conference on computer vision and pattern recognition , pages 248–255. Ieee, 2009. 1 [9] Yinpeng Dong, Caixin Kang, Jinlai Zhang, Zijian Zhu, Yikai Wang, Xiao Yang, Hang Su, Xingxing Wei, and Jun Zhu. Benchmarking robustness of 3d object detection to common corruptions. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1022– 1032, 2023. 1 [10] Yuqi Fang, Pew-Thian Yap, Weili Lin, Hongtu Zhu, and Mingxia Liu. Source-free unsupervised domain adaptation: A survey. Neural Networks , 174:106230, 2024. 1 [11] Yaroslav Ganin, Evgeniya Ustinova, Hana Ajakan, Pas-cal Germain, Hugo Larochelle, François Laviolette, Mario March, and Victor Lempitsky. Domain-adversarial training of neural networks. Journal of machine learning research ,17(59):1–35, 2016. 1 [12] Andreas Geiger, Philip Lenz, Christoph Stiller, and Raquel Urtasun. Vision meets robotics: The kitti dataset. The in-ternational journal of robotics research , 32(11):1231–1237, 2013. 5 [13] Shirsendu Sukanta Halder, Jean-François Lalonde, and Raoul de Charette. Physics-based rendering for improving robustness to rain. In ICCV , 2019. 5 [14] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In Proceed-ings of the IEEE conference on computer vision and pattern recognition , pages 770–778, 2016. 1 [15] Hyeongyu Kim, Geonhui Han, and Dosik Hwang. Buffer layers for test-time adaptation. arXiv preprint arXiv:2510.21271 , 2025. 1, 2, 3, 6, 7, 8 [16] Jonghyun Lee, Dahuin Jung, Saehyung Lee, Junsung Park, Juhyeon Shin, Uiwon Hwang, and Sungroh Yoon. Entropy is not enough for test-time adaptation: From the perspective of disentangled factors. arXiv preprint arXiv:2403.07366 ,2024. 1 [17] Chuyi Li, Lulu Li, Hongliang Jiang, Kaiheng Weng, Yifei Geng, Liang Li, Zaidan Ke, Qingyuan Li, Meng Cheng, Weiqiang Nie, et al. Yolov6: A single-stage object detec-tion framework for industrial applications. arXiv preprint arXiv:2209.02976 , 2022. 2 [18] Yanghao Li, Naiyan Wang, Jianping Shi, Xiaodi Hou, and Jiaying Liu. Adaptive batch normalization for practical do-main adaptation. Pattern Recognition , 80:109–117, 2018. 1, 2[19] Ke Ma, Jiaqi Tang, Bin Guo, Fan Dang, Sicong Liu, Zhui Zhu, Lei Wu, Cheng Fang, Ying-Cong Chen, Zhiwen Yu, et al. Surgeon: Memory-adaptive fully test-time adapta-tion via dynamic activation sparsity. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 30514–30523, 2025. 3 [20] Muhammad Jehanzeb Mirza, Pol Jané Soneira, Wei Lin, Ma-teusz Kozinski, Horst Possegger, and Horst Bischof. Act-mad: Activation matching to align distributions for test-time-training. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 24152– 24161, 2023. 3, 6, 7, 8 [21] Payal Mittal. A comprehensive survey of deep learning-based lightweight object detection models for edge devices. 
+
+Artificial Intelligence Review , 57(9):242, 2024. 1 [22] Shuaicheng Niu, Jiaxiang Wu, Yifan Zhang, Yaofo Chen, Shijian Zheng, Peilin Zhao, and Mingkui Tan. Efficient test-time model adaptation without forgetting. In Interna-tional conference on machine learning , pages 16888–16905. PMLR, 2022. 1 [23] Mohammed Gamal Ragab, Said Jadid Abdulkadir, Amgad Muneer, Alawi Alqushaibi, Ebrahim Hamid Sumiea, Rizwan Qureshi, Safwan Mahmood Al-Selwi, and Hitham Alhus-sian. A comprehensive systematic review of yolo for medical object detection (2018 to 2023). IEEE Access , 12:57815– 57836, 2024. 1 [24] Joseph Redmon and Ali Farhadi. Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767 , 2018. 2 [25] Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi. You only look once: Unified, real-time object de-tection. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 779–788, 2016. 2 [26] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detection with region proposal networks. Advances in neural information process-ing systems , 28, 2015. 1, 2 [27] Christos Sakaridis, Dengxin Dai, Simon Hecker, and Luc Van Gool. Model adaptation with synthetic and real data for semantic dense foggy scene understanding. In Proceed-ings of the european conference on computer vision (ECCV) ,pages 687–704, 2018. 1, 5 [28] Christos Sakaridis, Dengxin Dai, and Luc Van Gool. Acdc: The adverse conditions dataset with correspondences for semantic driving scene understanding. In Proceedings of the IEEE/CVF international conference on computer vision ,pages 10765–10775, 2021. 1, 5 [29] Jin Shin and Hyun Kim. L-tta: Lightweight test-time adap-tation using a versatile stem layer. Advances in Neural Infor-mation Processing Systems , 37:39325–39349, 2024. 1, 3 [30] Junha Song, Jungsoo Lee, In So Kweon, and Sungha Choi. Ecotta: Memory-efficient continual test-time adaptation via self-distilled regularization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 11920–11929, 2023. 1, 3 [31] Jiaxu Tian and Fan Lyu. Parameter-selective continual test-time adaptation. In Proceedings of the Asian Conference on Computer Vision , pages 1384–1400, 2024. 7 [32] Dequan Wang, Evan Shelhamer, Shaoteng Liu, Bruno Ol-shausen, and Trevor Darrell. Tent: Fully test-time adaptation by entropy minimization. arXiv preprint arXiv:2006.10726 ,2020. 1, 2 [33] Kunyu Wang, Xueyang Fu, Xin Lu, Chengjie Ge, Chengzhi Cao, Wei Zhai, and Zheng-Jun Zha. Efficient test-time adap-tive object detection via sensitivity-guided pruning. In Pro-ceedings of the Computer Vision and Pattern Recognition Conference , pages 10577–10586, 2025. 1, 2, 3, 6, 7, 8 [34] Qin Wang, Olga Fink, Luc Van Gool, and Dengxin Dai. Continual test-time domain adaptation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7201–7211, 2022. 2 [35] Garrett Wilson and Diane J Cook. A survey of unsupervised deep domain adaptation. ACM Transactions on Intelligent Systems and Technology (TIST) , 11(5):1–46, 2020. 1 [36] Jayeon Yoo, Inseop Chung, and Nojun Kwak. Unsupervised domain adaptation for one-stage object detector using off-sets to bounding box. In European Conference on Computer Vision , pages 691–708. Springer, 2022. 1 [37] Jayeon Yoo, Dongkwan Lee, Inseop Chung, Donghyun Kim, and Nojun Kwak. What how and when should object detec-tors update in continually changing test domains? In Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 23354–23363, 2024. 1, 3, 6, 7, 8 [38] Longhui Yuan, Binhui Xie, and Shuang Li. Robust test-time adaptation in dynamic scenarios. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 15922–15932, 2023. 1 [39] Jiazhao Zhang, Kunyu Wang, Shaoan Wang, Minghan Li, Haoran Liu, Songlin Wei, Zhongyuan Wang, Zhizheng Zhang, and He Wang. Uni-navid: A video-based vision-language-action model for unifying embodied navigation tasks. arXiv preprint arXiv:2412.06224 , 2024. 1 [40] Bowen Zhao, Chen Chen, and Shu-Tao Xia. Delta: degradation-free fully test-time adaptation. arXiv preprint arXiv:2301.13018 , 2023. 1 [41] Rui Zhao, Huibin Yan, and Shuoyao Wang. Revisiting domain-adaptive object detection in adverse weather by the generation and composition of high-quality pseudo-labels. In 
+
+European Conference on Computer Vision , pages 270–287. Springer, 2024. 1 CD-Buffer: Complementary Dual-Buffer Framework for Test-Time Adaptation in Adverse Weather Object Detection 
+
+# Supplementary Material 
+
+# A. Overview 
+
+This supplementary material offers comprehensive de-tails and additional experimental evidence supporting our main contributions. Section B describes implementation specifics, covering source model training, baseline method configurations, and additional CD-Buffer details. Section C analyzes CD-Buffer’s design choices and introduces CD-Buffer Light, an efficient variant optimized for real-time deployment, along with its performance evaluation across various adaptation scenarios. Section D presents supple-mentary experimental results, including visualizations of the continual test-time adaptation process and qualitative detection results under diverse weather conditions. 
+
+# B. Additional Implementation Details 
+
+Hardware: All experiments, including source model train-ing and test-time adaptation, were performed using a single NVIDIA RTX 6000 Ada Generation GPU. 
+
+Source model training: For TTA experiments, we trained source model on the KITTI and Cityscapes datasets using the following configurations. All source models adopt the Faster R-CNN detector with a ResNet-50 [14] backbone ini-tialized from ImageNet-pretrained weights [8]. We trained the models using the Adam optimizer with a batch size of 32 for a total of 250 epochs. The learning rates were set to 1e-4 for KITTI and 5e-4 for Cityscapes, respectively. The datasets contain eight object categories each: • KITTI: Car, Van, Truck, Pedestrian, Person sitting, Cy-clist, Tram, Misc. • Cityscapes: Person, Rider, Car, Truck, Bus, Train, Mo-torcycle, Bicycle. The resulting source model performance, measured by mAP@50, is 85.75 on KITTI, and 24.75 on Cityscapes. 
+
+Baselines implementation: We provide detailed imple-mentation settings for all baseline methods. For fair com-parison, we unified the batch size to 16 across all experi-ments and selected learning rates by testing both the orig-inally reported values and the learning rate used in our method, choosing whichever yielded better performance. 
+
+BufferTTA. Following the original paper’s best-performing configuration, we introduce parallel 1 × 1 and 3 × 3
+
+convolutional layers as buffer layers. These buffer lay-ers are inserted after ReLU activation functions. Among four stages of ResNet-50 backbone, we experimented with buffer placement in each stage and selected Stage 3, which achieved the highest performance. The learning rate is set to 1 × 10 −5 uniformly across all datasets. Learnable param-eters include batch normalization affine parameters and the introduced buffer parameters. 
+
+Algorithm 1 CD-Buffer Test-Time Adaptation 
+
+Require: Source domain statistics { ¯Xls, ¯xls, ¯μls, ¯σls},
+
+λS , λ A, λ reg , ρ target , r. 
+
+> 1:
+
+Initialize mask scores s = |γ|. 
+
+> 2:
+
+for each target batch Bt in the test stream do  
+
+> 3:
+
+for each adaptable block do  
+
+> 4:
+
+Let Fin denote the input feature of the adaptable block.  
+
+> 5:
+
+for each layer l do  
+
+> 6:
+
+Let Xlt denote the input feature of layer l. 
+
+> 7:
+
+Compute mhard and m for the subtractive buffer as in Eqs. (6)–(8).  
+
+> 8:
+
+Step1: Subtractive buffer : 
+
+> 9:
+
+Compute F s 
+
+> out
+
+as in Eq. (4).  
+
+> 10:
+
+end for  
+
+> 11:
+
+Compute ˆm−1 
+
+> soft
+
+for the additive buffer as in Eqs. (10) and (11).  
+
+> 12:
+
+Step2: Additive buffer : 
+
+> 13:
+
+Compute F aout as in Eqs. (9) and (12).  
+
+> 14:
+
+Fout = F s 
+
+> out
+
++ F aout . 
+
+> 15:
+
+end for  
+
+> 16:
+
+Step3: Compute losses  
+
+> 17:
+
+Compute domain discrepancy score D as in Eqs. (1)– (3).  
+
+> 18:
+
+Compute total loss Ltotal as in Eqs. (5), (13), and (14).  
+
+> 19:
+
+Step4: Optimization  
+
+> 20:
+
+Compute Dl as in Eq. (15).  
+
+> 21:
+
+Update mask scores sl and BN layer parameters.  
+
+> 22:
+
+Update additive buffer parameters scaled by Dl. 
+
+> 23:
+
+Step5: Stochastic reactivation  
+
+> 24:
+
+for each suppressed channel with mc,l = 0 do  
+
+> 25:
+
+Sample a random variable vlc with  
+
+> 26:
+
+vlc ∼ Bernoulli (r). 
+
+> 27:
+
+if vlc = 1 then  
+
+> 28:
+
+slc = |γlc|. 
+
+> 29:
+
+end if  
+
+> 30:
+
+end for  
+
+> 31:
+
+end for Pruning TTA. Since official code is not publicly available, we implement this method following the paper’s descrip-tion. The approach is applied to all BN layers in the ResNet-50 backbone. For fair comparison, we set the pruning ra-tio threshold to 0.05, matching our suppression ratio. The learning rate is set to 1 × 10 −4. All other hyperparameters follow the reported values in the paper. Learnable param-eters consist of scaling factors in BN layers while freezing all other parameters. The loss function employs KL diver-gence between source and target feature distributions for all adaptable BN layer inputs, using both image-level and instance-level features. 
+
+ActMAD. Apply L1 loss between source and target batch statistics (mean and variance) for all BN layer output fea-tures. Unlike other methods, all model parameters are up-dated during adaptation. The learning rate is set to 1×10 −4.All other hyperparameter settings follow the configurations reported in the original paper. 
+
+WHW. This method aligns source and target feature distri-butions using KL divergence loss, utilizing both image-level and instance-level features. For stable statistical estimation of target feature statistics, we employ exponential moving average (EMA). The learning rate is set to 1 × 10 −4 for all datasets. All other hyperparameters follow the reported settings. 
+
+Additional CD-Buffer Details: CD-Buffer is applied to all basic blocks across all stages of the ResNet-50 backbone network. Within each block, the subtractive buffer is ap-plied to every BN layer, while one additive buffer is applied per block. The scaling factor k for determining the range of 
+
+ˆm−1 
+
+> soft
+
+is set to 10, resulting in adaptive channel-wise scaling within the range [0 , 10] for the additive buffer. To prevent early suppression, we introduce a stochastic reactivation mechanism following the approach in prior work [33]. At each adaptation step, suppressed channels (where mc = 0 )are reactivated with probability r through Bernoulli sam-pling: 
+
+vc ∼ Bernoulli (r), if vc = 1 : sc ← | γc|, (A.1) where vc is a random variable determining reactivation, and the mask score sc is reset to the absolute value of the corre-sponding BN parameter γc. The reactivation probability is set to r = 0 .05 across all experiments. The complete TTA process is presented in Algorithm 1. 
+
+# C. CD-buffer Light: Efficient Variant for Real-Time Applications 
+
+Given the real-time nature of object detection tasks, pro-cessing speed (FPS) is as critical as adaptation performance. While applying CD-Buffer to all stages of the backbone network achieves optimal performance, it may introduce computational overhead unsuitable for time-critical appli-cations. Therefore, we conduct an ablation study on CD-Buffer placement across different stages and propose CD-Buffer Light, a more efficient variant tailored for real-world scenarios. 
+
+C.1. CD-buffer Placement Analysis 
+
+Table 5. presents TTA results on KITTI and Cityscapes datasets, comparing our fully adaptation model (applied to all stages) against variants where CD-Buffer is applied to only one stage (Stage 1, 2, 3, or 4) of the ResNet-50 backbone. Single-stage variants exhibit performance degra-dation compared to the fully adaptation model, but most configurations still outperform baseline methods. Notably, Stage 4 shows the weakest performance among single-stage variants. In contrast, Stage 1 demonstrates the most con-sistent performance across all severity levels, achieving the best average performance among single-stage variants. Moreover, comparing with baseline methods, Stage 1 out-performs most baselines across nearly all conditions. This demonstrates that our framework’s performance does not degrade linearly with the number of learnable parameters, maintaining competitive results even with significantly re-duced parameters. Based on these observations, we pro-pose CD-Buffer Light , which applies our framework ex-clusively to Stage 1, as it provides the optimal balance between adaptation effectiveness and computational effi-ciency. 
+
+C.2. Performance Evaluation of CD-Buffer Light 
+
+Tables 6 and 7 present additional experimental results for CD-Buffer Light on continual adaptation scenarios and ACDC, respectively. Across both settings, CD-Buffer Light consistently outperforms baseline methods, validating its effectiveness despite reduced computational cost. While performance is slightly lower than the full model, the gap is modest. 
+
+C.3. Inference Speed Comparison 
+
+Table 8 compares inference speed in FPS for all baseline methods, our fully adaptation model, and Ours-Light. The full CD-Buffer model is slower than most baselines due to buffers applied across all basic blocks. In contrast, CD-Buffer Light achieves significantly faster inference, outper-forming all methods except Pruning TTA while maintaining superior adaptation performance. Our framework offers flexibility for different deploy-ment scenarios. CD-Buffer (Full) is recommended when accuracy is prioritized, while CD-Buffer Light suits real-time applications with strict latency constraints. 
+
+# D. Additional Results 
+
+Continual TTA visualization on KITTI dataset 
+
+Figure 5 visualizes the adaptation dynamics under cyclic domain shifts, where fog severity repeatedly transitions be-tween 50m, 75m, and 150m over 10 rounds on the KITTI dataset. Our method maintains consistently superior per-formance throughout all cycles, demonstrating stable and KITTI fog KITTI rain Cityscapes foggy corruption/severity fog/50m fog/75m fog/150m rain/200mm rain/100mm rain/75mm fog/0.02 fog/0.01 Ours 44.80 56.06 68.42 63.22 71.40 73.03 18.39 21.79 Stage 4 36.91 44.69 58.79 53.65 65.11 67.19 12.50 17.25 
+
+Stage 3 42.19 50.89 65.64 62.21 70.70 72.05 17.48 22.51 Stage 2 43.28 53.99 67.26 63.09 71.39 72.58 17.94 20.63 
+
+Stage 1(Ours-Light) 42.51 52.04 66.95 61.85 70.88 73.08 18.57 22.49 
+
+Table 5. Quantitative results of object detection under various adverse weather conditions. Performance (mAP@50) is reported for KITTI 
+
+→ KITTI (fog, rain) and Cityscapes → Cityscapes Foggy scenarios with different corruption severities. We highlight entries that still achieve the best performance compared to the baselines. in bold, and those with the second-best performance with an underline. We propose Stage 1 as Ours-Light, which consistently maintains strong performance across various corruptions and severity levels. 
+
+KITTI → KITTI fog (50m → 75m → 150m) Round1 Round2 Round5 Round10 Average 50m 75m 150m 50m 75m 150m 50m 75m 150m 50m 75m 150m Ours 34.90 52.70 69.93 44.51 57.29 70.72 46.53 58.30 68.02 45.40 56.14 63.51 55.66 Ours-Light 30.18 49.10 67.92 40.36 53.52 69.14 45.52 58.02 70.24 47.20 59.54 68.49 54.94 
+
+Table 6. Continual test-time adaptation (TTA) results for the KITTI → KITTI fog scenario. This experiment simulates progressive domain shift where fog severity gradually increases (50 m → 75 m → 150 m). Each model continuously adapts over 10 rounds, using outputs from one severity level as initialization for the next. We highlight entries that still achieve the best performance compared to the baselines. in bold, and those with the second-best performance with an underline. 
+
+Cityscapes → ACDC corruption fog snow rain night Ours 24.45 15.41 13.71 8.92 Ours-Light 24.15 16.97 15.15 8.18 
+
+Table 7. Object detection results (mAP@50) for Cityscapes →
+
+ACDC across four corruption types (fog, snow, rain, night). We highlight entries that still achieve the best performance compared to the baselines in Table. in bold, and those with the second-best performance with an underline. 
+
+FPS Direct Test 73.24 
+
+Buffer TTA 33.69 
+
+Pruning TTA 40.62 ActMAD 35.59 
+
+WHW 31.38 
+
+Ours 15.59 
+
+Ours_Light 35.86 
+
+Table 8. Inference speed comparison (FPS) for different TTA methods measured on a dummy input. The highest FPS is high-lighted in bold, and the second-highest is underlined. 
+
+robust adaptation across repeated domain transitions. 
+
+Qualitative results Figures 7, 8, and 9 present qualitative visualization of object detection results across diverse ad-verse weather conditions. We compare three settings: Di-rect Test (source model without adaptation), Ground Truth annotations, and our CD-Buffer adaptation results. The vi-sualizations cover KITTI fog and rain scenarios at various severity levels, Cityscapes fog conditions, and ACDC in-cluding fog, snow, rain, and night conditions. The qualita-tive results clearly demonstrate that our method effectively addresses domain shift challenges at test time.              
+
+> Fog Buffer TTA (Add) Pruning TTA (Sub) Parallel Ours 30m (Severe) 14.54 23.89 18.58 (+4.04/ -5.31) 33.04 (+18.50/ +9.15) 375m (Mild) 73.70 70.60 72.11 (-1.59/ +1.51) 74.97 (+1.27/ +4.37)
+
+Table 9. Parallel combination vs CD-Buffer on KITTI. 
+
+Analysis of Complementary Behaviors .Our contribution lies not in the additive and subtrac-tive components themselves, but in how they are coupled through a unified discrepancy metric. Prior methods treat them as independent alternatives, but we reformulate this as a channel-wise control problem. In Tab. 9, additive and sub-tractive methods exhibit opposite performance trends de-pending on severity, and their parallel combination fails to resolve this trade-off and can even degrade performance in certain cases ( red ). CD-Buffer achieves the best perfor-mance under both severe and mild conditions. The inverse soft mask enables automatic balancing, where suppression extent directly modulates compensation strength. In practi-cal TTA where method selection cannot be made at runtime, consistent performance across diverse severities is a mean-ingful contribution. Complementarity is further characterized by severity-Figure 5. Visualization of continual TTA process on KITTI fog with cyclic severity transitions (50m → 75m → 150m, repeated 10 times). Our method maintains consistently superior performance across all cycles, demonstrating both rapid adaptation within each severity level and robustness to various severity.                
+
+> 30m 50m 75m 150m w/o Sub 31.88(-1.18) 44.51(-1.15) 55.67(-0.81) 67.88(-0.45)
+> w/o Add 32.96(-0.10) 45.22(-0.44) 55.18(-1.30) 65.75(-2.58) Full 33.06 45.66 56.48 68.33
+> Table 10. Severity-wise ablation on KITTI fog.
+
+dependent roles rather than uniform contribution. In Tab. 10, the subtractive module contributes more under severe shifts (30m, 50m), while the additive module is more effective under milder shifts (75m, 150m), and the full model achieves the most consistent performance across conditions. The modest gain (+0.08) observed in main pa-per can be attributed to the use of Cityscapes-Fog, which predominantly exhibits mild shifts. Under such conditions, the additive module naturally dominates, consistent with our analysis. The primary benefit of the proposed approach lies in stable adaptation across diverse shift severities rather than large average gains.      
+
+> L1 L2 Cosine mAP50 63.61 63.17 63.50
+> Table 11. Comparison of discrepancy metrics.
+
+Validation of the Discrepancy Metric .To justify the choice of the discrepancy metric, we adopt L1 as a simple and effective measure of shift magnitude, 
+
+> Figure 6. Discrepancy across fog severities and backbone stages.
+
+as supported by prior TTA methods (e.g., ActMAD, Prun-ingTTA). In Fig. 6, the discrepancy consistently decreases as visibility increases, confirming that the metric reliably reflects domain shift. A stage-wise analysis further shows that Stage 1 exhibits the highest discrepancy; applying CD-Buffer only to Stage 1 achieves the best single-stage per-formance Tab. 5, indicating that the metric also captures location-specific shifts. In Tab. 11, we compare L1 with L2 and cosine similarity. While the differences are marginal, L1 achieves the best performance, supporting it as a simple yet effective and empirically validated choice for our frame-work. 
+
+Scope and Generalization. 
+
+We evaluate the proposed method on a Swin-T Transformer-based detector, where BN is replaced with Direct Test ActMAD WHW Ours 200mm 15.30 24.81 24.90 28.05 100mm 27.37 35.55 32.65 36.93 75mm 31.88 38.61 38.71 40.06 
+
+Table 12. Transformer-based detector (Swin-T) on KITTI rain.                              
+
+> Direct Test Buffer TTA Pruning TTA ActMAD WHW Ours Gaussian 8.87 11.69 31.60 40.14 23.15 43.43 Jpeg 65.66 70.65 66.02 62.65 72.45 70.59
+> Motion 47.81 51.55 63.49 63.74 64.49 72.37 Defocus 52.6 57.14 63.27 61.81 66.77 70.7
+
+Table 13. Evaluation on non-weather corruptions(KITTI). 
+
+LN and MLP-based adapters are used (Tab. 12). The re-sults show consistent improvements over baseline methods across all shift severities. The ACDC benchmark already in-cludes compound domain shifts, such as sensor differences between datasets and diverse appearance variations (e.g., brightness, blur, and contrast). To further assess generaliza-tion, we additionally evaluate on non-weather corruptions, including Gaussian noise, JPEG compression, motion blur, and defocus blur (Tab. 13), where our method achieves the best or comparable performance.                        
+
+> Direct Test Buffer TTA Pruning TTA ActMAD WHW Ours 30m 12.37 14.54 23.89 28.31 14.79 33.04 375m 69.57 73.70 70.60 65.55 72.73 74.97 750m 74.67 78.09 74.89 68.07 77.65 78.58
+
+Table 14. Extended severity evaluation on KITTI fog. 
+
+Performance Across Extended Visibility Ranges. 
+
+We extend the evaluation to a broader range of visibil-ity conditions beyond the primary range (Tab. 14). Under milder conditions ( ≥375m), the direct test performance is already close to the clean setting, leaving limited room for improvement. The results show that subtractive approaches contribute more under severe shifts (30m), while additive approaches are more effective under milder shifts (375m, 750m), consistent with the complementary pattern observed in Fig. 1 (main paper). Our method achieves the best per-formance across all visibility levels. Figure 7. Qualitative results on KITTI fog. Object detection results visualized with bounding boxes across different fog severities (50m, 75m, 150m). We compare ground truth (GT), Direct Test (source model without adaptation), and our CD-Buffer results, demonstrating effective adaptation across all severity levels. 
+
+Figure 8. Qualitative results on KITTI rain. Object detection results visualized with bounding boxes across different rain severities (200mm, 100mm, 75mm). We compare ground truth (GT), Direct Test (source model without adaptation), and our CD-Buffer results, demonstrating effective adaptation across all severity levels. Figure 9. Qualitative results on Cityscapes fog and ACDC. Object detection results visualized with bounding boxes. For Cityscapes, we show fog severities (0.02, 0.01), and for ACDC, we present diverse conditions including fog, snow, rain, and night. We compare ground truth (GT), Direct Test (source model without adaptation), and our CD-Buffer results, demonstrating effective adaptation across all conditions.

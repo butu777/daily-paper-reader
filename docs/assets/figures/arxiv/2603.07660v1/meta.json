@@ -1,0 +1,174 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-001.webp",
+      "caption": "Figure 4 | Pipeline of 2D-to-3D OBB Generation. We transform 2D object masks into initial 3D OBBs via depth projection, utilizing a four-step strategy to mitigate the impact of depth floaters. (1) We obtain an initial object depth map by combining 3DGS rendering with SAM3 instance segmentation. (2) To mitigate 2D boundary errors from SAM3, we erode the object mask near its contour and keep only the reliable interior region. (3) To remove 3D outliers caused by depth discontinuities, we use a multi-view-consistent mesh depth as guidance and filter inconsistent pixels in the 3DGS depth. (4) Finally, we estimate the initial 3D OBB from the refined point cloud, while preserving the associated 2D mask, confidence score, and source image index.",
+      "page": 6,
+      "index": 1,
+      "width": 950,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-002.webp",
+      "caption": "Table 3 | Quantitative results of Spatial Understanding QA tasks. Here we caompare different models [55, 57, 25] on MMSI-bench [18] and MindCube [19] benchmarks. Bold indicates the best performance.",
+      "page": 11,
+      "index": 2,
+      "width": 550,
+      "height": 390
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-003.webp",
+      "caption": "Figure 15 | Additional 3D detection visualizations. We show Holi-Spatial predictions across diverse indoor scenes, demonstrating multi-view consistent localization and robust detection.",
+      "page": 21,
+      "index": 3,
+      "width": 950,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-004.webp",
+      "caption": "Figure 1 |We introduce Holi-Spatial, the first fully automated pipeline capable of converting raw video streams into holistic 3D spatial annotations without human intervention. Compared to state-of-the-art methods, Holi-Spatial achieves a significant leap in annotation quality, improving multi-view depth estimation by 0.5 F1 and boosting 3D detection AP50 by a remarkable 64% on ScanNet [28]. Based on this, we introduce Holi-Spatial-4M, a large-scale dataset that effectively empowers Vision-Language Models. As shown, fine-tuning Qwen3-VL on Holi-Spatial-4M leads to state-of-the-art performance, with a 15% AP50 gain on ScanNet++ [27] and a 7.9% accuracy rise on MMSI-Bench [18]. Importantly, because the entire annotation pipeline is automatic, it can be further scaled up as resources permit.",
+      "page": 2,
+      "index": 4,
+      "width": 943,
+      "height": 496
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-005.webp",
+      "caption": "Figure 5 | Floor-aligned OBB post-processing pipeline. Starting from the input instance OBBs produced after 2D-to-3D lifting and initial OBB estimation, we (1) detect a floor (or fallback planar structure) to infer a global up-axis, (2) re-align each instance OBB under a yaw-lock constraint with optional PCA fallback and update extents, and (3) apply a validation check to output gravity-/floor-consistent OBBs for downstream scene-level refinement.",
+      "page": 7,
+      "index": 5,
+      "width": 950,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-006.webp",
+      "caption": "Figure 16 | Examples of 10 types of curated spatial QA pairs in Holi-Spatial.",
+      "page": 22,
+      "index": 6,
+      "width": 896,
+      "height": 589
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-007.webp",
+      "caption": "Figure 17 | Training with our curated QA data improves the three types of spatial reasoning tasks in MindCube [19] (upper row) as well as in MMSI-Bench [18] (lower row).",
+      "page": 22,
+      "index": 7,
+      "width": 891,
+      "height": 384
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-008.webp",
+      "caption": "Figure 8 | Qualitative comparison of open-vocabulary 2D instance segmentation on the same scenes. Holi-Spatial yields sharper boundaries, more complete masks under occlusion, and more accurate fine-grained categories.",
+      "page": 10,
+      "index": 8,
+      "width": 946,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-009.webp",
+      "caption": "Figure 9 | Qualitative comparison of 3D object detection on ScanNet++. We visualize predicted 3D bounding boxes from SceneScript, LLaVA-3D, SpatialLM, and Holi-Spatial. Holi-Spatial produces tighter boxes and more correct categories.",
+      "page": 10,
+      "index": 9,
+      "width": 900,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-010.webp",
+      "caption": "Figure 2 | Comparison of our refined annotations with the official annotations on the ScanNet dataset [28]. Our method achieves more accurate and sharper segmentation masks, as well as improved category recognition.",
+      "page": 3,
+      "index": 10,
+      "width": 550,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-011.webp",
+      "caption": "Figure 6 | Comprehensive Statistics of Holi-Spatial-4M. (1) Object Diversity: Word cloud showing the long-tailed distribution of open-vocabulary categories. (2) Dataset Composition: The inner ring displays source scenes (ScanNet [28], ScanNet++ [27], DL3DV [31]), while the outer ring details the breakdown of over 4M generated spatial annotations. (3) Spatial QA Taxonomy: Distribution of 1.25M spatial QA pairs, categorized into Camera-centric tasks (e.g., rotation, movement) and Object-centric tasks (e.g., distance, direction).",
+      "page": 8,
+      "index": 11,
+      "width": 943,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-012.webp",
+      "caption": "Table 1 | Overview of Pipeline Capabilities. We compare input modalities and output tasks across different paradigms, ranging from 2D VLMs and 3D-VLMs to 3D-GS-based understanding methods. Holi-Spatial serves as a unified framework supporting diverse spatial tasks without relying on 3D priors.",
+      "page": 4,
+      "index": 12,
+      "width": 931,
+      "height": 429
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-013.webp",
+      "caption": "Figure 12 | Ablation study on 3D multi-view merging and depth refinement. (a) 3D geometric clustering corrects the fragmentation caused by occlusions in SAM3 image-level instance predictions, merging separated segments into unified object instances. (b) Using GS-refined depth constraints enables more accurate multi-view lifting, which avoids false merges and preserves the integrity of spatial object instances.",
+      "page": 19,
+      "index": 13,
+      "width": 950,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-014.webp",
+      "caption": "Table 5 | Ablation study on depth refinement, confidence filtering, and agent recall. ID. 1–2 (Step 1) compare depth sources, while ID. 3–5 (Step 3) evaluate post-processing modules. 𝑃25 and 𝑅25 denote precision and recall under IoU 25%.",
+      "page": 12,
+      "index": 14,
+      "width": 544,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-015.webp",
+      "caption": "Figure 11 | Given the same input images and queried objects, our predicted boxes align better with ground truth, indicating improved spatial localization.",
+      "page": 12,
+      "index": 15,
+      "width": 569,
+      "height": 310
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-016.webp",
+      "caption": "Figure 10 | Stage-wise visualization of scene-level refinement. Detailed discussion is include in Section 5.3",
+      "page": 12,
+      "index": 16,
+      "width": 948,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-017.webp",
+      "caption": "Figure 7 | Qualitative comparison of multi-view depth on ScanNet++. We visualize depth maps from GT and baselines (LangSplat, M3-Spatial, Depth-Anything-V3) versus Holi-Spatial. Right: point clouds obtained by multi-view back-projection, where Holi-Spatial produces cleaner geometry with substantially fewer ghosting artifacts and floaters.",
+      "page": 9,
+      "index": 17,
+      "width": 900,
+      "height": 214
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-018.webp",
+      "caption": "Table 2 | Quantitative results of 3D spatial understanding on ScanNet, ScanNet++ and DL3DV datasets. We group methods by their input modality and task definition. 3D Det: 3D Object Detection (AP@25, AP@50); 2D Seg: 2D Object Segmentation (IoU); Depth: Depth Estimation (F1-score). Bold indicates best results. ↑: higher is better. ‘—’ denotes that the corresponding metric is not available.",
+      "page": 9,
+      "index": 18,
+      "width": 941,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-019.webp",
+      "caption": "Figure 14 | Prompt template used for object grounding in 2D image.",
+      "page": 20,
+      "index": 19,
+      "width": 895,
+      "height": 629
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-020.webp",
+      "caption": "Figure 13 | Prompt template used for Agent verification.",
+      "page": 20,
+      "index": 20,
+      "width": 895,
+      "height": 659
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07660v1/fig-021.webp",
+      "caption": "Figure 3 | Overview of the Holi-Spatial data curation pipeline. The framework operates in three progressive stages: (1) Geometric Optimization distills high-fidelity 3D structure from video streams using 3DGS; (2) Image-level Perception lifts 2D VLM and SAM3 predictions into initial 3D proposals; and (3) Scene-level Refinement employs a coarse-to-fine strategy to merge, verify, and caption instances, yielding dense, high-quality spatial annotations. Finally, leveraging the generated Holi-Spatial-4M dataset, we directly fine-tune the Qwen-VL family for downstream tasks (e.g., 3D grounding and spatial reasoning).",
+      "page": 5,
+      "index": 21,
+      "width": 948,
+      "height": 413
+    }
+  ]
+}

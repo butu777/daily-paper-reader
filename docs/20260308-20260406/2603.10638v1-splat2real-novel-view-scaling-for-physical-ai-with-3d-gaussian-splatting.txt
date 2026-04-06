@@ -1,0 +1,859 @@
+Title: Splat2Real: Novel-view Scaling for Physical AI with 3D Gaussian Splatting
+
+URL Source: https://arxiv.org/pdf/2603.10638v1
+
+Published Time: Thu, 12 Mar 2026 00:50:04 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# Splat2Real: Novel-view Scaling for Physical AI with 3D Gaussian Splatting 
+
+Hansol Lim 1,2 and Jongseong Brad Choi 1,2
+
+Abstract — Physical AI faces viewpoint shift between training and deployment, and novel-view robustness is essential for monocular RGB-to-3D perception. We cast Real2Render2Real monocular depth pretraining as imitation-learning–style super-vision from a digital twin oracle: a student depth network imitates expert metric depth/visibility rendered from a scene mesh, while 3DGS supplies scalable novel-view observations. We present Splat2Real , centered on novel-view scaling: perfor-mance depends more on which views are added than on raw view count. We introduce CN-Coverage, a coverage+novelty curriculum that greedily selects views by geometry gain and an extrapolation penalty, plus a quality-aware guardrail fallback for low-reliability teachers. Across 20 TUM RGB-D sequences with step-matched budgets ( N = 0 to 2000 additional rendered views, with Nunique ≤ 500 and resampling for larger budgets), naive scaling is unstable; CN-Coverage mitigates worst-case regressions relative to Robot/Coverage policies, and GOL-Gated CN-Coverage provides the strongest medium/high-budget sta-bility with the lowest high-novelty tail error. Downstream control-proxy results versus N provide embodied-relevance evidence by shifting safety/progress trade-offs under viewpoint shift. 
+
+I. I NTRODUCTION 
+
+Physical AI agents must make geometry-aware decisions under viewpoint shift: deployment cameras observe poses that are sparse or absent in training data. In many stacks, imitation learning (IL) policies depend on robust perception; here we study IL-style supervision for the perception module itself. We do not train a control policy with IL; we train a monocular depth model to imitate a digital-twin oracle that provides depth/visibility supervision. A practical route is to decouple appearance and geometry supervision. 3D Gaussian Splatting (3DGS) provides fast novel-view rendering from real captures, while simulator-style mesh rendering provides aligned dense depth labels and visibility masks. In this Real2Render2Real setting, the main question is how to scale views: adding many poorly chosen views can hurt transfer stability. We therefore make novel-view scaling the central object of study. We introduce Splat2Real , where 3DGS provides scalable observation rendering and mesh rendering provides metric supervision. Our main methodological contribution is 
+
+> 1Department of Mechanical Engineering, State University of New York, Korea, 21985, Republic of Korea.
+> 2Department of Mechanical Engineering, State University of New York, Stony Brook, Stony Brook, NY 11794, USA. E-mails: hansol.lim@stonybrook.edu; jongseong.choi@stonybrook.edu. This work is supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (Grant No. RS-2022NR067080 and RS-2025-05515607). Corresponding author: Jongseong Brad Choi.
+
+CN-Coverage , a coverage+novelty curriculum that greed-ily selects viewpoints by geometry gain and extrapolation penalty. Quality-gated/composited observation mixing is a secondary guardrail when teacher reliability is low. 
+
+Contributions.  
+
+> •
+
+We present Splat2Real , framing novel-view scaling as imitation-learning–style supervision for monocular perception: a student imitates a digital twin oracle (mesh depth/visibility) while 3DGS supplies rendered observations.  
+
+> •
+
+We introduce CN-Coverage , a coverage+novelty scal-ing policy motivated by pose-distribution shift and submodular-style coverage with diminishing returns, and pair it with Gaussian Observation Layers (GOL) 
+
+guardrails for reliability-aware fallback.  
+
+> •
+
+We provide a 20-sequence step-matched study with additional rendered-view budgets from N = 0 to N =2000 (Nunique ≤ 500 ), including scaling stability, high-novelty tail robustness, and downstream control-proxy trade-offs. II. R ELATED WORK 
+
+a) Monocular depth and rendering-based supervi-sion.: Monocular depth has progressed rapidly with trans-former/hybrid architectures such as DPT [1], but robust-ness remains supervision-limited. Neural rendering for view-point augmentation has been explored for depth learning (e.g., NeRFmentation [2]) and for splatting-depth integration (DepthSplat [3]). Our focus is not architecture novelty; it is how viewpoint scaling policies affect Sim2Real transfer. 
+
+b) Sim2Real adaptation for perception.: Domain ran-domization [4] and adversarial adaptation [5] are standard tools for closing visual gaps, but gains can be inconsistent under large deployment viewpoint shift. We study an orthog-onal axis: scaling viewpoint support with high-throughput learned rendering while keeping metric labels fixed. 
+
+c) Imitation learning and teacher–student supervision.: 
+
+Imitation learning (IL) and behavior cloning treat learning as matching expert outputs from supervised data [6], [7]. Teacher–student supervision with privileged targets is acommon mechanism for transferring richer supervision into deployable models [8]. Our use of IL terminology is module-specific: we imitate oracle geometry outputs for monocular perception pretraining, not expert actions or control trajecto-ries. 
+
+d) Novel-view scaling and view selection.: Rendering-based viewpoint scaling is a long-standing idea (Render for CNN [9]). Recent depth work uses learned novel-view 
+
+> arXiv:2603.10638v1 [cs.CV] 11 Mar 2026
+
+synthesis for augmentation [2]. Safety-aware augmentation methods (e.g., AugMix [10]) show that augmentation quality can matter more than augmentation count. Our CN-Coverage policy connects this to explicit pose/coverage objectives. We use a coverage-greedy objective inspired by submodular optimization and robotics view-planning/NBV literature [11], [12]. Unlike learned NBV policies designed for online recon-struction quality, our setting is offline training-data synthesis for depth robustness under deployment viewpoint shift. 
+
+e) 3DGS in embodied simulation and NBV scope.: 
+
+3DGS [13] is widely used in digital twins and embodied Sim2Real pipelines [14]–[17]. These efforts focus on policy transfer, active mapping, or reconstruction quality. We focus on offline training-view selection for depth robustness under viewpoint shift, and therefore compare lightweight, repro-ducible coverage/novelty samplers rather than full learned NBV controllers. 
+
+f) Datasets.: For complete reproducibility of this pipeline, we evaluate on a 20-sequence TUM RGB-D bench-mark [18] with per-sequence statistics and fixed train/val/test splits. III. M ETHOD 
+
+Given scene s with intrinsics K and poses {Ti}, we train monocular depth model fθ from tuples 
+
+Iobs (T) ← R gs (Gs, K, T) or fallback blend , (1) 
+
+Dgt (T), V gt (T) ← R mesh (Ms, K, T). (2) Depth supervision is metric and visibility-masked. 
+
+a) IL view (perception-only).: We treat training as imitation-learning–style teacher–student supervision for per-ception. The digital-twin mesh renderer is the expert/oracle that provides (Dgt , V gt ) at each pose T, and the student 
+
+fθ maps RGB observations to depth. The imitation target is visibility-masked metric depth matching under our training loss, i.e., behavior cloning for perception outputs rather than action imitation. 
+
+A. Novel-view scaling objective a) Pose-distribution shift lens.: Let ptrain (T) be the training pose distribution induced by a sampling policy and 
+
+probot (T) the deployment distribution. Increasing N helps only when it reduces mismatch between these distribu-tions. Random oversampling can increase mass on low-value or extrapolative poses, improving image count but not deployment-aligned coverage. 
+
+b) Coverage lens (weighted submodularity).: For se-lected pose set S, define visible-surface coverage 
+
+F (S) = [
+
+> T∈S
+
+V (T) . (3) We implement V (T) as the set of occupied voxels obtained by rendering mesh depth at pose T (z-buffer visibility), backprojecting valid depth pixels, and voxelizing world points. Let voxel size be ν and downsample stride be r; both are fixed per experiment. Coverage is normalized per scene by the union over all sampled modes/budgets to produce comparable coverage fractions; exact parameters are listed in Appendix B. Coverage has diminishing returns; greedy addition is a practical approximation for submodular-style objectives. We use a coverage+novelty score: 
+
+score( T | S) = |V (T) \ ∪ T′∈S V (T′)|
+
+| {z }
+
+> coverage gain
+
+· exp 
+
+
+
+− d(T, Ttrain )
+
+σ
+
+
+
+,
+
+(4) where 
+
+d(T, Ttrain ) = min 
+
+> T′∈T train
+
+
+
+∥t−t′∥2 +λψ ·| wrap( ψ −ψ′)|
+
+
+
+, (5) with camera center t, yaw ψ, λψ = 0 .20 , and σ = 0 .35 by default. We set σ from val-split held-out RGB frames only (no depth labels, no test frames); sensitivity diagnostics are reported in the supplement. 
+
+c) CN-Coverage greedy selection.: Candidate poses Ω
+
+are generated from random and robot-centric perturbations around train poses. In the benchmark used here, we set a fixed |Ω| = 1000 per scene/seed and reuse it across methods and budgets. We first select a unique pose set size Nsel = min( N, 500) using greedy coverage+novelty (Algorithm 1). For N > 500 , training draws additional views with replacement from this selected set to reach budget N .Detailed sampler bounds are listed in Appendix B. 
+
+Algorithm 1 CN-Coverage greedy coverage+novelty view selection used for scaling.                                             
+
+> Algorithm 1: CN-Coverage (greedy) Input: candidate poses Ω, train poses Ttrain , budget N.
+> Initialize: Nsel ←min( N, 500) ,S←∅, covered voxels U ←
+> ∅.
+> For k= 1 ..N sel : for each T∈Ω\S, compute
+> ∆( T) = |V(T)\ U| ,π(T) = exp( −d(T,Ttrain )/σ ),
+> and select T⋆= arg max T∆( T)π(T).Update S←S∪ { T⋆},U ← U ∪ V(T⋆).
+> Return: selected set S(for N > 500 , sample with replacement from Sto reach N).
+
+B. Training and safe scaling 
+
+We train with robust inverse-depth loss: 
+
+L = X
+
+> p
+
+Vgt ,p ρ( ˆd−1 
+
+> p
+
+− d−1 
+
+> p
+
+) + λsLsmooth + λtLtemp . (6) Guardrail observation mixing is secondary. We refer to this module as a Gaussian Observation Layer (GOL) . GOL-Gated samples 3DGS RGB versus mesh+hist fallback using scene-quality gate g(qs), while GOL-Composite blends both observations per pixel. This reduces regressions in low-quality 3DGS teachers while preserving scaling gains in high-quality scenes. For gating, we define scene reliability from held-out 3DGS re-render quality: 
+
+qs = min 
+
+ PSNR s
+
+10 .0 , SSIM s
+
+0.20 , 0.80 LPIPS s
+
+
+
+, (7) Fig. 1. Splat2Real pipeline. Real captures build a 3DGS observation teacher for high-throughput novel-view RGB rendering; simulator-style mesh rendering provides aligned metric oracle labels. A scaling policy (Random/Robot/Coverage/CN-Coverage) selects viewpoint budget N . Gated/composited fallback is used as a secondary safety layer. 
+
+and map it to GS sampling probability 
+
+g(qs) = sigmoid( k(qs − τ )) , k = 8 , τ = 1 . (8) During training, GOL-Gated samples GS observations with probability g(qs) and mesh+hist fallback otherwise. These quality metrics are computed from val-split held-out RGB views only and do not use depth-test labels. 
+
+a) Design choices and guarantees.: CN-Coverage is a greedy heuristic: adding the novelty factor pre-serves practical stability but breaks strict submodular-ity guarantees. We therefore validate robustness empiri-cally with sigma/voxel/distance sensitivity and convergence-budget checks (Appendix C), and report full selection-cost details in Appendix B. IV. E XPERIMENTS 
+
+A. Setup a) Data and protocol.: We evaluate on 20 TUM RGBD sequences [18] from Freiburg-1 and Freiburg-3. We use fixed temporal train/val/test splits at 320 × 240 (up to 180 frames per sequence). We use Real2Render2Real supervision: 3DGS renders RGB observations, while mesh rendering provides aligned metric depth/visibility labels. The primary analysis is a step-matched scaling sweep with fixed optimization budget (max train steps =400). Rendered-view budgets are 
+
+N ∈ { 0, 25 , 50 , 100 , 200 , 500 , 1000 , 2000 },
+
+where N is the number of additional rendered training views. We select Nunique = min( N, 500) unique poses per scene; for N > 500 , training samples with replacement from that selected set to reach total budget N . All synthetic training conditions consume rendered RGB inputs, while evaluation is always on held-out real RGB test frames with real depth for metrics. 
+
+b) Observation teacher construction and render do-mains.: Our 3DGS observation teacher is built with a non-iterative splat initialization from per-scene RGB-D backpro-jection (voxel-downsampled points, Gaussian scales from local kNN, and per-point RGB colors), with zero gradient optimization iterations. We build this teacher from train-split frames and poses only. We use this throughput-oriented setup to run broad scaling sweeps; the trade-off is lower observation-teacher fidelity than fully optimized 3DGS fit-ting. We use three mesh render domains: mesh(vertex) 
+
+(direct vertex-color rendering), mesh+Hist (per-scene LAB Reinhard color transfer toward train real-RGB statistics), and mesh-shaded(sim) (normal-based shaded simulator-style rendering). 
+
+c) Mesh oracle construction.: For metric supervision, we build per-scene meshes with Open3D Scalable TSDF fusion from train-split only RGB-D frames and camera poses (voxel length 0.01 m, SDF truncation 0.04 m, depth trunca-tion 4.0 m), then ray-cast depth/visibility with z-buffering. We remove tiny disconnected components after fusion to stabilize supervision and keep the metric frame aligned to dataset poses (no post-hoc scale fitting). Held-out mesh-vs-sensor checks show adequate oracle fidelity for label render-ing (median absolute depth error 0.028 m, mean 0.088 m; full diagnostics in Appendix A). Both the TSDF mesh oracle and the 3DGS observation teacher are constructed from train-split frames/poses only, with no test-frame usage; no test depth is used for gating. 
+
+TABLE I MESH -ORACLE FIDELITY .Metric Value Split/frames Median abs depth error (m) 0.028 ± 0.019 held-out real frames Mean abs depth error (m) 0.088 ± 0.111 held-out real frames Valid-pixel fraction 0.875 ± 0.171 held-out real frames 
+
+d) Model and training settings.: We train the same depth network and losses across methods; only observation source and view-selection policy change. The student is DepthUNet (32 base channels) at 320 ×240 , optimized with AdamW (LR 5e −5, batch 12, step cap 400 for scaling sweeps). Reported metric is metric AbsRel on real test RGB (lower is better), with per-sequence means and 95% CIs. 
+
+e) Compact implementation definitions.: Coverage 
+
+V (T) is computed by mesh-depth rendering at pose T,z-buffer visibility masking, and voxelized backprojection of valid depth points ( ν=0 .10 m, stride r=12 ). Candidate pool Ω is generated once per scene/seed with random+robot perturbations and then reused across samplers. Novelty dis-tance is d(T, Ttrain ) = ∥∆t∥2 + λψ |∆ψ| (λψ =0 .20 , σ=0 .35 
+
+in exp( −d/σ )). We tune σ on val-split RGB frames only (no depth labels, no test frames). Temporal loss uses ad-jacent monocular training pairs (i, i +1) with reprojection consistency. Full model/loss settings, sampler bounds, and selection-cost details are listed in Appendix B. 
+
+B. Main step-matched scaling result 0 25 50 100 200 500 1000 2000 
+
+> Additional rendered views N
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> 0.50
+> 0.55
+> 0.60
+> AbsRel  N=500 cap
+> Random
+> Robot
+> Coverage
+> CN-Coverage
+> CN-Coverage (MeshHist)
+> GOL-Gated CN-Coverage
+
+Fig. 2. Step-matched scaling: metric AbsRel vs budget N for Random, Robot, Coverage, CN-Coverage, CN-Coverage (MeshHist), and GOL-Gated CN-Coverage. Error bars denote 95% CI across sequences; connecting lines are guides to the eye. Budgets are discrete and plotted on categorical x-axis positions. The dashed vertical marker at N =500 denotes the unique-view cap; for N > 500 , training samples with replacement from the selected set (resampling-based count scaling). 
+
+Figure 2 and Table II show the central result: naive view-count scaling is non-monotonic and can regress at high N , while structured sampling with guardrail fallback is among the strongest and most stable for medium/high budgets ( N ≥ 200 ). Table II reports metric AbsRel as mean ± 95% CI across samplers and budgets. Here N
+
+counts additional rendered training views on top of shared original frames, Nunique = min( N, 500) selected poses per scene, and for N > 500 the budget is filled by sam-pling with replacement from that selected set. At N = 0 ,Random/Robot/Coverage/CN-Coverage differences mainly reflect independent stochastic runs under the same 400-step budget, while CN-Coverage (MeshHist) and GOL-Gated CN-Coverage also differ by observation source/mixing. 
+
+TABLE II NOVEL -VIEW SCALING .                                                    
+
+> NRandom Robot Coverage CN-Coverage CN-Coverage (MeshHist) GOL-Gated CN-Coverage 00.36 ±0.05 0.35 ±0.06 0.34 ±0.04 0.35 ±0.05 0.30 ±0.07 0.31 ±0.07 25 0.36 ±0.07 0.35 ±0.08 0.36 ±0.07 0.35 ±0.08 0.31 ±0.05 0.28 ±0.05 50 0.36 ±0.09 0.37 ±0.09 0.37 ±0.10 0.38 ±0.07 0.33 ±0.08 0.40 ±0.12 100 0.35 ±0.06 0.37 ±0.09 0.36 ±0.08 0.40 ±0.10 0.34 ±0.07 0.36 ±0.09 200 0.38 ±0.07 0.39 ±0.10 0.39 ±0.06 0.40 ±0.12 0.38 ±0.11 0.31 ±0.04 500 0.36 ±0.08 0.44 ±0.12 0.40 ±0.11 0.36 ±0.09 0.33 ±0.09 0.31 ±0.06 1000 0.37 ±0.09 0.48 ±0.14 0.42 ±0.12 0.38 ±0.10 0.32 ±0.09 0.33 ±0.07 2000 0.35 ±0.08 0.48 ±0.15 0.38 ±0.10 0.35 ±0.09 0.39 ±0.11 0.32 ±0.06
+
+We define stability as bounded medium/high-budget er-ror (low mean, low worst-case, and low range over 
+
+N ≥ 200 ), quantified in Table III. Table IV provides 
+
+TABLE III SCALING STABILITY SUMMARY .                     
+
+> Method Mean Worst Range GOL-Gated CN-Coverage 0.317 0.328 0.020 CN-Coverage (MeshHist) 0.356 0.390 0.066 Random 0.367 0.382 0.028 CN-Coverage 0.374 0.399 0.044 Coverage 0.397 0.416 0.035 Robot 0.446 0.482 0.096
+
+a fixed-N convergence control (400 vs 2000 steps), re-ported as mean ± 95% CI across 20 sequences with 
+
+∆ = AbsRel@2000 −AbsRel@400 (negative is better): ab-solute errors drop with more optimization for all methods, while the qualitative stability ordering (guardrailed CN-Coverage stronger than naive/random at fixed N ) is pre-served. Under fixed compute, we observe a practical sweet spot at small curated budgets (notably around N = 25 
+
+for the guarded variant), before broader augmentation can induce under-training or higher-variance regimes. At N = 0 ,sampling policy is irrelevant: Random/Robot/Coverage/CN-Coverage entries are independent repeats that expose vari-ance under identical data; CN-Coverage (MeshHist) and GOL-Gated CN-Coverage rows additionally differ by ob-servation source/mixing. CN-Coverage selects up to 500 unique viewpoints per scene (details in Appendix B); for 
+
+N > 500 , training reuses/resamples that fixed selected 
+
+TABLE IV CONVERGENCE -BUDGET CONTROL .                                    
+
+> Method N400-step 2000-step ∆
+> GOL-Gated CN-Coverage 200 0.322 ±0.087 0.253 ±0.046 -0.069 Random 200 0.369 ±0.092 0.314 ±0.046 -0.055 GOL-Gated CN-Coverage 2000 0.356 ±0.082 0.263 ±0.051 -0.093 Random 2000 0.362 ±0.092 0.316 ±0.042 -0.046
+
+pool. Beyond 500, we study resampling-based count scaling (redundancy/stochasticity), not unique-pose support expan-sion. In this redundancy regime, guardrails become more important because repeated exposure can amplify low-quality observation modes if fallback mixing is absent. We observe a variance-sensitive outlier at N = 50 for GOL-Gated CN-Coverage; multi-seed and per-sequence diagnostics are provided in Appendix Fig. D.2 and the robustness tables in Appendix C. 
+
+C. Coverage lens: structure beats count 
+
+Figure 3 should be read as a capacity lens, not a mono-tonic law: coverage indicates how much surface support is exposed, but failures depend on how that coverage is reached under novelty/extrapolation. Appendix Table A.3 quantifies this: Robot/Coverage show strong positive coverage–error correlations (Pearson 0.909/0.899), while GOL-Gated CN-Coverage is near zero (Pearson 0.014), consistent with stabilized scaling. This is the key motivation for adding novelty control to pure coverage gain: coverage alone can be achieved via extrapolative poses that degrade transfer. At 
+
+N = 2000 , GOL-Gated CN-Coverage achieves the lowest absolute tail error (0.348) and avoids the large regressions observed in Coverage (0.419) and Robot (0.462). We do not claim CN-Coverage always outperforms Random in every regime; the claim is that the guarded variant maintains better high-novelty behavior. 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975   
+
+> Coverage fraction
+> 0.275
+> 0.300
+> 0.325
+> 0.350
+> 0.375
+> 0.400
+> 0.425
+> 0.450
+> 0.475
+> AbsRel
+> N=0 N=500
+> N=2000
+> N=0
+> N=500
+> N=2000
+> N=0
+> N=500
+> N=2000
+> N=0
+> N=500
+> N=2000
+> N=0
+> N=500
+> N=2000
+> N=0 N=500
+> N=2000
+> Random
+> Robot
+> Coverage
+> CN-Coverage
+> CN-Coverage (MeshHist)
+> GOL-Gated CN-Coverage
+> 0
+> 250
+> 500
+> 750
+> 1000
+> 1250
+> 1500
+> 1750
+> 2000
+> N
+
+Fig. 3. AbsRel versus surface-coverage fraction. Each point is one (sampler, 
+
+N ) setting. 
+
+D. Tail robustness under viewpoint novelty 
+
+We evaluate robustness in the highest novelty bin because deployment failures are concentrated there. Table V reports highest-novelty-bin (quantile bin 5/5) AbsRel at N = 0 and 
+
+N = 2000 as mean ± 95% CI across scenes, with ∆Tail defined as Tail@ N =2000 minus Tail@ N =0 . Figure 4 shows the full novelty-bin profiles at N = 0 and N = 2000 across per-sequence novelty quantile bins. 
+
+TABLE V TAIL SUMMARY .
+
+Mode Scenes Tail@0 Tail@2000 ∆Tail CN-Coverage 20 0.367 ±
+
+0.063 0.387 ±
+
+0.116 0.020 ±
+
+0.082 CN-Coverage (MeshHist) 20 0.330 ±
+
+0.088 0.408 ±
+
+0.136 0.079 ±
+
+0.062 Coverage 20 0.350 ±
+
+0.053 0.419 ±
+
+0.132 0.069 ±
+
+0.109 GOL-Gated CN-Coverage 20 0.319 ±
+
+0.072 0.348 ±
+
+0.115 0.030 ±
+
+0.083 Random 20 0.377 ±
+
+0.060 0.387 ±
+
+0.117 0.010 ±
+
+0.082 Robot 20 0.385 ±
+
+0.091 0.462 ±
+
+0.154 0.077 ±
+
+0.098 0.2     
+
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> AbsRel
+> (a) N=0
+> Random
+> Robot
+> Coverage
+> CN-Coverage
+> CN-Coverage (MeshHist)
+> GOL-Gated CN-Coverage
+> 12345
+> Novelty quantile bin (1=least, 5=most)
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> AbsRel
+> (b) N=2000
+
+Fig. 4. Error versus pose-novelty bins at low/high N in vertical subpanels: (a) N = 0 , (b) N = 2000 . The x-axis uses per-sequence novelty quantile bins 1–5 (1 = least novel, 5 = most novel), so all 20 sequences contribute to each panel. Shaded regions denote 95% CI across sequences. 
+
+E. Teacher quality and guardrail behavior 
+
+Table VI summarizes the teacher-quality gating protocol and high-quality rate. Scenes are not excluded from training; the gate only controls GS-vs-fallback mixing probability. Figure 5 and the appendix quality-bucket summary table show heterogeneous GS-vs-mesh behavior: at N = 2000 ,high-quality scenes are more likely to benefit from GS (60% with ∆AbsRel < 0), while low-quality scenes regress more often. This supports guardrail mixing as a risk-control layer rather than unconditional GS usage. A practical pattern emerges: observation-teacher usefulness is limited at small budgets but appears more often at large budgets, where cross-view consistency matters more. Importantly, we do not remove scenes from training; gate statistics only control per-scene GS-vs-fallback mixing from val-split held-out RGB re-render quality (no depth labels), with no test-depth leakage. 0.8 1.0 1.2 1.4     
+
+> Teacher quality score qs(held-out RGB)
+> 0.4
+> 0.3
+> 0.2
+> 0.1
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> AbsRel = AbsRel(GS) - AbsRel(mesh+Hist)
+> qs= 1.0 N=0
+> N=500
+> N=2000
+
+Fig. 5. Teacher-quality interaction scatter at multiple budgets, where 
+
+∆AbsRel = AbsRel(GS) − AbsRel(mesh+Hist) and negative is bet-ter. Dashed line marks gate threshold qs = 1.0. Correlations (Pear-son/Spearman) are N =0 : 0.06/ −0.07 , N =500 : 0.21/0.08, N =2000 :
+
+−0.23 /−0.11 .TABLE VI GATING PROTOCOL .
+
+Setting Value Total scenes 20 High-quality scenes (q s ¿= 1) 10 Low-quality scenes (q s ¡ 1) 10 High-quality rate 0.500 PSNR threshold 10.000 SSIM threshold 0.200 LPIPS threshold 0.800 Gate k 8.000 Gate tau 1.000 Mean gate probability 0.541 
+
+F. Downstream Physical-AI control proxy 0 5 10 15 20 25 
+
+> Collisions / 100 steps
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> 0.50
+> Success rate
+> N=0
+> N=200
+> N=500
+> N=1000
+> N=0
+> N=200
+> N=500
+> N=1000
+> N=200
+> CN-Coverage
+> Coverage
+> GOL-Gated CN-Coverage (N=200 anchor)
+
+Fig. 6. Success-collision Pareto across budgets N (each point annotated by N ). 
+
+a) Downstream protocol details.: We run 1000 episodes from random start/goal pairs sampled with a mini-mum 1.5 m separation. Each episode has horizon 12 actions with 0.25 m forward steps. A motion is considered predicted-safe when predicted clearance exceeds 1.2 m. A collision is counted when this predicted-safe motion is unsafe under sensor depth at the same threshold. Success requires zero collisions and at least 80% oracle-safe progress toward the goal. The downstream sweep uses depth checkpoints trained with GS observations under step-matched scaling for Coverage/CN-Coverage at N ∈ { 0, 200 , 500 , 1000 }. For fair comparison, the N = 0 point uses a shared baseline checkpoint across Coverage/CN-Coverage. We also report one GOL-Gated CN-Coverage anchor at N = 200 . Ta-ble VII reports mean ± 95% CI over 1000 episodes. Succ is zero-collision success rate, Col/100 is collisions per 100 steps, Col/fail is collisions per failed episode, and Path is progress moves/oracle safe moves. 
+
+TABLE VII DOWNSTREAM CONTROL PROXY .Mode N Succ Col/100 Col/fail Path CN-Coverage 0 0.226 ±
+
+0.026 0.900 ±
+
+0.341 0.140 ±
+
+0.053 0.281 ±
+
+0.026 CN-Coverage 200 0.523 ±
+
+0.031 22.892 
+
+± 2.225 5.759 ±
+
+0.417 0.647 ±
+
+0.029 CN-Coverage 500 0.514 ±
+
+0.031 21.525 
+
+± 2.104 5.315 ±
+
+0.394 0.625 ±
+
+0.029 CN-Coverage 1000 0.386 ±
+
+0.030 11.667 
+
+± 1.734 2.280 ±
+
+0.320 0.429 ±
+
+0.029 Coverage 0 0.226 ±
+
+0.026 0.900 ±
+
+0.341 0.140 ±
+
+0.053 0.281 ±
+
+0.026 Coverage 200 0.280 ±
+
+0.028 4.458 ±
+
+1.037 0.743 ±
+
+0.171 0.291 ±
+
+0.027 Coverage 500 0.487 ±
+
+0.031 27.975 
+
+± 2.394 6.544 ±
+
+0.397 0.632 ±
+
+0.029 Coverage 1000 0.497 ±
+
+0.031 24.850 
+
+± 2.257 5.928 ±
+
+0.396 0.621 ±
+
+0.029 GOL-Gated CN-Coverage* 200 0.388 ±
+
+0.030 7.558 ±
+
+1.177 1.482 ±
+
+0.219 0.507 ±
+
+0.030 
+
+Table VII and Fig. 6 show that scaling policy, not only view count, changes success/collision trade-offs. High Col/100 can coexist with moderate success because collisions are concentrated in failed episodes, which is why Col/fail is reported separately. This section is intentionally a stylized di-agnostic, not a full RL/navigation benchmark. The objective is to test behavior-level sensitivity to depth scaling policies under controlled kinematics and map thresholds, rather than to claim policy-transfer gains. We therefore report trade-off movement (success versus collisions), not dominance claims. Across modes, moderate success can appear with high Col/100 when failures are collision-heavy and clustered in a subset of episodes. 
+
+G. Additional diagnostics 
+
+Appendix C reports exposure-matched budgets and stochastic-greedy baselines; these checks improve all meth-ods with more compute but preserve the same qualita-tive ordering used in the main claims. Runtime/practicality, render-domain gap, and cross-family holdout diagnostics are reported in Appendix A. V. D ISCUSSION AND LIMITATIONS 
+
+a) Main takeaway.: The central result is a scaling-stability result: robustness is better preserved when view-point support is expanded with structure (CN-Coverage plus guardrails), not when view count is increased indiscrimi-nately. This aligns with both the pose-distribution and cov-erage lenses. 
+
+b) Scope and limitations.: (1) Our setup uses simulator-style rendering + kinematic rollout, not full physics sim-ulation. (2) We operate on mostly static indoor scenes; strong dynamics and severe pose drift still hurt teacher reliability. (3) External validity beyond TUM remains im-portant future work. (4) Effective N > 500 uses controlled resampling from a fixed rendered novel-view pool in this implementation; true unique-view scaling to much larger 
+
+N would require larger rendered pools or online rendering infrastructure. VI. C ONCLUSION 
+
+We introduced Splat2Real , reframing 3DGS depth trans-fer as a novel-view scaling problem. On a 20-sequence benchmark with step-matched sweeps, naive scaling is non-monotonic and can regress as budget grows. Relative to Robot and Coverage policies, CN-Coverage reduces worst-case scaling failures, while GOL-Gated CN-Coverage deliv-ers the strongest medium/high-budget stability and the lowest high-novelty tail error. The results also show that larger view budgets are not sufficient by themselves: under fixed compute, small curated budgets can be strong, and scaling beyond the unique-view cap is a resampling regime where guardrails matter more. Our analysis provides two practical insights. First, cover-age is useful but not a standalone objective: high coverage reached through extrapolative poses can still degrade transfer, motivating explicit novelty control. Second, GS-vs-mesh behavior is scene-dependent; quality-aware mixing acts as risk control by limiting low-quality-teacher failures rather than assuming unconditional GS gains. Downstream control-proxy results further indicate embodied relevance by shifting success–collision trade-offs, while remaining explicitly short of policy-transfer claims. Overall, the key takeaway is that 
+
+how views are scaled dominates how many views are added. REFERENCES [1] R. Ranftl, A. Bochkovskiy, and V. Koltun, “Vision transformers for dense prediction,” arXiv preprint arXiv:2103.13413 , 2021. [2] C. Feldmann, N. Siegenheim, N. Hars, L. Rabuzin, M. Ertugrul, L. Wolfart, M. Pollefeys, Z. Bauer, and M. R. Oswald, “Nerfmenta-tion: Nerf-based augmentation for monocular depth estimation,” arXiv preprint arXiv:2401.03771 , 2024. [3] H. Xu, S. Peng, F. Wang, H. Blum, D. Barath, A. Geiger, and M. Pollefeys, “Depthsplat: Connecting gaussian splatting and depth,” 
+
+arXiv preprint arXiv:2410.13862 , 2024. [4] J. Tobin, R. Fong, A. Ray, J. Schneider, W. Zaremba, and P. Abbeel, “Domain randomization for transferring deep neural networks from simulation to the real world,” arXiv preprint arXiv:1703.06907 , 2017. [5] Y. Ganin, E. Ustinova, H. Ajakan, P. Germain, H. Larochelle, F. Lavi-olette, M. Marchand, and V. Lempitsky, “Domain-adversarial training of neural networks,” Journal of Machine Learning Research , vol. 17, no. 59, pp. 1–35, 2016. [6] A. Hussein, M. M. Gaber, E. Elyan, and C. Jayne, “Imitation learning: A survey of learning methods,” ACM Computing Surveys , vol. 50, no. 2, pp. 21:1–21:35, 2017. [7] T. Osa, J. Pajarinen, G. Neumann, J. A. Bagnell, P. Abbeel, and J. Pe-ters, “An algorithmic perspective on imitation learning,” Foundations and Trends in Robotics , vol. 7, no. 1–2, pp. 1–179, 2018. [8] G. Hinton, O. Vinyals, and J. Dean, “Distilling the knowledge in a neural network,” arXiv preprint arXiv:1503.02531 , 2015. [9] H. Su, C. R. Qi, Y. Li, and L. J. Guibas, “Render for cnn: Viewpoint estimation in images using cnns trained with rendered 3d model views,” in Proceedings of the IEEE International Conference on Computer Vision , 2015. [10] D. Hendrycks, N. Mu, E. D. Cubuk, B. Zoph, J. Gilmer, and B. Laksh-minarayanan, “Augmix: A simple data processing method to improve robustness and uncertainty,” arXiv preprint arXiv:1912.02781 , 2020. [11] A. Krause and D. Golovin, “Submodular function maximization,” 
+
+Tractability: Practical Approaches to Hard Problems , pp. 71–104, 2014. [12] A. Bircher, M. Kamel, K. Alexis, H. Oleynikova, and R. Siegwart, “Receding horizon “next-best-view” planner for 3d exploration,” in 
+
+Proceedings of the IEEE International Conference on Robotics and Automation , 2016. [13] B. Kerbl, G. Kopanas, T. Leimk”uhler, and G. Drettakis, “3d gaussian splatting for real-time radiance field rendering,” ACM Transactions on Graphics , vol. 42, no. 4, 2023. [14] M. N. Qureshi, S. Garg, F. Yandun, D. Held, G. Kantor, and A. Silwal, “Splatsim: Zero-shot sim2real transfer of rgb manipulation policies using gaussian splatting,” in Conference on Robot Learning (OpenReview) , 2025. [Online]. Available: https://openreview.net/forum?id=UPEkp5NCx4 [15] X. Li, J. Li, Z. Zhang, R. Zhang, F. Jia, T. Wang, H. Fan, K.-K. Tseng, and R. Wang, “Robogsim: A real2sim2real robotic gaussian splatting simulator,” arXiv preprint arXiv:2411.11839 , 2024. [16] Y. Wu, L. Pan, W. Wu, G. Wang, Y. Miao, F. Xu, and H. Wang, “Rl-gsbridge: 3d gaussian splatting based real2sim2real method for robotic manipulation learning,” arXiv preprint arXiv:2409.20291 , 2024. [17] B. Chhablani, R. Yao, N. Peri, A. Dar, S. Khudanpur, R. Arora, H. Peng, D. Manocha, S. Choudhury, R. Krishna, and H. Hajishirzi, “Embodiedsplat: Personalized embodied navigation in a 3d gaussian splatting world,” in Proceedings of the IEEE/CVF International Con-ference on Computer Vision , 2025. [18] J. Sturm, N. Engelhard, F. Endres, W. Burgard, and D. Cremers, “A benchmark for the evaluation of rgb-d slam systems,” in Proceedings of the IEEE/RSJ International Conference on Intelligent Robots and Systems , 2012. APPENDIX A. A DDITIONAL STATISTICAL TABLES 
+
+This appendix complements the main paper with expanded statistics, reproducibility details, robustness diagnostics, and per-sequence analyses that would interrupt the main scaling narrative. Appendix A starts with the statistical tables that most directly support the headline claims; later appendices provide implementation details, stress tests, additional fig-ures, and paired summaries derived from the same frozen result logs. 
+
+a) Claim-to-evidence map.:  
+
+> •
+
+Guarded scaling is the primary supported claim. 
+
+Main Fig. 2 and Tables 2–4 show the step-matched sweep, stability summary, and compute control; Ap-pendix Tables A.2, C.6, C.7, and Fig. D.1 add paired tests, exposure-matched controls, and a stochastic-greedy baseline.  
+
+> •
+
+High-novelty robustness is supported more strongly than mean-error gains. Main Fig. 4 and Table 5 show the novelty-tail behavior; Appendix Table E.2 adds paired highest-novelty comparisons against CN-Coverage and CN-Coverage (MeshHist).  
+
+> •
+
+Coverage is diagnostic, not sufficient. Main Fig. 3 visualizes coverage as an organizing axis; Appendix Table A.3 quantifies that Robot/Coverage policies cor-relate strongly with worsening error, while the guarded variant does not.  
+
+> •
+
+qs is a coarse risk-control indicator. Main Fig. 5 and Table 6 define the gate and its threshold; Appendix Table A.6 and Fig. E.1 show the threshold split, gate mapping, and heterogeneous scene-level behavior with-out claiming a strong linear predictor.  
+
+> •
+
+The downstream section is a stylized control proxy. 
+
+Main Table 7 and Fig. 6 report trade-off movement; Appendix Fig. D.4 provides the full curves and the shared-N =0 note, but does not establish policy transfer or real-robot performance. This section collects the full statistical tables that under-pin the main-paper claims. It provides reference baselines, significance tests, and additional diagnostics in one place. 
+
+b) Reference schedule baseline.: The main paper fo-cuses on step-matched scaling. Table A.1 reports the non-step-matched reference protocol for context, where synthetic render-domain baselines are compared under longer training. It uses metric depth without median scaling, reports mean 
+
+± std across scenes, and highlights the best/second-best synthetic render-domain conditions while excluding the real upper bound from ranking.                                                                   
+
+> TABLE A.1 SIM 2R EAL RESULTS .
+> Condition AbsRel RMSE SIlog Scale d1 real (upper) 0.221 ±0.086 0.505 ±0.171 21.556 0.163 0.605 ±0.160 mesh 0.283 ±0.104 0.583 ±0.213 24.000 0.226 0.506 ±0.160 mesh+DR 0.308 ±0.098 0.621 ±0.213 25.575 0.255 0.458 ±0.180 mesh+Hist 0.281 ±0.149 0.527 ±0.150 22.192 0.221 0.560 ±0.187
+> mesh+AdaIN 0.279 ±0.115 0.563 ±0.155 24.724 0.220 0.523 ±0.145 3DGS 0.315 ±0.073 0.726 ±0.239 27.978 0.257 0.379 ±0.168 GOL-Gated 0.275 ±0.123 0.575 ±0.274 21.424 0.217 0.502 ±0.224 GOL-Composite 0.320 ±0.168 0.562 ±0.132 22.654 0.275 0.495 ±0.216
+
+This table establishes that, under the longer reference schedule, the strongest synthetic condition is guarded rather than raw 3DGS, and that appearance baselines such as mesh+Hist and mesh+AdaIN remain competitive. It does not establish the step-matched scaling claim, because the schedule and observation budget differ from the main-paper sweep. 
+
+c) Paired significance tests.: Table A.2 reports scene-level Wilcoxon tests for GOL-Gated CN-Coverage against key comparators at N = {200 , 2000 }. ∆AbsRel is tar-get minus comparator, so negative is better. Here “Best non-guardrail” means a per-sequence oracle baseline: the minimum AbsRel among {Random, Robot, Coverage, CN-Coverage, CN-Coverage (MeshHist) } at the same N .                                    
+
+> TABLE A.2 PAIRED WILCOXON TESTS .NComp Scenes MedD MeanD p200 Best non-guardrail 20 0.030 -0.076 0.869 200 Coverage 20 -0.047 -0.081 0.00558 200 Random 20 -0.042 -0.074 0.00944 2000 Best non-guardrail 20 -0.003 -0.032 0.498 2000 Coverage 20 -0.023 -0.058 0.0121 2000 Random 20 -0.020 -0.031 0.0826
+
+These tests establish that the guarded variant is signifi-cantly better than Coverage at both budgets and better than Random at N = 200 . They do not establish a universal per-sequence win over every comparator; direct guardrail-vs-CN and guardrail-vs-MeshHist paired summaries are added later in Table E.1. 
+
+d) Coverage-oriented summaries.: Table A.3 quantifies how coverage fraction correlates with error across samplers. Table A.4 reports the best sampler per budget to complement the full scaling table in the main paper. 
+
+> TABLE A.3 COVERAGE CORRELATION .
+
+Mode NPoints Pearson Spearman All 48 0.182 0.182 Random 8 0.296 0.244 Robot 8 0.909 0.952 Coverage 8 0.899 0.903 CN-Coverage 8 0.452 0.390 CN-Coverage (MeshHist) 8 0.658 0.537 GOL-Gated CN-Coverage 8 0.014 0.098 TABLE A.4 SCALING SUMMARY .
+
+N BestSampler BestAbsRel Coverage 0 CN-Coverage (MeshHist) 0.298 ± 0.066 0.771 25 GOL-Gated CN-Coverage 0.283 ± 0.045 0.823 50 CN-Coverage (MeshHist) 0.331 ± 0.084 0.860 100 CN-Coverage (MeshHist) 0.342 ± 0.066 0.905 200 GOL-Gated CN-Coverage 0.308 ± 0.036 0.946 500 GOL-Gated CN-Coverage 0.309 ± 0.058 0.971 1000 CN-Coverage (MeshHist) 0.324 ± 0.088 0.971 2000 GOL-Gated CN-Coverage 0.323 ± 0.065 0.971 
+
+These summaries establish that coverage is a useful diag-nostic axis and that the guarded variant is competitive at mul-tiple budgets. They do not imply that maximizing coverage alone is sufficient: positive coverage–error correlations for Robot/Coverage indicate that extrapolative views can raise both coverage and error. 
+
+e) Cross-family holdout sanity check.: Table A.5 re-ports the freiburg1 →freiburg3 holdout setting referenced in the main paper under the step-matched protocol at N = 200 ,with all methods using the same Coverage pose policy. 
+
+> TABLE A.5 HOLDOUT CHECK .
+
+Method AbsRel RMSE d1 mesh+Hist 0.302 0.759 0.354 3DGS 0.452 1.107 0.152 GOL-Gated 0.363 0.882 0.263 
+
+This table establishes that the guardrail helps relative to raw 3DGS under cross-family shift. It does not establish external superiority over the strongest mesh baseline, so the external-validity claim remains a narrow sanity check. 
+
+f) Teacher-quality gating protocol.: The gate thresh-olds and scene-quality bucket counts used for GOL-Gated mixing are reported in main Table 6. Scenes are not ex-cluded from training; quality buckets only modulate GS-vs-fallback sampling probability. Table A.6 reports the derived bucket summary at N = {0, 500 , 2000 }, where ∆AbsRel =
+
+AbsRel(3DGS) −AbsRel(mesh+Hist) and lower is better; ±
+
+denotes std across scenes.                                                    
+
+> TABLE A.6 TEACHER -QUALITY BUCKETS .
+> N Bucket Qual. Scenes Mean ±std Median Frac( ∆<0)0 High-q qs≥110 0.034 ±0.071 0.034 0.10 0 Low-q qs<110 0.069 ±0.166 0.087 0.20 500 High-q qs≥110 0.069 ±0.091 0.044 0.10 500 Low-q qs<110 0.007 ±0.105 0.019 0.50 2000 High-q qs≥110 -0.096 ±0.147 -0.021 0.60 2000 Low-q qs<110 0.025 ±0.107 0.020 0.40
+
+These tables establish the exact held-out val-RGB-only thresholding protocol and show that high-quality scenes are more likely to help at large budgets. They do not establish 
+
+qs as a strong linear predictor; throughout this appendix we interpret qs as a coarse risk-control indicator. 
+
+g) Render-domain and runtime diagnostics.: Table A.7 reports the render-domain appearance gap against matched real frames, clarifying why guardrail fallback remains nec-essary in low-quality scenes. Table A.8 reports practical throughput and timing for teacher build/rendering and stu-dent training/inference; teacher-build timing uses n=19 be-cause one sequence lacked complete timestamp logs for wall-clock reconstruction, while all reported accuracy experiments still use 20 sequences.                                 
+
+> TABLE A.7 DOMAIN GAP .
+> Domain Frames LPIPS PSNR SSIM 3DGS 720 0.677 ±0.075 10.855 ±2.690 0.373 ±0.151 mesh(vertex) 720 0.522 ±0.105 11.374 ±3.393 0.442 ±0.153 mesh+Hist 720 0.499 ±0.088 13.524 ±3.166 0.506 ±0.187 mesh-shaded(sim) 720 0.767 ±0.053 5.863 ±1.342 0.341 ±0.161
+> TABLE A.8 RUNTIME .
+
+Component Value Units GPU NVIDIA GeForce RTX 5090 –Teacher build time (n=19) 2.529 ± 0.392 s/sequence 3DGS setup non-iterative init; voxel 
+
+= 0 .020 m, points 
+
+= 45000 , iters = 0 
+
+–GS render throughput 219.89 views/s Student training time (reference, 6 epochs) 36.22 sStudent inference speed (320x240) 552.56 FPS 
+
+These diagnostics establish that 3DGS is not always the closest single-view render domain and that the reported sweeps are practically runnable with a non-iterative observa-tion teacher. They do not prove that per-image domain met-rics explain scaling behavior, nor that the runtime numbers would transfer to a fully optimized 3DGS pipeline. 
+
+h) Mesh-oracle fidelity diagnostics.: Table A.9 reports held-out real test-pose agreement between mesh-rendered depth and sensor depth as per-scene mean ± std across 20 sequences.             
+
+> TABLE A.9 MESH FIDELITY .
+> Scenes MedianErr (m) MeanErr (m) ValidFrac 20 0.028 ±0.019 0.088 ±0.111 0.875 ±0.171
+
+This table establishes that the TSDF mesh is accurate enough to serve as a metric supervision oracle on held-out frames. It does not imply oracle perfection; residual depth mismatch remains part of the supervision noise budget. APPENDIX B. R EPRODUCIBILITY DETAILS 
+
+This section provides the exact implementation settings needed to reproduce training and view selection. It comple-ments the compact protocol summary in the main paper with full parameter tables. 
+
+a) Notation glossary.: 
+
+Symbol / term Meaning 3DGS / GS The 3D Gaussian Splatting observation renderer used for synthetic RGB inputs; “GS” is used as a compact abbreviation in some tables and run names. 
+
+Vgt (T) Visibility mask used for supervision at pose T,obtained by ray-casting the mesh oracle. 
+
+V (T) Coverage set used by CN-Coverage: the visible voxel set obtained from mesh-depth rendering, z-buffering, and voxelized backprojection. 
+
+Ω Fixed candidate pose pool for one scene/seed. In this benchmark, |Ω| = 1000 and the same pool is reused across samplers and budgets. 
+
+N, N unique Additional rendered training views and the unique selected-pose cap. We use Nunique =min( N, 500) and resample with replacement for 
+
+N > 500 .
+
+d(T, Ttrain ) Pose distance used in Eq. (4): ∥∆t∥2 + λψ |∆ψ|,with ∆ψ in radians and λψ = 0 .20 m/rad. 
+
+σ Novelty bandwidth in exp( −d/σ ). The avail-able results include a val-split held-out RGB-only sweep around the benchmark default σ = 0 .35 ,but not a separate automated selection log. 
+
+qs Scene-level teacher quality score from held-out val-split RGB-only re-renders: 
+
+min(PSNR /10 , SSIM /0.20 , 0.80 /LPIPS) .ScaleAbsRel Absolute median scale-ratio error, 
+
+|median( ˆd)/median( d) − 1|; lower indicates better metric-scale calibration. Path Downstream path-ratio proxy summarizing safe progress toward the goal; the exact ratio definition is given in main Table 7. NovQ80 80th percentile of frame-level novelty distance within a sequence/run, used only in the N =50 
+
+outlier table. TABLE B.1 METHOD MATRIX .
+
+Name Sampler Observation source Mixing rule Random / Robot / Coverage corresponding pose policy 3DGS RGB observations none CN-Coverage coverage + bounded-novelty greedy policy 3DGS RGB observations none CN-Coverage (MeshHist) CN-Coverage mesh RGB with per-scene LAB Reinhard transfer to train real-RGB statistics none mesh+AdaIN Coverage (reference schedule only) mesh RGB with AdaIN style transfer using a sampled train-split real frame as style reference none GOL-Gated CN-Coverage CN-Coverage 3DGS or mesh+Hist RGB Bernoulli scene-level mixing with probability 
+
+g(qs)
+
+GOL-Composite Coverage (reference schedule only) 3DGS and mesh+Hist RGB per-pixel confidence blend 
+
+c·3DGS +(1 −
+
+c)·mesh+Hist 
+
+b) Protocol clarifications carried by the main paper.: 
+
+Two visibility objects appear in the submission and are intentionally distinct: Vgt (T) is the oracle supervision mask from mesh ray-casting, while V (T) is the voxelized coverage set used only for CN-Coverage scoring. Likewise, pose-sampler tables report human-readable jitter ranges in degrees, but the novelty distance converts yaw to radians internally, so 
+
+λψ = 0 .20 should be read as meters per radian. For N = 0 ,Random/Robot/Coverage/CN-Coverage in the main scaling table are independent stochastic repeats under identical data; for N > 500 , the benchmark studies reuse/resampling from a fixed 500-pose selected set rather than continued support expansion. 
+
+c) Training, losses, and view-sampling protocol.: Ta-bles B.2–B.4 provide the compact implementation settings referenced from the main setup section. 
+
+TABLE B.2 TRAINING DETAILS .
+
+Setting Value Student model DepthUNet (ch=32), single depth head Input resolution 320x240 RGB Optimizer AdamW Batch size 12 Learning rate 5.0e-05 Weight decay 1.0e-04 Ref schedule 4 epochs (no step cap) Scaling schedule step-matched, max steps=400 Grad clip global norm 1.0 Depth loss vis-masked inv-depth Charbonnier Smoothness edge-aware, λs=0.05 Temporal loss reprojection consistency, λt=0.15 Temporal pairs adjacent train frames (i,i+1) DR baseline gamma/gain/WB/blur/noise/JPEG, strength=0.10 
+
+TABLE B.3 POSE -SAMPLER PROTOCOL .
+
+Sampler Pose rule Random train anchor + trans jitter N(0,[0.12,0.12,0.05] m) + yaw jitter N(0,10 deg) Robot arc offsets: radius U[0.15,0.35] m, heading U[-45,45] deg, z jitter +/-0.05 m Coverage greedy max new covered voxels CN-Coverage greedy max coverage-gain * exp(-d/sigma) Candidate pool Ω benchmark default: random+robot candidates, |Ω| = 1000 
+
+per scene Reuse Ω fixed per scene/seed; shared across methods and all budgets N
+
+Distance 
+
+d(T, Ttrain )
+
+∥∆t∥2 + λψ |∆ψ|, with λψ = 0 .20 
+
+Yaw units pose-sampling jitter is shown in degrees for readability, but 
+
+∆ψ is converted to radians inside d(·)TABLE B.4 COVERAGE AND SELECTION COST .                           
+
+> Setting Value Coverage set V(T) visible voxels from mesh-depth backprojection (z-buffer visibility) Visibility label Vgt (T)supervision mask from mesh ray-casting; distinct from coverage set V(T)
+> Voxel size 0.100 m Depth stride 12
+> |Ω|/ scene 1000 ±0Unique selected/scene 500 Resampling regime Nunique =min( N, 500) ; for N>500 , training samples with replacement from the selected set Voxel extract time 0.248 +/- 0.038 s Greedy select time 4.316 +/- 3.513 s Total select time 4.933 +/- 3.549 s Per-candidate score 4.93 ms Scene norm coverage fraction normalized by per-scene union over all samplers
+
+These tables establish the concrete training defaults, sam-pler bounds, and selection-cost constants used in the submis-sion. They do not, by themselves, validate alternative dis-tance definitions or a unique optimum for σ; those questions are treated conservatively in Appendix C. 
+
+d) TSDF mesh construction parameters.: The oracle mesh is built with Open3D Scalable TSDF fusion on train-split RGB-D frames and poses (voxel length 0.01 m, SDF truncation 0.04 m, depth truncation 4.0 m, RGB8 color inte-gration), then exported as a triangle mesh and ray-cast for depth/visibility supervision. The corresponding mesh-fidelity summary is reported in the main paper setup section. This subsection establishes the oracle-construction pipeline and the train/val/test isolation used by both the mesh oracle and the 3DGS observation teacher. It does not establish that any test frames or depth labels are used for sigma or gate selection; those remain val-RGB-only diagnostics. APPENDIX C. R OBUSTNESS DIAGNOSTICS 
+
+This section tests whether the reported scaling conclusions are sensitive to seeds, hyperparameters, or budget-control choices. The goal is to separate stable trends from localized failure regimes. 
+
+a) N=50 instability regime.: The main text notes a noisy regime around N = 50 . Table C.1 and Ta-ble C.2 isolate this behavior with seed-level variability and the worst affected sequences. In Table C.2, ∆AbsRel =
+
+AbsRel(Gated) −AbsRel(Coverage), so positive values indi-cate guarded regressions relative to Coverage. 
+
+TABLE C.1 SEED STABILITY .
+
+Seed AbsRel 7 0.397 ± 0.119 11 0.339 ± 0.086 19 0.328 ± 0.079 Across-seed mean ± std 0.354 ± 0.037 
+
+TABLE C.2 N=50 REGRESSIONS .                
+
+> Scene ∆AbsRel qsCov@50 NovQ80 f1-xyz 0.220 1.253 0.872 0.218 f3-struct-notex-near 0.187 0.761 0.931 1.368 f1-desk 0.119 1.158 0.862 0.336
+
+These tables establish that the N = 50 spike is variance-sensitive and concentrated in a small subset of sequences. They do not establish a universal failure of the guarded method, and NovQ80 should be read only as the sequence-level 80th percentile of frame novelty distance in this diag-nosis. 
+
+b) Hyperparameter and budget stress tests.: The fol-lowing tables test whether conclusions depend on one partic-ular setting. Table C.3 varies coverage voxel size around the benchmark default ν = 0 .10 m from Table B.4; it should be read as a sanity sweep, not a replacement default. Table C.4 varies novelty bandwidth around the benchmark default 
+
+σ = 0 .35 using val-split held-out RGB-only diagnostics, and Table C.5 reports an auxiliary geometry-aware quality proxy correlation. 
+
+TABLE C.3 VOXEL SENSITIVITY .                      
+
+> Method Nvoxel (m) AbsRel scenes GOL-Gated CN-Coverage 200 0.010 0.310 ±0.071 20 GOL-Gated CN-Coverage 200 0.020 0.307 ±0.067 20 GOL-Gated CN-Coverage 200 0.050 0.308 ±0.068 20
+
+TABLE C.4 
+
+σ SENSITIVITY .                                                         
+
+> Method NσAbsRel scenes GOL-Gated CN-Coverage 200 0.170 0.305 ±0.063 20 GOL-Gated CN-Coverage 200 0.350 0.313 ±0.038 20 GOL-Gated CN-Coverage 200 0.700 0.315 ±0.088 20 GOL-Gated CN-Coverage 2000 0.170 0.332 ±0.086 20 GOL-Gated CN-Coverage 2000 0.350 0.354 ±0.095 20 GOL-Gated CN-Coverage 2000 0.700 0.355 ±0.092 20 CN-Coverage 200 0.170 0.359 ±0.067 20 CN-Coverage 200 0.350 0.389 ±0.071 20 CN-Coverage 200 0.700 0.361 ±0.079 20 CN-Coverage 2000 0.170 0.397 ±0.111 20 CN-Coverage 2000 0.350 0.396 ±0.112 20 CN-Coverage 2000 0.700 0.391 ±0.102 20
+
+TABLE C.5 GEOMETRY PROXY CORRELATION .Metric Value Spearman correlation 0.221 Pearson correlation 0.028 Scenes 20 
+
+These tables establish that the guarded-vs-naive qualitative story is not visibly tied to one voxel or σ value, and that geometry-aware quality has directional but noisy agreement with performance gaps. They do not establish a strong linear quality predictor, nor do they provide the promised distance-metric sensitivity: a separate λψ or translation-only distance sweep is not present in the available result set and is therefore not claimed as evidence here. 
+
+c) Compute and additional baseline controls.: We run two lightweight controls. Table C.6 reports a compute control where steps increase with rendered-view budget; this is a dedicated rerun and should not be read as a typo or duplicate of the main-paper scaling table. Table C.7 adds a stochastic-greedy selection baseline at N = {200 , 2000 } under the same step-matched 400-step protocol. 
+
+TABLE C.6 EXPOSURE -MATCHED CONTROL .                                                         
+
+> Method NSteps Regime AbsRel Scenes Random 0400 Step-matched 0.357 ±0.048 20 Random 200 400 Step-matched 0.382 ±0.069 20 Random 200 437 Exp-match 0.397 ±0.083 20 Random 2000 400 Step-matched 0.355 ±0.080 20 Random 2000 770 Exp-match 0.345 ±0.076 20 GOL-Gated CN-Coverage 0400 Step-matched 0.312 ±0.069 20 GOL-Gated CN-Coverage 200 400 Step-matched 0.308 ±0.036 20 GOL-Gated CN-Coverage 200 437 Exp-match 0.300 ±0.050 20 GOL-Gated CN-Coverage 2000 400 Step-matched 0.323 ±0.065 20 GOL-Gated CN-Coverage 2000 770 Exp-match 0.325 ±0.067 20
+
+TABLE C.7 STOCHASTIC -GREEDY BASELINE .N Method AbsRel Scenes 200 Coverage 0.389 ± 0.058 20 200 CN-Coverage 0.399 ± 0.120 20 200 GOL-Gated CN-Coverage 0.308 ± 0.036 20 200 StochGreedy-Cov 0.395 ± 0.057 20 2000 Coverage 0.381 ± 0.095 20 2000 CN-Coverage 0.355 ± 0.090 20 2000 GOL-Gated CN-Coverage 0.323 ± 0.065 20 2000 StochGreedy-Cov 0.375 ± 0.096 20 
+
+These controls establish that more compute can improve some settings and that a stronger stochastic-greedy baseline does not overturn the main stability claim. They do not justify the stronger statement that all methods improve uniformly with extra optimization; some rows remain flat or worse in these control runs. APPENDIX D. A DDITIONAL FIGURES 
+
+This section provides visual diagnostics that complement the main-paper tables. Each figure is tied to a specific claim about stability, outliers, or downstream trade-offs. 
+
+a) Paired distribution visualization.: Figure D.1 shows per-sequence paired ∆AbsRel at N = 200 and N = 2000 .It complements Table A.2. “Best non-guardrail” follows the same per-sequence oracle definition above. This figure N200 vs Best non-guardrail 
+
+> N200 vs Random
+> N200 vs Coverage
+> N2000 vs Best non-guardrail
+> N2000 vs Random
+> N2000 vs Coverage
+> 0.5
+> 0.4
+> 0.3
+> 0.2
+> 0.1
+> 0.0
+> 0.1
+> AbsRel (CN-Gate - comp)
+
+Fig. D.1. Per-sequence paired ∆AbsRel distributions at N = {200 , 2000 }.
+
+establishes that the guarded variant behaves like variance reduction or worst-case protection rather than a universal mean booster: heavy negative tails coexist with positive medians against some comparators. It does not establish that GOL-Gated CN-Coverage wins on every scene or against every strong baseline. 
+
+b) Outlier and teacher-quality diagnostics.: Figure D.2 visualizes the N = 50 outlier regime. Figure D.3 shows that geometry-aware teacher quality has directional agreement with performance gaps, but with residual variance consistent with scene-specific effects. 0.8 1.0 1.2 1.4  
+
+> Teacher quality qs
+> 0.05
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> AbsRel (CN-Gate - Cover, N=50)
+> freiburg1_xyz
+> freiburg3_structure_notexture_near
+> freiburg1_desk
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> Coverage fraction at N=50
+
+Fig. D.2. N=50 failure-regime diagnosis: per-sequence ∆AbsRel versus teacher quality. 
+
+These figures establish that the observed outliers cluster in a few sequences and that teacher quality is better interpreted as coarse risk control than as a precise predictor. They do not establish a calibrated or linear mapping from quality proxies to depth improvement. 
+
+c) Downstream scaling curves.: Main Table 7reports the shared downstream numeric summary. Figure D.4 reuses the same run artifacts and adds the full per-budget curves, including the shared 
+
+N = 0 checkpoint for Coverage/CN-Coverage. 0 200 400 600 800 1000 
+
+N     
+
+> 0.25
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> 0.50
+> Success
+> 0200 400 600 800 1000
+
+N
+
+> 0
+> 5
+> 10
+> 15
+> 20
+> 25
+> Collisions/100
+> CN-Coverage
+> Coverage
+> GOL-Gated CN-Coverage (N=200 anchor)
+
+Fig. D.4. Downstream control-proxy metrics versus budget N for Coverage and CN-Coverage. 
+
+These artifacts establish that scaling policy changes the behavior of the stylized control proxy, including a shared 
+
+N = 0 baseline for Coverage/CN-Coverage. They do not establish policy learning, policy transfer, or real-robot safety; the downstream evidence remains a controlled diagnostic under fixed kinematics and thresholds. 0.70 0.75 0.80 0.85 0.90 0.95 1.00 
+
+GS geometry proxy (alpha-weighted exp(-var)) 
+
+> 0.15
+> 0.10
+> 0.05
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> AbsRel = AbsRel(GS) - AbsRel(mesh+Hist)
+
+Spearman=0.22, Pearson=0.03 Fig. D.3. Geometry-aware teacher-quality proxy correlation at N = 200 .APPENDIX E. A DDITIONAL PAIRED SUMMARIES 
+
+This section adds compact summaries derived from the available per-scene logs. They complement the main paper by making paired comparisons, tail behavior, and the meaning of the teacher-quality threshold easier to inspect. 
+
+a) Direct guardrail comparisons.: Table E.1 summa-rizes direct scene-level comparisons for GOL-Gated CN-Coverage at N = {200 , 2000 }. ∆AbsRel is target minus comparator, so negative is better, and W/L/T counts scene-wise wins, losses, and ties. 
+
+> TABLE E.1 GUARDRAIL COMPARISONS .
+
+N Comparator MeanD MedD W/L/T p200 CN-Coverage -0.091 -0.010 11/9/0 0.368 200 CN-Coverage (MeshHist) -0.076 0.030 9/11/0 0.869 2000 CN-Coverage -0.032 -0.003 11/9/0 0.498 2000 CN-Coverage (MeshHist) -0.067 -0.009 12/8/0 0.097 
+
+Table E.1 shows lower mean AbsRel than both direct com-parators, but the scene-wise wins and losses remain close. The evidence therefore supports stability-oriented guarding rather than a universal mean-improvement claim. 
+
+b) Highest-novelty paired summary.: Table E.2 reports paired comparisons in the most novel per-sequence quantile bin (5/5) at N = 0 and N = 2000 . Here too, ∆AbsRel is target minus comparator, so negative is better. 
+
+> TABLE E.2 TAIL COMPARISONS .
+
+N Comparator MeanD MedD W/L/T p0 CN-Coverage -0.048 -0.066 17/3/0 0.005 0 CN-Coverage (MeshHist) -0.011 0.003 10/10/0 0.674 2000 CN-Coverage -0.039 -0.005 12/8/0 0.216 2000 CN-Coverage (MeshHist) -0.060 -0.016 15/5/0 0.012 
+
+Table E.2 establishes that the guarded variant has the strongest paired evidence in the highest novelty bin against CN-Coverage (MeshHist), especially at N = 2000 . It does not establish superiority over every comparator in every novelty regime, which is why the main paper keeps the tail claim narrowly focused on the guarded variant. 0.8 1.0 1.2 1.4                  
+
+> scene quality qs
+> 0
+> 1
+> 2
+> 3
+> 4
+> # scenes
+> Quality-score histogram
+> 0.6 0.8 1.0 1.2 1.4 1.6
+> scene quality qs
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> gate probability  g(qs)
+> Gate mapping
+> Fig. E.1. Scene-quality threshold view. Left: histogram of scene-level quality score qsover the 20 TUM sequences. Right: gate mapping g(qs) = sigmoid(8( qs−1)) used by GOL-Gated. The threshold qs= 1 is the point at which all three held-out val-RGB criteria meet their nominal bounds.
+
+c) Teacher-quality threshold rationale.: Figure E.1 es-tablishes the practical meaning of the gate threshold and shows that the benchmark splits evenly into high- and low-quality scene buckets. It does not establish that the threshold is uniquely optimal; the available evidence only supports it as a reasonable coarse risk-control rule.

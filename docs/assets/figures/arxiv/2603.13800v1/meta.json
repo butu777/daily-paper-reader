@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13800v1/fig-001.webp",
+      "caption": "Table 2. Spatial Reasoning Benchmark. Comparison of 2D and 3D vision–language models on spatial reasoning tasks. The best result for each category is highlighted in bold. For 2D models, the upper block corresponds to non-medical pretraining, while the lower block uses medical-domain pretraining. DIR denotes Directional Reasoning, DIST denotes Distance Reasoning, EXT denotes Extent / Size / Shape Reasoning, VOL denotes Volume Magnitude Reasoning, and COMP denotes Comparative Reasoning.",
+      "page": 6,
+      "index": 1,
+      "width": 1008,
+      "height": 475
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13800v1/fig-002.webp",
+      "caption": "Table 1. Comparison of existing medical imaging datasets with respect to their support for spatial question answering and related spatial reasoning capabilities. SpatialMed is explicitly designed as a benchmark for grounded, quantitative 3D spatial reasoning.",
+      "page": 2,
+      "index": 2,
+      "width": 1015,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13800v1/fig-003.webp",
+      "caption": "Figure 4. Fine-grained performance analysis across anatomical structures, tumor types, and volume scales. (a) Per-organ accuracy across models in the MCA task. (b) Tumor-wise accuracy across selected models. (c) Performance stratified by anatomical volume buckets using Mean Relative Accuracy.",
+      "page": 7,
+      "index": 3,
+      "width": 1017,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13800v1/fig-004.webp",
+      "caption": "Figure 1. Task demonstrations in the SpatialMed, covering six spatial reasoning tasks, with corresponding 3D CT visualizations.",
+      "page": 3,
+      "index": 4,
+      "width": 875,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13800v1/fig-005.webp",
+      "caption": "Figure 2. Overview of three stages from the SpatialMed dataset pipeline. (1) Question–Answer Pair Generation, where agents produce clinically grounded QA pairs using medical knowledge and spatial analysis tools; (2) Data Quality Validation, in which multiple specialist agents verify medical correctness and the necessity of visual–spatial evidence; and (3) Radiologists validation, where multiple radiologists review participating in review and validate the quality of the dataset.",
+      "page": 4,
+      "index": 5,
+      "width": 915,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13800v1/fig-006.webp",
+      "caption": "Figure 3. Benchmark Statistics. Left: Distribution of annotated anatomical regions in the MCA task. Right: Dataset distribution across the volume task, where the y-axis is shown on a log2 scale.",
+      "page": 5,
+      "index": 6,
+      "width": 492,
+      "height": 250
+    }
+  ]
+}

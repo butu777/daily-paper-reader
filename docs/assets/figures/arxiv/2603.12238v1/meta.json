@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.12238v1/fig-001.webp",
+      "caption": "Table 1: Comprehensive suite of Action APIs. We define a functionally complete set of primitives for asset management, 6-DoF spatial manipulation, and visual perception control. These APIs abstract low-level engine operations into semantically intuitive commands, enabling the VLM agent to autonomously orchestrate 3D scene synthesis.",
+      "page": 6,
+      "index": 1,
+      "width": 729,
+      "height": 428
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12238v1/fig-002.webp",
+      "caption": "Fig. 4: Qualitative comparison of indoor scene generation. We compare SceneAssistant with Holodeck [41] and SceneWeaver [40] across various indoor categories. SceneAssistant performs precise spatial arrangements and faithfully reconstructs nuanced objects often simplified or omitted by existing baselines.",
+      "page": 10,
+      "index": 2,
+      "width": 713,
+      "height": 504
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12238v1/fig-003.webp",
+      "caption": "Fig. 6: Ablation study. The left side compares SceneAssistant with NoVisualPrompt variant, where the absence of visual grounding leads to disorganized layouts. The right side illustrates the NoCollisionCheck variant, with red circles highlighting physical interpenetrations that the agent fails to resolve without explicit feedback.",
+      "page": 14,
+      "index": 3,
+      "width": 704,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12238v1/fig-004.webp",
+      "caption": "Table 2: Quantitative comparison across different scene categories. The upper section reports the average scores for 8 indoor scenes, comparing SceneAssistant against stateof-the-art baselines. The lower section presents results for 22 open-vocabulary scenes under various configurations. Layout and Object Quality are rated on a 1–10 scale.",
+      "page": 13,
+      "index": 4,
+      "width": 710,
+      "height": 196
+    }
+  ]
+}

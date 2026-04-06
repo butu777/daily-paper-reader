@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25791v1/fig-001.webp",
+      "caption": "Figure 3. This gallery showcases the results of our hand-articulated-object reconstruction on three data sources: ArtHOI-RGBD, RSRD and ArtHOI-Wild.(more results in the supp.). The first column shows sampled input frames. We present the camera view and a side view to display the reconstructed HOI meshes. Hand reconstructions for RSRD are produced using the same WiLoR model as ours for a fair comparison. Note that RSRD is unable to process the video from ArtHOI-Wild, as it requires an object surrounding scan that is unavailable for internet videos.",
+      "page": 6,
+      "index": 1,
+      "width": 994,
+      "height": 547
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25791v1/fig-002.webp",
+      "caption": "Figure 2. Pipeline of our ArtHOI. ArtHOI is an optimization-based framework (see subfigure (a)) that integrates and refines priors from multiple foundation models for monocular 4D reconstruction of human-articulated-object interactions. In particular, the proposed object’s metric scale and pose optimization (see subfigure (b)) recovers 3D mesh in world space from a normalized one, while MLLM-guided hand-object alignment method (see subfigure (c)) promotes physically plausible hand-object mesh composition.",
+      "page": 4,
+      "index": 2,
+      "width": 1025,
+      "height": 579
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25791v1/fig-003.webp",
+      "caption": "Table 1. 4D reconstruction accuracy of articulated object on monocular RGB videos from ArtHOI-RGBD dataset. Lower CD/MSSD and higher F-scores indicate better performance.",
+      "page": 7,
+      "index": 3,
+      "width": 496,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25791v1/fig-004.webp",
+      "caption": "Table 2. 4D reconstruction accuracy of articulated object on monocular RGB videos from RSRD [24] dataset. Lower CD/MSSD and higher F-scores indicate better performance.",
+      "page": 7,
+      "index": 4,
+      "width": 496,
+      "height": 270
+    }
+  ]
+}

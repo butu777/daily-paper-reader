@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-001.webp",
+      "caption": "Table 1. Results on 7Scenes dataset. We compare the median translation and rotation errors (cm/◦) of different methods, lower is better. Best results are in bold.",
+      "page": 6,
+      "index": 1,
+      "width": 1026,
+      "height": 375
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-002.webp",
+      "caption": "Table 2. Results on 12Scenes dataset. We compare the median translation and rotation errors (cm/◦) of different methods, and the average accuracy of frames under a specified threshold. Best results are in bold.",
+      "page": 6,
+      "index": 2,
+      "width": 818,
+      "height": 232
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-003.webp",
+      "caption": "Figure 2. Comparison of dense and sparse scenes. Green denotes ground truth query poses and references are cyan. The predicted poses by different methods are shown in different colors: red for ACE [7], magenta for ACE+GS-CPR [28], and blue for our proposed L3. Dense Scene: Localization using all 1000 reference images. Sparse Scene: We sampled the 1000 reference images and retain only 20. Our L3 significantly outperforms other baselines in this challenging case.",
+      "page": 2,
+      "index": 3,
+      "width": 1027,
+      "height": 282
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-004.webp",
+      "caption": "Figure 7. Comparison of localization errors. Position (trajectories) and rotation (bottom bars, x-axis denotes frame indices) errors are colored by magnitude for ACE [7], GS-CPR [28], and our L3. (a) Outdoor StMarysChurch (Cambridge Landmarks). (b) Indoor Office2 5b (12Scenes). Both panels compare dense (top) and sparse (bottom, N = 30) settings.",
+      "page": 10,
+      "index": 4,
+      "width": 960,
+      "height": 1118
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-005.webp",
+      "caption": "Table 4. Sparse view localization on the 7Scenes and 12Scenes datasets. We report the mean of median translation and rotation errors (cm/◦) across all subscenes. N is the number of sampled reference images. ”-” indicates localization failure in at least one subscene. Best results are in bold.",
+      "page": 8,
+      "index": 5,
+      "width": 922,
+      "height": 381
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-006.webp",
+      "caption": "Table 3. Results on Cambridge Landmarks dataset. We compare the median translation and rotation errors (cm/◦) of different methods. Best results are in bold.",
+      "page": 8,
+      "index": 6,
+      "width": 918,
+      "height": 535
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-007.webp",
+      "caption": "Figure 3. Overview of L3. Coarse Localization: Given a query image Iq and retrieved references {Ir,i}Ki=1, we first perform feedforward 3D reconstruction to predict local point clouds P local",
+      "page": 4,
+      "index": 7,
+      "width": 1027,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-008.webp",
+      "caption": "Table 5. Results of sparse view localization on the Cambridge dataset. We compare the mean of the median translation and rotation errors (cm/◦) for different methods across all subscenes. Best results are in bold.",
+      "page": 9,
+      "index": 8,
+      "width": 898,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-009.webp",
+      "caption": "Figure 5. Robustness analysis under increasing sparsity. We plot the log-scale translation error growth relative to the dense setting on three datasets. ”#” indicates localization failure beyond that sparsity level.",
+      "page": 9,
+      "index": 9,
+      "width": 1032,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-010.webp",
+      "caption": "Figure 6. Ablation of scale estimation strategies on 12Scenes dataset. We compare our full method in Sec. 3.1 (blue line) against variants using only stage 1 (local geometric consistency, red line) or stage 2 (global trajectory constraints, yellow line).",
+      "page": 9,
+      "index": 10,
+      "width": 867,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07937v1/fig-011.webp",
+      "caption": "Figure 4. Scale Estimation Strategy. Stage 1: Absolute depths are triangulated using ground truth (GT) reference poses. If the median ratio Stri between GT and local depths (from P local",
+      "page": 5,
+      "index": 11,
+      "width": 1034,
+      "height": 629
+    }
+  ]
+}

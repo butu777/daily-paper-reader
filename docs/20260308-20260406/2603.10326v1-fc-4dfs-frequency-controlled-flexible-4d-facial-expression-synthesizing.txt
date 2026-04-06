@@ -1,0 +1,365 @@
+Title: FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing
+
+URL Source: https://arxiv.org/pdf/2603.10326v1
+
+Published Time: Thu, 12 Mar 2026 00:40:29 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing 
+
+# Xin Lu ∗
+
+School of AI, University of Chinese Academy of Sciences Beijing, China luxin22@mails.ucas.ac.cn 
+
+# Chuanqing Zhuang ∗
+
+School of AI, University of Chinese Academy of Sciences Beijing, China zhuangchuanqing@ucas.ac.cn 
+
+# Zhengda Lu †
+
+School of AI, University of Chinese Academy of Sciences Beijing, China luzhengda@ucas.ac.cn 
+
+# Yiqun Wang 
+
+College of Computer Science, Chongqing University Chongqing, China yiqun.wang@cqu.edu.cn 
+
+# Jun Xiao †
+
+School of AI, University of Chinese Academy of Sciences Beijing, China xiaojun@ucas.ac.cn 
+
+## ABSTRACT 
+
+4D facial expression synthesizing is a critical problem in the fields of computer vision and graphics. Current methods lack flexibility and smoothness when simulating the inter-frame motion of expres-sion sequences. In this paper, we propose a frequency-controlled 4D facial expression synthesizing method, FC-4DFS. Specifically, we introduce a frequency-controlled LSTM network to generate 4D facial expression sequences frame by frame from a given neutral landmark with a given length. Meanwhile, we propose a temporal coherence loss to enhance the perception of temporal sequence motion and improve the accuracy of relative displacements. Fur-thermore, we designed a Multi-level Identity-Aware Displacement Network based on a cross-attention mechanism to reconstruct the 4D facial expression sequences from landmark sequences. Finally, our FC-4DFS achieves flexible and SOTA generation results of 4D facial expression sequences with different lengths on CoMA and Florence4D datasets. The code will be available on GitHub. 
+
+## CCS CONCEPTS 
+
+• Computing methodologies → Procedural animation ; Com-puter graphics; Machine learning. 
+
+## KEYWORDS 
+
+4D face, neutral landmark, expression generation, LSTM, positional encoding 
+
+ACM Reference Format: 
+
+Xin Lu, Chuanqing Zhuang, Zhengda Lu, Yiqun Wang, and Jun Xiao. 2024. FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing.  
+
+> ∗These authors contributed equally to this work.
+> †These authors are co-corresponding authors. Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+> MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia
+> ©2024 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN 979-8-4007-0686-8/24/10 https://doi.org/10.1145/3664647.3681455
+
+In Proceedings of the 32nd ACM International Conference on Multimedia (MM ’24), October 28-November 1, 2024, Melbourne, VIC, AustraliaProceedings of the 32nd ACM International Conference on Multimedia (MM’24), October 28-November 1, 2024, Melbourne, Australia. ACM, New York, NY, USA, 9 pages. https://doi.org/10.1145/3664647.3681455 
+
+## 1 INTRODUCTION 
+
+4D facial expression synthesizing is a critical problem in the fields of computer vision and graphics and has broad applications in areas such as 3D animations, virtual reality, and interactive gaming. The task aims to generate a series of realistic facial mesh with diverse expressions or speech-related movements, starting from a mesh with a neutral expression. Although recent advances in generative networks have propelled the development of 2D video animation solutions[ 12 , 25 , 34 ], these videos lack spatial depth, realism, and interactivity, rendering them unsuitable for real-world applications like VR. Afterward, an in-creasing number of researchers are beginning to explore the driving and generation of 4D facial expression sequences with the introduc-tion of 4D facial expression sequence datasets[ 8, 9 , 29 , 30 ]. Among them, some previous works have focused on generating 4D facial se-quences from neutral meshes driven by complex video[ 5] or audio signals[ 9, 19 , 24 ]. However, these methods demand substantial prior knowledge and require extensive data, lacking temporal continuity, making direct application in scenarios like game scene develop-ment challenging where such priors are absent. In contrast, our research focuses on utilizing expression labels to guide a temporally coherent animation process, enhancing the applicability of facial expression sequence generation in scenarios with minimal priors. Recently, some researchers introduced GAN[ 17 ] into the label-guided 4D facial expression generation task. First, Motion3D[ 27 ]proposed the WGAN to generate the Square Root Velocity Func-tion (SRVF) of the 3D landmarks sequences and then they devised an S2D decoder to convert them into mesh displacements, which added to the neutral mesh and yielded a 4D facial expression. This pioneering work has laid the groundwork for its application in a variety of downstream tasks[ 26 ]. However, their generated se-quences lacked robustness to different identities since they only use expression labels as guides. To address this issue, some re-cent methods[ 21 , 36 , 37 ] utilize the neutral landmark as inputs  
+
+> arXiv:2603.10326v1 [cs.GR] 11 Mar 2026 MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia Xin Lu, Chuanqing Zhuang, Zhengda Lu, Yiqun Wang, and Jun Xiao GT
+> ours
+> LM4D-GAN
+> Motion3D
+
+Figure 1: Quantity generation comparison results between Groud-truth, Motion3D, LM-4DGAN and our FC-LSTM with different identities. 
+
+to directly generate landmark sequences, thereby enhancing the generation framework’s robustness to various identities. However, the sequences generated by these methods exhibit issues such as sequence motion lacking smoothness (Figure.1 line 1), and missing expression details(Figure.1 line 2). Additionally, their application in real-world scenarios is limited since they can only generate sequences of fixed lengths. On the other hand, it is essential to transform them into a se-quence of 3D meshes after obtaining the sequence of landmarks. N3DMM[ 3 ] first introduced a graph convolution method called spiral convolution, to encode and decode entire meshes. However, this method cannot effectively model the neutral mesh of unknown identities. Furthermore, S2D[ 27 ] proposed decoding mesh displace-ments from landmark displacements to reduce the modeling error for meshes of unknown identities. They divide the expression mesh into neutral mesh and displacement components and eliminate the need to encode and decode the dominant neutral mesh body. However, due to the limited information contained in landmark displacements and the diverse identity information, their ability to generalize the expression mesh details across different identities still requires further enhancement. In this paper, we propose a frequency-controlled 4D facial expres-sion synthesizing method, FC-4DFS, based on frequency-controlled LSTM and a multi-level identity-aware network. Specifically, we introduce a frequency-controlled LSTM (FC-LSTM) to generate 4D facial expression landmark sequences frame by frame from a given neutral landmark. Among them, we first modified the basic struc-ture of LSTM to produce different length sequences with controlled frequency. Meanwhile, we integrate the positional information to enhance the awareness of the current frame’s position within the sequence. Furthermore, we propose a temporal coherence loss to enhance the perception of temporal sequence motion and improve the accuracy of relative displacements. On the other hand, we design a multi-level identity-aware net-work(MIADNet) based on a cross-attention mechanism to recon-struct the 4D facial expression sequences from landmark sequences. Our MIADNet can significantly improve the robustness of various identities and facilitate the generation of detailed and identity-consistent facial expressions. Finally, our FC-4DFS achieves flexible and SOTA generation results of 4D facial expression sequences with different lengths on both the CoMA and Florence4D datasets. In summary, we make the following contributions: 
+
+• We introduce a frame-by-frame 4D facial expression gener-ation framework based on the FC-LSTM network and add temporal loss to achieve flexible control of the length of the generated sequence and enhance the smoothness of sequence motion. 
+
+• We design the MIADNet, which leverages the cross-attention mechanism and fully utilizes the multi-level identity infor-mation of the neutral mesh and neutral landmark, further enhancing the decoding robustness across various identities. 
+
+• Our FC-4DFS enables the generation of 4D face expression sequences with different lengths while maintaining sequence integrity and facial details. We also achieve SOTA generation results on both the CoMA and Florence4D datasets. 
+
+## 2 RELATED WORK 
+
+Here, we review some of the latest advancements in related domains, including 4D facial expression sequence generation and 3D face modeling. 
+
+## 2.1 4D facial expression generation 
+
+Many researchers are committed to directly modeling 4D facial expression information[ 6 , 7 , 16 ]. However, because mesh has dense vertex information, it is difficult to directly drive mesh through tags to form expression sequences, and cannot effectively simu-late expression details[ 28 ]. Thanks to the development of neural networks, the detection of facial landmarks is reliable and accu-rate [ 11 , 13 , 32 , 35 ], while landmarks and their motion provide a feasible way to explain facial deformation by simplifying the complexity of visual data. Researchers began to study the use of landmarks to guide expression sequence generation. The work of landmark-guided 2D expression generation has been widely studied[ 10 , 31 , 33 , 34 ]. These methods have demonstrated the po-tential of using landmarks to simulate expression dynamics and generate 2D videos using generative models[ 17 , 18 , 20 ], so re-searchers began to focus on landmark-guided Generation of 4D expression sequences. Motion3D[ 27 ] takes a step further based on MotionGAN[ 25 ] and proposes WGAN to generate the square root velocity function (SRVF) of 3D landmark sequences, and then they design an S2D decoder to convert them into mesh displacements, This displacement is added to the neutral mesh and generates a 4D expression, which is applied in downstream tasks[ 26 ]. However, the sequences they generated lacked robustness to different iden-tities when generalizing. To enhance the generalization ability of the generated sequence to different identities, [ 21 , 36 , 37 ] uses neu-tral landmark sequences as input to generate complete landmark FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia lm t-1  
+
+> One -hot exp -label
+> FC -LSTM
+> Neutral face
+> lm t
+> Mesh displacement
+> sequence
+> Mesh sequence
+> lm sequence MIAD Decoder
+> lm 0
+> Δlm
+> lm 0
+
+Length L 
+
+Figure 2: The overview of our FC-4DFS framework. 
+
+expression sequences. However, these models can only generate one[ 36 , 37 ] or several [ 21 ] fixed-length sequences and cannot be effectively applied in actual game modeling scenarios. 
+
+## 2.2 3D Face Modeling 
+
+To obtain mesh information from the generated landmark sequences, researchers use the 3D Morphable Model (3DMM) as a bridge be-tween landmarks and 3D facial expressions. 3DMM was originally introduced in [ 1 ] and is widely considered the premier framework for 3D facial modeling. The original model and its variants[ 2, 4,15 , 22 , 23 ] rely on linear formulations to capture changes in fa-cial shape, including identity and expression, thus limiting their modeling capabilities. Ranjan et al[ 30 ] introduced an autoencoder architecture based on a newly defined spectral convolution operator, along with pooling operations to facilitate grid down/upsampling. Brisas et al. [ 3] improve this approach by introducing a novel graph convolution operator that enforces consistent local ordering on the vertices of the graph via a spiral operator. Although their modeling accuracy is impressive across different expressions, recent research [ 14 ] highlights their significant shortcomings in generalizing to unknown identities. This severely limits their practical applicability in tasks such as face fitting or expression transfer. Next, S2D[ 27 ] be-gins to decouple neutral meshes and displacements, using landmark displacements to guide the modeling of 3D meshes. This method divides the expression mesh into neutral meshes and displacements and eliminates the need to encode and decode the main neutral mesh volume, greatly improving the ability to model expressions of unknown identities. However, due to the limited information con-tained in landmark displacements and the lack of diverse identity information, their ability to generalize the expressive mesh details of different identities still needs to be further enhanced. 
+
+## 3 METHOD 3.1 Overview 
+
+As shown in Figure.2, our FC-4DFS network consists of a frequency-controlled LSTM that generates a landmark expression sequence and a MIADNet that transfers the landmark displacements into mesh vertex displacements. Specifically, the frequency-controlled ×  
+
+> ×
+> ＋
+> ×
+> tanh
+> σ
+> σσ
+> yt-1
+> ht-1
+> yt
+> ht
+> tanh
+> ht
+> xt
+> freq t
+> +）（）（）（
+> 1tt1-t
+> PPE PPE PPE
+> Emb it
+> ft
+> ot
+
+Figure 3: The structure of our frequency-controlled LSTM. 
+
+LSTM uses the landmark 𝑙𝑚 𝑡 −1 of frame 𝑡 − 1 and the expression label as input and generates the landmark 𝑙𝑚 𝑡 of frame t as output, where the neutral landmark 𝑙𝑚 0 is given as the initial landmark at the first frame (See Section 3.2). Then, we subtract the initial neutral landmark 𝑙𝑚 0 from the obtained landmark sequence {𝑙𝑚 𝑡 }𝑛 𝑡 =1to ob-tain the displacement sequence for the subsequent network. Next, the MIADNet extracts multi-level latent features from the neutral mesh and predicts mesh displacement sequence with the input of landmark displacement sequence (See Section 3.3). Finally, we combine the mesh displacement sequence and the neutral mesh to obtain an expressional mesh sequence. Besides, in order to enhance the perception of temporal sequence motion and improve the accu-racy of relative displacements, we also design a time consistency loss function (See Section 3.4). 
+
+## 3.2 Frequency-controlled LSTM 
+
+In this section, we propose a frequency-controlled LSTM, as shown in Figure. 3, to realize timing and frame rate perception of ex-pression actions, realizing flexible frame-by-frame generation of variable-length sequences. Specifically, we first integrate frequency features into the LSTM for controlled long short-term memory updates, after which we introduce relative positional encoding embedding for free-framerate perception. 
+
+Frequency Integration in LSTM Given the input 𝑥 𝑡 of the current frame 𝑡 extracted by the feature network and the output 𝑦 𝑡 −1 of the last frame 𝑡 − 1, the LSTM needs to obtain the output 𝑦 𝑡 and update the hidden state ℎ𝑡 in the model. In general, it first calculates the MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia Xin Lu, Chuanqing Zhuang, Zhengda Lu, Yiqun Wang, and Jun Xiao 
+
+forget gate 𝑓 𝑡 and the input gate 𝑖 𝑡 as follows: 
+
+𝑓 𝑡 = 𝜎  𝑊 𝑓 · [ ℎ𝑡 −1, 𝑥 𝑡 ] + 𝑏 𝑓 
+
+
+
+𝑖 𝑡 = 𝜎 (𝑊 𝑖 · [ ℎ𝑡 −1, 𝑥 𝑡 ] + 𝑏 𝑖 ) (1) where 𝑊 and 𝑏 are the weight matrices and bias coefficients, 𝜎 is the sigmoid function. Through the hidden state and the controls of input gate and for-get gate, the LSTM achieves stable and efficient timing-dependent modeling. However, LSTM implicitly sorts the input sequence by index, and the interval between two adjacent frame inputs is always 1 when entering a sequence of different lengths. This is appropriate for inputs that only consider precedence, such as the position of each word in a sentence. However, it cannot perceive the similarity difference between the two frames at different frame rates in the input with frame rate attributes, such as an image sequence in a video. To do this, we integrate frequency information 𝑓 𝑟𝑒𝑞 𝑡 into the LSTM to control the current frame forget gate and input gate as follows: 
+
+𝑓 𝑡 = 𝜎  𝑊 𝑓 · ℎ𝑡 −1, 𝑥 𝑡 , 𝑓 𝑟𝑒𝑞 𝑡 
+
+ + 𝑏 𝑓 
+
+
+
+𝑖 𝑡 = 𝜎  𝑊 𝑖 · ℎ𝑡 −1, 𝑥 𝑡 , 𝑓 𝑟𝑒𝑞 𝑡 
+
+ + 𝑏 𝑖 
+
+ (2) After that, we obtain the candidate output ˜𝑦 𝑡 and the output gate 
+
+𝑜 𝑡 as: 
+
+˜𝑦 𝑡 = tanh (𝑊 𝑐 · [ ℎ𝑡 −1, 𝑥 𝑡 ] + 𝑏 𝑐 )
+
+𝑜 𝑡 = 𝜎 (𝑊 𝑜 · [ ℎ𝑡 −1, 𝑥 𝑡 ] + 𝑏 𝑜 ) (3) Finally, we update the last hidden state from ℎ𝑡 −1 to ℎ𝑡 and calculate the output 𝑦 𝑡 as follows: 
+
+ℎ𝑡 = 𝑜 𝑡 ∗ tanh (𝑦 𝑡 )
+
+𝑦 𝑡 = 𝑓 𝑡 ∗ 𝑦 𝑡 −1 + 𝑖 𝑡 ∗ ˜𝑦 𝑡 
+
+(4) 
+
+Framerate-aware Positional Encoding Take the expression label and initial neutral landmark as inputs, to generate a landmark sequence under free-framerate control, it is necessary to obtain the current position in the complete sequence and its time change relative to the previous frame. Thus, we employ relative positional encoding to code the entire sequence. In particular, we first calculate the relative position of the current frame in the full sequence as: 
+
+˜𝑝 𝑡 = 𝑝 𝑡 
+
+𝐿 (5) where 𝑝 𝑡 is the time point of the current frame in the complete sequence, and 𝐿 is the duration of the complete sequence. Then, we encode the relative positional encoding of the current frame 𝑃𝐸 as: 
+
+𝑃𝐸 (𝑝 𝑡 )2𝑗 = sin 
+
+ ˜𝑝 𝑡 
+
+10000 2𝑗 /𝑑 
+
+
+
+𝑃𝐸 (𝑝 𝑡 )2𝑗 +1 = cos 
+
+ ˜𝑝 𝑡 
+
+10000 2𝑗 /𝑑 
+
+ (6) where 𝑗 represents the dimension within the encoding vector, and 
+
+𝑑 is the total number of dimensions in the model. Finally, we embed the positional encoding of adjacent frames into the network as: 
+
+𝑓 𝑟𝑒𝑞 𝑡 = 𝐸𝑚𝑏 (𝑃𝐸 (𝑝 𝑡 −1), 𝑃𝐸 (𝑝 𝑡 ), 𝑃𝐸 (𝑝 𝑡 +1)) (7) which captures the temporal changes between the current frame and the previous frame, and realizes the free-framerate control for sequence generating. M0  
+
+> …
+> …
+> lm 0
+> Δlm t
+> Cross -attention
+> Add
+> Spiral conv
+> Δ𝑀 t𝑀 t
+> 𝐹 𝑖 𝑒 𝑛 𝐹 𝑖 de
+> MLP
+> zt
+
+Figure 4: The structure of our Multi-level Identity-Aware Displacement Net. 
+
+## 3.3 MIADNet 
+
+The FC-LSTM previously generated realistic sequences of facial expression landmarks. However, our ultimate objective is to ani-mate the neutral mesh 𝑀 0 to produce novel 3D facial animation sequences {𝑀 𝑡 }𝑛 𝑡 =1. In this section, we propose a multi-level identity-aware displacement network (MIADNet) to make full use of the identity information from the generated landmark sequence and the neutral mesh, thus further enhancing the robustness to identity when reconstructing 4D facial expression sequence from landmark sequence. Specifically, the proposed MIADNet model, as shown in Figure. 4, includes a landmark decomposition embedding module, an identity extractor, and an identity-aware mesh generator. 
+
+Landmark Decomposition Embedding The generated landmark sequence after FC-LSTM contains identity and expression change information, where the identity information is shared throughout the action cycle, and provides a facial datum shape reference for the generation of the expressional mesh. We first decompose the generated landmark sequence {𝑙𝑚 𝑡 }𝑛 𝑡 =1 to the neutral landmark 
+
+𝑙𝑚 0 and a landmark displacement sequence {Δ𝑙𝑚 𝑡 }𝑛 𝑡 =1. For each frame 𝑡 , we embed 𝑙𝑚 0 and Δ𝑙𝑚 𝑡 to vectors in the latent code space with MLPs as the input to subsequent mesh generators, which is expressed as: 
+
+𝑧 𝑡 = 𝑀𝐿𝑃 𝑚 (Δ𝑙𝑚 𝑡 ) + 𝜆𝑀𝐿𝑃 𝑛 (𝑙𝑚 0) (8) where 𝜆 is a learnable parameter. 
+
+Identity Extractor The neutral landmark 𝑙𝑚 0 provides global identity information at low resolutions, however, it doesn’t have the ability to provide facial details for high-resolution expression animation meshes. In addition, it is difficult to maintain stability throughout the sequence for mesh generation using a single-frame landmark. For this purpose, we introduce neutral mesh 𝑀 0 as input, and we use multiple spiral convolutions to extract multi-resolution identity features from 𝑀 0. The multi-resolution feature constructs the intermediate bridge between low-resolution landmarks and high-resolution meshes, effectively improving the consistency of FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia 
+
+the generation process from landmarks to meshes and the stability in different frames. 
+
+Identity-aware Mesh Generator Given the latent landmark code 
+
+𝑧 𝑡 and the multi-resolution identity features 𝐹 𝑒𝑛 of the current frame 𝑡 , the mesh generator upsamples 𝑧 𝑡 and combines it with the identity features 𝐹 𝑒𝑛 by skip connections to obtain the mesh output. To utilize the neutral mesh information as a reference mesh in the generation to reconstruct a continuous and consistent sequence, we use the cross-attention mechanism to model the context dependence between the generated expression mesh and the reference neutral mesh. Specifically, the input features of the i-level decoder can be expressed as: 
+
+𝐹 𝑖 𝑖𝑛 = softmax 𝐹 𝑖 −1 
+
+> 𝑑𝑒
+
+· 𝐹 𝑖 𝑒𝑛 
+
+√𝑑 
+
+!
+
+𝐹 𝑖 𝑒𝑛 (9) where 𝐹 𝑑𝑒 are the decoder features, and 𝑑 is the feature dimension. 
+
+## 3.4 Training loss 
+
+For the generation of facial expression animations, it is crucial to ensure the high quality of each frame and maintain continuity and smoothness throughout the sequence. This requires designing a loss function that takes into account the generation quality of each frame and the relationship between frames to solve these problems. Previous methods that directly generate complete sequences often directly measure the quality of the generated sequence to ensure accuracy and perceived fidelity. But this method tends to ignore mo-tion in sequences. To this end, we propose a hybrid reconstruction and temporal coherence loss function to evaluate the generation quality of each frame and inter-frame motion respectively, while maintaining the generation quality while strengthening the model’s modeling of sequence motion. The training loss of our model can be formulated as: 
+
+𝐿 𝑡𝑜𝑡𝑎𝑙 = 𝐿 𝑟𝑒 + 𝛼 ∗ 𝐿 𝑡𝑒𝑚𝑝𝑜𝑟𝑎𝑙 (10) where 𝐿 𝑟𝑒 represents the single-frame reconstruction loss based on L1 distance, i.e., 
+
+𝐿 𝑟𝑒 = 1
+
+𝑁 
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+
+∥𝑥 𝑡 − ˜𝑥 𝑡 ∥1 (11) and we set the hyperparameters 𝛼 = 0.3 in the loss function during training. Then, we use landmark motion between adjacent frames to enhance control over the smoothness of the sequence, and the temporal coherence loss 𝐿 𝑡𝑒𝑚𝑝𝑜𝑟𝑎𝑙 is described as: 
+
+𝐿 𝑡𝑒𝑚𝑝𝑜𝑟𝑎𝑙 = 1
+
+𝑁 
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+
+∥𝑚 𝑡 − ˜𝑚 𝑡 ∥1 (12) 
+
+## 4 EXPERIMENTS AND RESULTS 4.1 Experimental details 
+
+Datasets We carry out experiments on the CoMA[ 30 ] dataset and Florence4D [ 29 ] dataset. CoMA dataset comprises 144 facial ex-pression sequences with 20,466 facial meshes collected from 12 unique subjects showcasing 12 different expressions, highlighting a vast spectrum of extreme expressions and the diversity in facial movements. The CoMA dataset faces challenges due to data schema when applied to the task of generating label-driven facial expression an-imations. This is mainly because such tasks require a complete sequence from neutral expression to peak expression, and expres-sion patterns(some are from neutral to peak while others are from neutral to peak and back to neutral) and the sequence lengths in the CoMA dataset are not uniform, and most of the frames of the sequence are concentrated in neutral and peak. Existing methods, such as Motion3D, utilize sampling and in-terpolation to produce GT sequences, which struggle to smooth transitions and ignore motion changes of neutral and peak expres-sions. Therefore, we conduct a thorough refinement for the CoMA dataset to obtain the Aligned CoMA dataset . We first normalized sequence lengths, then emphasized significant expression changes, and curated the sequence to ensure the generation of animations that authentically and smoothly capture the nuances of facial ex-pressions. 
+
+Florence4D dataset provides an extensive collection of 6,650 facial sequences with 399,000 face meshes from 95 distinct identities, encompassing 43 females and 52 males, and capturing a broad array of 70 unique facial expressions. Each sequence transitions from a neutral expression to an apex expression and then returns to neutral, demonstrating a rich diversity of facial movements and expressions. Both datasets are aligned in FLAME topology and have N = 5, 023 vertices. 
+
+Implement Details To maintain the independence of FC-LSTM and MIADNet, we train them separately on these datasets. For the landmark sequence generation of FC-LSTM, we first allocated the first three-quarters of the aligned datasets from CoMA and Flo-rence4D for training, reserving the final quarter for testing. Mean-while, we utilize the Adam optimizer and set the learning rate at 1e-5. Finally, we train 1,200 epochs for CoMA and 600 epochs for Florence4D. To rigorously evaluate the generalization capability of the MIADNet, we first implement a 4-fold cross-validation proto-col for both the CoMA and Florence4D datasets, same as S2D[ 27 ]. Meanwhile, we utilize the Adam optimizer for training with a learn-ing rate of 1e-3 and a decay rate of 0.99. Then, we train 300 epochs for the CoMA dataset and 150 epochs for the Florence4D dataset with a batch size of 128. These experiments were meticulously designed to thoroughly examine the proposed framework’s effectiveness and adaptability in capturing the complexities of facial expressions. Both tasks are trained on a device with 8 NVIDIA 4090 GPUs and Intel(R) Xeon(R) Platinum 8368 CPU @ 2.40GHz. 
+
+## 4.2 Comparisons 
+
+Generating sequences of 4D facial expressions In this section, we compare our FC-4DFS with the state-of-the-art methods in-cluding Motion3D[ 27 ] and LM-4DGAN[ 21 ]. Motion3D uses SRVF to encode landmark displacement and their open-source code is prone to crashing during the training stage. Therefore, we use their public model on the CoMA dataset for a 30-frame sequence comparison. Furthermore, we retrained the LM-4DGAN model on two datasets for comparison. Then, we generated the landmark sequence reconstructed the mesh sequence from them, and used MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia Xin Lu, Chuanqing Zhuang, Zhengda Lu, Yiqun Wang, and Jun Xiao 
+
+the mean square error (MSE) to compare the vertex reconstruc-tion errors in landmark and mesh, 𝐸 𝑙𝑚 (mm) and 𝐸 𝑚𝑒𝑠ℎ (mm) re-spectively. Finally, to characterize the perceptual accuracy of the reconstructed expression sequences relative to expression labels, we trained expression-labeled classifiers on various datasets and used classification accuracy(CA) to test the generated result by various methods. 
+
+Table 1: Quantitative results of the end-to-end comparison study.                                          
+
+> Method CoMA Florence4D
+> 𝐸 𝑙𝑚 ↓𝐸 𝑚𝑒𝑠ℎ ↓CA( %)↑𝐸 𝑙𝑚 ↓𝐸 𝑚𝑒𝑠ℎ ↓CA( %)↑
+> gt --86.84 --81.07
+> Motion3D 11.25 5.288 78.28 ---LM-4DGAN 10.02 4.724 75.30 9.349 8.414 69.37 FC-LSTM+S2D 8.308 4.392 83.79 7.496 6.642 76.45 ours 8.308 4.131 84.17 7.496 6.215 78.93
+
+The quantitative comparison results are shown in Tab. 1. For 30 frame comparisons, the landmark per-vertex reconstruction error (𝐸 𝑙𝑚 ) using our FC-LSTM is 26 % higher than Motion3D and 17 %
+
+higher than LM-4DGAN. At the same time, when using the same S2D decoder for end-to-end reconstruction, the mesh reconstruc-tion error ( 𝐸 𝑚𝑒𝑠ℎ ) per vertex is 18 % higher than Motion3D and 7.6 %
+
+higher than LM-4DGAN. In addition, when using our MIADNet to reconstruct the 4D facial expression from the generated landmark, it is improved by 21.8 % compared to Motion3D and 12.5 % compared to LM-4DGAN. The classification accuracy of the data generated by our method is presented in the third column of the table, demonstrat-ing that the sequences produced, with each frame’s mesh passing through a classification network, achieve results closer to the spec-ified expressions. LM-4DGAN enhances the modeling of different identity movements due to the direct generation of landmark se-quences, and its results are better than Motion3D. Based on utilizing neutral landmarks, our FC-LSTM generates sequences frame by frame and further considers the smoothness of inter-frame motion. Furthermore, our MIADNet introduces a neutral mesh with the cross-attention mechanism guided, which also improves the decod-ing result. Therefore, our method achieves the SOTA performance in all indicators and is good at generating label-driven 4D facial expression sequences with enhanced fidelity. In addition, we qualitatively compared the generation results of our method with Motion3D and LM-4DGAN on multiple subjects at 30 frames. As illustrated in Figure5, the Motion3D sequence exhibits excessively abrupt face details in the mouth and muscles and lacks continuity between frames. LM-4DGAN uses a step-by-step genera-tion method to enhance the continuity of the sequence and directly models the complete sequence from the landmark sequence. At the same time, it is more difficult to model motion patterns and have overly smooth facial details. In contrast, methods using FC-LSTM to generate the next frame based on the previous frame and expression labels can achieve smooth and effective motion pattern modeling. Moreover, our final results with MIADNet achieved closer to GT than those with the S2D decoder. We mainly compared our MIADNet with several 3DMM-based methods, including the basic PCA-3DMM[ 2 ], the Neural 3DMM 
+
+Table 2: Quantitative results of the comparison study and ablation study for MIADNet(lower the better). 
+
+Method CoMA Florence4D D3DFACS PCA-220 1.280 ± 1.061 2.389 ± 1.660 0.980 ± 0.674 Neural3DMM 3.873 ± 3.169 5.180 ± 6.635 2.846 ± 1.830 S2D 0.550 ± 0.636 1.493 ± 1.607 0.366 ± 0.325 S2D+lm-n 0.547 ± 0.637 1.405 ± 1.541 0.355 ± 0.318 S2D+mesh-n 0.548 ± 0.635 1.421 ± 1.461 0.340 ± 0.169 Ours 0.528 ± 0.634 1.338 ± 1.499 0.289 ± 0.169 
+
+(N3DMM)[ 3] that specifically designed to learn the nonlinear latent space of mesh changes and reconstruct the input 3D mesh and the basic S2D[ 27 ] decoder without neutral identity information for the input displacement. 
+
+Landmark Decoder MIADNet is another important part of our FC-4DFS. In order to verify the robustness of the reconstruction network to unseen identities, Refers to the experiment of S2D[ 27 ], we performed 4-fold cross-validation on the identities on the CoMA and Florence4D datasets and used per-vertex Euclidean error (mm) to measure the reconstruction performance. We compared our MI-ADNet with the basic S2D decoder and 3DMM-based methods, including the basic PCA-3DMM[ 2 ], the Neural 3DMM(N3DMM)[ 3]. The quantitative results of these comparisons are detailed in Table. 2. First, the spiral convolution-based N3DMM, which is pro-posed to learn the nonlinear latent space of facial changes for the 3DMM mesh with FLAME topology, performs poorly on both datasets. This is because N3DMM encodes and decodes the entire mesh, while it demonstrates some generalization capabilities across different expressions, its overall performance in handling new iden-tities is still poor[ 27 ]. Furthermore, S2D decomposes the mesh into a neutral mesh that represents the identity and displacement, then uses the spiral convolution method to decode the displacement from the landmark into the displacement of the mesh. This method avoids encoding and decoding of neutral mesh to reduce errors but misses the use of identity information while its robustness to different identities needs to be further enhanced. Finally, our MIADNet adds the multi-level identity information for the S2D decoder, strengthening the reconstruction network’s modeling ca-pabilities for unknown identities. Therefore, our MIADNet achieve a 5 % improvement on the CoMA dataset and 10.3 % improvement on the Florence4D dataset compared to S2D. This shows that multi-level identity information can enhance the robustness of different identities. On the other hand, we visualize the error heatmaps of the meshes reconstructed by these methods to compare their performance. Fig-ure.6 provides qualitative examples of error heatmaps for identity-independent splitting by comparing them with PCA, N3DMM, and S2D. First, PCA-3DMM and N3DMM show high errors even for neutral meshes, demonstrating their inability to recover the iden-tity of unseen meshes. Meanwhile, the high error of N3DMM is mainly concentrated in the lower half of the mesh, while the high error area of PCA is scattered throughout the mesh. This is because N3DMM takes advantage of the geometric topological relationship of 3DMM and uses spiral convolution to encode neutral meshes in FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia FC-LSTM+S2D 
+
+GT 
+
+Ours 
+
+LM4D-GAN 
+
+Motion3D 
+
+Figure 5: The qualitative results of sequences generated by Motion3D, LM-4DGAN, our method and the ground-truth of different subjects. Table 3: Ablation Study of FC-LSTM and temporal loss( ↓). 
+
+base freq-info loss-temp Aligned CoMA Florence4D 20 25 30 20 25 30 mlp 9.631 ± 4.919 9.533 ± 4.837 9.591 ± 4.815 8.796 ± 4.820 8.783 ± 4.727 8.790 ± 4.193 lstm 8.663 ± 3.641 8.577 ± 3.510 8.611 ± 3.580 7.920 ± 4.244 7.896 ± 4.244 7.894 ± 4.692 lstm ✓ 8.341 ± 3.676 8.222 ± 3.495 8.232 ± 3.500 7.686 ± 4.175 7.572 ±4.138 7.529 ± 4.124 lstm ✓ 8.291 ± 3.485 8.238 ± 3.485 8.255 ± 3.541 7.699 ± 4.167 7.603 ± 4.127 7.569 ± 4.102 lstm ✓ ✓ 8.152 ± 3.515 8.064 ± 3.446 8.058 ± 3.459 7.496 ± 4.082 7.411 ± 4.050 7.381 ± 4.031 
+
+the latent space, which can better reconstruct the topological struc-ture of the mesh. Then, the S2D method and our method achieve lower reconstruction errors, which indicates that learning per-point displacements is better than directly learning point coordinates. Finally, our method shows significant improvement over the S2D method in handling highly varying expressions (see the neck and eyes in Figure.6), which are consistent with the results shown in Table.2. 
+
+## 4.3 Ablation Study 
+
+The Impact of Our Frequency-Controlled LSTM To validate the role of LSTM in our proposed framework and the effectiveness of our novel frequency-controlled LSTM, we first use a basic MLP as the baseline for sequence regression and compare it with stan-dard LSTM and our FC-LSTM. Due to the issues with the CoMA dataset mentioned in Section 4.1, to better compare the generated results, we trained on the aligned CoMA dataset(containing multi-ple sequence lengths) and the Florance4D dataset, and tested on 3 different lengths, as detailed in Table. 3. Furthermore, we use the first 3/4 of identities as training data and the last 1/4 of identities as test data and use per-vertex reconstruction error for evaluation. It is observed that the framework utilizing LSTM for regression consistently achieves lower per-vertex reconstruction errors across all test lengths compared to MLP. Moreover, our FC-LSTM improves performance by 14 % over the baseline in the aligned CoMA dataset and by 13.8 % over the baseline in the Florence4D dataset. Compared MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia Xin Lu, Chuanqing Zhuang, Zhengda Lu, Yiqun Wang, and Jun Xiao GT  N3DMM  PCA  S2D  ours 
+
+> neutral bareteeth cheeksin  bareteeth
+
+Figure 6: Mesh reconstruction error (red=high, blue=low) of our model and other methods. 
+
+with the basic LSTM, the improvement is 4.3 % in the aligned CoMA dataset and 4.1 % in the Florence4D dataset. On the other hand, Figure.7 highlights the effectiveness of our FC-LSTM, demonstrating that our model can generate complete sequences of any given length and maintain fine detail across dif-ferent lengths. Furthermore, the LSTM method without frequency control cannot effectively generate a complete expression sequence such as the mouth cannot be fully opened in the first row. 
+
+Impact of temporal loss Sequence continuity is of paramount importance for the task of 4D facial expression generation. The displacement between adjacent frames in a sequence represents the motion of landmarks throughout the sequence, and to smooth this motion, we incorporated a temporal loss into our training process. As shown in Table.3, the LSTM with added temporal loss exhibited a performance increase of 4.5 % on the Align CoMA dataset. Further-more, it has an improvement of 2.3 % after adding the temporal loss for our FC-LSTM. On the Florence4D dataset, the implementation of temporal loss resulted in an enhancement of 4.6 % for the LSTM framework and 2.5 % for our FC-LSTM. 
+
+Impact of MIAD In the MIADNet part, based on S2D, we intro-duced Landmark Decomposition Embedding and Identity-aware Mesh Generator to extract multi-level identity information carried in neutral landmarks and neutral meshes respectively. To illustrate the role of multi-level identity information, we performed abla-tion experiments, and the results are shown in Table.2. It can be seen that adding Landmark Decomposition Embedding(S2D+lm-n) or Identity-aware Mesh Generator(S2D+mesh-n) alone does not significantly improve the reconstruction error. However, after in-troducing these two modules at the same time, we achieved a 5 %Len_30 
+
+> Len_20 Wo_freq_info
+> Len_25
+> Len_20
+> GT
+
+Figure 7: Qualitative comparison results between sequences of various lengths generated using our FC-LSTM, sequences of 20 frames generated without frequency control, and the ground truth. 
+
+improvement on the CoMA dataset and a 10.3 % improvement on the Florence4D dataset compared to S2D. 
+
+## 5 CONCLUSION 
+
+In this paper, we propose a label-guided 4D facial expression syn-thesis method, FC-4DFS, by using frequency-controlled LSTM net-works (called FC-LSTM) to form a flexible generation framework. This method not only overcomes the limitation that traditional methods can only generate fixed sequences but also further en-hances the smoothness of generated sequence motion. The intro-duction of MIADNet further enhances our framework’s ability to accurately reconstruct facial expression sequences with complex identity information from facial landmarks. Experiments conducted on the CoMA and Florence4D datasets demonstrate that our model achieves state-of-the-art performance. It is worth noting that our method still needs to generate a landmark sequence first and then expand it to a mesh sequence according to the displacement. In future work, we will further study the end-to-end generation of 4D facial expression sequences. 
+
+## ACKNOWLEDGMENTS 
+
+This work is supported by the National Natural Science Founda-tion of China (U21A20515, 62102393, 62206263, 62202076, 62271467, 62306297), Beijing Natural Science Foundation (4242053), China Postdoctoral Science Foundation (2022T150639), the State Key Lab-oratory of Robotics and Systems (HIT) (SKLRS-2022-KF-11), the Fundamental Research Funds for the Central Universities and Open FC-4DFS: Frequency-controlled Flexible 4D Facial Expression Synthesizing MM ’24, October 28-November 1, 2024, Melbourne, VIC, Australia 
+
+Projects Program of State Key Laboratory of Multimodal Artificial Intelligence Systems. 
+
+## REFERENCES 
+
+[1] Volker Blanz and Thomas Vetter. 2023. A morphable model for the synthesis of 3D faces. In Seminal Graphics Papers: Pushing the Boundaries, Volume 2 . 157–164. [2] James Booth, Anastasios Roussos, Stefanos Zafeiriou, Allan Ponniah, and David Dunaway. 2016. A 3d morphable model learnt from 10,000 faces. In Proceedings of the IEEE conference on computer vision and pattern recognition . 5543–5552. [3] Giorgos Bouritsas, Sergiy Bokhnyak, Stylianos Ploumpis, Michael Bronstein, and Stefanos Zafeiriou. 2019. Neural 3d morphable models: Spiral convolutional networks for 3d shape representation learning and generation. In Proceedings of the IEEE/CVF International Conference on Computer Vision . 7213–7222. [4] Alan Brunton, Timo Bolkart, and Stefanie Wuhrer. 2014. Multilinear wavelets: A statistical shape space for human faces. In Computer Vision–ECCV 2014: 13th European Conference, Zurich, Switzerland, September 6-12, 2014, Proceedings, Part I 13 . Springer, 297–312. [5] Chen Cao, Qiming Hou, and Kun Zhou. 2014. Displaced dynamic expression regression for real-time facial tracking and animation. ACM Transactions on graphics (TOG) 33 (2014), 1–10. [6] Fengju Chang, Anh Tuan Tran, Tal Hassner, Iacopo Masi, Ram Nevatia, and Gerard Medioni. 2017. FacePoseNet: Making a Case for Landmark-Free Face Alignment. arXiv:1708.07517 [cs.CV] [7] Feng-Ju Chang, Anh Tuan Tran, Tal Hassner, Iacopo Masi, Ram Nevatia, and Gerard Medioni. 2018. ExpNet: Landmark-Free, Deep, 3D Facial Expressions. arXiv:1802.00542 [cs.CV] [8] Shiyang Cheng, Irene Kotsia, Maja Pantic, and Stefanos Zafeiriou. 2018. 4DFAB: A Large Scale 4D Database for Facial Expression Analysis and Biometric Appli-cations. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) .[9] Daniel Cudeiro, Timo Bolkart, Cassidy Laidlaw, Anurag Ranjan, and Michael J Black. 2019. Capture, learning, and synthesis of 3D speaking styles. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition . 10101– 10111. [10] Yu Deng, Jiaolong Yang, Sicheng Xu, Dong Chen, Yunde Jia, and Xin Tong. 2020. Accurate 3D Face Reconstruction with Weakly-Supervised Learning: From Single Image to Image Set. arXiv:1903.08527 [cs.CV] [11] Xuanyi Dong, Yi Yang, Shih-En Wei, Xinshuo Weng, Yaser Sheikh, and Shoou-I Yu. 2020. Supervision by registration and triangulation for landmark detection. IEEE transactions on pattern analysis and machine intelligence 43 (2020), 3681–3694. [12] Lijie Fan, Wenbing Huang, Chuang Gan, Junzhou Huang, and Boqing Gong. 2018. Controllable Image-to-Video Translation: A Case Study on Facial Expression Generation. arXiv:1808.02992 [cs.CV] [13] Claudio Ferrari, Stefano Berretti, Pietro Pala, and Alberto Del Bimbo. 2021. A sparse and locally coherent morphable face model for dense semantic correspon-dence across heterogeneous 3D faces. IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (2021), 6667–6682. [14] Claudio Ferrari, Stefano Berretti, Pietro Pala, and Alberto Del Bimbo. 2021. A sparse and locally coherent morphable face model for dense semantic correspon-dence across heterogeneous 3D faces. IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (2021), 6667–6682. [15] Claudio Ferrari, Giuseppe Lisanti, Stefano Berretti, and Alberto Del Bimbo. 2015. Dictionary learning based 3D morphable model construction for face recognition with varying expression and pose. In 2015 International Conference on 3D Vision .IEEE, 509–517. [16] Baris Gecer, Stylianos Ploumpis, Irene Kotsia, and Stefanos Zafeiriou. 2019. GAN-FIT: Generative Adversarial Network Fitting for High Fidelity 3D Face Recon-struction. In 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . IEEE. https://doi.org/10.1109/cvpr.2019.00125 [17] Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, and Yoshua Bengio. 2014. Generative adversarial nets. Advances in neural information processing systems 27 (2014). [18] Jonathan Ho, Ajay Jain, and Pieter Abbeel. 2020. Denoising Diffusion Probabilistic Models. arXiv:2006.11239 [cs.LG] [19] Tero Karras, Timo Aila, Samuli Laine, Antti Herva, and Jaakko Lehtinen. 2017. Audio-driven facial animation by joint end-to-end learning of pose and emotion. 
+
+ACM Transactions on Graphics (TOG) 36 (2017), 1–12. [20] Diederik P Kingma and Max Welling. 2013. Auto-encoding variational bayes. 
+
+arXiv preprint arXiv:1312.6114 (2013). [21] Xin Lu, Zhengda Lu, Yiqun Wang, and Jun Xiao. 2023. Landmark Guided 4D Facial Expression Generation. In SIGGRAPH Asia 2023 Posters . 1–2. [22] Marcel Lüthi, Thomas Gerig, Christoph Jud, and Thomas Vetter. 2017. Gaussian process morphable models. IEEE transactions on pattern analysis and machine intelligence 40 (2017), 1860–1873. [23] Thomas Neumann, Kiran Varanasi, Stephan Wenger, Markus Wacker, Marcus Magnor, and Christian Theobalt. 2013. Sparse localized deformation components. 
+
+ACM Transactions on Graphics (TOG) 32 (2013), 1–10. [24] Federico Nocentini, Claudio Ferrari, and Stefano Berretti. 2023. Learning Land-marks Motion from Speech for Speaker-Agnostic 3D Talking Heads Generation. arXiv:2306.01415 [cs.CV] [25] Naima Otberdout, Mohamed Daoudi, Anis Kacem, Lahoucine Ballihi, and Stefano Berretti. 2022. Dynamic Facial Expression Generation on Hilbert Hypersphere With Conditional Wasserstein Generative Adversarial Nets. IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (2022), 848–863. https://doi.org/10. 1109/TPAMI.2020.3002500 [26] Naima Otberdout, Claudio Ferrari, Mohamed Daoudi, Stefano Berretti, and Al-berto Del Bimbo. 2023. Generating Multiple 4D Expression Transitions by Learn-ing Face Landmark Trajectories. arXiv:2208.00050 [cs.CV] [27] Naima Otberdout, Claudio Ferrari, Mohamed Daoudi, Stefano Berretti, and Al-berto Del Bimbo. 2022. Sparse to dense dynamic 3d facial expression generation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition . 20385–20394. [28] Rolandos Alexandros Potamias, Jiali Zheng, Stylianos Ploumpis, Giorgos Bourit-sas, Evangelos Ververas, and Stefanos Zafeiriou. 2020. Learning to generate customized dynamic 3D facial expressions. In Computer Vision–ECCV 2020: 16th European Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part XXIX 16 .Springer, 278–294. [29] Filippo Principi, Stefano Berretti, Claudio Ferrari, Naima Otberdout, Mohamed Daoudi, and Alberto Del Bimbo. 2023. The florence 4d facial expression dataset. In 
+
+2023 IEEE 17th International Conference on Automatic Face and Gesture Recognition (FG) . IEEE, 1–6. [30] Anurag Ranjan, Timo Bolkart, Soubhik Sanyal, and Michael J Black. 2018. Gen-erating 3D faces using convolutional mesh autoencoders. In Proceedings of the European conference on computer vision (ECCV) . 704–720. [31] Kritaphat Songsri-in and Stefanos Zafeiriou. 2020. Face video generation from a single image and landmarks. In 2020 15th IEEE International Conference on Automatic Face and Gesture Recognition (FG 2020) . IEEE, 69–76. [32] Jun Wan, Zhihui Lai, Jing Li, Jie Zhou, and Can Gao. 2021. Robust facial landmark detection by multiorder multiconstraint deep networks. IEEE Transactions on Neural Networks and Learning Systems 33 (2021), 2181–2194. [33] Ran Yi, Yong-Jin Liu, Yu-Kun Lai, and Paul L. Rosin. 2023. Quality Metric Guided Portrait Line Drawing Generation From Unpaired Training Data. IEEE Trans-actions on Pattern Analysis and Machine Intelligence 45 (Jan. 2023), 905–918. https://doi.org/10.1109/tpami.2022.3147570 [34] Ran Yi, Zipeng Ye, Ruoyu Fan, Yezhi Shu, Yong-Jin Liu, Yu-Kun Lai, and Paul L Rosin. 2022. Animating portrait line drawings from a single face photo and a speech signal. In ACM SIGGRAPH 2022 Conference Proceedings . 1–8. [35] Libing Zeng, Lele Chen, Wentao Bao, Zhong Li, Yi Xu, Junsong Yuan, and Nima Khademi Kalantari. 2023. 3d-aware facial landmark detection via multi-view consistent training on synthetic data. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition . 12747–12758. [36] Kaifeng Zou, Sylvain Faisan, Boyang Yu, Sébastien Valette, and Hyewon Seo. 2023. 4D Facial Expression Diffusion Model. arXiv preprint arXiv:2303.16611 
+
+(2023). [37] Kaifeng Zou, Boyang Yu, and Hyewon Seo. 2023. 3D Facial Expression Generator Based on Transformer VAE. In 2023 IEEE International Conference on Image Processing (ICIP) . IEEE, 2550–2554.

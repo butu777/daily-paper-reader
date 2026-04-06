@@ -1,0 +1,134 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-001.webp",
+      "caption": "Figure 3: PartRel3D dataset overview of structured functional and spatial triplets for fine-grained interpart semantic supervision.",
+      "page": 6,
+      "index": 1,
+      "width": 496,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-002.webp",
+      "caption": "Figure 10: Mini-scene Generation Results.",
+      "page": 21,
+      "index": 2,
+      "width": 508,
+      "height": 308
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-003.webp",
+      "caption": "Table 1: Quantitative evaluation on 3D object generation. Quantitative comparison with state-of-the-art",
+      "page": 7,
+      "index": 3,
+      "width": 1042,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-004.webp",
+      "caption": "Figure 5: Ablation on the co-denoising process with local semantic tokens Sloc. The condition-only baseline (−Sloc) yields coarse geometry and weak semantic coherence between parts.",
+      "page": 10,
+      "index": 4,
+      "width": 500,
+      "height": 334
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-005.webp",
+      "caption": "Figure 6: Ablation on the global relational tokens Sglb. The model exhibits part-level misalignment and spatial drift without Sglb.",
+      "page": 10,
+      "index": 5,
+      "width": 499,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-006.webp",
+      "caption": "Figure 7: Mini-scene generation. Given a scenelevel description,DreamPartGen can generate a complete, coherent 3D scene with physically plausible spatial layouts, capturing object geometry and finegrained object- and part-level relations.",
+      "page": 10,
+      "index": 6,
+      "width": 485,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-007.webp",
+      "caption": "Table 5: Quantitative evaluation with different input settings. We evaluate DreamPartGen with different combinations of input information. Among single-source inputs, spatial triplets (ST) offer the greatest improvements, while functional triplets (FT) alone contribute weaker geometric constraints. Combining Text+Image+FT+ST yields the best overall performance across all metrics, highlighting the complementary benefits of language-grounded functional and spatial relations.",
+      "page": 18,
+      "index": 7,
+      "width": 1044,
+      "height": 305
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-008.webp",
+      "caption": "Figure 12: Additional Part Editing Results. DreamPartGen allows diverse yet consistent partlevel 3D asset generation.",
+      "page": 23,
+      "index": 8,
+      "width": 316,
+      "height": 1198
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-009.webp",
+      "caption": "Figure 11: Part Articulation Results. Our relationally grounded DreamPartGen model naturally produces articulated 3D assets that preserve structural consistency across different motion states.",
+      "page": 23,
+      "index": 9,
+      "width": 448,
+      "height": 1198
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-010.webp",
+      "caption": "Table 3: Ablation on Model Components. Quantita-",
+      "page": 8,
+      "index": 10,
+      "width": 514,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-011.webp",
+      "caption": "Table 2: Text-shape alignment comparison. Quan-",
+      "page": 8,
+      "index": 11,
+      "width": 514,
+      "height": 344
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-012.webp",
+      "caption": "Figure 2: DreamPartGen Overview. DreamPartGen performs text-guided 3D generation by jointly denoising geometry, appearance, and relational semantics. Each object is decomposed into parts represented as Duplex Part Latents (DPLs) from 3D and 2D encoders, while Relational Semantic Latents (RSLs) encode text-derived details and global structure. Through intra-part (geometry–appearance alignment) and inter-part (relational planning via language) synchronization, DreamPartGen co-denoises DPLs and RSLs, enabling semantically grounded reconstruction of coherent part-aware 3D objects.",
+      "page": 4,
+      "index": 12,
+      "width": 1025,
+      "height": 542
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-013.webp",
+      "caption": "Table 6: Relation parsing robustness at inference. We compare three inference conditions for constructing relational triplets during test time: (1) with additional VLM (Qwen2.5-VL & ChatGPT-5), (2) oracle relations with ground-truth triplets, and (3) prompt-only conditioning. For the prompt-only row, we report the gap to",
+      "page": 19,
+      "index": 13,
+      "width": 1048,
+      "height": 237
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-014.webp",
+      "caption": "Figure 9: Qualitative Results. As illustrated, DreamPartGen enables high-quality part-aware 3D generation with no explicit structural guidance (e.g., bounding boxes).",
+      "page": 17,
+      "index": 14,
+      "width": 972,
+      "height": 1175
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-015.webp",
+      "caption": "Figure 4: Qualitative comparison on part-level 3D generation. Across diverse object categories, DreamPartGen yields the most faithful decompositions, preserving clear part boundaries, correct topology, and consistent spatial alignment. Baselines frequently exhibit assembly failures such as missing or detached parts (e.g., wing/head), spatial drift of small components (e.g., wheels/mechanical parts floating off the chassis), and unstable attachments that create surface tearing or holes around high-contact regions (neck, torso, shoulders, limb joints).",
+      "page": 9,
+      "index": 15,
+      "width": 1000,
+      "height": 554
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19216v1/fig-016.webp",
+      "caption": "Table 9: Robustness to rare parts and held-out relations. We evaluate in-distribution (ID) test data and two out-of-distribution (OOD) splits: OOD-parts (tail part labels) and OOD-rel (held-out relation predicates). We report absolute scores and the change relative to ID in parentheses (∆).",
+      "page": 20,
+      "index": 16,
+      "width": 1050,
+      "height": 300
+    }
+  ]
+}

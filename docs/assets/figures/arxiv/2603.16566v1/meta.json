@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-001.webp",
+      "caption": "Table 1. Quantitative metrics for material generation. The mode column indicates if the method is image or text guided.",
+      "page": 6,
+      "index": 1,
+      "width": 506,
+      "height": 240
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-002.webp",
+      "caption": "Figure 3. Material generation. We compare against Hunyuan3D Paint 2.1 [18] (image and text guided versions) and VideoMat [37] (text) on three example meshes from the BlenderVault [33] dataset. We encourage the reader to zoom in and compare the quality of the intrinsics (base color, roughness, metallicity), as well as to see the supplementary materials.",
+      "page": 6,
+      "index": 2,
+      "width": 1026,
+      "height": 648
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-003.webp",
+      "caption": "Figure 5. We generate three materials from the same text prompt (see supplemental), each with a unique random seed. This results in subtle variations of materials for the two examples.",
+      "page": 7,
+      "index": 3,
+      "width": 485,
+      "height": 326
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-004.webp",
+      "caption": "Figure 6. We show relit results, using three HDR probes [67], of the generated materials for Hunyuan3D-Paint (image-guided), VideoMat, and our method (both text-guided). Our generated materials produce convincing details in three different lighting scenarios.",
+      "page": 7,
+      "index": 4,
+      "width": 492,
+      "height": 382
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-005.webp",
+      "caption": "Figure 2. Our method starts from a known 3D model and a text prompt. We first render videos of normal maps and world space positions. Next, these conditions are encoded into latent space, using a pretrained encoder, E , to produce latent conditions, zI. These are concatenated with noisy latents, zmat",
+      "page": 3,
+      "index": 5,
+      "width": 1014,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-006.webp",
+      "caption": "Figure 9. We compare two versions of joint prediction. Our version uses the latent space of VAEpbr and predicts a video with 16 frames. Frame concatenation doubles the number of tokens by treating the material prediction as diffusing a video with twice the number of frames [16× base color, 16× HRM]. The resulting quality is similar, arguably with more coherent material predictions in our approach. Please zoom to see the details.",
+      "page": 13,
+      "index": 6,
+      "width": 1017,
+      "height": 932
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-007.webp",
+      "caption": "Figure 7. We compare our text- and image-guided models for six examples, and note that the image-guided version more closely resembles the materials of the dataset entry. We deliberately chose a view with 45◦ rotation from the conditioning view.",
+      "page": 8,
+      "index": 7,
+      "width": 1032,
+      "height": 497
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16566v1/fig-008.webp",
+      "caption": "Figure 8. Our text-to-PBR material generations (renderings in Blender) on a collection of TRELLIS.2-generated base geometry.",
+      "page": 12,
+      "index": 8,
+      "width": 483,
+      "height": 314
+    }
+  ]
+}

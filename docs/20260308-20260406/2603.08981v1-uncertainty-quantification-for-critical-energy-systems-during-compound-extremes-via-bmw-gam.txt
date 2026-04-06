@@ -1,0 +1,814 @@
+Title: Uncertainty quantification for critical energy systems during compound extremes via BMW-GAM
+
+URL Source: https://arxiv.org/pdf/2603.08981v1
+
+Published Time: Wed, 11 Mar 2026 00:17:29 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+> Received 9 March 2026; Revised 9 March 2026; Accepted 9 March 2026 DOI: xxx/xxxx
+
+ARTICLE TYPE 
+
+# Uncertainty quantification for critical energy systems during compound extremes via BMW-GAM 
+
+Mitchell L. Krock 1 | W. Neal Mann 2 | Zhi Zhou 2
+
+> 1Mathematics and Computer Science, Argonne National Laboratory, Illinois, USA
+> 2Energy Systems and Infrastructure Assessment, Argonne National Laboratory, Illinois, USA
+> Correspondence
+> Email: mk52n@missouri.edu
+
+Summary 
+
+Extreme weather poses a large risk to critical energy systems (Ekisheva, Rieder, Norris, Lauby, & Dobson 2021; Levin, Botterud, Mann, Kwon, & Zhou 2022). Uncertainty quantification of negative impacts is important for developing resilience, especially during compound extreme weather events involving multiple climate vari-ables. We leverage BMW-GAM (Economou & Garry 2022), a copula workflow that relies on fitting marginal distributions with Bayesian generalized additive mod-els in moving windows—an embarrassingly parallel task. The Gaussian copula has separable multivariate space-time correlation, allowing for efficient emulation and likelihood fitting with big datasets. Overall, the formulation is interpretable and provides uncertainty quantification through probabilistic simulations of weather vari-ables during extreme events. Our method is illustrated in an analysis of temperature, wind speed, and global horizontal irradiance from Argonne National Laboratory’s high-fidelity climate model output ADDA. 
+
+> KEYWORDS:
+> GAMs, Bayesian smoothing, multivariate space–time model, weather extremes, climate model, ADDA
+
+1 INTRODUCTION 
+
+Natural gas networks, transmission networks, and electricity supply and demand are more closely coupled than ever. All are subject to threats from extreme weather, particularly when the weather event involves multiple climate variables. The industry sees this as the greatest risk to system reliability, but understudied. Sillmann et al. (2017) discuss several challenges of modeling weather extremes; in this work we analyze short-duration extremes of climate model output in Northeast U.S. Our target is to create a workflow that investigates the simultaneous risks of extreme weather to the interdependent electricity and natural gas network systems. The contribution of this paper is constructing a probabilistic model for uncertainty quantification during compound weather extremes. Simulations from our model can be used as synthetic input to the electricity and gas networks, once the connection is established, to conduct a weather-impacted grid reliability assessment (Adhikari, Wertz, Dubey, Ahmad, & Dobson 2025; Lee et al. 2024). Linking gas and electricity networks is the subject of previous research (Clegg & Mancarella 2017; Gillessen, Heinrichs, Hake, & Allelein 2019; T. Li, Eremia, & Shahidehpour 2008; Martinez-Mares, Alberto and Fuerte-Esquivel, Claudio 2012; Shahidehpour, Fu, & Wiedman 2005) but remains a challenge. Researchers from Argonne National Laboratory are developing a soft-coupled workflow between electricity dispatch model A-LEAF (Mann, Kwon, Levin, Botterud, & Zhou 2022) and natural gas network operation model NGTransient (Tatara 2020) to find simultaneous risks to these interdependent systems. Ultimately, one could consider extremes not just in the weather, but also in grid and gas networks, such as common mode or cascade events.   
+
+> arXiv:2603.08981v1 [stat.ME] 9 Mar 2026 2KROCK ET AL
+
+A simple approach to studying extremes with climate model output is empirically counting occurrences of the extreme event of interest. However, this assumes the number of climate simulations is enough to adequately quantify uncertainty. One solution, if possible, is using more high-performance computing resources to run additional large climate ensembles; this is not always viable due to limited computational budget. Instead, a computationally efficient statistical model can emulate climate model output outside the range of the original data, providing uncertainty quantification for impacts from rare events. 
+
+2 BAYESIAN MOVING WINDOW GENERALIZED ADDITIVE MODEL (BMW-GAM) 
+
+Our probabilistic model follows the BMW-GAM framework proposed by Economou and Garry (2022). It begins with windowed Bayesian inference for generalized additive models, then a Gaussian copula endows multivariate spatio-temporal dependence. GAMs are a flexible, interpretable nonparametric regression technique with state-of-the-art performance in energy load fore-casting competitions (Gaillard, Goude, & Nedellec 2016). Han, Guikema, and Quiring (2009) use GAMs to study power grid outage caused by extreme weather. Windowed estimation has a rich history in geostatistics (Haas 1990a 1990b; Risser & Calder 2015; Ver Hoef, Cressie, & Barry 2004; Wiens, Kleiber, Nychka, & Barnhart 2021). Similar ideas of encoding local estimates to spatial process models are found in Nychka, Hammerling, Krock, and Wiens (2018) and Wiens, Nychka, and Kleiber (2020). 
+
+2.1 Marginal Distribution 
+
+Consider a single weather variable 𝑌 𝑠,𝑡 ∈ ℝ at location 𝑠 ∈ ℝ2 and time 𝑡 ∈ ℝ. BMW-GAM writes 
+
+𝑌 𝑠,𝑡 ∼ 𝑝 (𝑦 𝑠,𝑡 ; 𝜇 𝑠,𝑡 , 𝜙 )
+
+𝑔 (𝜇 𝑠,𝑡 ) = 𝑓 (𝑠, 𝑡 ) (1) where 𝑝 (⋅) is a probability distribution with mean 𝜇 𝑠,𝑡 , parameters independent of (𝑠, 𝑡 ) are represented by 𝜙 (e.g., 𝜙 = 𝜎 2 > 0,the distribution’s scale parameter), 𝑔 (⋅) is a link function, and 𝑓 (𝑠, 𝑡 ) is a regression spline. In 1D, 𝑌 𝑖 ∼ 𝑝 (𝑦 𝑖 ; 𝜇 (𝑥 𝑖 ), 𝜙 ) and 
+
+𝑔 (𝜇 (𝑥 𝑖 )) = 𝑓 (𝑥 𝑖 ) = ∑𝐽 𝑗 =1 𝛽 𝑗 𝑏 𝑗 (𝑥 𝑖 ) and 𝜷 = ( 𝛽 1, … , 𝛽 𝐽 )T contains coefficients of a cubic spline basis. In higher dimensions, tensor-product splines are a natural option for 𝑓 , but come at heavy computational cost. We instead opt for a thin-plane spline (Wahba 1990), balancing computational efficiency with an assumption of isotropy. By using localized fitting, this assumption needs only to be true for a small window and can be checked for violations. Parameters are estimated by minimizing 
+
+−𝓁 (𝜷 , 𝜙 ; 𝐲 , 𝐗 ) + 𝜆 𝜷 T𝐒 𝜷 , (2) where 𝓁 (𝜷 , 𝜙 ; 𝐲 , 𝐗 ) denotes the log-likelihood for data (𝐗 , 𝐲 ) in a nearest-neighbor moving window centered at 𝑦 𝑠,𝑡 , and 𝐒 is a penalty matrix (constructed before fitting) with regularization parameter 𝜆 > 0 selected through generalized cross-validation. The R package mgcv (Wood 2017) automates these steps. Hyperparameters are the window size, in both space and time, as well as the number of knots in the spline function. Following recommendation from Economou and Garry (2022), we employ 50 knots and 30 nearest neighbors in space. The temporal window size of 9 nearest neighbors (including the central timepoint) corresponds to 24 hours 1. To simulate 𝑌 𝑠,𝑡 , we use Bayesian Monte Carlo sampling. The posterior predictive distribution of the response ̃𝑦 given data 𝐲 is 
+
+𝑝 (̃𝑦 ∣ 𝐲 ) = ∫
+
+> 𝜷
+
+𝑝 (̃𝑦 ∣ 𝜷 ,̂ 𝜆,̂ 𝜙 )𝑝 (𝜷 ∣ 𝐲 ) 𝑑 𝜷 , (3) where point estimates are substituted for 𝜆 and 𝜙 rather than performing the full Bayesian hierarchy. Assume the prior 
+
+𝜷 ∼ 𝑁 (𝟎 , 𝜎 2𝐒 †∕𝜆 ) with 𝐒 † the pseudo-inverse of 𝐒 . If the response variable is Normal 2, the posterior is 𝜷 ∣ 𝐲 = 𝑁 (̂𝜷 , (𝐗 T𝐗 +
+
+𝜆 𝐒 )−1 𝜎 2); the posterior mean ̂ 𝜷 minimizes (2), and the posterior variance matrix is easily extracted from mgcv . Marginal inference can be accelerated with parallel computations across windows. 
+
+2.2 Copula 
+
+Simulations under the posterior (3) are independently collected at each central point in the moving window, separately for the weather variables. To account for dependence, we leverage the copula (Joe 2014; Nelsen 2006), in particular, the Gaussian   
+
+> 1Data are at a three-hour frequency, so 8 readings per day.
+> 2If not, large sample approximations result in a multivariate Normal posterior. KROCK ET AL 3
+
+copula. Recent developments in Gaussian copula literature include sensitivity analysis to unobserved confounding (Balgi, Braun, Peña, & Daoud 2025), and estimation of correlation parameters under differential privacy (S. Wang, Feldman, & Reiter 2026). We do not analyze precipitation, but related ideas in stochastic weather generators (Y. Li & Sun 2021; Verdin, Rajagopalan, Kleiber, & Katz 2015; Verdin, Rajagopalan, Kleiber, Podestá, & Bert 2018 2019) may be of independent interest. Bracken, Rajagopalan, Cheng, Kleiber, and Gangopadhyay (2016) embed the Gaussian copula in a Bayesian hierarchical model to study precipitation extremes over a large spatial domain. Gaussian copula is also used for wind and PV scenario generation (Dumas et al. 2021; Golestaneh, Gooi, & Pinson 2016; Pinson, Madsen, Nielsen, Papaefthymiou, & Klöckl 2009), modeling extreme cold and weak-wind events over Europe (Tedesco, Lenkoski, Bloomfield, & Sillmann 2023), sparse multi-task learning (Gonçalves, Zuben, & Banerjee 2016), and importance sampling of rare events (Rossmann et al. 2025). Copula are popular in forecasting and time series analysis (Bessa et al. 2011; Bessa, Miranda, Botterud, Zhou, & Wang 2012; Kim, Emura, Sun, Huang, & Alqawba 2020). H. Zhang, Zandehshahvar, Tanneau, and Van Hentenryck (2025) use Gaussian copula to forecast load, wind, and solar power. Moradi, Tanneau, Zandehshahvar, and Hentenryck (2026) combine Gaussian copula with conformal prediction to forecast solar power in three key U.S. energy markets. Yang, Lu, Yan, Xia, and Wu (2025) perform expectation-maximization with Gaussian copula to handle missing data, then predictions from multiple machine learning algorithms are combined via adaptive ensemble for load forecasting. Pokou, Kamdem, and Gnandi (2026) study whether structural econometric models based on copula rival machine learning in energy market forecasting. Let 𝐘 𝑖 ∈ ℝ𝑁𝑇 be the vector corresponding to the 𝑖 th weather variable obtained from concatenating columns of the 𝑁 × 𝑇 
+
+data matrix whose rows and columns are indexed by space and time, respectively, for 𝑖 = 1 , … , 𝑃 . Our model for the random vector 𝐘 = ( 𝐘 T1 , … , 𝐘 T 
+
+> 𝑃
+
+)T ∈ ℝ𝑃 𝑁𝑇 is 𝑓 −1 (Φ( 𝐙 )) , where 𝐙 ∼ 𝑁 (0 , Σ) is mean-zero multivariate Normal with correlation matrix 
+
+Σ, Φ( ⋅) is the standard Normal cdf, and 𝑓 −1 (⋅) is the empirical quantile function obtained from simulations of the posterior (3). We follow inference-for-marginals to separate the marginal and dependence steps in copula modeling. This approach is asymptotically efficient and often viable when the full maximum likelihood is not (Joe 2005). The copula correlation matrix Σ
+
+is estimated by minimizing the Gaussian negative log-likelihood 
+
+−2 𝐿 (Σ) = log det Σ + 𝐳 TΣ−1 𝐳 (4) over Σ positive semidefinite. We assume a separable multivariate-space-time correlation function (Genton 2007), yielding the Kronecker product representation Σ = Σ 𝑝 ⊗ Σ𝑡 ⊗ Σ𝑛 , equivalent to a Tensor-Normal distribution on 𝐙 (Manceur & Dutilleul 2013), for which maximum likelihood computations are efficient. Another advantage of the Kronecker representation is that Σ
+
+never has to be stored in memory, only Σ𝑝 and Σ𝑡 and Σ𝑛 . Matérn correlation functions (Stein 1999) parameterize Σ𝑛 and Σ𝑡 ,depending on the distance between locations (in space or time): 
+
+𝐶 (𝑑 space ) = Matérn 𝜈 (𝑑 space ; 𝑉 space ),𝐶 (𝑑 time ) = Matérn 𝜈 (𝑑 time ; 𝑉 time ). (5) The Matérn smoothness parameter is fixed at 𝜈 = 5∕2 , a typical choice to produce smooth spatial fields; in this case, the Bessel function in the Matérn correlation function has a closed form. 𝑉 space > 0 and 𝑉 time > 0 are range parameters controlling the strength of spatial and temporal correlations. Stepping away from restrictive assumptions of isotropy and separability is desirable but the subject of cutting-edge research in spatio-temporal statistics (Alegría, Porcu, Furrer, & Mateu 2019; Porcu, Alegría, & Furrer 2018; Porcu, Furrer, & Nychka 2021). Finally, Σ𝑝 is an arbitrary 3 × 3 correlation matrix with 3 unknown parameters in the interval (−1 , 1) . Five parameters are estimated via maximum likelihood using a standard L-BFGS optimizer. Simulating 𝐘 is efficient due to the Kronecker product structure of Σ. Let 𝐿 𝑝 , 𝐿 𝑡 , and 𝐿 𝑛 denote the lower Cholesky triangle of Σ𝑝 , Σ𝑡 , and Σ𝑛 , respectively. The Cholesky decomposition of Σ equals (𝐿 𝑝 ⊗ 𝐿 𝑡 ⊗ 𝐿 𝑛 )( 𝐿 𝑝 ⊗ 𝐿 𝑡 ⊗ 𝐿 𝑛 )T, so we can simulate 
+
+𝐙 by multiplying (𝐿 𝑝 ⊗ 𝐿 𝑡 ⊗ 𝐿 𝑛 ) into a Gaussian noise vector 𝝐 . Such multiplication is done with repeated applications of the formula (𝐵 T ⊗ 𝐴 )𝝐 = vec (𝐴 mat (𝝐 )𝐵 ), where mat (𝝐 ) reshapes 𝝐 into a matrix of appropriate size and vec (⋅) is the columnwise vectorization of a matrix. Transforming from 𝐙 to 𝐘 follows immediately from componentwise applications of Φ( ⋅) then 𝑓 −1 (⋅).
+
+3 ADDA ANALYSIS 
+
+Argonne Downscaled Data Archive (ADDA), hosted at ClimRR hub (Argonne National Laboratory 2025), leverages the regional weather model WRF to dynamically downscale output from three global climate models (HadGEM, GFDL, CCSM) under various RCP emission scenarios (J. Wang & Kotamarthi 2015; Zobel, Wang, Wuebbles, & Kotamarthi 2017 2018). Our analysis considers HadGEM data under RCP 8.5, without loss of generality; see Section 4 for more discussion on this matter. We study 4 KROCK ET AL 
+
+the northeastern United States, targeting a five-day synthetic weather event, a winter storm with exceptionally low temperature. One could target multivariate extreme events with more sophisticated methods (Coulaud & Faranda 2026; Sharma & Kumar 2025; Xu et al. 2025). For our weather variables, data are observed at 𝑁 = 2841 locations and 𝑇 = 33 time points. The following selections of (1) are made: 
+
+temperature: 𝑌 𝑠,𝑡 ∼ Normal (𝜇 𝑠,𝑡 , 𝜎 2) and 𝑔 (𝑥 ) = 𝑥 
+
+wind speed: 𝑌 𝑠,𝑡 ∼ Gamma (𝜇 𝑠,𝑡 , 𝜙 ) and 𝑔 (𝑥 ) = √𝑥 
+
+(nonzero) global horizontal irradiance: 𝑌 𝑠,𝑡 ∼ Gamma (𝜇 𝑠,𝑡 , 𝜙 ) and 𝑔 (𝑥 ) = √𝑥 
+
+(6) Economou and Garry (2022) model temperature in identical fashion. Wind speed requires a positively-supported probability distribution 𝑝 (⋅) and a link function 𝑔 (⋅) whose input space is the domain (0 , ∞) . Gamma distribution is a practical choice for wind speed modeling (Aries, Boudia, & Ounis 2018). Global horizontal irradiance is most difficult due to the distribution’s point mass at zero. Our concession is to only model the nonzeros of the irradiance; discussion about this concludes our paper. For simplicity, we match the setup of wind speed and global horizontal irradiance. Selecting square-root rather than log link function is crucial to tamper unrealistic values of global horizontal irradiance, and, to a lesser extent, wind speed. For validation, Economou and Garry (2022) suggest visual checks to assess model quality. Figures 1 and 2 correspond to two distinct times during the storm. For each variable (column), posterior means (second row) and historical observations (first row) are hard to distinguish at a glance. Posterior variances (third row) are reasonable, except in Figure 2 , values of global horizontal irradiance around New York City and to the north appear quite large. Autocorrelation and partial autocorrelation functions (acf and pacf) measure temporal dependence as a function of lags; a common usage is identifying the order of moving average and autoregressive time series models, respectively. Figures 3 , 4 , and 5 display acf and pacf for historical versus predicted values, up to the first three lags. Once again, there is strong consensus between observed and simulated values, and the same is true for higher order lags up to 16 (not shown). The most noticeable discrepancy appears at the second lag for pacf of wind speed; simulations fail to take on positive values seen in the historical plot. Figure 6 shows several validation plots at a single location in Sussex County, Delaware. The flexibility of BMW-GAM is apparent, as histograms match their historical counterparts, although one concern may be overfitting in the case of air temperature, since the simulated distribution appears highly multimodal. In the last row, we show the observed time series versus simulated values to provide a measure of uncertainty. Similarly, Figure 7 displays variograms for historical and simulated cases, indicating agreement in spatial correlation, except for minor deviations at large distances during the later date. 
+
+4 DISCUSSION AND CONCLUSIONS 
+
+BMW-GAM (Economou & Garry 2022) is enriched with a separable multivariate spatio-temporal correlation function. The resulting Kronecker product structure of the Gaussian copula correlation matrix scales favorably to large data sets. Moreover, marginal inference is embarrassingly parallel across different windows. Enforcing the positive mean of select response variables with square-root link function is crucial. In summary, BMW-GAM is robust to the data size and invariant to the practitioner’s definition of extreme event, and rapidly generates multivariate spatio-temporal fields for comprehensive model checking and uncertainty quantification. Incorporating other global climate model simulations (ADDA or otherwise) introduces challenges beyond the scope of this paper (Knutti, Furrer, Tebaldi, Cermak, & Meehl 2010). We are aware of a few relevant papers, for example, Subbian and Baner-jee (2013) combine multiple global climate models via regression with a Laplacian penalty ensuring spatial smoothness. Singh, Najafi, and Cannon (2021) estimate joint return periods of warm-wet and warm-dry scenarios in Canada. At each location, tem-perature and precipitation are modeled with bivariate copula whose parameter is inferred under a Bayesian framework, pooling data across 3 climate ensembles. Vavrus, Notaro, and Lorenz (2015) study Northeast U.S. with 13 climate models to project changes in extreme heat, cold, and precipitation by the mid-21st century under various forcing scenarios. They measure classical statistical metrics such as skewness and inter-model standard deviation, and derive uncertainty bounds from bootstrapping. When interlinked with A-LEAF and NGTransient, BMW-GAM scenarios will be leveraged to assess resilience of critical energy systems during extreme weather threats. BMW-GAM is a practical choice for non-Gaussian multivariate spatio-temporal Bayesian data analysis, and we anticipate its application in many areas beyond energy systems. Selecting between different BMW-GAMs is difficult due to the large number of parameters and hyperparameters. Besides performing automated model KROCK ET AL 540.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> −30 −20 −10 010
+
+temp_air at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 510 15 20
+
+wind_speed at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 0200 400 600
+
+ghi at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> −30 −20 −10 010
+
+posterior mean of temp_air at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 510 15 20
+
+posterior mean of wind_speed at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 0200 400 600
+
+posterior mean of ghi at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 0.3 0.6 0.9
+
+posterior variance of temp_air at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 123
+
+posterior variance of wind_speed at 2046−02−07 12:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+> 0.0 0.5 1.0
+
+posterior variance of ghi at 2046−02−07 12:00:00 
+
+FIGURE 1 First row: historical data. Second row: posterior mean of BMW-GAM simulations. Third row: posterior variance of BMW-GAM simulations. selection and including multiple climate models in BMW-GAM, we plan to investigate other climate variables and spatial domains. Covariance separability is vital to BMW-GAM’s computational tractability but not always a realistic assumption. Ignoring the zeros of global horizontal irradiance is a weakness of our current approach. Initially, we tried a BMW-GAM with Tweedie distribution and log link function to accommodate zeros; Economou and Garry (2022) modeled precipitation in this manner. However, our simulated spatial fields and posterior variances were unrealistic. Incorporating uncertainty about zeros of irradiance with specialized methodology (Dahl & Bonilla 2019; Euán, Sun, & Reich 2022; Halder, Mohammed, Chen, & Dey 2021; Holtzhausen, Nakhaei Rad, Nagar, & Bekker 2024; Müller & Reuber 2023; Upton, Organ, Lenzi, & Sweeney 2025; W. Zhang, Kleiber, Florita, Hodge, & Mather 2018 2019; W. Zhang, Kleiber, Hodge, & Mather 2022) is left for future research. 6 KROCK ET AL 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−30 −20 −10 010 
+
+temp_air at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+510 15 20 
+
+wind_speed at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+0200 400 600 
+
+ghi at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−30 −20 −10 010 
+
+posterior mean of temp_air at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+510 15 20 
+
+posterior mean of wind_speed at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+0200 400 600 
+
+posterior mean of ghi at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+0.5 1.0 1.5 2.0 
+
+posterior variance of temp_air at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+123
+
+posterior variance of wind_speed at 2046−02−09 18:00:00 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+3000 6000 9000 
+
+posterior variance of ghi at 2046−02−09 18:00:00 
+
+FIGURE 2 Same configuration as Figure 1 , but during a different date. KROCK ET AL 740.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of temp_air at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of temp_air at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of temp_air at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of temp_air at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of temp_air at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of temp_air at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of temp_air at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of temp_air at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of temp_air at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of temp_air at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of temp_air at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of temp_air at lag 3 
+
+FIGURE 3 Comparison of autocorrelation and partial autocorrelation functions for historical and predicted temperature. 8 KROCK ET AL 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of wind_speed at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of wind_speed at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of wind_speed at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of wind_speed at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of wind_speed at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of wind_speed at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of wind_speed at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of wind_speed at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of wind_speed at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of wind_speed at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of wind_speed at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of wind_speed at lag 3 
+
+FIGURE 4 Same configuration as Figure 3 , but for wind speed. KROCK ET AL 940.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of ghi at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of ghi at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+acf of ghi at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of ghi at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of ghi at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted acf of ghi at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of ghi at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of ghi at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+pacf of ghi at lag 3 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of ghi at lag 1 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of ghi at lag 2 40.0 42.5 45.0 47.5   
+
+> −80 −75 −70
+
+long 
+
+> lat
+
+−1.0 −0.5 0.0 0.5 1.0 
+
+predicted pacf of ghi at lag 3 
+
+FIGURE 5 Same configuration as Figure 4 , but for global horizontal irradiance. 10 KROCK ET AL Sussex county (Historical) 
+
+temp_air      
+
+> −15 −10 −5 0510 0 1 2 3
+> Frequency
+
+Sussex county (Historical) 
+
+wind_speed      
+
+> 46810 12 14 0 1 2 3
+> Frequency
+
+Sussex county (Historical) 
+
+ghi        
+
+> 0100 200 300 400 500 600 700 0 5 10  15  20
+> Frequency
+
+Sussex county (Preds) 
+
+temp_air      
+
+> −15 −10 −5 0510 0 500  1000  1500  2000
+> Frequency
+
+Sussex county (Preds) 
+
+wind_speed      
+
+> 46810 12 14 0 200  400  600  800  1000  1200
+> Frequency
+
+Sussex county (Preds) 
+
+ghi              
+
+> 0100 200 300 400 500 600 700 0 5000  10000  15000  20000
+> Frequency 0510 15 20 25 30 −15  −10  −5  0 5 10
+
+Sussex county 
+
+day temp_air 0 5 10 15 20 25 30 4 6 8 10  12  14 
+
+Sussex county 
+
+day wind_speed 0 5 10 15 20 25 30 0 100  200  300  400  500  600  700 
+
+Sussex county 
+
+day ghi 
+
+FIGURE 6 Assessing model performance at a single location. First and second rows show the historical and simulated his-tograms, respectively. The third row shows the historical time series as the black line and simulated time series in lighter gray. KROCK ET AL 11 510 15 20   
+
+> 0510
+
+distance 
+
+> semivariance
+
+temp_air at 2046−02−07−120000 020 40   
+
+> 0510
+
+distance 
+
+> semivariance
+
+temp_air at 2046−02−09−180000 1.5 2.0 2.5 3.0 3.5   
+
+> 0510
+
+distance 
+
+> semivariance
+
+wind_speed at 2046−02−07−120000 12345  
+
+> 0510
+
+distance 
+
+> semivariance
+
+wind_speed at 2046−02−09−180000 020 40 60 80   
+
+> 0510
+
+distance 
+
+> semivariance
+
+ghi at 2046−02−07−120000 10000 20000 30000   
+
+> 0510
+
+distance 
+
+> semivariance
+
+ghi at 2046−02−09−180000 
+
+FIGURE 7 Variogram plots for the three variables at the same dates as Figures 1 and 2 . Historical values are shown as black dots, while the gray lines correspond to BMW-GAM simulations. 12 KROCK ET AL 
+
+ACKNOWLEDGEMENTS 
+
+The authors are especially grateful to Michael Stein for suggesting, at the 2025 Contemporary Advances in Statistics of Extremes workshop hosted by the University of Missouri, that we forego modeling the zero values of global horizontal irra-diance. High-performance computing resources were provided on the clusters Bebop and Improv operated by the Laboratory Computing Resource Center at Argonne National Laboratory. Argonne National Laboratory’s work was supported by the U.S. Department of Energy, Office of Science, Laboratory Directed Research and Development, Argonne National Laboratory, under contract DE-AC02-06CH11357. The submitted manuscript has been created by UChicago Argonne, LLC, Operator of Argonne National Laboratory (“Argonne”). Argonne, a U.S. Department of Energy (DOE) Office of Science laboratory, is operated under Contract No. DE-AC02-06CH11357. The U.S. Government retains for itself, and others acting on its behalf, a paid-up nonexclusive, irrevocable worldwide license in said article to reproduce, prepare derivative works, distribute copies to the public, and perform publicly and display publicly, by or on behalf of the Government. The Department of Energy will provide public access to these results of federally sponsored research in accordance with the DOE Public Access Plan 
+
+http://energy.gov/downloads/doe-public-access-plan . This report was prepared as an account of work sponsored by an agency of the United States Government. Neither the United States Government nor any agency thereof, nor UChicago Argonne, LLC, nor any of their employees or officers, makes any warranty, express or implied, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights. Reference herein to any specific commercial product, process, or service by trade name, trademark, manufacturer, or otherwise, does not necessarily constitute or imply its endorsement, rec-ommendation, or favoring by the United States Government or any agency thereof. The views and opinions of document authors expressed herein do not necessarily state or reflect those of the United States Government or any agency thereof, Argonne National Laboratory, or UChicago Argonne, LLC. 
+
+References 
+
+Adhikari, A., Wertz, C., Dubey, A., Ahmad, A., & Dobson, I. (2025). Quantifying Power Systems Resilience Using Statistical Analysis and Bayesian Learning. Retrieved from https://arxiv.org/abs/2511.03043 
+
+Alegría, A., Porcu, E., Furrer, R., & Mateu, J. (2019). Covariance functions for multivariate Gaussian fields evolving temporally over planet earth. Stochastic Environmental Research and Risk Assessment , 33 (8), 1593–1608. Retrieved from https:// doi.org/10.1007/s00477-019-01707-w doi: 10.1007/s00477-019-01707-w Argonne National Laboratory. (2025). ClimRR: A central hub for dynamically downscaled future hazards data. https:// climrr.anl.gov/ . Accessed: 2025-8-22. Aries, N., Boudia, S. M., & Ounis, H. (2018). Deep assessment of wind speed distribution models: A case study of four sites in Algeria. Energy Conversion and Management , 155 , 78-90. Retrieved from https://www.sciencedirect.com/ science/article/pii/S0196890417310142 doi: https://doi.org/10.1016/j.enconman.2017.10.082 Balgi, S., Braun, M., Peña, J. M., & Daoud, A. (2025). Sensitivity Analysis to Unobserved Confounding with Copula-based Normalizing Flows. Retrieved from https://arxiv.org/abs/2508.08752 
+
+Bessa, R. J., Mendes, J., Miranda, V., Botterud, A., Wang, J., & Zhou, Z. (2011). Quantile-copula density forecast for wind power uncertainty modeling. In 2011 IEEE Trondheim PowerTech (p. 1-8). doi: 10.1109/PTC.2011.6019180 Bessa, R. J., Miranda, V., Botterud, A., Zhou, Z., & Wang, J. (2012). Time-adaptive quantile-copula for wind power proba-bilistic forecasting. Renewable Energy , 40 (1), 29-39. Retrieved from https://www.sciencedirect.com/science/ article/pii/S0960148111004587 doi: https://doi.org/10.1016/j.renene.2011.08.015 Bracken, C., Rajagopalan, B., Cheng, L., Kleiber, W., & Gangopadhyay, S. (2016). Spatial Bayesian hier-archical modeling of precipitation extremes over a large domain. Water Resources Research , 52 (8), 6643-6655. Retrieved from https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1002/2016WR018768 doi: https://doi.org/10.1002/2016WR018768 Clegg, S., & Mancarella, P. (2017, 06). Integrated electricity-heat-gas network modelling for the evaluation of system resilience to extreme weather. In (p. 1-6). doi: 10.1109/PTC.2017.7981133 Coulaud, G., & Faranda, D. (2026). TRAKNN: Efficient Trajectory Aware Spatiotemporal kNN for Rare Meteorological Trajectory Detection. Retrieved from https://arxiv.org/abs/2603.02059 KROCK ET AL 13 
+
+Dahl, A., & Bonilla, E. V. (2019). Grouped Gaussian processes for solar power prediction. Machine Learning , 108 (8), 1287– 1306. Retrieved from https://doi.org/10.1007/s10994-019-05808-z doi: 10.1007/s10994-019-05808-z Dumas, J., Cornélusse, B., Fettweis, X., Giannitrapani, A., Paoletti, S., & Vicino, A. (2021). Probabilistic forecasting for sizing in the capacity firming framework. In 2021 IEEE Madrid PowerTech (p. 1-6). doi: 10.1109/PowerTech46648.2021.9494947 Economou, T., & Garry, F. (2022). Probabilistic simulation of big climate data for robust quantification of changes in com-pound hazard events. Weather and Climate Extremes , 38 , 100522. Retrieved from https://www.sciencedirect.com/ science/article/pii/S2212094722001013 doi: https://doi.org/10.1016/j.wace.2022.100522 Ekisheva, S., Rieder, R., Norris, J., Lauby, M., & Dobson, I. (2021). Impact of Extreme Weather on North American Transmission System Outages. In 2021 IEEE Power & Energy Society General Meeting (PESGM) (p. 01-05). doi: 10.1109/PESGM46819.2021.9637941 Euán, C., Sun, Y., & Reich, B. J. (2022). Statistical analysis of multi-day solar irradiance using a threshold time series model. 
+
+Environmetrics , 33 (3), e2716. Retrieved from https://onlinelibrary.wiley.com/doi/abs/10.1002/env.2716 
+
+doi: https://doi.org/10.1002/env.2716 Gaillard, P., Goude, Y., & Nedellec, R. (2016). Additive models and robust aggregation for GEFCom2014 probabilistic electric load and electricity price forecasting. International Journal of Forecasting , 32 (3), 1038-1050. Retrieved from https://www.sciencedirect.com/science/article/pii/S0169207015001545 doi: https://doi.org/10.1016/j.ijforecast.2015.12.001 Genton, M. G. (2007). Separable approximations of space-time covariance matrices. Environmetrics , 18 (7), 681-695. Retrieved from https://onlinelibrary.wiley.com/doi/abs/10.1002/env.854 doi: https://doi.org/10.1002/env.854 Gillessen, B., Heinrichs, H., Hake, J.-F., & Allelein, H.-J. (2019, 10). Natural gas as a bridge to sustainability: Infrastructure expansion regarding energy security and system transition. Applied Energy , 251 . doi: 10.1016/j.apenergy.2019.113377 Golestaneh, F., Gooi, H. B., & Pinson, P. (2016). Generation and evaluation of space–time trajectories of photovoltaic power. Applied Energy , 176 , 80-91. Retrieved from https://www.sciencedirect.com/science/article/pii/ S0306261916306079 doi: https://doi.org/10.1016/j.apenergy.2016.05.025 Gonçalves, A. R., Zuben, F. J. V., & Banerjee, A. (2016). Multi-task Sparse Structure Learning with Gaussian Copula Models. 
+
+Journal of Machine Learning Research , 17 (33), 1–30. Retrieved from http://jmlr.org/papers/v17/15-215.html 
+
+Haas, T. C. (1990a). Kriging and automated variogram modeling within a moving window. Atmospheric Environment. Part A. General Topics , 24 (7), 1759–1769. Haas, T. C. (1990b). Lognormal and moving window methods of estimating acid deposition. Journal of the American Statistical Association , 85 (412), 950–963. Halder, A., Mohammed, S., Chen, K., & Dey, D. K. (2021). Spatial Tweedie exponential dispersion models: an application to insurance rate-making. Scandinavian Actuarial Journal , 2021 (10), 1017–1036. Retrieved from https://doi.org/ 10.1080/03461238.2021.1921017 doi: 10.1080/03461238.2021.1921017 Han, S.-R., Guikema, S. D., & Quiring, S. M. (2009). Improving the Predictive Accuracy of Hurricane Power Out-age Forecasts Using Generalized Additive Models. Risk Analysis , 29 (10), 1443-1453. Retrieved from https:// onlinelibrary.wiley.com/doi/abs/10.1111/j.1539-6924.2009.01280.x doi: https://doi.org/10.1111/j.1539-6924.2009.01280.x Holtzhausen, F. v., Nakhaei Rad, N., Nagar, P., & Bekker, A. (2024). A Copula-Based Approach to Statistical Modelling of Solar Irradiance. In C. A. Coelho & D.-G. Chen (Eds.), Statistical modeling and applications: Multivariate, heavy-tailed, skewed distributions and mixture modeling, volume 2 (pp. 49–66). Cham: Springer Nature Switzerland. Retrieved from 
+
+https://doi.org/10.1007/978-3-031-69622-0_3 doi: 10.1007/978-3-031-69622-0_3 Joe, H. (2005). Asymptotic efficiency of the two-stage estimation method for copula-based models. J. Multivariate Anal. , 94 (2), 401–419. Retrieved from https://doi.org/10.1016/j.jmva.2004.06.003 doi: 10.1016/j.jmva.2004.06.003 Joe, H. (2014). Dependence Modeling with Copulas (first ed.). New York, NY, USA: Chapman and Hall/CRC. Kim, J.-M., Emura, T., Sun, L.-H., Huang, X.-W., & Alqawba, M. (2020). Copula-Based Markov Models for Time Series: Parametric Inference and Process Control . doi: 10.1007/978-981-15-4998-4 Knutti, R., Furrer, R., Tebaldi, C., Cermak, J., & Meehl, G. A. (2010). Challenges in Combining Projections from Multiple Climate Models. Journal of Climate , 23 (10), 2739 - 2758. Retrieved from https://journals.ametsoc.org/view/ journals/clim/23/10/2009jcli3361.1.xml doi: 10.1175/2009JCLI3361.1 Lee, S. M., Chinthavali, S., Bhusal, N., Stenvig, N., Tabassum, A., & Kuruganti, T. (2024). Quantifying the Power System Resilience of the US Power Grid Through Weather and Power Outage Data Mapping. IEEE Access , 12 , 5237-5255. doi: 14 KROCK ET AL 
+
+10.1109/ACCESS.2023.3347129 Levin, T., Botterud, A., Mann, W. N., Kwon, J., & Zhou, Z. (2022, 02). Extreme weather and electricity markets: Key lessons from the February 2021 Texas crisis [doi: 10.1016/j.joule.2021.12.015]. Joule , 6(1), 1–7. Retrieved from https:// doi.org/10.1016/j.joule.2021.12.015 doi: 10.1016/j.joule.2021.12.015 Li, T., Eremia, M., & Shahidehpour, M. (2008, 12). Interdependency of Natural Gas Network and Power System Security. 
+
+Power Systems, IEEE Transactions on , 23 , 1817 - 1824. doi: 10.1109/TPWRS.2008.2004739 Li, Y., & Sun, Y. (2021). A multi-site stochastic weather generator for high-frequency precipitation using censored skew-symmetric distribution. Spatial Statistics , 41 , 100474. Retrieved from https://www.sciencedirect.com/science/ article/pii/S2211675320300683 doi: https://doi.org/10.1016/j.spasta.2020.100474 Manceur, A. M., & Dutilleul, P. (2013). Maximum likelihood estimation for the tensor normal distribution: Algorithm, minimum sample size, and empirical bias and dispersion. Journal of Computational and Applied Mathematics , 239 ,37-49. Retrieved from https://www.sciencedirect.com/science/article/pii/S0377042712003810 doi: https://doi.org/10.1016/j.cam.2012.09.017 Mann, W., Kwon, J., Levin, T., Botterud, A., & Zhou, Z. (2022, 03). A-LEAF. [Computer Software] https:// doi.org/10.11578/dc.20230315.2 . Retrieved from https://doi.org/10.11578/dc.20230315.2 doi: 10.11578/dc.20230315.2 Martinez-Mares, Alberto and Fuerte-Esquivel, Claudio. (2012, 11). A Unified Gas and Power Flow Analysis in Natural Gas and Electricity Coupled Networks. Power Systems, IEEE Transactions on , 27 , 2156-2166. doi: 10.1109/TP-WRS.2012.2191984 Moradi, A., Tanneau, M., Zandehshahvar, R., & Hentenryck, P. V. (2026). Copula-Based Aggregation and Context-Aware Conformal Prediction for Reliable Renewable Energy Forecasting. Retrieved from https://arxiv.org/abs/2602 .02583 
+
+Müller, A., & Reuber, M. (2023). A copula-based time series model for global horizontal irradiation. International Jour-nal of Forecasting , 39 (2), 869-883. Retrieved from https://www.sciencedirect.com/science/article/pii/ S0169207022000401 doi: https://doi.org/10.1016/j.ijforecast.2022.02.011 Nelsen, R. B. (2006). An Introduction to Copulas (second ed.). New York, NY, USA: Springer. Nychka, D., Hammerling, D., Krock, M., & Wiens, A. (2018). Modeling and emulation of nonstationary Gaussian fields. Spatial Statistics , 28 , 21-38. Retrieved from https://www.sciencedirect.com/science/article/pii/ S2211675317302968 One world, one health. doi: https://doi.org/10.1016/j.spasta.2018.08.006 Pinson, P., Madsen, H., Nielsen, H. A., Papaefthymiou, G., & Klöckl, B. (2009). From probabilistic forecasts to statistical scenarios of short-term wind power production. Wind Energy , 12 (1), 51-62. Retrieved from https://onlinelibrary .wiley.com/doi/abs/10.1002/we.284 doi: https://doi.org/10.1002/we.284 Pokou, F., Kamdem, J. S., & Gnandi, K. E. (2026). Predictive Accuracy versus Interpretability in Energy Markets: A Copula-Enhanced TVP-SVAR Analysis. Retrieved from https://arxiv.org/abs/2601.19321 
+
+Porcu, E., Alegría, A., & Furrer, R. (2018). Modeling Temporally Evolving and Spatially Globally Dependent Data. Interna-tional Statistical Review , 86 (2), 344-377. Retrieved from https://onlinelibrary.wiley.com/doi/abs/10.1111/ insr.12266 doi: https://doi.org/10.1111/insr.12266 Porcu, E., Furrer, R., & Nychka, D. (2021). 30 Years of space–time covariance functions. WIREs Computational Statistics ,
+
+13 (2), e1512. Retrieved from https://wires.onlinelibrary.wiley.com/doi/abs/10.1002/wics.1512 doi: https://doi.org/10.1002/wics.1512 Risser, M. D., & Calder, C. A. (2015). Local likelihood estimation for covariance functions with spatially-varying parameters: the convoSPAT package for R. arXiv preprint arXiv:1507.08613 .Rossmann, R., Anitescu, M., Bessac, J., Ferris, M., Krock, M., Luedtke, J., & Roald, L. (2025). A framework for balancing power grid efficiency and risk with bi-objective stochastic integer optimization. Optimization and Engineering , 26 (3), 1567–1612. Retrieved from https://doi.org/10.1007/s11081-024-09944-x doi: 10.1007/s11081-024-09944-x Shahidehpour, M., Fu, Y., & Wiedman, T. (2005, 06). Impact of Natural Gas Infrastructure on Electric Power Systems. 
+
+Proceedings of the IEEE , 93 , 1042 - 1056. doi: 10.1109/JPROC.2005.847253 Sharma, B., & Kumar, J. (2025). Variational Autoencoders-based Detection of Extremes in Plant Productivity in an Earth System Model. Retrieved from https://arxiv.org/abs/2510.03266 
+
+Sillmann, J., Thorarinsdottir, T., Keenlyside, N., Schaller, N., Alexander, L. V., Hegerl, G., . . . Zwiers, F. W. (2017). Understand-ing, modeling and predicting weather and climate extremes: Challenges and opportunities. Weather and Climate Extremes ,KROCK ET AL 15 
+
+18 , 65-74. Retrieved from https://www.sciencedirect.com/science/article/pii/S2212094717300440 doi: https://doi.org/10.1016/j.wace.2017.10.003 Singh, H., Najafi, M. R., & Cannon, A. J. (2021). Characterizing non-stationary compound extreme events in a changing climate based on large-ensemble climate simulations. Climate Dynamics , 56 (5), 1389–1405. Retrieved from https:// doi.org/10.1007/s00382-020-05538-2 doi: 10.1007/s00382-020-05538-2 Stein, M. L. (1999). Interpolation of spatial data . Springer-Verlag, New York. Retrieved from https://doi.org/10.1007/ 978-1-4612-1494-6 Some theory for Kriging. doi: 10.1007/978-1-4612-1494-6 Subbian, K., & Banerjee, A. (2013). Climate Multi-model Regression Using Spatial Smoothing. In Proceedings of the 2013 SIAM International Conference on Data Mining (SDM) (p. 324-332). Retrieved from https://epubs.siam.org/doi/ abs/10.1137/1.9781611972832.36 doi: 10.1137/1.9781611972832.36 Tatara, E. (2020, 10). NGTransient: A hydraulic pipeline and optimal control model for simulating pipeline disruptions and impacts on electric power generation,. In Proc. Resilience Week. 
+
+Tedesco, P., Lenkoski, A., Bloomfield, H. C., & Sillmann, J. (2023). Gaussian copula modeling of extreme cold and weak-wind events over Europe conditioned on winter weather regimes. Environmental Research Letters , 18 (3). doi: 10.1088/1748-9326/acb6aa Upton, M., Organ, E., Lenzi, A., & Sweeney, J. (2025). A sub-hourly spatio-temporal statistical model for solar irradiance in Ireland using open-source data. Retrieved from https://arxiv.org/abs/2509.21041 
+
+Vavrus, S. J., Notaro, M., & Lorenz, D. J. (2015). Interpreting climate model projections of extreme weather events. 
+
+Weather and Climate Extremes , 10 , 10-28. Retrieved from https://www.sciencedirect.com/science/article/ pii/S2212094715300372 doi: https://doi.org/10.1016/j.wace.2015.10.005 Verdin, A., Rajagopalan, B., Kleiber, W., & Katz, R. W. (2015). Coupled stochastic weather generation using spatial and generalized linear models. Stochastic Environmental Research and Risk Assessment , 29 (2), 347–356. Retrieved from 
+
+https://doi.org/10.1007/s00477-014-0911-6 doi: 10.1007/s00477-014-0911-6 Verdin, A., Rajagopalan, B., Kleiber, W., Podestá, G., & Bert, F. (2018). A conditional stochastic weather generator for seasonal to multi-decadal simulations. Journal of Hydrology , 556 , 835-846. Retrieved from https://www.sciencedirect .com/science/article/pii/S0022169415009841 doi: https://doi.org/10.1016/j.jhydrol.2015.12.036 Verdin, A., Rajagopalan, B., Kleiber, W., Podestá, G., & Bert, F. (2019). BayGEN: A Bayesian Space-Time Stochastic Weather Generator. Water Resources Research , 55 (4), 2900-2915. Retrieved from https://agupubs.onlinelibrary.wiley .com/doi/abs/10.1029/2017WR022473 doi: https://doi.org/10.1029/2017WR022473 Ver Hoef, J. M., Cressie, N., & Barry, R. P. (2004). Flexible spatial models for kriging and cokriging using moving averages and the Fast Fourier Transform (FFT). Journal of Computational and Graphical Statistics , 13 (2), 265–282. Wahba, G. (1990). Spline Models for Observational Data . Society for Industrial and Applied Mathematics. Retrieved from 
+
+https://epubs.siam.org/doi/abs/10.1137/1.9781611970128 doi: 10.1137/1.9781611970128 Wang, J., & Kotamarthi, V. R. (2015). High-resolution dynamically downscaled projections of precipitation in the mid and late 21st century over North America. Earth’s Future , 3(7), 268-288. Retrieved from https://agupubs.onlinelibrary .wiley.com/doi/abs/10.1002/2015EF000304 doi: https://doi.org/10.1002/2015EF000304 Wang, S., Feldman, J., & Reiter, J. P. (2026). Differentially Private Bayesian Inference for Gaussian Copula Correlations. 
+
+Retrieved from https://arxiv.org/abs/2601.03497 
+
+Wiens, A., Kleiber, W., Nychka, D., & Barnhart, K. R. (2021). Nonrigid Registration Using Gaussian Processes and Local Likelihood Estimation. Mathematical Geosciences , 53 (6), 1319–1337. Retrieved from https://doi.org/10.1007/ s11004-020-09917-7 doi: 10.1007/s11004-020-09917-7 Wiens, A., Nychka, D., & Kleiber, W. (2020). Modeling spatial data using local likelihood estimation and a Matérn to spatial autoregressive translation. Environmetrics , 31 (6), e2652. Retrieved from https://onlinelibrary.wiley.com/doi/ abs/10.1002/env.2652 doi: https://doi.org/10.1002/env.2652 Wood, S. (2017). Generalized Additive Models: An Introduction with R (2nd ed.). Chapman and Hall/CRC. Xu, Y., Mann, W. N., Akinsanola, A. A., Levin, T., Wang, P., & Zhou, Z. (2025). Bridging the Data Gap: Integrating Climate Projections into Grid Planning for Weather-Driven Events. In 2025 IEEE Power & Energy Society General Meeting (PESGM) (p. 1-5). doi: 10.1109/PESGM52009.2025.11225462 Yang, J., Lu, G., Yan, X., Xia, P., & Wu, D. (2025). Adaptive Ensemble Learning with Gaussian Copula for Load Forecasting. 
+
+Retrieved from https://arxiv.org/abs/2508.17700 
+
+Zhang, H., Zandehshahvar, R., Tanneau, M., & Van Hentenryck, P. (2025). Weather-informed probabilistic forecasting and 16 KROCK ET AL 
+
+scenario generation in power systems. Applied Energy , 384 , 125369. Retrieved from https://www.sciencedirect .com/science/article/pii/S0306261925000996 doi: https://doi.org/10.1016/j.apenergy.2025.125369 Zhang, W., Kleiber, W., Florita, A. R., Hodge, B.-M., & Mather, B. (2018). A stochastic downscaling approach for generating high-frequency solar irradiance scenarios. Solar Energy , 176 , 370-379. Retrieved from https://www.sciencedirect .com/science/article/pii/S0038092X1830999X doi: https://doi.org/10.1016/j.solener.2018.10.019 Zhang, W., Kleiber, W., Florita, A. R., Hodge, B.-M., & Mather, B. (2019). Modeling and Simulation of High-Frequency Solar Irradiance. IEEE Journal of Photovoltaics , 9(1), 124-131. doi: 10.1109/JPHOTOV.2018.2879756 Zhang, W., Kleiber, W., Hodge, B.-M., & Mather, B. (2022). A nonstationary and non-Gaussian moving average model for solar irradiance. Environmetrics , 33 (3), e2712. Retrieved from https://onlinelibrary.wiley.com/doi/abs/10.1002/ env.2712 doi: https://doi.org/10.1002/env.2712 Zobel, Z., Wang, J., Wuebbles, D. J., & Kotamarthi, V. R. (2017). High-Resolution Dynamical Downscaling Ensem-ble Projections of Future Extreme Temperature Distributions for the United States. Earth’s Future , 5(12), 1234-1251. Retrieved from https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1002/2017EF000642 doi: https://doi.org/10.1002/2017EF000642 Zobel, Z., Wang, J., Wuebbles, D. J., & Kotamarthi, V. R. (2018). Analyses for High-Resolution Projections Through the End of the 21st Century for Precipitation Extremes Over the United States. Earth’s Future , 6(10), 1471-1490. Retrieved from https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2018EF000956 doi: https://doi.org/10.1029/2018EF000956

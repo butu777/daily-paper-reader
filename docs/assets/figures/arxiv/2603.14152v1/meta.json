@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-001.webp",
+      "caption": "Fig. 8: Visualization of editing examples",
+      "page": 25,
+      "index": 1,
+      "width": 673,
+      "height": 823
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-002.webp",
+      "caption": "Fig. 9: Some typical limitations of base model and SK-Adapter",
+      "page": 26,
+      "index": 2,
+      "width": 725,
+      "height": 391
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-003.webp",
+      "caption": "Fig. 3: Qualitative comparison of our SK-Adapter with the baselines. For the baseline generations, arrows indicate structural inconsistency with the given skeleton. Short captions indicate one of the apparent problems in their generated results.",
+      "page": 10,
+      "index": 3,
+      "width": 723,
+      "height": 1079
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-004.webp",
+      "caption": "Table 8: Trainable parameter breakdown of SK-Adapter.",
+      "page": 23,
+      "index": 4,
+      "width": 562,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-005.webp",
+      "caption": "Fig. 6: Comparison between Trellis’s Structure Flow Transformer and our SK-Adapter. Backbone and SK-Adapter is connected via an additional cross-attention layer in each DiT block.",
+      "page": 23,
+      "index": 5,
+      "width": 508,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-006.webp",
+      "caption": "Fig. 5: Comparison of different architecture designs. Without Cross-Attention, the model tends to collapse given complex skeleton conditions. On the other hand, Topological Encoder makes the model comprehend better skeleton structures, as indicated by the bounding boxes.",
+      "page": 13,
+      "index": 6,
+      "width": 725,
+      "height": 338
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-007.webp",
+      "caption": "Fig. 4: SK-Adapter enables flexible editing with skeleton, including addition and reposing.",
+      "page": 12,
+      "index": 7,
+      "width": 725,
+      "height": 271
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-008.webp",
+      "caption": "Fig. 7: Additional qualitative results generated with SK-Adapter.",
+      "page": 24,
+      "index": 8,
+      "width": 658,
+      "height": 802
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-009.webp",
+      "caption": "Table 6: Topological distance codebook entries.",
+      "page": 20,
+      "index": 9,
+      "width": 688,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14152v1/fig-010.webp",
+      "caption": "Fig. 2: Overview of the SK-Adapter framework. The GRPE module encodes the 3D skeleton’s joints and topology into sparse tokens. These tokens are injected into a frozen pre-trained backbone via trainable cross-attention layers.",
+      "page": 5,
+      "index": 10,
+      "width": 725,
+      "height": 377
+    }
+  ]
+}

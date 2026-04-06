@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.23224v1/fig-001.webp",
+      "caption": "Fig. 4: Indoor scene generation visual comparison. The red circle shows the collision or incorrect position.",
+      "page": 6,
+      "index": 1,
+      "width": 506,
+      "height": 325
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23224v1/fig-002.webp",
+      "caption": "Fig. 5: The generation sequence of objects in our method.",
+      "page": 6,
+      "index": 2,
+      "width": 506,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23224v1/fig-003.webp",
+      "caption": "Fig. 3: Outdoor scene generation visual comparison. The red circle shows the collision or incorrect position.",
+      "page": 6,
+      "index": 3,
+      "width": 506,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23224v1/fig-004.webp",
+      "caption": "TABLE IV: Statistics of our dataset.",
+      "page": 7,
+      "index": 4,
+      "width": 500,
+      "height": 272
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23224v1/fig-005.webp",
+      "caption": "Fig. 2: An overview of our AeroScene method.",
+      "page": 3,
+      "index": 5,
+      "width": 853,
+      "height": 988
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23224v1/fig-006.webp",
+      "caption": "TABLE II: Quantitative results on scene synthesis.",
+      "page": 5,
+      "index": 6,
+      "width": 500,
+      "height": 315
+    }
+  ]
+}

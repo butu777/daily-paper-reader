@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-001.webp",
+      "caption": "Fig. 6. Projector LCA coefficient map (a) αR (b) αB (c) βR (d) βB",
+      "page": 6,
+      "index": 1,
+      "width": 524,
+      "height": 578
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-002.webp",
+      "caption": "Fig. 15. Curvy RGB surface rendering comparison using (a) LCAMV (b) Mean (c) Green",
+      "page": 11,
+      "index": 2,
+      "width": 1076,
+      "height": 271
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-003.webp",
+      "caption": "Fig. 16. Zigzagged RGB surface rendering comparison using (a) LCAMV (b) Mean (c) Green",
+      "page": 11,
+      "index": 3,
+      "width": 1068,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-004.webp",
+      "caption": "Fig. 2. Structured light system setup",
+      "page": 2,
+      "index": 4,
+      "width": 524,
+      "height": 265
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-005.webp",
+      "caption": "Fig. 7. Calibrated RGB Noise Model Fit",
+      "page": 7,
+      "index": 5,
+      "width": 524,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-006.webp",
+      "caption": "Fig. 13. RGB board rendering comparison using (a) LCAMV (b) LCA (c) MV",
+      "page": 10,
+      "index": 6,
+      "width": 1076,
+      "height": 305
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-007.webp",
+      "caption": "Fig. 8. Standard deviation and confidence interval of ϕ",
+      "page": 8,
+      "index": 7,
+      "width": 522,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-008.webp",
+      "caption": "Fig. 9. ∆̂O,∆O while scanning white sphere and sculpture (a) ∆̂R O (b) ∆R O (c) ∆̂B O (d) ∆B O",
+      "page": 8,
+      "index": 8,
+      "width": 521,
+      "height": 563
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-009.webp",
+      "caption": "Fig. 4. Aberration in projector system",
+      "page": 4,
+      "index": 9,
+      "width": 524,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-010.webp",
+      "caption": "Fig. 5. Pixel-wise Pearson correlation map of ∆O and z from channel (a) red (b) blue",
+      "page": 4,
+      "index": 10,
+      "width": 524,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10456v1/fig-011.webp",
+      "caption": "Fig. 11. Colorboard plane fitting error map using (a) LCAMV (b) Mean (c) Y’UV (d) Green",
+      "page": 9,
+      "index": 11,
+      "width": 521,
+      "height": 369
+    }
+  ]
+}

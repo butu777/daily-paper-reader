@@ -1,0 +1,873 @@
+Title: WeatherReasonSeg: A Benchmark for Weather-Aware Reasoning Segmentation in Visual Language Models
+
+URL Source: https://arxiv.org/pdf/2603.17680v1
+
+Published Time: Thu, 19 Mar 2026 01:16:12 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+## WeatherReasonSeg: A Benchmark for Weather-Aware Reasoning Segmentation in Visual Language Models 
+
+Wanjun Du 1∗, Zifeng Yuan 2⋆, Tingting Chen 2, Fucai Ke 3,Beibei Lin 2†, and Shunli Zhang 1‡ 
+
+> 1
+
+Beijing Jiaotong University  
+
+> 2
+
+National University of Singapore  
+
+> 3
+
+Monash University 
+
+{25110603, slzhang}@bjtu.edu.cn, {zyuan, tingting.c, beibei.lin}@u.nus.edu, fucai.ke1@monash.edu 
+
+Abstract. Existing vision-language models (VLMs) have demonstrated impressive performance in reasoning-based segmentation. However, cur-rent benchmarks are primarily constructed from high-quality images cap-tured under idealized conditions. This raises a critical question: when visual cues are severely degraded by adverse weather conditions such as rain, snow, or fog, can VLMs sustain reliable reasoning segmentation capabilities? In response to this challenge, we introduce WeatherReason-Seg, a benchmark designed to evaluate VLM performance in reasoning-based segmentation under adverse weather conditions. It consists of two complementary components. First, we construct a controllable reason-ing dataset by applying synthetic weather with varying severity levels to existing segmentation datasets, enabling fine-grained robustness anal-ysis. Second, to capture real-world complexity, we curate a real-world adverse-weather reasoning segmentation dataset with semantically con-sistent queries generated via mask-guided LLM prompting. We further broaden the evaluation scope across five reasoning dimensions, including functionality, application scenarios, structural attributes, interactions, and requirement matching. Extensive experiments across diverse VLMs reveal two key findings: (1) VLM performance degrades monotonically with increasing weather severity, and (2) different weather types induce distinct vulnerability patterns. We hope WeatherReasonSeg will serve as a foundation for advancing robust, weather-aware reasoning. 
+
+Keywords: Visual Language Models · Adverse Weather Robustness ·
+
+Reasoning-Based Segmentation  
+
+> ‡
+
+Corresponding Author  
+
+> †
+
+Project Leader  
+
+> ⋆
+
+Equal Contribution 
+
+> arXiv:2603.17680v1 [cs.CV] 18 Mar 2026
+
+2 W. Du et al. Query Setting Dimensions on Objects (Bus)                        
+
+> By observing the image, which large
+> vehicle fulfills the primary function of
+> organized passenger transportation
+> within a metropolitan area?
+> If one considers a scenario involving
+> scheduled passenger service through
+> central city streets, which vehicle in the
+> image matches that operational context?
+> By observing the
+> image, which multi -
+> section transit
+> vehicle with sliding
+> passenger doors
+> and a streamlined
+> front structure is
+> visible?
+> If commuters require areliable, high -capacity transit option
+> operating on fixed pathways ,which object in the picture fulfills
+> that need?
+> The object that
+> coexists with private
+> cars yet follows its
+> own guided path
+> within the same street
+> network corresponds
+> to which vehicle?
+
+Application Function 
+
+Relationship 
+
+Requirement 
+
+> Image
+> Mask
+
+VLM Reasoning Segmentation in Different Conditions                           
+
+> Clean Image
+> Adverse Weather Image
+> Conclusion :VLM reasoning segmentation ability is limited in adverse
+> weather conditions .
+> User :Iwant to go cycling, what transportation options do Ihave?
+> Incomplete segmentation
+> Correct and Complete
+> Segmentation
+
+Structure 
+
+Fig. 1: Adverse weather undermines VLM reasoning segmentation. Left: 
+
+Under clean weather conditions, VLMs can correctly localize the target object and generate complete segmentation masks. However, when exposed to adverse weather, the model fails to accurately ground the reasoning query, resulting in incomplete segmentation masks and degraded pixel-level alignment and semantic reasoning per-formance. Right: WeatherReasonSeg addresses this limitation by introducing real-world degraded data with five structured reasoning dimensions—Function, Applica-tion, Structure, Relationship, and Requirement—to enable systematic evaluation of weather-robust reasoning. 
+
+1 Introduction 
+
+Recent advances in Vision-Language Models (VLMs) have significantly improved multimodal reasoning tasks, including reasoning-based segmentation [37, 38, 58]. Representative benchmarks such as ReasonSeg [24] enable models to generate segmentation masks conditioned on complex language descriptions rather than simple object labels. However, existing evaluations are conducted under ideal visual conditions, implicitly assuming high-quality imagery. In real-world outdoor environments, adverse weather conditions such as fog, rain, and snow frequently degrade visual quality by reducing visibility, distort-ing structures, and introducing noise [7, 33]. These degradations disrupt visual-language alignment and can propagate through multi-stage reasoning pipelines, leading to amplified downstream errors in mask prediction [65–68, 78]. Despite its practical importance in safety-critical deployment, systematic evaluation of reasoning-based segmentation under adverse weather remains largely unexplored. To bridge this gap, we introduce WeatherReasonSeg, a pioneering benchmark specifically designed to evaluate reasoning-based segmentation performance un-der adverse weather conditions. WeatherReasonSeg comprises two complemen-tary components: a controllable adverse-weather dataset and a real-world adverse-WeatherReasonSeg 3
+
+weather dataset. In the former, we synthesize adverse weather effects of different types and severity levels on existing reasoning-based segmentation datasets, cov-ering graded interference conditions including light, moderate, and severe fog, rain, and snow. This controlled setting enables systematic exploration of the rea-soning limits of VLMs under varying interference intensities. Concurrently, we construct a real-world dataset to ensure the authenticity of adverse conditions, thereby enabling more accurate quantification of reasoning degradation under real visual corruption. Furthermore, we formulate contextual queries across five critical dimensions: target function, application scenario, structural attributes, interaction relation-ships, and requirement matching. We adopt a mask-guided large language model prompting strategy to generate queries aligned with real images, enabling VLMs to perform context-aware reasoning and facilitating comprehensive evaluation across diverse reasoning dimensions. Experimental results reveal a sharp deterioration in VLM performance un-der severe weather conditions. In synthetic benchmarks, the average accuracy of VLMs decreased by 15% compared to ideal environments; while in real-world scenarios, the accuracy of reasoning-based methods only reached half of the up-per limit of perception-based methods, indicating that the reasoning stage be-comes the main bottleneck. These findings quantitatively reveal the vulnerability of current VLMs to the environment and highlight the necessity of developing controllable, severity-aware benchmarks like WeatherReasonSeg to drive the de-velopment of weather-robust reasoning models. Our contributions are summarized as follows: 
+
+– We propose the first benchmark, WeatherReasonSeg , specifically designed to evaluate the reasoning capabilities of VLMs under adverse weather con-ditions, bridging the gap between idealized benchmark evaluation and real-world deployment scenarios. 
+
+– We construct a synthetic dataset with graded weather interference, covering multiple weather types and severity levels, which quantitatively characterizes the impact of weather intensity on reasoning processes and segmentation performance. 
+
+– We build a real-world reasoning-based segmentation dataset and adopt a mask-guided large language model prompting strategy to generate semanti-cally consistent, executable, and highly diverse queries. These queries encour-age VLMs to perform complex compositional reasoning, extending beyond the task scope of traditional reasoning-based segmentation. 
+
+2 Related Work 
+
+Reasoning in Large Models Recent years have witnessed substantial ad-vances in the reasoning capabilities of Large Language Models (LLMs) [6, 8, 19]. OpenAI-o1 [44] shows that extending Chain-of-Thought (CoT) reasoning during inference, which is often referred to as inference-time scaling, can significantly 4 W. Du et al. 
+
+improve complex reasoning. Building upon this paradigm, subsequent works ex-plore test-time scaling strategies via process-based reward modeling [30, 57, 60], reinforcement learning (RL) optimization [22, 52], and search-based inference mechanisms [12, 56]. Among these approaches, DeepSeek-R1 [13] employs the GRPO algorithm [52] and achieves strong reasoning performance with only a few thousand RL training steps, highlighting the efficiency of RL-based policy optimization for enhancing reasoning ability. Inspired by these advances in LLM reasoning, recent efforts have begun trans-ferring reasoning-oriented training paradigms to multimodal large language mod-els (MLLMs). For example, Open-R1-Multimodal [23] focuses on multimodal mathematical reasoning, while R1-V [54] demonstrates improvements in visual counting tasks. However, existing multimodal reasoning methods ( e.g ., [18, 20, 23, 53, 54]) primarily focus on high-level semantic or symbolic reasoning and are typically evaluated on benchmarks such as OK-VQA [42], A-OKVQA [51], and VCR [76], which involve clear and well-curated images. As a result, these approaches seldom address fine-grained pixel-level understanding or reasoning under visually degraded conditions. In contrast, our work concentrates on pixel-level reasoning for visual perception and investigates reinforcement learning as a principled mechanism to bridge reasoning and dense segmentation. 
+
+Semantic Segmentation with Reasoning Semantic segmentation aims to perform dense pixel-wise classification by assigning a semantic category label to each pixel. Extensive prior research [1, 3, 4, 11, 36, 39, 48, 77, 79, 81], has driven significant progress in this area. Representative models such as DeepLab [5], MaskFormer [10], and Segment Anything Model (SAM) [21, 45] establish strong and stable baselines, making conventional category-driven segmentation a rela-tively mature problem. To overcome the limitations of predefined label spaces, referring expression segmentation (RES) [17, 70] introduces natural language descriptions to spec-ify target regions. In this setting, models must align short textual expressions with corresponding visual entities. LISA [24] further extends this framework to reasoning-based segmentation, where queries may be longer, more abstract, or require multi-step reasoning. Such tasks demand deeper joint reasoning over lin-guistic semantics and visual cues to accurately localize and segment the intended object. 
+
+MLLMs for Segmentation Following the introduction of the <SEG> to-ken in LISA [24, 63], which enables interaction between multimodal large lan-guage models (MLLMs) and segmentation architectures, a number of subsequent works [2,9,47] explore integrating MLLMs into segmentation pipelines. Many of these methods, including OneTokenSegAll [2] and PixelLM [47], adopt token-based designs that connect language models with segmentation decoders via special interface tokens. While effective, such tightly coupled frameworks typically require large-scale annotated data to jointly fine-tune both the MLLM and the segmentation mod-ule. Moreover, additional token-level interactions may disturb the original pixel-level representations learned by pretrained segmentation networks. In contrast, WeatherReasonSeg 5
+
+our approach adopts a decoupled design that preserves the structural integrity of existing segmentation models while leveraging the reasoning capability of MLLMs to enhance segmentation performance. 
+
+3 Methodology 
+
+Figure 2 illustrates the overall pipeline of WeatherReasonSeg, which comprises two complementary components: a controllable adverse-weather reasoning dataset and a real-world adverse-weather reasoning dataset. The first dataset synthe-sizes different weather degradations across three severity levels based on ex-isting reasoning datasets [24], providing a controlled environment to evaluate model stability under varying conditions. Complementarily, the second dataset leverages a mask-guided LLM prompting to construct high-quality, real-world image-query pairs, capturing the diverse reasoning dimensions inherent in ac-tual adverse weather. 
+
+3.1 Controllable Adverse-Weather Reasoning via Synthetic Weather Generation 
+
+To enable a systematic robustness evaluation of VLM reasoning capabilities, we adopt an existing reasoning-based segmentation dataset as the foundation and synthesize controllable weather degradations on top of it. This synthetic strategy allows explicit manipulation of weather types and severity levels (e.g., fog den-sity, rainfall intensity, and snow accumulation), thereby supporting fine-grained analysis of how progressively increasing visual disturbances affect reasoning sta-bility. 
+
+Base Dataset ReasonSeg [24] is the first and most representative benchmark specifically designed for reasoning-driven segmentation. Unlike conventional se-mantic segmentation or referring expression datasets, ReasonSeg emphasizes im-plicit reasoning without relying on explicit category labels, requiring models to infer targets through attributes, relationships, and contextual constraints. 
+
+Adverse Weather Synthesis Process Building upon the need for con-trollable degradation modeling, we introduce a physically interpretable weather synthesis mechanism into the ReasonSeg dataset, forming the synthetic compo-nent of our benchmark-WeatherReasonSeg. The design follows two core princi-ples. First, the synthesis process should follow real imaging physics rather than simple noise injection, which ensures realistic degradation effects. Second, the degradation severity must be continuously controllable. This allows systematic analysis of model performance under different weather types and levels. The overall pipeline is illustrated in Figure 2. Clean images and their corresponding depth maps are fed into dedicated weather generators for rain, snow, and fog. Based on a weather severity scalar derived from expert knowledge and VLM-assisted calibration, different levels of degradation are applied to the images. The degraded images are then paired with the original reasoning queries to construct degraded image–query pairs. 6 W. Du et al. Input 
+
+> Adverse Weather
+> Image
+> Mask Maps
+
+Qwen 
+
+Prompt for Query generation                 
+
+> Generate five distinct queries about this object,
+> each corresponding to one dimension :function ,
+> structure ,application scenario, interaction
+> relationship ,requirement matching .
+
+High Quality Real World 
+
+Degradation IQ Pairs 
+
+Example                         
+
+> User question :Based on the picture,
+> what type of vehicle is typically used for
+> transporting goods or services ?
+> [{"bbox_ 2d" :[320 ,550 ,580 ,900 ],
+> "point_ 2d" :[450 ,720 ]}]
+> Thinking process: The image shows
+> awhite van stopped at a red traffic
+> light. Vans are commonly used for
+> transporting goods or providing
+> commercial services in urban areas ……
+
+…
+
+Initial Image -Query Pairs 
+
+…
+
+Function   
+
+> what type of vehicle is
+> typically used for transporting
+> goods or services …
+
+Structure  
+
+> The object in the picture
+> that is equipped with
+> reflective safety markings …
+
+Application   
+
+> In this urban, which vehicle
+> appears engaged in delivery
+> or service activity ….
+
+Relationship  
+
+> what kind of motorized
+> transport is designed has its
+> brake lights illuminated ….
+
+Requirement   
+
+> If bulky packages must be
+> delivered efficiently, which
+> vehicle best matches ….
+
+Real -World Adverse -Weather Reasoning via Paired Query Construction 
+
+Verify 
+
+&
+
+Input 
+
+Clean Images  Depth Maps 
+
+Observation 
+
+&
+
+Rain 
+
+Generator 
+
+Snow 
+
+Generator 
+
+Haze 
+
+Generator 
+
+Synthetic Varying Degradation 
+
+Images 
+
+Weather Synthesis 
+
+Low Degradation  High Degradation 
+
+Synthetic 
+
+Degradation IQ Pairs 
+
+... 
+
+... 
+
+Existing Query 
+
+Generate Weather 
+
+Severity Scalar 
+
+> Small
+> Moderate
+> Heavy
+
+Expert 
+
+VLM 
+
+Controllable Adverse -Weather Reasoning via Synthetic Weather Generation 
+
+Fig. 2: Overview of WeatherReasonSeg. The framework consists of two complementary components. Top: A controllable synthetic weather generation process can generate weather type degradations (rain, snow, haze) of varying severity to construct synthetic image-query pairs for robustness evaluation. Bottom: A real-world adverse-weather reasoning dataset constructed via mask-guided large language model prompting, fol-lowed by human–model collaborative verification to ensure semantic alignment and reasoning validity. 
+
+Specifically, we model three representative weather types, namely rain, snow, and fog, according to their underlying physical characteristics, incorporating ef-fects such as rain streak accumulation, snowflake scattering and occlusion, and atmospheric light scattering. The severity of each weather type is continuously controlled by adjusting physically meaningful parameters, such as rain density, snow particle distribution, and visibility distance, thereby generating degrada-tions ranging from light to severe conditions. Overall, this physics-guided and controllable synthesis framework enables structured and fine-grained modeling of adverse weather across multiple types and severity levels, facilitating systematic analysis of how environmental disturbances influence VLM reasoning stability. Detailed implementation of the synthesis process and specific parameter settings for each weather generator are provided in the Supplementary Material. WeatherReasonSeg 7
+
+Table 1: Comparison of recent benchmarks and resources for vision-language reasoning and segmentation. We evaluate each dataset by whether it provides bounding boxes and segmentation masks, supports general reasoning and adverse-weather settings, and by its data type and amount.                                                                                 
+
+> Dataset (Venue, Year) Bounding Boxes Seg. Masks General Reasoning Adverse Weather Data Type Amount RainCityscapes (CVPR’18) [15] ✗✓✗✓Syn 10.6k ACDC (ICCV’21) [50] ✓✓✗✓Real 4k Rain Wcity (IJCAI’22) [82] ✗✓✗✓Real 24.3k CREPE (CVPR’23) [41] ✓✗✓✗–1162.6k LVIS-Ground (ECCV’24) [40] ✗✗✓✗–4.3k M4-Instruct (CVPR’24) [26] ✗✗✓✗–307k FP-RefCOCO (CVPR’24) [62] ✓✓✗✗–65.8k LLM-Seg40K (CVPR’24) [59] ✓✓✗✗–40k MRES-32M (CVPR’24) [61] ✓✓✗✗–32M NaturalBench (CVPR’24) [25] ✗✗✓✗–10k VAB (CVPR’25) [14] ✗✗✓✗–0.54k ReasonSeg (CVPR’24) [24] ✓✓✓✗–1.2k
+> WeatherReasonSeg (ours) ✓✓✓✓Syn & Real 44.7k
+
+3.2 Real-World Adverse-Weather Reasoning via Paired Query Construction 
+
+Although physics-based synthetic data can systematically control the type and severity of image degradation, it cannot fully capture the complexity of real-world conditions. Therefore, we further construct a reasoning-based segmenta-tion dataset for real-world adverse weather conditions. This dataset uses real-world degraded images while preserving high-quality pixel-level annotations. Based on this, we employ a mask-guided large-scale language model prompting mechanism to generate multidimensional natural language reasoning queries. 
+
+Base Dataset Firstly, we adopt ACDC (Adverse Conditions Dataset with Correspondences) [49] as the foundation for real-world degraded scenarios. It covers multiple adverse weather conditions, including rain, fog, snow, and low-light (nighttime) environments. A key advantage of ACDC is its high-quality pixel-level annotations and cross-weather consistency, making it well-suited for studying the impact of visual degradation on perception and reasoning. Unlike synthetic data, the degradations arise from real physical environments and imag-ing processes, including complex occlusions, non-uniform scattering, and changes in semantic visibility. Based on the original segmentation annotations, we extract target masks and construct reasoning-driven language queries aligned with the pixel-level regions, extending ACDC into a real-world degraded dataset tailored for visual-language reasoning segmentation tasks. 
+
+Query Generation To systematically evaluate the reasoning capabilities of VLMs in realistic degradation scenarios, we employ a mask-guided prompt-ing strategy to automatically generate natural language queries that are strictly aligned with the target segmentation region. Furthermore, we pose questions 8 W. Du et al. 
+
+about the same target object from multiple reasoning perspectives to charac-terize the differences in VLM’s reasoning behavior across different contextual dimensions. As illustrated in Figure 2, adverse weather images and the corre-sponding extracted mask maps are input into a large language model. Guided by carefully designed prompts, the model generates queries across five different rea-soning dimensions, forming initial image-query pairs. These pairs are then jointly validated and filtered by human annotators and the large language model ac-cording to predefined rules. The final output consists of high-quality real-world degradation image-query pairs. Unlike queries that only describe object categories or simple attributes [24], we design queries from five key reasoning dimensions: (1) Function , focusing on the intrinsic purpose of the object; (2) Application Scenario , emphasizing contex-tual usage environments; (3) Structural/Feature , targeting observable attributes and compositional details; (4) Relational , examining spatial or interactive re-lationships with surrounding entities; and (5) Requirement Matching , mapping practical needs to appropriate objects. Illustrative examples of these five reason-ing dimensions are provided in Figures 1 and 2. 
+
+Query Dataset Filtering Beyond careful image selection and prompt de-sign, we implement a rigorous filtering strategy to ensure query quality and semantic consistency. This process eliminates query–answer pairs with poten-tial ambiguity or task misalignment. Specifically: (a) We discard questions that merely enumerate objects or components without functional or contextual se-mantics, avoiding shallow descriptive queries. (b) We remove question groups that fail to maintain single-target consistency, where all five questions do not explicitly refer to the same physical object. (c) We retain only question–answer groups in which all questions refer to the same explicit and visually identifiable named entity, ensuring semantic clarity and disambiguation. (d) We exclude question–answer pairs that mention objects absent from the image, visually un-clear, or semantically ambiguous, ensuring all queries can be reliably answered based solely on the input image. 
+
+3.3 Dataset Statistics and Analysis 
+
+Our WeatherReasonSeg contains a total of 44,721 image-query pairs spanning both synthetic and real-world environments. The synthetic subset includes 2,937 image–query pairs for each weather type (rain, snow, and fog), amounting to 8,811 pairs for controlled robustness evaluation. The real-world subset further enhances ecological validity, comprising 8,680 rainy, 9,545 snowy, 7,465 foggy, and 10,220 nighttime pairs, totaling 35,910 pairs. As illustrated in Fig. 3, the dataset provides a diverse distribution of query semantics and weather conditions. Com-pared with prior reasoning segmentation benchmarks (e.g., ReasonSeg with 1.2k samples), it substantially enlarges the evaluation scale while introducing struc-tured environmental perturbations, providing a comprehensive benchmark for assessing VLM robustness under adverse conditions. Table 1 provides multi-dimensional comparisons between our WeatherRea-sonSeg and other relevant benchmarks. As shown in the table, WeatherReason-WeatherReasonSeg 9Syn Rain 
+
+> 6.6%
+> Syn Snow
+> 6.6%
+> Syn Fog
+> 6.6%
+> Real Rain 19.4%
+> Real Snow 21.3%
+> Real Fog 16.7%
+> Real Night 22.9%
+> WeatherReasonSeg
+> Total: 44,721
+> Syn Rain
+> (2,937 pairs)
+> Syn Snow
+> (2,937 pairs)
+> Syn Fog
+> (2,937 pairs)
+> Real Rain
+> (8,680 pairs)
+> Real Snow
+> (9,545 pairs)
+> Real Fog
+> (7,465 pairs)
+> Real Night
+> (10,220 pairs)
+
+Fig. 3: Overview of WeatherReasonSeg. Left: Query word cloud. Right: Distribution of query–image pairs across weather conditions. 
+
+Seg stands as the only benchmark that simultaneously supports bounding boxes, pixel-level masks, general reasoning supervision, and explicit adverse-weather settings. Existing weather-oriented datasets focus on perception under degraded conditions but lack reasoning queries, while recent reasoning-centric benchmarks assume clean visual environments and do not model environmental disturbances. WeatherReasonSeg bridges this gap by unifying pixel-grounded reasoning and diverse adverse-weather scenarios within a single framework. 
+
+4 Experiments 
+
+4.1 Implementation Details 
+
+Baselines We evaluate four representative frameworks on WeatherReasonSeg: Grounded-SAM [46], which is grounding-based, and three reasoning-based mod-els: LISA [24], Seg-R1 [69], and Seg-Zero [38]. 
+
+Evaluation Metrics Following previous works [17, 70], we calculate gIoU and cIoU. The gIoU is the average of all per-image Intersection-over-Unions (IoUs), while the cIoU calculates the cumulative intersection over the cumulative union. Unless specified, we use gIoU as our default metric, as it equally considers both large and small objects. 
+
+4.2 Results on Synthesis Segmentation Benchmarks 
+
+We first evaluate model performance on the WeatherReasonSeg-Synthesis bench-mark, where weather degradations (rain, fog, and snow) are progressively intro-duced at three severity levels (severity: Light/Moderate/Heavy). This controlled setting enables quantitative assessment of how reasoning robustness degrades with increasing weather intensity. As shown in Figure 2, all models perform well under clean conditions without weather interference. However, as weather severity increases from mild (sever-ity: Light) to severe (severity: Heavy), all methods show a clear and consistent 10 W. Du et al. 
+
+Table 2: Performance on WeatherReasonSeg under different weather types and sever-ities. Seg-Zero* is the reasoning-only model without SAM (bbox evaluation). Method Fog Rain Snow val test val test val test gIoU cIoU gIoU cIoU gIoU cIoU gIoU cIoU gIoU cIoU gIoU cIoU 
+
+Clean 
+
+Grounded SAM 26.0 14.5 21.3 16.4 26.0 14.5 21.3 16.4 26.0 14.5 21.3 16.4 LISA-7B 53.6 52.3 48.7 48.8 53.6 52.3 48.7 48.8 53.6 52.3 48.7 48.8 Seg-R1 60.8 56.2 55.3 46.6 60.8 56.2 55.3 46.6 60.8 56.2 55.3 46.6 Seg-Zero* 65.3 – 59.3 – 65.3 – 59.3 – 65.3 – 59.3 –Seg-Zero-7B 62.6 62.0 57.5 52.0 62.6 62.0 57.5 52.0 62.6 62.0 57.5 52.0 
+
+Severity: Light 
+
+Grounded SAM 23.4 12.3 18.5 14.3 22.2 13.6 16.4 15.3 22.9 13.0 16.2 15.0 LISA-7B 44.3 50.4 41.8 47.2 44.5 49.1 41.4 47.1 41.5 48.2 41.0 47.5 Seg-R1 48.4 44.3 46.9 40.8 48.5 41.5 43.9 42.5 40.1 36.9 37.7 35.8 Seg-Zero* 58.4 – 55.9 – 59.7 – 56.1 – 53.7 – 55.0 –Seg-Zero-7B 57.1 57.4 53.9 48.4 58.6 56.8 54.0 48.6 53.2 56.8 53.1 47.0 
+
+Severity: Moderate 
+
+Grounded SAM 19.9 14.2 16.1 13.9 17.3 12.9 14.8 13.4 16.1 12.3 13.5 12.9 LISA-7B 41.8 48.1 40.7 46.2 42.3 47.2 39.2 46.6 38.9 43.5 37.4 46.1 Seg-R1 50.8 46.6 47.8 41.9 52.9 48.1 46.6 43.5 40.8 38.6 44.2 44.3 Seg-Zero* 58.2 – 53.2 – 57.9 – 53.7 – 52.3 – 47.0 –Seg-Zero-7B 56.0 57.3 50.9 45.3 56.6 56.1 51.5 47.0 52.0 50.3 45.7 44.5 
+
+Severity: Heavy 
+
+Grounded SAM 15.8 11.2 12.8 12.3 14.3 10.8 12.2 11.8 13.9 11.6 11.7 10.8 LISA-7B 40.7 47.7 39.4 48.4 40.1 46.9 38.7 45.2 38.2 42.9 36.6 44.3 Seg-R1 46.4 35.5 43.4 36.5 42.3 39.3 41.5 40.3 37.1 31.1 35.4 34.9 Seg-Zero* 57.5 – 51.7 – 54.4 – 50.5 – 47.7 – 48.0 –Seg-Zero-7B 55.4 53.4 49.9 44.0 54.3 54.3 47.8 47.7 45.9 49.7 45.7 39.7 
+
+decline in both gIoU and cIoU. This indicates that adverse weather introduces systematic disruptions to VLMs reasoning. Notably, in the Seg-Zero-7B* setting, which involves no additional segmentation optimization and thus directly reflects the VLM’s reasoning quality, the gIoU decreases from 65.3 in clean conditions to 47.7 under severe weather, representing an absolute drop of 17.6. This directly shows that weather-induced visual degradation weakens the VLM’s semantic association and spatial reasoning ability. The full Seg-Zero-7B model also exhibits substantial performance drops. In foggy conditions, the gIoU decreases from 57.5 to 49.9, and in snowy scenes, the cIoU declines from 52 to 39.72. Grounded-SAM achieved a cIoU of only 10.8 in heavy fog. The impact of weather types is not uniform. Snow leads to the most severe degradation, followed by fog and then rain. This pattern is consistent with the strong loss of texture, contrast, and depth cues in snowy scenes. WeatherReasonSeg 11 When a plane is ready to     
+
+> land on the airport
+> runway, what area in the
+> picture will it eventually
+> touch down on?
+> In outdoor recreational
+> activities, people can enjoy
+> the thrill of flying with the
+> help of equipment. Which
+> object in the picture
+> provides this experience?
+> What protective gear
+> is worn to protect
+> the head during
+> motorcycle racing?
+> Original lmage GT Severit y: Light Severit y: Moderate Severity : Heavy Query
+
+Fig. 4: A schematic comparison of VLM reasoning segmentation results under different weather degradation levels. The VLM-based segmentation method used is Seg-Zero. The figure illustrates how segmentation performance progressively changes as weather severity increases.. 
+
+Figure 4 further provides qualitative examples of Seg-Zero under increasing weather severity. Under light weather interference, the model can still produce relatively accurate segmentation results. However, as weather conditions progres-sively deteriorate, the segmentation quality declines noticeably. In moderately degraded scenarios, foggy and snowy scenes already exhibit incomplete object localization and spatial drift. Under severe degradation, all weather types show significant segmentation errors or incomplete predictions. These observations suggest that the severe loss of visual cues caused by adverse weather signifi-cantly limits the segmentation reasoning capability of vision-language models. 
+
+4.3 Results on Real World Segmentation Benchmarks 
+
+To further evaluate VLM reasoning performance under real-world adverse weather conditions, we conduct experiments on the WeatherReasonSeg-RealWorld bench-mark, which contains naturally degraded images captured under fog, rain, snow, and nighttime conditions. We first measure the upper bound of perception ro-bustness using the pure segmentation model SAM2, and then evaluate VLM-based reasoning and segmentation methods under the same settings. As shown in Tab. 3, SAM2 achieves strong and stable performance across all conditions, with gIoU scores of 82.2 (fog), 80.1 (rain), 81.5 (snow), and 74.8 (night). Although adverse weather slightly reduces accuracy, the overall performance remains high, establishing a robust perception upper bound. In contrast, VLM-driven reasoning segmentation methods exhibit substantial performance degradation. The best-performing Seg-Zero-7B achieves only 40.6 gIoU and 47.1 cIoU in fog, and further drops to 28.9 gIoU and 29.4 cIoU at night—approximately half of SAM2’s performance under identical conditions. Grounded-SAM performs even worse, with cIoU falling below 15% at night. These results indicate a clear performance gap between perception-only and reasoning-based models in real-world degraded environments. 12 W. Du et al. 
+
+Table 3: Performance comparison on real-world adverse weather. Gray rows indi-cate model grouping.SAM2 serves as the performance upper bound because it is di-rectly prompted with ground-truth spatial locations (e.g., bounding boxes).The overall best performances are shown in bold , while the second best performances are shown underlined.                                                    
+
+> Method fog Rain Snow Night gIoU ↑cIoU ↑gIoU ↑cIoU ↑gIoU ↑cIoU ↑gIoU ↑cIoU ↑
+> SAM2 (Upper Bound)
+> SAM2 82.2 91.6 80.1 87.5 81.5 89.5 74.8 84.4
+> Reasoning and Segmentation
+> Grounded SAM 23.7 14.4 18.8 16.5 15.3 14.8 11.4 12.1 LISA-7B 18.9 24.4 11.5 18.1 14.9 23.6 14.7 25.3 Seg-R1 30.9 44.4 26.7 36.1 29.4 37.9 18.5 26.3 Seg-Zero-7B 40.6 47.1 35.1 38.7 36.8 41.6 28.9 29.4
+
+Fig. 5: Radar chart comparison of reasoning segmentation performance across five reasoning dimensions under different weather conditions (Fog, Rain, Snow, and Night). Results are reported using gIoU and cIoU for three representative VLM-based methods: Seg-Zero, LISA, and Seg-R1. The figure shows that visually grounded dimensions such as Structure and Function remain relatively stable, while context-dependent dimensions including Application and Requirement exhibit larger performance degradation under adverse weather conditions. 
+
+Next, we analyze model performance across five semantic query dimensions: Function, Application, Structure, Relationship, and Requirement. As shown in Figure 5 and summarized in Figure 4, consistent trends appear across all weather conditions. The Structure and Function dimensions consistently achieve higher segmentation performance, while Application and Requirement show noticeably lower accuracy. For example, under rainy conditions, Seg-Zero achieves a cIoU of 41.2 for Function queries but only 31.8 for Requirement queries, indicating a nearly 10% gap. This pattern suggests that queries grounded in directly observ-able visual attributes remain relatively robust, whereas those requiring higher-level contextual reasoning suffer greater degradation under adverse weather. WeatherReasonSeg 13 
+
+Table 4: Reasoning performance across five query dimensions under different weather conditions. The five dimensions correspond to Function, Application, Structure, Rela-tionship, and Requirement.The overall best performances are shown in bold , while the second best performances are shown underlined. Weather Dimension Seg-Zero LISA Seg-R1 gIoU ↑ cIoU ↑ gIoU ↑ cIoU ↑ gIoU ↑ cIoU ↑                                                                                                                        
+
+> Fog Function 41.2 51.2 17.2 28.2 32.4 48.8
+> Application 40.2 47.8 14.8 22.8 30.5 41.9 Structure 40.8 49.4 16.5 28.8 30.8 45.6 Relationship 39.9 45.8 15.8 21.7 30.4 41.8 Requirement 39.8 42.2 12.1 15.8 29.3 44.1 Rain Function 33.8 41.2 13.3 18.7 28.1 38.8 Application 32.0 31.7 12.7 14.3 27.2 36.2 Structure 32.4 35.5 13.0 17.1 27.0 34.5 Relationship 31.5 36.8 12.2 16.7 26.7 36.7 Requirement 31.9 31.8 9.6 15.6 24.2 34.2 Snow Function 36.6 42.4 16.1 21.9 30.1 39.9 Application 34.3 36.1 16.3 19.5 28.2 35.5 Structure 34.6 38.2 16.7 19.7 29.2 38.7 Relationship 34.7 39.1 14.9 17.0 30.5 40.6 Requirement 34.4 37.2 13.8 13.5 29.0 34.7 Night Function 25.6 31.2 16.8 25.3 21.1 30.4 Application 24.3 25.3 16.5 23.2 19.6 28.4 Structure 24.9 25.9 16.5 23.5 19.9 24.5 Relationship 24.1 25.4 15.5 22.3 20.4 29.7 Requirement 24.4 22.4 13.8 20.7 11.7 18.4
+
+4.4 Discussions Impact of Weather Severity on Reasoning Stability Figure 2 shows that weather severity acts as a graded stress test for VLM-driven reasoning segmen-tation. While all models perform strongly under clean conditions, performance consistently declines as severity increases from mild to severe across both gIoU and cIoU. This monotonic degradation indicates that adverse weather system-atically disrupts pixel-grounded reasoning. The Seg-Zero-7B* setting highlights this instability. Since this configuration reflects pure reasoning quality, the gIoU drop from 65.3 to 47.7 under severe weather directly reveals that visual degradation weakens semantic association and spatial grounding. Grounded-SAM nearly collapses under heavy fog. These results suggest that low-level visual corruption propagates to high-level reason-ing, causing structural instability in the pipeline. 
+
+Impact of Real-World Adverse Weather on VLM Reasoning Even under real-world adverse conditions, the performance gap between perception-only and reasoning-based models remains substantial. As shown in Figure 3, SAM2 maintains relatively strong segmentation accuracy across fog, rain, snow, 14 W. Du et al. 
+
+and nighttime scenarios, whereas all reasoning-based methods experience signif-icant performance degradation under the same conditions. Notably, across all weather types, reasoning and segmentation models fail to close the gap with SAM2, indicating that the primary bottleneck does not originate from low-level feature extraction. Instead, instability arises at the semantic reasoning stage, where degraded visual inputs disrupt reliable visual-semantic alignment before segmentation begins. Moreover, the impact of different weather conditions is not uniform. Night-time and fog lead to the most severe performance drops, while rain causes com-paratively smaller degradation. This suggests that environments involving strong illumination loss or reduced global visibility more severely impair the visual cues required for reliable visual-semantic reasoning. 
+
+Performance Across Different Semantic Reasoning Dimensions Fig-ure 4 reveals substantial differences in VLMs’ reasoning performance across the five semantic query dimensions, highlighting an internal imbalance in their rea-soning capabilities. Structure- and Function-oriented queries consistently out-perform Application- and Requirement-based queries. This discrepancy arises because Application and Requirement queries rely more heavily on contextual abstraction and scenario-level reasoning, rather than directly observable visual attributes. As a result, they are more sensitive to degraded environmental cues. 
+
+Insights for Future Research Our benchmark provides several important implications for future research. First, although VLM-driven reasoning segmen-tation achieves strong performance under ideal conditions, VLMs exhibit sig-nificant degradation under real-world adverse weather. The primary bottleneck lies in the absence of weather-aware reasoning mechanisms capable of modeling uncertainty and adapting semantic grounding under distribution shift. Second, the observed performance differences across weather types and semantic reason-ing dimensions suggest that future benchmarks should incorporate a broader range of environmental scenarios and higher-level reasoning tasks to better eval-uate robustness. Finally, since current VLMs lack explicit modeling of severe weather conditions, future research could explore integrating physically grounded weather simulation models into pretraining or fine-tuning pipelines. By incorpo-rating degradation-aware supervision, VLMs may learn to extract more reliable semantic cues from visually corrupted inputs. 
+
+5 Conclusion 
+
+In this paper, we introduce WeatherReasonSeg, the first benchmark for sys-tematically evaluating reasoning-based segmentation of vision-language models (VLMs) under adverse weather conditions. The benchmark includes two com-plementary components: a controllable synthetic weather dataset with multi-ple weather types and severity levels for robustness analysis, and a real-world adverse-weather reasoning dataset constructed via mask-guided LLM prompt-ing to ensure semantically consistent and spatially grounded queries. To com-prehensively assess reasoning behavior, we further organize the queries across WeatherReasonSeg 15 
+
+five semantic dimensions: Function, Application, Structure, Relationship, and Requirement.Extensive experiments reveal the limitations of existing reasoning-based segmentation approaches and provide a comprehensive performance anal-ysis of this underexplored problem. Our results show that current VLMs lack environment-adaptive reasoning mechanisms, leading to substantial performance degradation under adverse weather. We hope this benchmark will serve as a foundation for advancing weather-aware and robust reasoning systems in safety-critical real-world applications. 
+
+References 
+
+1. Badrinarayanan, V., Kendall, A., Cipolla, R.: Segnet: A deep convolutional encoder-decoder architecture for image segmentation. IEEE transactions on pat-tern analysis and machine intelligence 39 (12), 2481–2495 (2017) 2. Bai, Z., He, T., Mei, H., Wang, P., Gao, Z., Chen, J., Zhang, Z., Shou, M.Z.: One token to seg them all: Language instructed reasoning segmentation in videos. Advances in Neural Information Processing Systems 37 , 6833–6859 (2024) 3. Chen, L.C., Papandreou, G., Kokkinos, I., Murphy, K., Yuille, A.L.: Deeplab: Se-mantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs. IEEE transactions on pattern analysis and machine intelli-gence 40 (4), 834–848 (2017) 4. Chen, L.C., Papandreou, G., Schroff, F., Adam, H.: Rethinking atrous convolution for semantic image segmentation. arXiv preprint arXiv:1706.05587 (2017) 5. Chen, L.C., Zhu, Y., Papandreou, G., Schroff, F., Adam, H.: Encoder-decoder with atrous separable convolution for semantic image segmentation. In: Proceedings of the European conference on computer vision (ECCV). pp. 801–818 (2018) 6. Chen, T., Anumasa, S., Lin, B., Shah, V., Goyal, A., Liu, D.: Auto-bench: An auto-mated benchmark for scientific discovery in llms. arXiv preprint arXiv:2502.15224 (2025) 7. Chen, T., Lin, B., Jin, Y., Yan, W., Ye, W., Yuan, Y., Tan, R.T.: Dual-rain: Video rain removal using assertive and gentle teachers. In: European Conference on Computer Vision. pp. 127–143. Springer (2024) 8. Chen, T., Lin, B., Yuan, Z., Zou, Q., He, H., Goyal, A., Ong, Y.S., Liu, D.: Hy-poSpace: Evaluating LLM creativity as set-valued hypothesis generators under underdetermination. arXiv preprint arXiv:2510.15614 (2025) 9. Chen, Y.C., Li, W.H., Sun, C., Wang, Y.C.F., Chen, C.S.: Sam4mllm: Enhance multi-modal large language model for referring expression segmentation. In: Euro-pean Conference on Computer Vision. pp. 323–340. Springer (2024) 10. Cheng, B., Misra, I., Schwing, A.G., Kirillov, A., Girdhar, R.: Masked-attention mask transformer for universal image segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 1290–1299 (2022) 11. Cheng, B., Schwing, A., Kirillov, A.: Per-pixel classification is not all you need for semantic segmentation. Advances in neural information processing systems 34 ,17864–17875 (2021) 12. Feng, X., Wan, Z., Wen, M., McAleer, S.M., Wen, Y., Zhang, W., Wang, J.: Alphazero-like tree-search can guide large language model decoding and training. arXiv preprint arXiv:2309.17179 (2023) 16 W. Du et al. 13. Guo, D., Yang, D., Zhang, H., Song, J., Zhang, R., Xu, R., Zhu, Q., Ma, S., Wang, P., Bi, X., et al.: Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning. arXiv preprint arXiv:2501.12948 (2025) 14. Hsu, J., Mao, J., Tenenbaum, J.B., Goodman, N.D., Wu, J.: What makes a maze look like a maze? International Conference on Learning Representations (ICLR) (2025) 15. Hu, X., Fu, C.W., Zhu, L., Heng, P.A.: Depth-attentional features for single-image rain removal. In: Proceedings of the IEEE/CVF Conference on computer vision and pattern recognition. pp. 8022–8031 (2019) 16. Jin, Y., Lin, B., Yan, W., Yuan, Y., Ye, W., Tan, R.T.: Enhancing visibility in nighttime haze images using guided apsf and gradient adaptive convolution. In: Proceedings of the 31st ACM international conference on multimedia. pp. 2446– 2457 (2023) 17. Kazemzadeh, S., Ordonez, V., Matten, M., Berg, T.: Referitgame: Referring to objects in photographs of natural scenes. In: Proceedings of the 2014 conference on empirical methods in natural language processing (EMNLP). pp. 787–798 (2014) 18. Ke, F., Cai, Z., Jahangard, S., Wang, W., Haghighi, P.D., Rezatofighi, H.: Hydra: A hyper agent for dynamic compositional visual reasoning. In: European Conference on Computer Vision. pp. 132–149. Springer (2024) 19. Ke, F., Hsu, J., Cai, Z., Ma, Z., Zheng, X., Wu, X., Huang, S., Wang, W., Haghighi, P.D., Haffari, G., et al.: Explain before you answer: A survey on compositional visual reasoning. arXiv preprint arXiv:2508.17298 (2025) 20. Ke, F., Leng, X., Cai, Z., Khan, Z., Wang, W., Haghighi, P.D., Rezatofighi, H., Chandraker, M., et al.: Dwim: Towards tool-aware visual reasoning via discrepancy-aware workflow generation & instruct-masking tuning. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 3378–3389 (2025) 21. Kirillov, A., Mintun, E., Ravi, N., Mao, H., Rolland, C., Gustafson, L., Xiao, T., Whitehead, S., Berg, A.C., Lo, W.Y., et al.: Segment anything. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 4015–4026 (2023) 22. Kumar, A., Zhuang, V., Agarwal, R., Su, Y., Co-Reyes, J.D., Singh, A., Baumli, K., Iqbal, S., Bishop, C., Roelofs, R., et al.: Training language models to self-correct via reinforcement learning. arXiv preprint arXiv:2409.12917 (2024) 23. Lab, E.: Open R1 Multimodal. https://github.com/EvolvingLMMs-Lab/open-r1-multimodal (2025) 24. Lai, X., Tian, Z., Chen, Y., Li, Y., Yuan, Y., Liu, S., Jia, J.: Lisa: Reasoning seg-mentation via large language model. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 9579–9589 (2024) 25. Li, B., Lin, Z., Peng, W., Nyandwi, J.d.D., Jiang, D., Ma, Z., Khanuja, S., Krishna, R., Neubig, G., Ramanan, D.: Naturalbench: Evaluating vision-language models on natural adversarial samples. Advances in Neural Information Processing Systems 
+
+37 , 17044–17068 (2024) 26. Li, F., Zhang, R., Zhang, H., Zhang, Y., Li, B., Li, W., Ma, Z., Li, C.: Llava-next-interleave: Tackling multi-image, video, and 3d in large multimodal models. arXiv preprint arXiv:2407.07895 (2024) 27. Li, S., Tan, L., Tan, R.T.: Bridging day and night: Target-class hallucination sup-pression in unpaired image translation. arXiv preprint arXiv:2602.15383 (2026) 28. Li, S., Tan, R.T.: Nightcc: nighttime color constancy via adaptive channel masking. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 25522–25531 (2024) WeatherReasonSeg 17 29. Li, S., Wang, J., Brown, M.S., Tan, R.T.: Mimt: Multi-illuminant color con-stancy via multi-task local surface and light color learning. arXiv preprint arXiv:2211.08772 (2022) 30. Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike, J., Schulman, J., Sutskever, I., Cobbe, K.: Let’s verify step by step. In: The Twelfth International Conference on Learning Representations (2023) 31. Lin, B., Chen, T., Tan, R.T.: Geocomplete: Geometry-aware diffusion for reference-driven image completion. In: The Thirty-ninth Annual Conference on Neural In-formation Processing Systems 32. Lin, B., Jin, Y., Wending, Y., Ye, W., Yuan, Y., Tan, R.T.: Nighthaze: Nighttime image dehazing via self-prior learning. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 39, pp. 5209–5217 (2025) 33. Lin, B., Jin, Y., Yan, W., Ye, W., Yuan, Y., Zhang, S., Tan, R.T.: Nightrain: Nighttime video deraining via adaptive-rain-removal and adaptive-correction. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 38, pp. 3378– 3385 (2024) 34. Lin, B., Lin, S., Tan, R.: Seeing beyond haze: Generative nighttime image dehazing. arXiv preprint arXiv:2503.08073 (2025) 35. Lin, B., Yuan, Z., Chen, T.: Rgb-to-polarization estimation: A new task and bench-mark study. In: The Thirty-ninth Annual Conference on Neural Information Pro-cessing Systems Datasets and Benchmarks Track 36. Lin, G., Milan, A., Shen, C., Reid, I.: Refinenet: Multi-path refinement networks for high-resolution semantic segmentation. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 1925–1934 (2017) 37. Liu, H., Li, C., Wu, Q., Lee, Y.J.: Visual instruction tuning. Advances in neural information processing systems 36 , 34892–34916 (2023) 38. Liu, Y., Peng, B., Zhong, Z., Yue, Z., Lu, F., Yu, B., Jia, J.: Seg-zero: Reasoning-chain guided segmentation via cognitive reinforcement. arXiv preprint arXiv:2503.06520 (2025) 39. Long, J., Shelhamer, E., Darrell, T.: Fully convolutional networks for semantic segmentation. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 3431–3440 (2015) 40. Ma, C., Jiang, Y., Wu, J., Yuan, Z., Qi, X.: Groma: Localized visual tokeniza-tion for grounding multimodal large language models. In: European Conference on Computer Vision. pp. 417–435. Springer (2024) 41. Ma, Z., Hong, J., Gul, M.O., Gandhi, M., Gao, I., Krishna, R.: Crepe: Can vision-language foundation models reason compositionally? In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 10910– 10921 (2023) 42. Marino, K., Rastegari, M., Farhadi, A., Mottaghi, R.: Ok-vqa: A visual question an-swering benchmark requiring external knowledge. In: Proceedings of the IEEE/cvf conference on computer vision and pattern recognition. pp. 3195–3204 (2019) 43. Michaelis, C., Mitzkus, B., Geirhos, R., Rusak, E., Bringmann, O., Ecker, A.S., Bethge, M., Brendel, W.: Benchmarking robustness in object detection: Au-tonomous driving when winter is coming. arXiv preprint arXiv:1907.07484 (2019) 44. OpenAI: OpenAI o1. https://openai.com/o1/ (2024) 45. Ravi, N., Gabeur, V., Hu, Y.T., Hu, R., Ryali, C., Ma, T., Khedr, H., Rädle, R., Rolland, C., Gustafson, L., et al.: Sam 2: Segment anything in images and videos. arXiv preprint arXiv:2408.00714 (2024) 18 W. Du et al. 46. Ren, T., Liu, S., Zeng, A., Lin, J., Li, K., Cao, H., Chen, J., Huang, X., Chen, Y., Yan, F., et al.: Grounded sam: Assembling open-world models for diverse visual tasks. arXiv preprint arXiv:2401.14159 (2024) 47. Ren, Z., Huang, Z., Wei, Y., Zhao, Y., Fu, D., Feng, J., Jin, X.: Pixellm: Pixel rea-soning with large multimodal model. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 26374–26383 (2024) 48. Ronneberger, O., Fischer, P., Brox, T.: U-net: Convolutional networks for biomed-ical image segmentation. In: Medical image computing and computer-assisted intervention–MICCAI 2015: 18th international conference, Munich, Germany, Oc-tober 5-9, 2015, proceedings, part III 18. pp. 234–241. Springer (2015) 49. Sakaridis, C., Dai, D., Van Gool, L.: ACDC: The adverse conditions dataset with correspondences for semantic driving scene understanding. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) (October 2021) 50. Sakaridis, C., Wang, H., Li, K., Jadon, A., Abbeloos, W., Reino, D.O., Van Gool, L., Dai, D., et al.: Acdc: The adverse conditions dataset with correspondences for robust semantic driving scene perception. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025) 51. Schwenk, D., Khandelwal, A., Clark, C., Marino, K., Mottaghi, R.: A-okvqa: A benchmark for visual question answering using world knowledge. In: European conference on computer vision. pp. 146–162. Springer (2022) 52. Shao, Z., Wang, P., Zhu, Q., Xu, R., Song, J., Bi, X., Zhang, H., Zhang, M., Li, Y., Wu, Y., et al.: Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 (2024) 53. Surís, D., Menon, S., Vondrick, C.: Vipergpt: Visual inference via python execu-tion for reasoning. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 11888–11898 (2023) 54. Team, R.V.: R1-V. https://github.com/Deep-Agent/R1-V?tab=readme-ov-file 
+
+(2025) 55. Teng, Z., Chen, T., Lin, B., Yuan, Z., Li, X., Zhang, X., Zhang, S.: Raindropgs: A benchmark for 3d gaussian splatting under raindrop conditions. arXiv preprint arXiv:2510.17719 (2025) 56. Trinh, T.H., Wu, Y., Le, Q.V., He, H., Luong, T.: Solving olympiad geometry without human demonstrations. Nature 625 (7995), 476–482 (2024) 57. Uesato, J., Kushman, N., Kumar, R., Song, F., Siegel, N., Wang, L., Creswell, A., Irving, G., Higgins, I.: Solving math word problems with process-and outcome-based feedback. arXiv preprint arXiv:2211.14275 (2022) 58. Wahed, M., Nguyen, K.A., Juvekar, A.S., Li, X., Zhou, X., Shah, V., Yu, T., Yanardag, P., Lourentzou, I.: Prima: Multi-image vision-language models for rea-soning segmentation. arXiv preprint arXiv:2412.15209 (2024) 59. Wang, J., Ke, L.: Llm-seg: Bridging image segmentation and large language model reasoning. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 1765–1774 (2024) 60. Wang, P., Li, L., Shao, Z., Xu, R., Dai, D., Li, Y., Chen, D., Wu, Y., Sui, Z.: Math-shepherd: Verify and reinforce llms step-by-step without human annotations. arXiv preprint arXiv:2312.08935 (2023) 61. Wang, W., Yue, T., Zhang, Y., Guo, L., He, X., Wang, X., Liu, J.: Unveiling parts beyond objects: Towards finer-granularity referring expression segmentation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 12998–13008 (2024) WeatherReasonSeg 19 62. Wu, T.H., Biamby, G., Chan, D., Dunlap, L., Gupta, R., Wang, X., Gonzalez, J.E., Darrell, T.: See say and segment: Teaching lmms to overcome false premises. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 13459–13469 (2024) 63. Yang, S., Qu, T., Lai, X., Tian, Z., Peng, B., Liu, S., Jia, J.: Lisa++: An improved baseline for reasoning segmentation with large language model. arXiv preprint arXiv:2312.17240 (2023) 64. Yang, W., Tan, R.T., Feng, J., Liu, J., Guo, Z., Yan, S.: Deep joint rain detec-tion and removal from a single image. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 1357–1366 (2017) 65. Yang, X., Wending, Y., Mi, M.B., Yuan, Y., Tan, R.T.: End-to-end video semantic segmentation in adverse weather using fusion blocks and temporal-spatial teacher-student learning. Advances in Neural Information Processing Systems 37 , 141000– 141020 (2024) 66. Yang, X., Yan, W., Yuan, Y., Mi, M.B., Tan, R.T.: Semantic segmentation in mul-tiple adverse weather conditions with domain knowledge retention. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 38, pp. 6558–6566 (2024) 67. Yang, X., Yan, W., Yuan, Y., Mi, M.B., Tan, R.T.: Semantic segmentation on raindrop degraded images using two-stage dual teacher-student learning. In: Pro-ceedings of the AAAI Conference on Artificial Intelligence. vol. 39, pp. 9292–9300 (2025) 68. Yang, X., Zhang, X., Wang, X.: Erf: A benchmark dataset for robust semantic segmentation under extreme rainfall conditions. In: Proceedings of the AAAI Con-ference on Artificial Intelligence. vol. 39, pp. 9301–9309 (2025) 69. You, Z., Wu, Z.: Seg-r1: Segmentation can be surprisingly simple with reinforce-ment learning. arXiv preprint arXiv:2506.22624 (2025) 70. Yu, L., Poirson, P., Yang, S., Berg, A.C., Berg, T.L.: Modeling context in referring expressions. In: Computer Vision–ECCV 2016: 14th European Conference, Ams-terdam, The Netherlands, October 11-14, 2016, Proceedings, Part II 14. pp. 69–85. Springer (2016) 71. Yuan, Z., Chen, T., Zhang, D., Gao, Y., Shan, W., Lin, B., Danner, A.: Tailored polarization-switchable vcsel arrays for photonic Ising computing. Appl. Phys. Lett. 
+
+127 (22), 221102 (2025). https://doi.org/10.1063/5.0291349 
+
+72. Yuan, Z., Shan, W., Chen, T., Lin, B., Danner, A.: Mesa orientation engineering for polarization locking in vcsels. In: IEEE Photonics Conference (IPC). pp. 1–2. Sin-gapore, Singapore (2025). https://doi.org/10.1109/IPC65510.2025.11282171 
+
+73. Yuan, Z., Zhang, D., Gao, Y., Qi, L., Fu, W., Danner, A.: Large-scale fabrica-tion and analysis of polarization behavior in vcsels with tailored apertures. J. Lightw. Technol. 43 (14), 6819–6827 (2025). https://doi.org/10.1109/JLT.2025. 3568130 
+
+74. Yuan, Z., Zhang, D., Lin, H.L., Danner, A.: Engineering polarization switching in vcsels with custom aperture shapes. In: CLEO 2025. p. JPS200_47. Technical Digest Series (2025). https://doi.org/10.1364/CLEO_AT.2025.JPS200_47 
+
+75. Yuan, Z., Zhang, D., Shi, L., Liu, Y., Danner, A.: Enhanced polarization locking in vcsels. Appl. Phys. Lett. 126 (15), 151101 (2025). https://doi.org/10.1063/ 5.0259836 
+
+76. Zellers, R., Bisk, Y., Farhadi, A., Choi, Y.: From recognition to cognition: Visual commonsense reasoning. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 6720–6731 (2019) 77. Zhang, X., Chen, Y.C.: Adaptive domain generalization via online disagreement minimization. IEEE Transactions on Image Processing 32 , 4247–4258 (2023) 20 W. Du et al. 78. Zhang, X., Tan, R.T.: Mamba as a bridge: Where vision foundation models meet vision language models for domain-generalized semantic segmentation. In: Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 14527–14537 (2025) 79. Zhang, X., Xie, J., Yuan, Y., Mi, M.B., Tan, R.T.: Heap: unsupervised object discovery and localization with contrastive grouping. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 38, pp. 7323–7331 (2024) 80. Zhang, Y., Ding, L., Sharma, G.: Hazerd: an outdoor scene dataset and bench-mark for single image dehazing. In: 2017 IEEE international conference on image processing (ICIP). pp. 3205–3209. IEEE (2017) 81. Zhao, H., Shi, J., Qi, X., Wang, X., Jia, J.: Pyramid scene parsing network. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 2881–2890 (2017) 82. Zhong, X., Tu, S., Ma, X., Jiang, K., Huang, W., Wang, Z.: Rainy wcity: A real rainfall dataset with diverse conditions for semantic driving scene understanding. In: Raedt, L.D. (ed.) Proceedings of the Thirty-First International Joint Conference on Artificial Intelligence, IJCAI-22. pp. 1743–1749. International Joint Conferences on Artificial Intelligence Organization (2022) WeatherReasonSeg 21 
+
+# Supplementary Material 
+
+A Weather Synthesis with Details 
+
+We introduce physically interpretable weather synthesis mechanisms in Weath-erReasonSeg to systematically model degradation on the original images of Rea-sonSeg. Our design follows two key principles: (1) the synthesis process should approximate real-world imaging mechanisms under adverse weather, rather than relying on heuristic noise injection; and (2) the degradation severity should be continuously controllable to enable quantitative analysis across different weather types and intensity levels. Based on these principles, we construct physically consistent synthetic data with different severity levels by modeling three representative weather condi-tions: rain, fog, and snow. 
+
+A.1 Adverse Weather Synthesis Rain Synthesis Rain degradation mainly manifests as two visual effects: sparse rain streaks and accumulation effects caused by dense overlapping streaks. To model these characteristics, we adopt a region dependent rain model and further incorporate rain accumulation [7, 33, 55, 64]. The basic rain model is formulated as: 
+
+O = B + SR,  (1) where O denotes the observed rainy image, B is the clean background image, S
+
+represents the rain streak intensity layer, and R ∈ { 0, 1} is a region dependent bi-nary mask indicating rain affected pixels. This formulation decouples the spatial distribution of rain streaks from their intensity, enabling structured modeling of rain patterns. The above model mainly describes sparse rain conditions. Under heavy rain-fall, dense streaks overlap spatially and temporally, producing accumulation ef-fects that resemble thin fog and reduce scene contrast. To simulate this phe-nomenon, we introduce a rain accumulation model: 
+
+O = α B +
+
+> s
+
+X
+
+> t=1
+
+˜StR
+
+!
+
++ (1 − α)A,  (2) where ˜St denotes rain streak groups with similar orientation and shape, s is the number of rain groups, A is the global atmospheric light, and α represents the transmission factor controlling haze like attenuation. By adjusting the number of rain groups s, overlap levels, and transmission α,we generate a continuous degradation spectrum from light rain to heavy rainfall. 22 W. Du et al. 
+
+Fog Synthesis Fog degradation mainly arises from atmospheric scattering. Under the assumption of homogeneous fog and stable illumination, the imaging process can be approximated by the atmospheric scattering model [16,32,34,80]: 
+
+I(x) = J(x)t(x) + A(1 − t(x)) , (3) where I(x) is the observed foggy image, J(x) is the clear background image, A
+
+denotes the global atmospheric light, and t(x) represents the scene transmission map. The transmission is related to the scene depth d(x) and scattering coefficient 
+
+β:
+
+t(x) = exp( −βd (x)) . (4) As the depth increases, the direct component J(x)t(x) attenuates while the atmospheric light component A(1 −t(x)) becomes dominant, resulting in reduced contrast and degraded visibility. In practice, the haze free image is first converted to linear RGB space, the fog image is synthesized using the above equations, and the result is converted back to sRGB to preserve realistic brightness distribution. Fog severity is controlled by the scattering coefficient β, which is determined from meteorological visibility Rm:
+
+β = − ln( ϵ)
+
+Rm
+
+, (5) where ϵ denotes the perceptual contrast threshold. By varying Rm, we gen-erate fog conditions ranging from light to dense fog. 
+
+Snow Synthesis Snow degradation mainly results from particle occlusion, light scattering, and contrast reduction under dense snowfall. Compared with rain streaks, snow particles appear as irregular high intensity granular structures with varying scales and non-uniform spatial distributions. We model snowy degradation as the combination of background imaging, snow particle layers, and atmospheric scattering [43]: 
+
+I(x) = γJ (x) + 
+
+> n
+
+X
+
+> k=1
+
+Sk(x; ρ, σ ), (6) where I(x) denotes the synthesized snowy image, J(x) is the clean back-ground image, and Sk(x; ρ, σ ) represents the k-th snow particle layer generated with particle density ρ and particle scale distribution σ. The parameter γ de-notes the transmission coefficient that models the visibility attenuation caused by snowfall. By adjusting ρ, σ, and γ, different snowfall severities ranging from light snow to heavy snow can be simulated. Each snow layer consists of randomly generated particles with varying scale, brightness, and transparency, producing localized occlusions while preserving WeatherReasonSeg 23 
+
+partial background visibility. Snowfall severity is controlled by the number of particle layers n, particle scale distribution, and transmission attenuation γ(x),enabling gradual degradation from light snowfall to heavy snow conditions. 
+
+A.2 Adverse Weather Severity Parameter Settings 
+
+To simulate different levels of environmental degradation, we control the sever-ity of fog, rain, and snow through a set of physically interpretable parameters. The specific configurations for light, moderate, and heavy conditions are sum-marized in Table 5. For fog synthesis, A denotes the global atmospheric light, while β represents the scattering coefficient that determines the strength of at-mospheric attenuation. As β increases, light scattering becomes stronger, leading to reduced visibility and more severe fog degradation. For rain synthesis, s de-notes the number of rain streak groups, which directly controls the density of rain streaks, while α represents the transmission factor that models the accu-mulation effect of dense rainfall. Larger s values produce denser rain streaks, and smaller α values correspond to stronger attenuation, resulting in heavier rain appearance. For snow synthesis, ρ denotes the particle density controlling the number of snow particles, σ represents the particle scale distribution that determines the size variation of snowflakes, and γ denotes the transmission co-efficient that models visibility attenuation under snowfall. Increasing ρ and σ
+
+leads to denser and larger snow particles, while decreasing γ further reduces scene contrast, producing progressively heavier snowfall effects. 
+
+Table 5: Parameter settings for different adverse weather severities.             
+
+> Weather Light Moderate Heavy Fog A=0 .8, β =0 .32 A=0 .8, β =1 .2A=0 .8, β =2 .0
+> Rain s=200 , α =0 .9s=700 , α =0 .85 s=1000 , α =0 .8
+> Snow ρ=0 .50 , σ =3 .0, γ =0 .80 ρ=0 .85 , σ =4 .0, γ =0 .70 ρ=0 .90 , σ =4 .5, γ =0 .55
+
+B Data Annotation of WeatherReasonSeg 
+
+To construct the WeatherReasonSeg benchmark dataset, we propose an efficient semi-automatic data construction pipeline. Each sample in the dataset consists of an image, five reasoning queries, and a target binary mask. The overall process is described as follows. 
+
+Step 1: Data Preparation and Pre-extraction We first manually anno-tate 200 samples, covering queries and masks across all reasoning dimensions. Using a mask based extraction module, each image is processed at the pixel level to automatically decompose the scene into object masks and their corresponding descriptive labels. 24 W. Du et al. messages = [{ "role": "system", "content" : You are an AI visual assistant observing an RGB image. You are also provided 
+
+with a mask image and the category label of the target object in the scene. 
+
+Your task is to: (1)Analyze the RGB image and identify the target object corresponding to the mask (i.e., the object should b e
+
+visually recognizable and clearly separable from the background). (2)Generate five natural language questions from five 
+
+perspectives: functional positioning, application scenarios, structural features, interaction relationships, and requirement 
+
+matching. (3) All questions should clearly refer to the same target object.Each question must be answerable solely by observi ng 
+
+the RGB image. (4) Under no circumstances should the questions mention or reference segmentation masks. Maintain a natural 
+
+conversational tone while satisfying the length requirements, and avoid overly rigid wording. 
+
+}, 
+
+{
+
+"role": "user", 
+
+"content": [ 
+
+{"type": "text", "text": f"Class label (from segmentation): {class_name}. Here is an RGB image and a binary mask 
+
+for that class. Generate 5 questions."}, 
+
+{"type": "image_url", "image_url": {"url": f"data:image/{rgb_fmt};base64,{rgb_b64}"}}, 
+
+{"type": "image_url", "image_url": {"url": f"data:image/{mask_fmt};base64,{mask_b64}"}}, 
+
+], 
+
+}, 
+
+]
+
+Fig. 6: Prompt construction for reasoning query generation. The prompt consists of a system instruction defining the reasoning task and a user message containing the class label, RGB image, and corresponding binary mask to guide the generation of five reasoning oriented questions. Rules  for  generating  questions  (strictly  follow  all  requirements) :
+
+1. Existence  certainty : Only  ask  about  objects  that  are  clearly  present  in  the  RGB  image ; do  not  generate  questions  about 
+
+objects  that  are  absent  or  cannot  be  visually  confirmed .
+
+2. Single  target  consistency : All  five  questions  must  refer  to  the  same  physical  object  in  the  scene,  with  no  ambiguity  about  the 
+
+target  of  the  question .
+
+3. Answer  noun  constraint : The  answer  to  each  question  must  be  a specific  concrete  noun . Answers  cannot  be  colors,  actions, 
+
+environments,  textures,  or  abstract  concepts .
+
+4. Question  diversity  requirement : Design  questions  around  diverse  scenario  dimensions  of  the  target  object,  including  but  not 
+
+limited  to : its  functional  purpose,  role  in  transportation  systems,  position  in  urban  infrastructure,  daily  usage  patterns,  and 
+
+safety -related  implications . Avoid  repetitive  semantic  angles .
+
+5. Complex  reasoning  integration : Incorporate  questions  that  require  background  knowledge  or  logical  reasoning  related  to  the 
+
+target  object,  such  as  its  necessity  in  urban  scenarios,  typical  events  that  involve  this  object,  or  its  interactive  relationship  with 
+
+humans/other  urban  elements .
+
+6. Confident  answerability : Ensure  every  question  can  be  confidently  answered  by  a viewer  who  only  sees  the  RGB  image .
+
+Avoid  speculative  wording  that  would  lead  to  uncertain  answers,  and  do  not  ask  about  ambiguous  details  that  cannot  be  clearly 
+
+identified  in  the  image .
+
+7. No  location  description  constraint : Do  not  include  any  directional  or  positional  descriptions  of  the  target  object  in  the 
+
+questions  (e .g., avoid  words/phrases  like  "lower  right  corner",  "near  the  edge",  "far  right  side",  "peripheral  area",  "close  to  the 
+
+curb") . Focus  on  the  object’s  attributes,  functions,  and  relationships  instead  of  its  spatial  location  in  the  image .
+
+8. Avoid  name -asking  phrasing : Do  not  design  questions  that  directly  ask  for  the  name  or  appellation  of  the  target  object  (e .g.,
+
+avoid  using  "what  is  this  called",  "is  typically  known  as  what") . Focus  on  the  object’s  functions,  attributes  and  application 
+
+scenarios  to  construct  questions .
+
+Fig. 7: The figure outlines the verification rules used to ensure that generated ques-tions satisfy object existence certainty, single target consistency, noun-based answers, reasoning diversity, and image grounded answer ability. 
+
+Step 2: Prompt Engineering with Large Language Models The ex-tracted descriptive labels are incorporated as soft prompts, together with the original image masks and manually annotated example samples, to construct the complete prompt input for the Qwen large language model. Through an WeatherReasonSeg 25 
+
+in context learning mechanism, the model generates five candidate reasoning queries for each sample. 
+
+Step 3: Verification and Iteration A dual stage filtering mechanism com-bining human experts and large language models is applied to verify the gen-erated queries. Candidate queries are screened according to predefined rules. If semantic ambiguity or logical inconsistency is detected, the queries are either rewritten by the LLM or manually corrected by experts until high quality rea-soning queries are obtained. The prompt construction process in Step 2 is illustrated in Figure 6, while the rule based filtering procedure used for verification in Step 3 is illustrated in Figure 7. 
+
+C Implementation details 
+
+We adopt 8 NVIDIA 24G 3090 GPUs for inference. We evaluate four rep-resentative frameworks on WeatherReasonSeg: Grounded-SAM [46], which is grounding-based, and three reasoning-based models: LISA [24], Seg-R1 [69], and Seg-Zero [38]. Specifically, LISA adopts a vision-language backbone based on LLaVA-1.5, while Seg-R1 and Seg-Zero are built upon the Qwen2.5-VL archi-tecture. For fairness, all models are evaluated using their official implementations and default inference configurations. During evaluation, the input image and the corresponding query are provided to each framework to predict the segmentation mask of the target object. 
+
+D More experiments 
+
+D.1 Qualitative Analysis Across Reasoning Dimensions 
+
+Figure 8 shows representative qualitative examples from our benchmark under real-world conditions, illustrating how reasoning queries from different semantic dimensions affect VLM reasoning segmentation. In this example, the target is a service vehicle, and queries are constructed from five perspectives: Function, Ap-plication, Structure, Relationship, and Requirement. The model correctly identi-fies the vehicle under Function, Application, Structure, and Relationship queries, indicating that when reasoning cues align with observable visual attributes, such as object category, structural characteristics, or roles in urban logistics, VLMs reasoning segmentation can reliably localize the target. However, the model fails under the Requirement query, confusing the functional roles of objects in the con-struction scene. Although the query asks for a vehicle suitable for transporting construction materials, the model incorrectly selects the temporary construction barrier. This error suggests that the model relies on contextual co-occurrence cues rather than correctly reasoning about object functions. Figure 9 further reveals limitations under complex situational contexts. In the rainy highway accident scenario, the model successfully identifies the crashed ve-hicle when queries describe the accident event or structural characteristics, which 26 W. Du et al. User:  Based on the picture, if the goal is to identify the 
+
+vehicle that is specifically designed to  transport tools, 
+
+equipment, or service materials  for professional urban 
+
+work, which one should be selected? 
+
+Function  Thinking:  The question asks for ...... tools. In the image, there is a  red 
+
+vehicle  on the right side of the road that appears to be a truck, which is 
+
+commonly used for such purposes. The truck is parked near a construction 
+
+site, which further  supports its use for transporting materials . There are no 
+
+other vehicles in the image that are clearly identifiable as service vehicles 
+
+for construction or maintenance. 
+
+User:  Rather than transporting passengers  for commuting 
+
+or travel, which vehicle in the image is equipped to carry 
+
+equipment and personnel to support  urban services , public 
+
+safety, emergency response, or specialized operations? 
+
+Application 
+
+User:  In the image, which vehicle can be identified by its 
+
+enclosed cargo box , vertical  rear doors , and the structural 
+
+separation between the driver’s cab and the cargo 
+
+compartment? 
+
+Structure 
+
+User:  Considering its role within the urban environment, 
+
+which vehicle in the picture operates in coordination with 
+
+road infrastructure to facilitate  short -distance logistics 
+
+between suppliers and residential construction sites ?
+
+Relationship 
+
+User:  During construction, some  construction materials 
+
+need to be delivered. What means of transportation might 
+
+be suitable for  short -distance transportation of building 
+
+materials and construction support ?
+
+Requirement 
+
+Thinking:  The question is asking for …... In the image, there is a  red 
+
+vehicle  on the right side of the road that appears to be a truck, which is 
+
+typically used for transporting goods and equipment. This vehicle could be 
+
+used for various  urban services  or emergency response purposes. The other 
+
+vehicles in the image, such as the white car, are more likely to be used for 
+
+personal or commuting  purposes. 
+
+Thinking:  The question is asking for a vehicle with a specific design: an 
+
+enclosed cargo box structure with a vertical rear door and a separate driver's 
+
+cab. This is characteristic of a van or a truck with a cargo box. In the image, 
+
+there are two vehicles visible: a white car and a red van. The  red van 
+
+appears to have the design described, with a  cargo box structure and a 
+
+vertical rear door, and it is separate from the driver's cab. 
+
+Thinking:  The question asks …... The key pointsare: it should be a 
+
+vehicle, ……, and it should be used for short -distance logistics. The image 
+
+shows a street with various vehicles, including a red truck and a white car. 
+
+The  red truckappears to be a delivery vehicle , which is commonly used 
+
+for  short -distance logistics . The white car is a personal vehicle and is not 
+
+typically used for logistics, The red truck is the most closely matched 
+
+object asit fits the description of a vehicle used for short -distance logistics. 
+
+Thinking:  The task involves ……. In the image, there is a green structure 
+
+on the right side that appears to be a temporary construction barrier or fence, 
+
+which is often used to contain construction materials or to protect the 
+
+construction site from the public. The  red truck  in the middle of the image 
+
+could  be transporting construction materials , but the  green structure  is 
+
+more directly  related to the concept of "transport construction materials" 
+
+as it is a barrier that could be used to contain such materials. 
+
+Input Image 
+
+GT 
+
+Fig. 8: Given the same input image and target object, we construct queries from five semantic perspectives—Function, Application, Structure, Relationship, and Require-ment. The reasoning segmentation method adopts Seg-Zero. The right panel illustrates the reasoning process and segmentation predictions of the VLM model, where green check marks denote correct predictions and the red cross indicates a failure case. This example highlights how different reasoning dimensions influence the model’s ability to correctly localize the target object. 
+
+provide clear visual grounding. In contrast, the model fails under certain Appli-cation and Relationship queries that require higher level situational reasoning, such as identifying the vehicle monitored by police or interpreting emergency response dynamics. In these cases, the model confuses the crashed vehicle with the police car. Overall, the performance of reasoning segmentation varies significantly across different reasoning dimensions. Queries grounded in directly observable visual features tend to produce more stable predictions, whereas those requiring con-textual reasoning, event interpretation, or implicit task requirements are more prone to failure. This observation is consistent with our quantitative findings and highlights the importance of evaluating reasoning segmentation across di-verse semantic perspectives and adverse weather conditions. 
+
+D.2 Qualitative Comparison Under Adverse Weather Conditions 
+
+Figure 10 shows the performance of reasoning based segmentation models de-grades significantly under adverse weather conditions, consistent with the quan-titative observations. When environmental degradation interferes with visual cues, reasoning based methods often struggle to accurately identify targets. For example, in rainy or snowy weather, Seg-Zero and Seg-R1 sometimes produce WeatherReasonSeg 27 User:  On a rainy highway, based on the situation at the 
+
+scene, which vehicle appears to have lost control and 
+
+crashed into the roadside guardrail ?
+
+Function  Thinking:  The image shows a highway scene with multiple vehicles. The 
+
+focus is on  a car that appears to be off the road and in contact with the 
+
+roadside guardrail , indicating a possible  crash . The presence of a police 
+
+car with its lights on suggests that the situation requires attention and 
+
+investigation. The other vehicles on the road seem to be moving normally, 
+
+and there is no indication that they are involved in the incident. 
+
+User:  Based on the scene, which vehicle appears to be the 
+
+one that has  lost  control  and  collided with the roadside 
+
+barrier , indicating it is involved in the traffic accident ?
+
+Application 
+
+User : Which car in the picture can be identified based on 
+
+its  dark -colored sedan body , four -door passenger car 
+
+design, and the location of the damage  near the roadside 
+
+guardrail after the collision? 
+
+Structure 
+
+User:  Considering the interaction between vehicles and 
+
+emergency responders,  which car is being approached or 
+
+monitored by the nearby police vehicle  after the accident? 
+
+Relationship 
+
+User:  If roadside  assistance is needed to remove a 
+
+crashed vehicle  from the highway and restore traffic flow, 
+
+which vehicle would require towing? 
+
+Requirement 
+
+Thinking:  The scene shows …… emergency situation. There is a car on the 
+
+side of the road that appears to be in a position that suggests it has  veered off 
+
+the road  and is near the roadside barrier. The  police car is positioned close to 
+
+this car , which could imply that the police are attending to the situation. The 
+
+car on the side of the road  is the only one that seems to be out of its lane, 
+
+which is a common indicator of a vehicle that has lost control. 
+
+Thinking:  The task involves identifying a specific car based on its 
+
+description and locating it in the image. The description matches a  dark -
+
+colored sedan with a four -door design  that has sustained damage near the 
+
+roadside guardrail. I need to find a car that fits this description and compare 
+
+it with the other cars in the image. 
+
+Thinking:  The image …... The police car is positioned on the right side 
+
+of the road, with its lights on, indicating it is an emergency response 
+
+vehicle. The car closest to the police car appears to be a  black sedan ,
+
+which is positioned on the road and seems to be the focus of the police 
+
+attention.  The police car is likely approaching or monitoring this black 
+
+sedan , as it is the closest vehicle to the police vehicle and the only one 
+
+that could be the subject of an accident or incident. 
+
+Thinking:  The question asks for the vehicle that would require towing if 
+
+roadside assistance is needed to remove a crashed vehicle from the highway 
+
+and restore traffic flow. In the image, there is  a car that appears to be 
+
+involved in an accident, as it is positioned on the side of the road and is 
+
+not in the lane of traffic . The  police car is also present, which suggests 
+
+that there might be an issue that requires attention . The car in the accident 
+
+is the one that would need to be removed to restore traffic flow. 
+
+Input Image 
+
+GT 
+
+Fig. 9: Given the same input image and target object, we test the reasoning and segmentation prediction results of the VLM model from five queries, where a green check indicates correct prediction and a red cross indicates prediction failure. This example highlights how different reasoning dimensions affect the model’s ability to correctly locate the target object. Which person on the road 
+
+should I pay attention to 
+
+while driving to avoid 
+
+collisions and slow down? 
+
+Which vehicle is suitable 
+
+for transporting rain -
+
+sensitive electronics over 
+
+a short urban distance 
+
+with large cargo space? 
+
+When driving on snowy 
+
+roads, which vehicle 
+
+should I keep a safe 
+
+distance from to prevent 
+
+traffic accidents? 
+
+Original lmage Query 
+
+If I want to take 
+
+public transportation 
+
+for my trip in the city, 
+
+where should I wait 
+
+for the bus? 
+
+GT Seg -Zero  Seg -R1  LISA 
+
+Fig. 10: Qualitative results of reasoning segmentation under adverse weather condi-tions. For each example, we show the query, the original image, and the segmentation predictions produced by Seg-Zero, Seg-R1, and LISA, together with the ground truth (GT). The results highlight the different reasoning segmentation performance of VLM based methods in environments such as rain, snow, and nighttime. 28 W. Du et al. 
+
+incomplete or off target predictions, while LISA may incorrectly highlight sur-rounding objects with similar contextual cues. These errors indicate that adverse weather not only affects low level visual perception but also interferes with the high level reasoning processes required for language guided segmentation. In con-trast, truth masks demonstrate that accurate localization typically relies on the integration of object level features and contextual understanding, which remains a challenge for current VLM based reasoning based segmentation methods. 
+
+E Limitations 
+
+Although WeatherReasonSeg provides a comprehensive benchmark for evalu-ating VLM reasoning segmentation under adverse weather conditions, it still has several limitations. First, the synthetic weather data are generated using simulation pipelines, which may not fully capture the complex physical prop-erties of real-world weather phenomena. As a result, certain factors such as dynamic precipitation patterns, lighting interactions, and sensor noise are only partially modeled. Second, although our real-world subset includes multiple ad-verse conditions such as rain, snow, fog, and nighttime scenes, the diversity of environmental conditions and object categories remains limited compared with the vast variety of real-world scenarios [27–29,31,35]. In addition, current evalu-ations focus primarily on instance-level reasoning and segmentation, and do not explicitly consider the broader hypothesis space of environmental and causal factors [8]. Moreover, physically informative cues such as polarization, which have been shown to provide complementary robustness under degraded imaging conditions [71–75], are not considered in the current benchmark. Expanding the dataset to incorporate more physically accurate weather simulations and a richer diversity of real-world adverse environments is an important direction for future work.

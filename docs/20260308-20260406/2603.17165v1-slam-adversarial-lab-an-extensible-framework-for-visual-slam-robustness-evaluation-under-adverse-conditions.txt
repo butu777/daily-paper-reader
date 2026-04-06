@@ -1,0 +1,258 @@
+Title: SLAM Adversarial Lab: An Extensible Framework for Visual SLAM Robustness Evaluation under Adverse Conditions
+
+URL Source: https://arxiv.org/pdf/2603.17165v1
+
+Published Time: Thu, 19 Mar 2026 00:24:14 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# SLAM Adversarial Lab: An Extensible Framework for Visual SLAM Robustness Evaluation under Adverse Conditions 
+
+Mohamed Hefny 1, Karthik Dantu 2, Steven Y. Ko 1
+
+Abstract — We present SAL (SLAM Adversarial Lab), amodular framework for evaluating visual SLAM systems under adversarial conditions such as fog and rain. SAL represents each adversarial condition as a perturbation that transforms an existing dataset into an adversarial dataset. When transforming a dataset, SAL supports severity levels using easily-interpretable real-world units such as meters for fog visibility. SAL’s extensi-ble architecture decouples datasets, perturbations, and SLAM algorithms through common interfaces, so users can add new components without rewriting integration code. Moreover, SAL includes a search procedure that finds the severity level of a perturbation at which a SLAM system fails. To showcase the capabilities of SAL, our evaluation integrates seven SLAM algorithms and evaluates them across three datasets under weather, camera, and video transport perturbations. 
+
+I. I NTRODUCTION 
+
+Visual SLAM systems achieve high accuracy on clean bench-mark sequences [1], yet real-world deployments expose them to conditions that fall outside the assumptions behind this accuracy. Adverse weather and illumination (rain, fog, low light), camera degradations (lens soiling, cracking, motion blur), and video transport effects (compression, frame drops) can break the photometric and geometric assumptions that visual SLAM relies on, reducing trackability and sometimes causing complete loss of localization [2]. In safety-critical applications such as autonomous driving, such failures mo-tivate adversarial robustness evaluation that is controlled, reproducible, and comparable across algorithms. We identify three practical needs for meaningful adversar-ial robustness evaluation in visual SLAM. First, operational interpretability : adverse conditions should be parameterized in real-world units (e.g., fog visibility in meters, rain intensity in mm/h), rather than abstract labels such as “corruption severity 3/5” or “noise scale 50%.” Second, modular exten-sibility : degradation effects, datasets, and SLAM algorithms should be modular and pluggable so that adding or removing a component does not require modifying the others. Third, 
+
+failure-boundary localization : evaluation should be able to automatically determine at which severity level SLAM per-formance transitions from pass to fail. In addition, a user should be able to define a failure threshold (e.g. ATE exceeding 1.5 m), instead of testing only a few fixed severity levels. However, current approaches for adversarial robustness evaluation in visual SLAM do not satisfy these needs. Typically, researchers either (i) collect new datasets under desired conditions [3], or (ii) write perturbation code to add  
+
+> 1Simon Fraser University. {mohamed hefny, steveyko }@sfu.ca
+> 2University at Buffalo. kdantu@buffalo.edu
+
+an adverse condition specifically to a dataset or a SLAM system [4], [5]. Collecting new datasets captures only the conditions present during recording, so it offers no way to (i) vary degradation severity (e.g., 3 mm/h vs. 200 mm/h rain) or (ii) isolate a single degradation source or compose multiple degradation sources beyond whatever happened to co-occur at fixed severity in the recorded dataset. For example, a recorded fog sequence may not match a target visibility such as 10 m and may include unintended coupled effects such as night-time darkening, whereas starting from clean data allows applying fog alone or combining fog with other degra-dations in a controlled way. The second approach, writing perturbation code for specific datasets or SLAM algorithms, tightly couples implementation to dataset conventions (e.g., directory layouts, image naming schemes) and algorithm-specific requirements (e.g., trajectory output format). As a result, reusing the same perturbation on a different dataset or SLAM algorithm, or introducing a new perturbation, often requires nontrivial code rewrites. Additionally, neither approach provides a systematic way to identify the exact perturbation severity at which a SLAM system fails. To address the three practical needs and the limitations of existing approaches, we propose SAL (SLAM Adversarial Lab), a modular framework for evaluating visual SLAM robustness under adversarial conditions. To ensure realistic condition modeling, SAL uses perturbation models with interpretable parameters (e.g., fog visibility in meters) that are depth-aware and support combining multiple perturba-tions (e.g., rain + motion blur), rather than simple image corruptions. To support extensibility, SAL separates datasets, perturbations, and SLAM algorithms so that each can be added or replaced independently. To enable fine-grained evaluation, SAL includes a search procedure that estimates the perturbation severity at which a SLAM system fails. We demonstrate SAL capabilities by evaluating seven SLAM algorithms across three datasets covering outdoor and indoor scenes with monocular, stereo, and RGB-D configurations. Our adversarial evaluations show that com-posite perturbations such as night combined with fog cause significantly larger degradation than individual effects, and that algorithms vary widely in their sensitivity to different perturbation types. Feature tracking diagnostics show that degradation can be abrupt: ORB [6] features track stably through heavy rain (50 mm/h) but fail completely at severe intensity (200 mm/h). The search procedure pinpoints failure thresholds that testing at a few fixed severity levels misses, for example, for ORB-SLAM3 [7] on KITTI [8] night+fog, a 3 m visibility change causes about a 93-fold increase in 
+
+> This work has been submitted to the IEEE for possible publication. Copyright may be transferred without notice, after which this version may no longer be accessible.
+> arXiv:2603.17165v1 [cs.RO] 17 Mar 2026
+
+ATE RMSE, showing that performance can degrade sharply within a narrow visibility range. II. R ELATED WORK 
+
+This section reviews related work on SLAM evaluation and perturbation frameworks, adverse-condition datasets, and robust SLAM algorithms. 
+
+A. SLAM Evaluation Frameworks 
+
+SLAM evaluation frameworks simplify experiment execu-tion and make results more reproducible and comparable. SLAMBench [9] provided a common way to run SLAM algorithms on datasets and report accuracy alongside system cost such as runtime and energy. VSLAM-LAB [10] offers a unified command-line workflow that streamlines algorithm compilation and configuration, automates dataset prepara-tion, and standardizes experiment execution and evaluation. These frameworks improve standardized SLAM execution and modular integration, but they do not target controlled and extensible adversarial robustness evaluation. Other work evaluates robustness by generating perturbed inputs and measuring degradation and failure behavior. SLAMFuse [11] adds systematic dataset perturbations and diagnostics to identify where performance breaks down, but focuses on basic image manipulations such as bright-ness, contrast, and blur, rather than modeling structured, deployment-realistic effects. Moreover, it does not provide a modular plug-in interface for perturbations, requiring core framework changes to introduce new effects. Robust-Ego3D [12] synthesizes perturbed benchmarks by rendering clean 3D scenes and combining motion, imaging, depth, and synchronization perturbations, with an indoor RGB-D benchmark based on Replica scenes. In contrast, SAL applies parameterized perturbations in interpretable, real-world units to indoor and outdoor sequences across monocular, stereo, and RGB-D setups. Its architecture is extensible across datasets, perturbation modules, and SLAM algorithms, sup-ports composite visual perturbations, and includes a search procedure for estimating failure thresholds. 
+
+B. Adverse Condition Datasets 
+
+Several datasets capture adverse conditions and highlight robustness gaps beyond clean benchmarks. Outdoor exam-ples include Oxford RobotCar [13] with rain, night, direct sunlight, and snow, 4Seasons [3] with seasonal, weather, and illumination variation, and SubT-MRS [14] with underground and degraded visibility scenes. Indoors, QueensCAMP [15] includes motion blur, lighting changes, and simulated cam-era failures such as dirt, condensation, and under/over-exposure. TartanAir [16] provides photo-realistic simulation with weather and lighting variation. While these datasets provide pre-collected adverse con-ditions, SAL applies controlled, parameterized perturbations to existing sequences. This enables clean-vs-perturbed com-parisons on identical scenes, reproducible evaluation across severity levels, and composite perturbation experiments with-out costly and time-consuming data collection for each operating condition. 
+
+C. Robust SLAM Algorithms 
+
+Robust SLAM methods aim to reduce sensitivity to adverse visual conditions such as illumination change, weather, and reduced visibility. NID-SLAM [17] replaces photometric error with an information-theoretic objective, improving ro-bustness to illumination variation and related appearance changes. Other work targets low-light operation by applying image enhancement before a conventional SLAM pipeline, as in TwilightSLAM [18] and related low-light ORB-SLAM3 variants [19]. Unlike these methods, our work does not propose a new SLAM algorithm. Instead, we provide a framework to systematically evaluate SLAM algorithms un-der controlled, parameterized adverse conditions. III. SAL (SLAM A DVERSARIAL LAB )The framework is designed to meet three evaluation needs. First, operationally meaningful parameterization in units that map to real-world operating conditions. Second, modular architecture in which datasets, perturbation modules, and SLAM algorithms are decoupled and pluggable, so each can be reused across configurations without changing the others. Third, systematic identification of failure thresholds beyond a few fixed severity levels. To meet these needs, we make three contributions through SAL that support systematic studies of robustness under deployment-relevant conditions: 
+
+(C1) Specifying realistic conditions: we define adverse conditions as perturbation modules which are parameterized in real-world units, such as fog visibility in meters or rain intensity in mm/h. (C2) Modular and adaptable: SAL is built around three pluggable extension points: dataset adapters, perturbation modules, and SLAM wrappers. Each component follows a standard interface, so new datasets, algorithms, or perturbations can be added without modi-fying other framework components. (C3) Test to failure: 
+
+we introduce a bisection-based search that estimates the perturbation severity at which a SLAM system fails, where failure is defined by a user-specified metric threshold (e.g., ATE RMSE exceeding 1.5 m). The remainder of this section details the contributions (Sections III-A–III-C) and experi-ment execution pipelines (Section III-D). 
+
+A. Perturbation Modules 
+
+To support (C1), SAL defines each adverse condition as a perturbation module. We aim to model degradations as realistically as possible while keeping robustness conclu-sions relevant to deployment. Accordingly, we define three requirements for realistic adversarial robustness evaluation: (i) perturbations should model specific operating conditions with condition-relevant parameters (e.g., fog visibility in m, rain intensity in mm/h) so robustness outcomes map to real operating conditions, rather than generic pixel-level corruptions not tied to a particular condition, (ii) they should support depth-aware parameterization when the effect de-pends on scene geometry so the perturbation effect varies with distance, as in real scenes, and (iii) they should be composable because real conditions can involve multiple simultaneous degradations whose interaction can be more harmful than any single effect. SAL addresses each of these requirements as follows: 
+
+Perturbation realism: A key goal is to model deployment-relevant degradations rather than generic photo-metric corruptions. Where applicable, modules expose pa-rameters in interpretable, real-world units rather than ab-stract corruption levels. For example, we parameterize rain 
+
+by intensity in mm/h, fog by visibility in meters, and 
+
+motion blur by camera speed (km/h) and exposure time (ms). We relate rain and fog values to standard meteorolog-ical categories [20], [21], [22]. 
+
+Depth-aware parameterization: Real-world degradations are depth-dependent, so perturbation strength is conditioned on scene depth and near/far regions are affected differently (e.g., fog transmission, rain attenuation, motion blur). For instance, with fog visibility set to 50 m, distant content is affected more than nearby content, and content at 50 m and beyond tends to blend into the fog. The framework first reuses existing depth maps, including native RGB-D depth. If depth is missing and stereo calibration is available, it computes metric depth from stereo pairs using Foundation-Stereo [23] by converting disparity with calibration. Oth-erwise, it estimates monocular depth with Depth Anything V2 [24]. Depth is cached per sequence and reused across modules to avoid redundant computation. 
+
+Composite perturbations: Real deployments often in-volve multiple simultaneous conditions. SAL supports com-posite perturbations that combine multiple effects in order, for example, rain with lens soiling or fog with motion blur. Users can compare each effect in isolation against its combination on the same sequence to determine whether the combined degradation exceeds either individual effect. 
+
+B. Extensible Benchmarking Architecture 
+
+To support extensible studies (C2), users should be able to integrate new datasets, perturbations, and SLAM algo-rithms as modular components through well-defined ex-tension points, then reuse them across many benchmark configurations (dataset × perturbation × SLAM algorithm). Each new component should integrate once at its extension point, without requiring changes elsewhere in the framework. This matters because robustness studies require many combi-nations, and tightly coupled integrations increase implemen-tation effort, slow experimentation, and lead to inconsistent comparisons. SAL provides three extension points for this: dataset adapters, perturbation modules, and SLAM wrappers. The following paragraphs describe each extension point with examples. 
+
+Datasets: Each dataset adapter implements a common interface that specifies, among other methods, where to find the dataset sequence images, how frames are ordered in time so that perturbations remain temporally coherent, and where depth maps are located if the dataset provides them. For example, the KITTI [8] adapter points to files in image 2/ 
+
+and image 3/ for stereo and orders frames by filename index. The TUM [25] adapter instead points to rgb/ , orders frames by timestamp, and exposes native RGB-D depth maps directly. Because each adapter maps these details to the common interface, perturbation modules and SLAM wrap-pers work identically on any dataset without modification. Supporting a new dataset requires implementing an adapter that maps its file layout to this interface. 
+
+Perturbations: Each perturbation module implements three methods: setup() , apply() , and cleanup() .The setup() method receives the dataset context which includes the dataset path and total frame count, and prepares any resources the module needs. The apply() method receives each frame’s image, depth map, frame index, and camera stream (e.g., left or right in stereo), and returns the perturbed image. cleanup() frees any resources the module allocated. For example, the fog module’s setup() 
+
+generates depth maps for the full sequence when the dataset does not provide native depth. Its apply() then loads each pre-computed depth map and applies the Koschmieder scattering model per pixel, attenuating distant features more than nearby ones. cleanup() releases the depth model. 
+
+SLAM algorithms: Each SLAM wrapper implements a common interface that stages the dataset into the layout expected by the algorithm, resolves dataset/sequence-specific settings when required by that algorithm, executes it, and converts the resulting trajectory to a common TUM format so that the evaluation pipeline can compute metrics regardless of which algorithm produced it. For example, the ORB-SLAM3 wrapper resolves which ORB-SLAM3 camera-settings file to use by mapping the dataset name and sequence (e.g., KITTI sequence "04" to KITTI04-12.yaml ). It stages the orig-inal and perturbed stereo sequences by symlinking image directories into ORB-SLAM3’s expected stereo layout (e.g., 
+
+image 2 to image 0 ), and executes the algorithm. Because ORB-SLAM3 already outputs TUM format, no conversion is needed. Wrappers for algorithms that use other formats, such as S3PO-GS [26] which outputs poses in JSON, convert the result to TUM format. To improve reproducibility and reduce environment-specific setup issues, each algorithm runs in its own runtime environment. 
+
+C. Robustness Boundary Evaluation 
+
+To support (C3), SAL estimates the parameter value at which SLAM first fails a criterion, e.g., finding the fog visibility at which ATE RMSE exceeds 1.5 m. This allows the estimated boundary to indicate when fallback actions may be needed, such as reducing speed or executing a controlled stop. The rest of this section describes the search procedure and how perturbation modules declare searchable parameters, allowing boundary evaluation to extend to new modules. 
+
+1) Search Procedure: Boundary search evaluates the tar-get perturbation at selected parameter values and marks each evaluation as pass or fail against a configured ATE RMSE threshold. It then narrows the parameter interval with bisection until the interval width is within tolerance or the maximum number of iterations is reached. As an illustrative example, in fog visibility search with a range of 10–20 m, failure defined as ATE RMSE > 1.5 m, and tolerance set to 2 m, SAL first evaluates 10 m and 20 m. If the ATE is 2.3 m Perturbation Generation Pipeline 
+
+> Perturbation Modules
+> Perturbed Sequences + Metadata
+> Boundary Search Controller
+> Trial Outcome Evaluator
+> Robustness Boundary Pipeline
+> Experiment
+> Config
+> Odometry & Tracking Pipeline
+> Feature Detection And Tracking
+> Feature Tracking results + Plots
+> SLAM & Trajectory Pipeline
+> SLAM Wrappers
+> Estimated Trajectories
+> Trajectory Metrics + Plots
+> VO Wrapper
+> Dataset
+> Sequence
+> Dataset Adapter
+
+Fig. 1: System overview and data flow. Experiment configuration and dataset adapters feed the perturbation pipeline, which outputs perturbed sequences. The original and perturbed sequences are evaluated by the SLAM pipeline (trajectories, metrics, plots) and the odometry pipeline (tracking statistics). The robustness-boundary pipeline reuses perturbation and SLAM pipelines to localize the failure boundary. 
+
+at 10 m, it is marked as fail because it exceeds 1.5 m, while 20 m (ATE = 0.8 m) is marked as pass because it does not exceed 1.5 m. SAL then tests 15 m, the midpoint between the current fail/pass values (10 m and 20 m), and marks it as pass (ATE = 1.1 m). It next tests 12 m (ATE = 1.4 m, pass). At that point, the current fail/pass pair is 10 m and 12 m, and 12 - 10 = 2 m, so the search stops and reports the failure boundary interval as [10 m, 12 m]. This reduces the number of evaluated levels from linear in range size to logarithmic. 
+
+2) Extensibility: Boundary evaluation builds on the per-turbation module adapter interface. Modules declare pa-rameters the boundary search is allowed to vary in a SEARCHABLE PARAMS map. Each declared parame-ter can define an optional canonicalize hook so users can specify boundary values in numeric form for search traversal, while the module still receives values in its expected input format, e.g., bitrate 5 as "5M" for 
+
+NetworkDegradationModule (Listing 1). Users can reference these parameters in the experiment YAML config-uration used for experiment execution (Section III-D), and the robustness-boundary pipeline can search them without any additional module-specific search logic.   
+
+> class NetworkDegradationModule(PerturbationModule): module_name = "network_degradation" SEARCHABLE_PARAMS = { "target_bitrate": BoundaryParamSpec( domain="integer", canonicalize= lambda v: f"{int(v)}M" )}
+
+Listing 1: Boundary parameter for the network module. 
+
+D. Experiment Execution 
+
+Users specify experiments through a declarative YAML con-figuration that selects a dataset, sequence, and perturbations. SAL provides four pipelines that users invoke separately to generate perturbed data, execute SLAM and evaluate trajec-tories, diagnose feature tracking, and search for robustness boundaries. Figure 1 summarizes this execution flow and the interfaces between dataset adapters, perturbation modules, and SLAM wrappers. The following paragraphs describe each pipeline. 
+
+Perturbation generation. From a YAML experiment def-inition (Listing 2), this pipeline loads the original image sequence through the dataset adapter and applies each con-figured perturbation module. The trajectory evaluation and feature tracking pipelines can then evaluate different SLAM systems and feature extractors on identical perturbed inputs without regenerating data.     
+
+> experiment: name: kitti_fog_rain_soiling dataset: type: kitti sequence: "07" max_frames: 200 load_stereo: true # perturb left and right images perturbations: - name: fog_example # outputs foggy sequence type: fog parameters: visibility_m: 100.0 - name: soiling_rain # outputs one sequence, both effects type: composite parameters: modules: - type: lens_soiling parameters: num_particles: 80 - type: rain parameters: intensity: 100 output: base_dir: ./results/experiments
+
+Listing 2: Experiment configuration. 
+
+SLAM execution and trajectory evaluation. For each selected SLAM algorithm, this pipeline runs its wrapper on the clean and perturbed sequences, then computes Absolute Trajectory Error (ATE) and Relative Pose Error (RPE) using evo [27]. The pipeline can optionally run each algorithm N times and aggregate metrics across runs. The output structure includes trajectories, metrics, and plots (Listing 3).       
+
+> slam_results/<algorithm>/ trajectories/run_<N>/ baseline.txt # baseline trajectory <perturbation>.txt # perturbed trajectory metrics/ run_<N>/ baseline/ ate.json # absolute trajectory error <perturbation>/ ate.json vs_baseline.json # baseline vs perturbed summary comparison/run_<N>/ ate_comparison.png # ATE across perturbation settings summary.json # aggregated statistics aggregated_metrics.png trajectory_plots/ comparison/run_<N>/ trajectory_comparison_*.png
+
+Listing 3: Trajectory evaluation output (RPE omitted). 
+
+Odometry and feature tracking. Using PySLAM [28], this pipeline runs feature tracking on the clean and per-turbed sequences with a chosen extractor (e.g., ORB [6], SuperPoint [29]), reporting statistics for each perturbation setting including mean track length (the average number of frames a feature is successfully matched), summary statistics of per-frame feature detections and matches, along with track survival curves (% of tracks surviving ≥ t frames). 
+
+Robustness boundary search. This pipeline reuses the decoupled perturbation and trajectory-evaluation pipelines to estimate the perturbation severity at which a SLAM system fails via the bisection procedure described in Sec-tion III-C. Users configure boundary evaluation by adding a 
+
+robustness boundary block (Listing 4) to the same ex-periment YAML (Listing 2). target perturbation se-lects which perturbation definition in the perturbations 
+
+list the boundary search uses. The search procedure (Section III-C.1) then searches the parameter of the (a) Original (b) Fog (Heavy) (c) Rain (Severe) (d) Day-to-Night (e) Bandwidth (Severe)     
+
+> (f) Motion Blur (Severe) (g) Cracked Lens (Heavy) (h) Soiling+Rain (Heavy) (i) Night+Fog (Moderate) (j) Rain+Blur (Heavy) Fig. 2: Example perturbations applied to KITTI sequences. Table I lists representative parameter values for the severity levels.
+
+target perturbation between lower bound and 
+
+upper bound , while all other parameters remain fixed. It stops when the remaining interval width ( upper bound 
+
+- lower bound ) is at most tolerance or when 
+
+max iters is reached. The search marks a trial as failure when ATE RMSE exceeds ate rmse fail .    
+
+> robustness_boundary: target_perturbation: fog_example parameter: visibility_m lower_bound: 10 # meters upper_bound: 200 # meters tolerance: 5 # stop when bound width <= 5 m max_iters: 10 ate_rmse_fail: 1.5 # meters
+> Listing 4: Example robustness-boundary block.
+
+IV. P ERTURBATION EFFECTS 
+
+This section presents SAL’s built-in perturbation modules, highlighting realistic condition modeling and the extensible perturbation-module interface. We use existing techniques to implement these built-in perturbations as the purpose is to showcase our extensibility. We organize modules into weather and illumination (Section IV-A), camera (Section IV-B), and video transport (Section IV-C) conditions. Figure 2 shows representative outputs of these built-in perturbation modules on KITTI sequences. 
+
+A. Weather and Illumination Conditions 
+
+Fog: Fog reduces visibility and alters appearance, making it a common challenge for outdoor autonomy. The fog module implements the Koschmieder atmospheric scattering model [30], which parameterizes fog severity by meteoro-logical visibility distance V (meters) and uses it to set the extinction coefficient β (1/m) via β = 3 .912 /V , making severity operationally meaningful. Larger β means stronger attenuation: the transmission t(x) drops toward zero over shorter distances, so distant regions appear more washed out than nearby ones. We compute fog as follows [31], [32]: 
+
+Ifog (x) = J(x) · t(x) + A · (1 − t(x)) , where Ifog (x) is the foggy image, J(x) is the clear scene radiance at pixel 
+
+x, t(x) = exp( −βd (x)) is the transmission with depth 
+
+d(x) (meters), and A is the atmospheric light. To simulate spatially varying fog, the module supports heterogeneous fog by spatially perturbing the extinction coefficient β with procedural noise, yielding non-uniform fog density. 
+
+Rain: Rain reduces visibility and occludes camera views in outdoor operation. The rain module uses a physics-based particle rendering pipeline [33], [34], parameterized by rainfall rate (mm/h), which makes severity meteorologically meaningful and reports robustness by rain intensity. It models haze-like attenuation from distant sub-pixel droplets and dynamic streak occlusions from nearby visible drops. Given an RGB image and depth map, it first generates a fog-like attenuation layer for distant droplets, then uses a particle simulator [34] to compute streak positions from camera calibration. Streaks are drawn with templates from the Garg and Nayar rain-streak database [35], with radiance scaled from an environment map estimated from the input image, and composited with depth-of-field blur. 
+
+Day-to-Night: Autonomous systems often operate across varying lighting conditions, yet most datasets are captured in daytime. This module transforms daytime scenes to night-time using CycleGAN-Turbo [36], [37], a one-step image translation model applied frame-wise. Since translation is per-frame, some temporal flicker may occur, but the model largely preserves spatial layout, making it suitable for SLAM evaluation and demonstrating the framework’s ability to support both learned and model-based perturbation modules. 
+
+B. Camera Conditions 
+
+Lens Soiling: Robots encounter mud splashes, dust accu-mulation, and water droplets on camera lenses. The soiling module renders lens particles as dark bokeh spots that par-tially occlude the scene, with configurable size (pixel radius), opacity (light absorption), and color. Each particle uses a Gaussian falloff (dark center, soft edges), and overlapping particles use max blending (higher opacity wins) to avoid unrealistically black regions. The contamination pattern is held constant across frames to preserve temporal consistency. 
+
+Cracked Lens: This module uses an open-source imple-mentation [38] to simulate glass fracture on a graph of ran-domly sampled points using physically motivated parameters (impact force and break threshold, in N). An impact point and force set the initial stress. Stress propagates to nearby points within a radius, and edges whose stress exceeds a break threshold become crack segments. The algorithm forms secondary crack lines by connecting stressed points with a minimum spanning tree and renders the resulting pattern. The module generates the crack texture once per sequence and applies a localized Gaussian blur around crack regions to mimic out-of-focus fracture edges. 
+
+Motion Blur: Fast camera motion causes blur that de-grades feature detection. Rapid forward camera transla-tion produces a radial blur field expanding from the fo-cus of expansion (FoE), located near the principal point 
+
+(cx, c y ) [39]: pixels farther from the FoE and closer in depth have larger displacements during the exposure. Our module synthesizes this effect from camera speed s (km/h) and exposure time e (ms), tying blur severity directly to measurable motion and camera timing, by backprojecting TABLE I: Experimental perturbation parameters. L, M, H, S denote light to severe levels. Top rows: single perturbations. Bottom: composite perturbations.                                                             
+
+> Perturbation Parameter Light (L) Moderate (M) Heavy (H) Severe (S) Dataset
+> Rain Intensity (mm/h) 310 50 200 KITTI Soiling Particles (count) 15 40 80 150 KITTI, TUM Cracked Lens Force (N) / Threshold (N) 300 / 400 400 / 350 500 / 300 600 / 250 TUM Bandwidth Compression Target / Max / Buffer (Mbps) 5 / 5 / 10 3 / 3 / 6 1 / 1 / 2 0.3 / 0.3 / 0.6 EuRoC Frame Drop Drop Rate (%) (random) 10 20 30 50 EuRoC Rain + Soiling Intensity (mm/h) / Particles (count) 3 / 15 10 / 40 50 / 80 200 / 150 KITTI Night + Fog Visibility (m) 200 50 20 10 KITTI Rain + Motion Blur Int. (mm/h) / Speed (km/h) / Exposure (ms) 3 / 30 / 33 10 / 50 / 50 50 / 80 / 66 200 / 120 / 100 KITTI Soiling + Crack Particles / Force / Threshold (N) 15 / 300 / 400 40 / 400 / 350 80 / 500 / 300 150 / 600 / 250 TUM
+
+each pixel using per-pixel depth, reprojecting after a forward translation ∆Z = ( s/ 3.6) ( e/ 1000) (meters), and blurring along the resulting per-pixel image-plane motion vector. We assume pure forward translation, a static scene, and a global-shutter camera. This isolates depth-dependent motion blur as a controlled experimental variable. Real driving can also involve rotation and independently moving objects, which this forward-motion blur module does not explicitly model. 
+
+C. Video Transport Conditions 
+
+Bandwidth Compression: Wireless or cloud-connected robots often process bandwidth-limited video streams. This module re-encodes each sequence with H.264 [40] via FFmpeg (libx264, codec configurable) under constant-bitrate (CBR) control using a target bitrate, a max bitrate cap, and a VBV buffer size. The maxrate is the highest rate allowed into the decoder buffer, and the VBV buffer size is the buffer capacity that permits short-term rate variation around the target. This models bandwidth-constrained streaming where the encoder must keep to a fixed bitrate. When scene complexity exceeds that budget, compression becomes more aggressive, producing blocking and temporal smearing. 
+
+Frame Drop: Frame drops arise from network packet loss, sensor glitches, or bandwidth constraints. The module sup-ports random frame dropping with a configurable probability (e.g., 30%). The module also supports periodic dropping of every N -th frame. It removes dropped frames from the sequence and the corresponding metadata entries (e.g., for EuRoC [41], timestamp-image rows in cam0 data.csv )to create realistic gaps. V. E VALUATION 
+
+We demonstrate SAL’s broad coverage and extensibility across perturbation modules, SLAM algorithms, and datasets. To evaluate SAL’s capabilities, we apply perturbations across seven SLAM systems and three datasets, measure trajec-tory accuracy, analyze feature-tracking behavior, and run robustness-boundary search on configurations that exhibit tracking failure. 
+
+A. Experimental Setup 
+
+All experiments ran on a workstation with a 12-core Intel Core i7-12700K CPU (at 4.9 GHz), an NVIDIA RTX 3090 GPU (10496 CUDA cores, at 1.9 GHz), and 64 GB RAM. Table I lists the perturbations and severity levels used in our experiments. The listed values are the specific set-tings used for our evaluation, users can configure dif-ferent values in their experiment YAML. For perturba-tion modules, we evaluate weather, camera, and transport degradations, in both single and composite settings. For datasets, we use KITTI [8], TUM [25], and EuRoC [41] to cover outdoor and indoor scenes with common visual SLAM sensing modes (monocular, stereo, and RGB-D). For SLAM algorithms, we evaluate ORB-SLAM3 [7], S3PO-GS [26], GigaSLAM [42], MASt3R-SLAM [43], DROID-SLAM [44], VGGT-SLAM [45], and Photo-SLAM [46] to cover classical feature-based and learned/neural SLAM methods. For feature-tracking analysis, we use ORB [6] and SuperPoint [29] to cover classical and learned features. For robustness-boundary evaluation, we focus on configurations that failed during severity sweeps, and run boundary search with max iters =10 and ate rmse fail =1.5 m. The tol-erance is 5 m for night+fog visibility and 3 percentage points for frame drop. Tables II–IV report 3-run averages. 
+
+B. Results 
+
+We report trajectory accuracy, first for outdoor KITTI and then for indoor TUM and EuRoC (Table II and Figures 3– 4), followed by feature tracking analysis (Table III) and robustness boundary results (Table IV). 
+
+1) Outdoor Trajectory Evaluation (KITTI): Table II and Fig. 3 show outdoor trajectory results. Single-perturbation results show distinct sensitivities. Under rain, GigaSLAM shows the largest degradation, while S3PO-GS changes least. Under soiling, ORB-SLAM3 and GigaSLAM remain near baseline, whereas S3PO-GS increases more. Composite perturbations show stronger effects. Night+Fog yields large errors for all algorithms: ORB-SLAM3 reaches 30.26 at heavy and fails at severe, while S3PO-GS and GigaSLAM both exceed ∆+600. Rain+Blur also degrades all algorithms, with GigaSLAM most affected ( ∆+2878). For Rain+Soiling, the combined degradation exceeds either individual effect for all algorithms. Overall, the feature-based ORB-SLAM3 is relatively more stable than other algorithms under outdoor experiments but degrades sharply under Night+Fog. 
+
+2) Indoor Trajectory Evaluation (TUM + EuRoC): Ta-ble II and Fig. 4 show indoor trajectory results. TUM results show ORB-SLAM3 and MASt3R-SLAM are more sensitive to cracking than to soiling. For both, Soiling+Crack produces errors comparable to cracking alone, suggesting that crack is the dominant factor in the combined perturbation. DROID-SLAM shows minimal degradation under all three condi-tions, with errors remaining close to its baseline throughout. However, its baseline error is roughly 10 × higher than Rain Soiling Rain+Soil. Night+Fog Rain+Blur ORBSLAM3 S3PO-GS GigaSLAM 
+
+Fig. 3: Outdoor (KITTI) SLAM trajectory evaluation in the X-Z plane. baseline, Light, Moderate, Heavy, Severe.    
+
+> Soiling Crack Soil.+Crack ORB3 MASt3R DROID
+> Bandwidth Frame Drop ORB3 VGGT Photo
+
+Fig. 4: Indoor (TUM left, EuRoC right) SLAM trajectory evaluation in the X-Y plane. Legend as in Fig. 3. 
+
+ORB-SLAM3’s. For EuRoC, we evaluate video-transport perturbations. Bandwidth compression has less effect on ORB-SLAM3 and Photo-SLAM than VGGT-SLAM. Frame drop shows varied responses: Photo-SLAM degrades most, failing at severe, while ORB-SLAM3 degrades moderately and VGGT-SLAM changes less with frame drop but starts from a higher baseline ATE than ORB-SLAM3. 
+
+3) Feature Tracking Analysis: Table III reveals several patterns in feature tracking under perturbations. First, track length is often non-monotonic: it does not consistently de-crease with intensity. For example, the mean ORB track length on TUM increases under soiling even as we ob-serve mean matched features dropping from 207 to 115, likely because the result depends on where soiling falls in the image, with regions containing weaker features being occluded. Second, failure can be abrupt rather than grad-ual. ORB maintains stable tracking through heavy rain but fails completely at severe, with no intermediate degradation. Third, neither classical nor learned features are universally better: ORB maintains longer tracks under clean conditions, while SuperPoint survives severe rain and severe bandwidth where ORB fails. 
+
+4) Robustness Boundary Results: Table IV summarizes robustness-boundary search outcomes for two configurations 
+
+TABLE II: SLAM results (ATE RMSE, m). ∆: % change from Clean to S (or H if S fails). ×: tracking failure. Clean is shared per algorithm/dataset. 
+
+Algo. Perturbation Clean L M H S ∆% 
+
+> KITTI-07 (200 frames, outdoor), ORB3: stereo, S3PO/Giga: mono
+
+ORB3 Rain 0.1326 0.1376 0.1514 0.1687 0.1738 +31 Soiling 0.1326 0.1432 0.1419 0.1422 0.1339 +1 Rain+Soiling 0.1326 0.1562 0.1526 0.1473 0.1923 +45 Night+Fog 0.1326 0.1933 0.2081 30.26 × +22k Rain+Blur 0.1326 0.1586 0.1763 0.2326 0.3623 +173 S3PO Rain 1.0965 0.9923 1.1151 1.1805 1.3516 +23 Soiling 1.0965 0.9978 0.9329 1.3266 1.4623 +33 Rain+Soiling 1.0965 1.0204 1.0883 1.5027 3.7615 +243 Night+Fog 1.0965 8.9032 9.1806 11.638 8.5446 +679 Rain+Blur 1.0965 1.0442 1.2916 1.6603 3.5059 +220 Giga Rain 0.2749 0.2361 0.2589 0.3268 0.7949 +189 Soiling 0.2749 0.2572 0.2799 0.2674 0.2803 +2 Rain+Soiling 0.2749 0.3085 0.2713 0.3285 1.0529 +283 Night+Fog 0.2749 1.0334 1.4437 3.1060 3.1501 +1046 Rain+Blur 0.2749 0.3486 0.3204 0.4258 8.1855 +2878  
+
+> TUM fr1 xyz (all frames, indoor), ORB3: RGB-D, MASt3R/DROID: mono
+
+ORB3 Soiling 0.0103 0.0104 0.0105 0.0116 0.0602 +484 Crack 0.0103 0.0103 0.0811 0.1394 0.1714 +1564 Soiling+Crack 0.0103 0.0104 0.1759 0.1701 0.1772 +1620 MASt3R Soiling 0.0165 0.0179 0.0175 0.0312 0.0224 +36 Crack 0.0165 0.0194 0.0460 0.0799 0.0877 +432 Soiling+Crack 0.0165 0.0240 0.0450 0.0850 0.1045 +533 DROID Soiling 0.1143 0.1208 0.1285 0.0963 0.1211 +6 Crack 0.1143 0.1193 0.1021 0.0989 0.1087 -5 Soiling+Crack 0.1143 0.1127 0.0914 0.1209 0.0969 -15  
+
+> EuRoC V1 01 (500 frames, indoor), ORB3/Photo: stereo, VGGT: mono
+
+ORB3 Bandwidth 0.0723 0.0752 0.0745 0.0777 0.0775 +7 Frame Drop 0.0723 0.0772 0.1208 0.0740 0.0985 +36 VGGT Bandwidth 0.1762 0.1619 0.1660 0.1630 0.2087 +18 Frame Drop 0.1762 0.1830 0.1780 0.1738 0.1944 +10 Photo Bandwidth 0.0725 0.0724 0.0724 0.0723 0.0722 0Frame Drop 0.0725 0.0793 0.0824 0.1607 × +122 
+
+that exhibited tracking failures in the severity sweeps. For ORB-SLAM3 on KITTI under night+fog, the boundary lies between 21 m and 24 m visibility: ATE jumps from 0.304 m to 28.255 m over just 3 m of visibility change. For Photo-SLAM on EuRoC under frame drop, the boundary lies between 45% and 47% drop rate, where ATE rises from 0.219 m to a tracking failure. Across these two searches, KITTI night+fog required 8 trials, compared with 37 if evaluated by an incremental sweep, and EuRoC frame drop required 6 trials vs 14, corresponding to 4.6x and 2.3x runtime reductions. These results show that boundary search TABLE III: Feature tracking results (mean track length, frames). ∆: % change from C to S (or H if S fails). ×: feature-matching failure. 
+
+Dataset Feature Perturb. Clean L M H S ∆%
+
+KITTI ORB Rain 8.24 8.30 8.44 8.07 × −2SuperPoint Rain 7.85 7.71 7.56 7.24 5.19 −34 TUM ORB Soiling 106.23 112.74 120.42 121.93 120.73 +14 SuperPoint Soiling 53.35 65.82 110.82 86.53 58.78 +10 EuRoC ORB Band. 20.74 17.58 15.73 18.91 × −9SuperPoint Band. 16.95 16.79 15.89 15.80 16.34 −4TABLE IV: Robustness-boundary results. Each fail/pass side reports the parameter value (in the units of Range) and its ATE RMSE. N = trials. 
+
+Dataset Algo. Perturb. Range N Fail/Pass (val, ATE) 
+
+KITTI ORB3 Night+Fog 10–200 m 8 21,28.255 / 24,0.304 EuRoC Photo Frame Drop 10–50% 6 47, × / 45,0.219 
+
+identifies failure boundaries efficiently. VI. C ONCLUSION 
+
+We presented SAL, a modular framework for evaluating visual SLAM robustness under adversarial conditions. SAL defines perturbation modules parameterized in real-world units with depth-aware and composite effects. It provides an extensible architecture for datasets, perturbations, and SLAM systems. To complement severity sweeps, SAL in-troduces robustness-boundary search to find failure thresh-olds. Together, these capabilities make robustness evaluation more realistic, extensible, and efficient. We demonstrated capabilities across KITTI, TUM, and EuRoC with multiple perturbation families and seven SLAM algorithms. SAL is open-sourced at https://github.com/sfu-rsl/ SLAMAdversarialLab .REFERENCES [1] M. Bujanca, et al. , “Robust slam systems: Are we there yet?” in IROS ,2021, pp. 5320–5327. [2] P. Wenzel, et al. , “4seasons: Benchmarking visual slam and long-term localization for autonomous driving in challenging conditions,” IJCV ,vol. 133, no. 4, pp. 1564–1586, 2025. [3] P. Wenzel, et al. , “4seasons: A cross-season dataset for multi-weather slam in autonomous driving,” in DAGM GCPR , 2020, pp. 404–417. [4] L. Cao, et al. , “Study on the influence of image noise on monocular feature-based visual slam based on ffdnet,” Sensors , vol. 20, no. 17, p. 4922, 2020. [5] L. Sarti, et al. , “Towards robust visual odometry systems against camera lens failures,” in ISSREW , 2023, pp. 164–165. [6] R. Mur-Artal and J. D. Tard´ os, “ORB-SLAM2: an open-source SLAM system for monocular, stereo and RGB-D cameras,” T-RO , vol. 33, no. 5, pp. 1255–1262, 2017. [7] C. Campos, et al. , “Orb-slam3: An accurate open-source library for visual, visual–inertial, and multimap slam,” T-RO , vol. 37, no. 6, pp. 1874–1890, 2021. [8] A. Geiger, et al. , “Are we ready for autonomous driving? the kitti vision benchmark suite,” in CVPR , 2012. [9] L. Nardi, et al. , “Introducing slambench, a performance and ac-curacy benchmarking methodology for slam,” in ICRA , May 2015, arXiv:1410.2167. [10] A. Fontan, et al. , “Vslam-lab: A comprehensive framework for visual slam methods and datasets,” in IROS , 2025, pp. 9013–9020. [11] N. Radulov, et al. , “A framework for reproducible benchmarking and performance diagnosis of slam systems,” in IROS , 2024, pp. 14 225– 14 232. [12] X. Xu, et al. , “Scalable benchmarking and robust learning for noise-free ego-motion and 3d reconstruction from noisy video,” in ICLR , 2025. [Online]. Available: https://openreview.net/forum?id= Pz9zFea4MQ [13] W. Maddern, et al. , “1 Year, 1000km: The Oxford RobotCar Dataset,” 
+
+Int. J. Robot. Res. , vol. 36, no. 1, pp. 3–15, 2017. [Online]. Available: http://dx.doi.org/10.1177/0278364916679498 [14] S. Zhao, et al. , “Subt-mrs dataset: Pushing slam towards all-weather environments,” in CVPR , 2024, pp. 22 647–22 657. [15] H. M. S. Bruno, et al. , “Queenscamp: an rgb-d dataset for robust visual slam,” 2024. [Online]. Available: https://arxiv.org/abs/2410.12520 [16] W. Wang, et al. , “Tartanair: A dataset to push the limits of visual slam,” in IROS , 2020. [17] G. Pascoe, et al. , “Nid-slam: Robust monocular slam using normalised information distance,” CVPR , pp. 1446–1455, 2017. [Online]. Available: https://api.semanticscholar.org/CorpusID:10995705 [18] S. P. Singh, et al. , “Twilight slam: Navigating low-light environments,” 
+
+arXiv preprint arXiv:2304.11310 , 2023. [19] B. Han, et al. , “Improving the performance of the orb-slam3 with low-light image enhancement,” in IPIN , 2024, pp. 1–7. [20] American Meteorological Society, “Rain,” Glossary of Meteorology, 2000, archived from the original on 25 July 2010. [21] Met Office, “Fact sheet no. 3: Water in the atmosphere,” Crown Copyright, Tech. Rep., August 2007, archived from the original on 14 January 2012. [22] Met Office, “How fog affects travel,” https://weather.metoffice.gov.uk/ warnings-and-advice/seasonal-advice/travel/how-fog-affects-travel, accessed: 2025. [23] B. Wen, et al. , “Foundationstereo: Zero-shot stereo matching,” in 
+
+CVPR , 2025. [24] L. Yang, et al. , “Depth anything v2,” arXiv preprint arXiv:2406.09414 ,2024. [25] J. Sturm, et al. , “A benchmark for the evaluation of rgb-d slam systems,” in IROS , Oct. 2012. [26] C. Cheng, et al. , “Outdoor monocular slam with global scale-consistent 3d gaussian pointmaps,” arXiv preprint arXiv:2507.03737 , 2025. [27] M. Grupp, “evo: Python package for the evaluation of odometry and slam.” https://github.com/MichaelGrupp/evo, 2017. [28] L. Freda, “pyslam: An open-source, modular, and extensible framework for slam,” 2025. [Online]. Available: https://arxiv.org/abs/ 2502.11955 [29] D. DeTone, et al. , “Superpoint: Self-supervised interest point detection and description,” in CVPRW , 2018, pp. 337–33 712. [30] H. Koschmieder, “Theorie der horizontalen sichtweite,” Beitr¨ age zur Physik der freien Atmosph¨ are , vol. 12, pp. 33–53, 1924. [31] S. G. Narasimhan and S. K. Nayar, “Vision and the atmosphere,” IJCV ,vol. 48, no. 3, pp. 233–254, 2002. [32] S. Narasimhan and S. Nayar, “Chromatic framework for vision in bad weather,” in CVPR , vol. 1, 2000, pp. 598–605. [33] M. Tremblay, et al. , “Rain rendering for evaluating and improving robustness to bad weather,” IJCV , 2020. [34] R. de Charette, et al. , “Fast reactive control for illumination through rain and snow,” in ICCP , 2012. [35] K. Garg and S. K. Nayar, “Vision and rain,” IJCV , vol. 75, no. 1, pp. 3–27, 2007. [36] J.-Y. Zhu, et al. , “Unpaired image-to-image translation using cycle-consistent adversarial networks,” in ICCV , 2017. [37] P. Isola, et al. , “Image-to-image translation with conditional adversar-ial networks,” in CVPR , 2017. [38] M. Prabhakar, et al. , “Generating camera failures as a class of physics-based adversarial examples,” arXiv preprint arXiv:2405.15033 , 2024. [39] R. Hartley and A. Zisserman, Multiple View Geometry in Computer Vision , ser. Cambridge books online. Cambridge University Press, 2003. [Online]. Available: https://books.google.ca/books?id= si3R3Pfa98QC [40] T. Wiegand, et al. , “Overview of the h.264/avc video coding standard,” 
+
+TCSVT , vol. 13, no. 7, pp. 560–576, 2003. [41] M. Burri, et al. , “The EuRoC micro aerial vehicle datasets,” IJRR ,vol. 35, no. 10, pp. 1157–1163, sep 2016. [Online]. Available: https://doi.org/10.1177/0278364915620033 [42] K. Deng, et al. , “Gigaslam: Large-scale monocular slam with hierar-chical gaussian splats,” arXiv preprint arXiv:2503.08071 , 2025. [43] R. Murai, et al. , “MASt3R-SLAM: Real-time dense SLAM with 3D reconstruction priors,” in CVPR , 2025. [44] Z. Teed and J. Deng, “DROID-SLAM: Deep visual slam for monocu-lar, stereo, and rgb-d cameras,” in NeurIPS , vol. 34, 2021, pp. 16 558– 16 569. [45] D. Maggio, et al. , “Vggt-slam: Dense rgb slam optimized on the sl (4) manifold,” NeurIPS , vol. 39, 2025. [46] H. Huang, et al. , “Photo-slam: Real-time simultaneous localization and photorealistic mapping for monocular, stereo, and rgb-d cameras,” in 
+
+CVPR , 2024.

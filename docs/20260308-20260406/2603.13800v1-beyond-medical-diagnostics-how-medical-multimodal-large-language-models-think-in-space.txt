@@ -1,0 +1,486 @@
+Title: Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space
+
+URL Source: https://arxiv.org/pdf/2603.13800v1
+
+Published Time: Tue, 17 Mar 2026 01:24:52 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+# Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+Quoc-Huy Trinh * 1 Xi Ding * 2 Yang Liu * 2 Zhenyue Qin 3 Xingjian Li 2 Gorkem Durak 4
+
+Halil Ertugrul Aktas 4 Elif Keles 4 Ulas Bagci + 4 Min Xu + 2 
+
+Abstract 
+
+Visual spatial intelligence is critical for medical image interpretation, yet remains largely unex-plored in Multimodal Large Language Models (MLLMs) for 3D imaging. This gap persists due to a systemic lack of datasets featuring structured 3D spatial annotations beyond basic labels. In this study, we introduce an agentic pipeline that autonomously synthesizes spatial visual question-answering (VQA) data by orchestrating compu-tational tools such as volume and distance calcu-lators with multi-agent collaboration and expert radiologist validation. We present SpatialMed, the first comprehensive benchmark for evaluating 3D spatial intelligence in medical MLLMs, com-prising nearly 10K question-answer pairs across multiple organs and tumor types. Our evaluations on 14 state-of-the-art MLLMs and extensive anal-yses reveal that current models lack robust spatial reasoning capabilities for medical imaging. 
+
+1. Introduction 
+
+Visual-spatial intelligence—the ability to perceive, reason about, and manipulate spatial relationships—is a corner-stone of clinical radiology. When interpreting computed to-mography (CT) scans, for example, radiologists routinely as-sess tumor dimensions to stage malignancies, estimate organ volumes to evaluate function, and quantify inter-structure distances to plan surgical approaches. These quantitative spatial judgments directly inform treatment decisions: a 3cm margin between a tumor and a major vessel may deter-mine resectability, while a 20% increase in organ volume could indicate disease progression. Multimodal Large Language Models (MLLMs) have demon-strated remarkable progress in visual understanding, achiev-
+
+> 1
+
+Aalto University, Espoo, Finland 2Carnegie Mellon Univer-sity, USA 3Yale University, USA 4Northwestern University, USA. Correspondence to: Quoc-Huy Trinh <huy.trinh@aalto.fi >, Min Xu <> .
+
+Preprint. March 17, 2026. 
+
+ing strong performance on tasks ranging from image cap-tioning to visual question answering in natural scenes (Liu et al., 2024; Wang et al., 2024; Hong et al., 2025; Chen et al., 2024c). Recent work has extended MLLMs to 2D spatial reasoning, enabling models to describe object po-sitions, compare sizes, and reason about spatial relation-ships in photographs. However, current research remains restricted to diagnostic classification (Moor et al., 2023; Chen & Hong, 2024; Chen et al., 2024a; Jiang et al., 2024; Pan et al., 2025; Shi et al., 2024), anatomical segmenta-tion (Ye et al., 2023; Cheng et al., 2023; Bai et al., 2024; Baharoon et al., 2025), and report generation (Hamamci et al., 2024b;a;d;c; Bassi et al., 2025), leaving quantitative visual-spatial reasoning under-explored. To our knowledge, no existing work systematically evaluates an MLLM’s abil-ity to compute inter-structure distances or estimate volumet-ric magnitude, both of which are foundational for surgical robotics and AI-assisted diagnostics. 
+
+The Data Bottleneck. The primary obstacle to progress is the scarcity of appropriate training and evaluation data. Existing volumetric radiology datasets provide classifica-tion labels, narrative reports, or segmentation masks, but they systematically lack the structured spatial annotations necessary for quantitative reasoning: (1) Precise 3D spatial relationships – Relative positions, orientations, and topolog-ical adjacencies between anatomical structures and lesions; 
+
+(2) Inter-structure distances – Euclidean or geodesic mea-surements between structure centroids, surfaces, or bound-aries; (3) Quantitative lesion measurements – Volumes, axis dimensions, and cross-sectional areas. While such in-formation is essential for clinical interpretation, acquiring high-quality spatial annotations is prohibitively expensive. It requires expert radiologists to perform case-by-case 3D localization and measurement with consistent anatomical definitions across heterogeneous patient populations. Alternative approaches face their own limitations. Mining spatial information from radiology reports proves unreliable: reports are predominantly narrative, weakly structured, and lack the quantitative relationships and coordinate references needed for spatial understanding. They describe findings qualitatively (”mass abutting the portal vein”) rather than 1
+
+> arXiv:2603.13800v1 [cs.CV] 14 Mar 2026
+
+Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space Dataset CT Scans QA Pairs Spatial QA Quantitative 3D Relation Grounded QA Benchmark Task                                                                                                 
+
+> RadQA (Soni et al., 2022) 06.1K ×××××Radiology report QA INSPECT (Huang et al., 2023) 23,248 –×××××Diagnosis M3D VQA (Bai et al., 2024) 96,170 509K ×××××Diagnosis CT-CHAT (Hamamci et al., 2024b) 25,692 2.7M ×××××Diagnosis CT-RATE (Hamamci et al., 2024e) 25,692 –××××✓Abnormality Detection, Report Generation BIMCV-R (Chen et al., 2024b) 8,069 –××××✓Text–Image Retrieval 3D-RAD (Gai et al., 2025) 16,188 136K ✓××××Diagnosis ReXGroundingCT (Baharoon et al., 2025) 3,142 –××✓✓×Referring Segmentation AbdomenAtlas 3.0 (Bassi et al., 2025) 9,262 –×✓✓×✓Report Generation, Tumor Segmentation RadGenome-Chest CT (Zhang et al., 2025a) 25,692 1.2M ✓✓×✓✓Report Generation, Segmentation QA RadImageNet-VQA (CT subset) (Butsanets et al., 2025) 750K 6.75M ××××✓Diagnosis
+> SpatialMed (Ours) 2375 9.8K ✓✓✓✓✓Spatial QA, Volume Estimation
+
+Table 1. Comparison of existing medical imaging datasets with respect to their support for spatial question answering and related spatial reasoning capabilities. SpatialMed is explicitly designed as a benchmark for grounded, quantitative 3D spatial reasoning. 
+
+providing the geometric precision (”center-to-center dis-tance: 2.3cm”) required for systematic evaluation. 
+
+Our approach. To address this gap, we introduce an agentic pipeline that automatically generates clinically meaningful spatial visual question-answering (VQA) data for CT scans. We focus on CT because it is the most widely utilized 3D diagnostic modality in clinical practice and provides a reli-able foundation for evaluating objective spatial reasoning. The pipeline leverages spatial computational tools, includ-ing volume calculators, distance calculators, and bounding box extractors, to derive precise spatial information about anatomical structures and tumors from CT scans. Multi-ple agents with retrieval-augmented generation (RAG) are employed to produce diverse spatial VQA pairs. To ensure clinical validity, three board-certified radiologists review the generated data and provide feedback for quality refinement. Building upon this pipeline, we present SpatialMed , a com-prehensive benchmark comprising around 9.8k question-answer pairs across 2,375 CT scans. The benchmark spans 117 anatomical structures and 8 tumor types across mul-tiple organs, including the kidney, pancreas, liver, lung, prostate, and brain. Questions are categorized into two types: multiple-choice questions and volume estimation. Our ex-tensive evaluation of state-of-the-art MLLMs on SpatialMed reveals substantial limitations in their spatial understanding of CT data. These findings underscore the critical need for targeted advances in endowing MLLMs with robust spatial reasoning capabilities for medical imaging. In summary, our work makes three primary contributions: 
+
+(1) We design an agentic pipeline, which leverages three spa-tial computational tools, multi-agent collaboration and radi-ologist feedback to automatically generate high-quality spa-tial VQA data for CT scans; (2) We introduce SpatialMed, the first CT-based benchmark for evaluating MLLMs’ spa-tial intelligence in medical imaging, comprising 9782 question-answer pairs across 2375 CT scans covering 117 anatomical structures and 8 tumor types; (3) We evaluate 14 MLLMs on SpatialMed, with 12 processing multi-view 2D CT images and 2 processing 3D CT scans, revealing substan-tial performance gaps that demonstrate existing models lack robust spatial reasoning capabilities for medical imaging. 
+
+2. Related Works 
+
+Visual-Spatial Intelligence. Spatial reasoning is a funda-mental capability of vision–language models for understand-ing and reasoning about relationships within physical space. To study this problem, several visual question answering (VQA) benchmarks (Yi et al., 2019; Hudson & Manning, 2019; Rajabi & Kosecka, 2024; Yang et al., 2025b) have been proposed, which demonstrate strong performance in evaluating spatial reasoning over natural images. However, these benchmarks are limited to the 2D image domain and do not support volumetric data or the medical domain. Re-cently, PRS-Med (Trinh et al., 2025) was introduced for the medical context to address positional reasoning challenges in medical images, enabling multimodal medical language models to reason about anatomical positions in space. While this represents an important step, spatial reasoning extends beyond positional relationships alone. Attributes such as anatomical size, volume, and inter-organ distance are criti-cal in the medical domain, as they constitute the foundation of human spatial cognition, particularly in clinical and sur-gical contexts. Moreover, different from the comprehensive restriction of 2D imaging benchmarks, 3D volumetric data, such as CT scans, offer richer spatial cues and enable precise evaluation of spatial relationships across three dimensions. Motivated by these limitations, we propose SpatialMed, a benchmark dataset designed to evaluate MLLMs on medical spatial reasoning using 3D CT volumetric data. SpatialMed enables fine-grained assessment of spatial concepts, includ-ing position, size, volume, and distance, providing more faithful insights into a model’s spatial understanding in real clinical environments. We believe that this benchmark can facilitate the development of spatially aware medical AI agents and advance research toward intelligent clinical deci-sion support and surgical robotics. 
+
+Multimodal Large Language Model in the 3D Medical Imaging. MLLMs have recently achieved strong perfor-mance in the natural image domain by jointly reasoning over visual and textual inputs. Representative works (Liu 2Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space  
+
+> Figure 1. Task demonstrations in the SpatialMed, covering six spatial reasoning tasks, with corresponding 3D CT visualizations.
+
+et al., 2024; Hong et al., 2025; Qwen, 2025; Chen et al., 2024c) demonstrate effectiveness across a wide range of multimodal tasks, with Qwen3-VL and InternVL3 explicitly incorporating spatial reasoning and achieving strong results in embodied settings. In the medical domain, most MLLMs operate on 2D slices or weak volumetric proxies (Moor et al., 2023; Li et al., 2023; Chen et al., 2024a; Jiang et al., 2024; Pan et al., 2025; Sellergren et al., 2025), which limits their ability to cap-ture three-dimensional anatomical structures and perform comprehensive spatial reasoning. Although recent works extend multimodal modeling to 3D medical data (Hamamci et al., 2024b;c; Chen & Hong, 2024; Bai et al., 2024; Shi et al., 2024), they primarily focus on recognition and report generation rather than explicit spatial reasoning. More critically, existing datasets and benchmarks (Hamamci et al., 2024e;c; Zhang et al., 2025a) fail to enforce grounded and faithful reasoning. Most CT report datasets lack voxel-level supervision and precise quantitative targets, allowing models to produce correct answers through textual priors rather than genuine spatial understanding. This leads to per-vasive hallucinations and unfaithful reasoning that remain largely undiagnosed. As our intuition, existing grounding efforts (Baharoon et al., 2025) or combining segmentation with report structure (Ichinose et al., 2023) focus mostly on region retrieval or 2D lesion measurements, and there-fore fail to capture organ-level 3D spatial reasoning. These limitations reveal a fundamental gap between the apparent capabilities of medical MLLMs and their actual ability to reason over 3D spatial structures. To bridge this gap, we introduce SpatialMed , a bench-mark designed for grounded and faithful spatial reasoning in 3D CT. SpatialMed systematically evaluates core spatial concepts, including position, distance, size, and volume, through question-answer pairs explicitly grounded in volu-metric evidence. By disentangling answer correctness from reasoning faithfulness, SpatialMed provides a principled framework for benchmarking the spatial understanding, ad-vancing the reliability of 3D reasoning in medical MLLMs. 
+
+3. Methods: SpatialMed 
+
+3.1. Data Source 
+
+We construct SpatialMed by curating data from multi-ple large-scale medical imaging datasets: TotalSegmenta-tor (Wasserthal et al., 2023), AMOS (Ji et al., 2022), the Medical Segmentation Decathlon (Antonelli et al., 2022), KiTS (Heller et al., 2020; 2019), and BraTS (Menze et al., 2014; Bakas et al., 2017; 2018). Our dataset comprises 2,375 3D CT scans with corresponding segmentation masks, covering 117 anatomical structures following the TotalSeg-mentator taxonomy, as well as seven tumor types: renal tumors, pancreatic cancer, liver tumors, prostate tumors, whole tumors, enhancing tumors, and vessel cancer. Building upon this foundation, SpatialMed encompasses six tasks organized into two categories. The first category consists of multiple-choice questions (MCA) covering di-rectional reasoning (DIR) (understanding relative anatom-ical positions), distance reasoning (DIST) (e.g., center-to-center distance, closest/farthest, proximity), extent/size/ shape reasoning (EXT) (e.g., bounding boxes, axis extent, width/height/depth), volume magnitude reasoning (VOL) (numeric values and intervals, including absolute estima-tion, threshold/range decisions, and numeric calculation), and comparative reasoning (COMP) (comparing entities by magnitude, including pairwise comparison and ranking (largest/smallest)). The second category requires models to directly estimate volumetric measurements, including abso-lute volumes, volume ratios, and cross-case comparisons. Examples for each task are demonstrated in Figure 1. 
+
+3.2. Agentic Benchmark Construction Pipeline 
+
+We develop a multi-agent pipeline to systematically curate 
+
+SpatialMed . The pipeline leverages specialized computa-tional tools to extract quantitative spatial information from medical images, which is then synthesized with retrieval-augmented generation (RAG) to produce spatial reasoning question-answer pairs. A multi-agent validation system, comprising one clinical validation agent and three medical specialist agents, reviews the quality of generated QA pairs. To validate the effectiveness of our automated pipeline, we engaged three board-certified radiologists to independently 3Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space Query : The volume of   
+
+> pancreas...
+> Retrieved Context : The volume
+> and area of the capillaries in
+> the endocrine and exocrine
+> pancreas of the rat... “Pancreas: typical volume range …”
+> “Liver anatomy and spatial relations …”
+> “Clinical measurement conventions …” Organ name:
+> Pancreas
+> volume = 72.4 cm³
+> Distance (Liver ↔
+> Right Kidney) = 4.8
+> cm
+> ...
+
+Clinical Rule 
+
+Validator  “Is the liver larger than      
+
+> the spleen?”
+> “The distance between
+> the kidneys is 3 meters.”
+> “The liver volume is
+> 1,450 cm³.”
+> Text-only data
+> (Questios)
+> Medical relevance check
+> Ground-truth correctness
+> Plausible value ranges
+> Spatial reasoning required
+> Count #Correct
+> If ≥ 2 correct
+> →Trivial
+> (Answerable without
+> CT)
+> Trivial →Remove
+> Non-trivial →Keep
+> (Requires visual-
+> spatial evidence) InternLM 2
+
+Llama  3Retrieved        
+
+> What is the approximate volume of the pancreas?
+> A. 50–70 cm
+> B. 60–80 cm
+> C. 70–90 cm
+> D. 80–100 cm
+> Validator:
+> Medical content: Yes
+> Ground truth correctness: Yes
+> Qwen 3:
+> Answer: A ❌
+> InternLM 2:
+> Answer: C ❌
+> Llama 3:
+> Answer: C ❌
+> #Correct=2
+> Trivial →Remove
+
+Filter QA Pairs  Specialist LLM 
+
+Review Candidate data      
+
+> #Correct<2
+> Not trivial → Keep
+> Is the volume of the pancreas below 100 cm³?
+> A. Yes
+> B. No
+> Validator:
+> Medical content: Yes
+> Ground truth correctness: No
+> Qw en 3:
+> Answer: B ❌
+> In ternLM 2:
+> Answer: A ✅
+> Llam a 3:
+> Answer: B ❌
+
+Radiologist Expert 
+
+Review Data Generation Quality Validation Volume 
+
+> Calculator Distance
+> Calculator
+
+Metadata 
+
+Medical Knowledge 
+
+Retrieval 
+
+> Retrieved Context
+
+Spatial QA 
+
+Generation    
+
+> You are a radiologist analyzing
+> a 3D medical volume. You are
+> given {a list of anatomical
+> volumes} ,{a list of distances
+> between pairs of anatomical
+> structures} , and {a set of 3D
+> bounding boxes} . Based on
+> this spatial information,
+> generate clinically meaningful
+> question–answer pairs.
+
+Prompt              
+
+> Question Generator Agent Candidate data
+> after AI validation
+> Both CT and
+> QA pairs
+> Score: 0/1/2:0= Unqualified; 1= Acceptable;
+> 2= Well-qualified
+> Keep if average score > 1 from 3 radiologists
+> What is the approximate volume of the
+> pancreas?
+> A. 50–70 cm
+> B. 60–80 cm
+> C. 70–90 cm
+> D. 80–100 cm
+> Which organ has the largest volume?
+> A. Liver (wrong results)
+> B. small_bowel
+> C. spleen
+> D. stomach
+
+Figure 2. Overview of three stages from the SpatialMed dataset pipeline. (1) Question–Answer Pair Generation , where agents produce clinically grounded QA pairs using medical knowledge and spatial analysis tools; (2) Data Quality Validation , in which multiple specialist agents verify medical correctness and the necessity of visual–spatial evidence; and (3) Radiologists validation , where multiple radiologists review participating in review and validate the quality of the dataset. 
+
+review the generated data, confirming the quality and clini-cal validity of the spatially-grounded QA pairs. 
+
+Spatial Computational Tools. To extract numerical spatial information from 3D CT scans, we introduce three tools: Volume Calculator, 3D Bounding Box Extractor, and Dis-tance Calculator. 
+
+Volume Calculator. To compute the volume of target objects, we employ the 3D segmentation masks. The volume is cal-culated by counting foreground voxels (corresponding to anatomical structures and tumors) and converting this count into a measurement using voxel spacing values stored in the NIfTI header. Given a segmentation mask M ∈ RH×W ×D ,where foreground voxels are defined as those with values greater than zero, and voxel spacings (dx, d y , d z ) in mil-limeters, the volume is calculated as Equation 1. 
+
+V = X
+
+i,j,k 
+
+1[ Mi,j,k > 0] · dxdy dz / 1000 , (1) where i, j, k denote indices along the height, width, and depth dimensions of the 3D volume, and division by 1000 converts the volume from mm 3 to cm 3. Segmentation masks containing only background voxels are excluded. This voxel-based volume calculator follows standard prac-tice in volumetric medical image segmentation and enables consistent quantitative comparison across datasets with vary-ing spatial resolutions. 
+
+3D Bounding Box Extractor. To extract axis-aligned 3D bounding boxes from segmentation masks, we first identify the set of foreground voxels S = {(i, j, k ) | Mi,j,k > 0}.The bounding box coordinates are then computed as: 
+
+xmin = min 
+
+(i,j,k )∈S i, xmax = max 
+
+(i,j,k )∈S i, ymin = min 
+
+(i,j,k )∈S j, ymax = max 
+
+(i,j,k )∈S j, zmin = min 
+
+(i,j,k )∈S k, zmax = max 
+
+(i,j,k )∈S k. 
+
+(2) In this way, we obtain a tight bounding box enclosing the target anatomy or tumor. 
+
+Distance Calculator. We compute the spatial distance between two anatomical structures or tumors using the Euclidean distance between their bounding box cen-ters. Given bounding boxes for anatomies A and B
+
+with coordinates {xA
+
+min , y A
+
+min , z A
+
+min , x A
+
+max , y A
+
+max , z A
+
+max } and 
+
+{xB
+
+min , y B
+
+min , z B
+
+min , x B
+
+max , y B
+
+max , z B
+
+max }, respectively, we first compute their centers as 
+
+cA =
+
+ xA
+
+min + xA
+
+max 
+
+2 , yA
+
+min + yA
+
+max 
+
+2 , zA
+
+min + zA
+
+max 
+
+2
+
+
+
+,
+
+cB =
+
+ xB
+
+min + xB
+
+max 
+
+2 , yB
+
+min + yB
+
+max 
+
+2 , zB
+
+min + zB
+
+max 
+
+2
+
+
+
+.
+
+(3) The distance between the two structures is then given by 
+
+d(A, B ) = ∥cA − cB ∥2. (4) 
+
+Spatial Visual Question-Answer Generation. All question-answer pairs are automatically generated using voxel-level spatial metadata derived from the above tools. 4Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+This metadata is combined with five predefined question templates per task and provided as input to our agent-based framework that produces target question-answer (QA) pairs. To generate clinically grounded QA pairs, we em-ploy retrieval-augmented generation (RAG) in out agentic pipeline (Lewis et al., 2020) using PubMed as the medi-cal knowledge source (Canese & Weis, 2013). This en-ables the language model to produce medically plausible questions and, for multiple-choice questions, generate con-textually relevant distractors that reflect common clinical scenarios rather than obviously unrelated options. Specif-ically, given the names of target anatomies or tumors, we retrieve the top-5 related documents using prompts such as “The volume of ⟨anatomy name ⟩” or “The distance between 
+
+⟨anatomy name 1 ⟩ and ⟨anatomy name 2 ⟩”. The retrieved documents are then used as contextual input to the question annotator agent for QA generation. Following QA construction, all generated samples are fil-tered through a validation pipeline consisting of one clinical validation agent and three medical specialist agents. The clinical validation agent applies one-shot prompting to as-sess each QA pair according to three criteria: (1) medical-domain relevance , requiring anatomies, pathologies, and spatial relations to be clinically meaningful (e.g., rejecting “the distance between the heart and the sky” while accept-ing “the distance between the liver and right kidney”); (2) reasonable relative values , ensuring quantitative attributes such as volume or distance fall within plausible anatomi-cal ranges (e.g., rejecting “the liver volume is 0.01 mm 3”while accepting “the liver volume is 1,450 cm 3”); and (3) non-triviality , excluding QA pairs answerable from gen-eral medical knowledge alone (e.g., “Is the liver larger than the spleen?”), while retaining those requiring CT image-grounded spatial reasoning (e.g., “What is the Euclidean distance between the centroids of the liver and spleen?”). Subsequently, three medical specialist agents powered by InternLM 2 (Cai et al., 2024), Qwen-3 (Qwen, 2025), and Llama-3 (Grattafiori et al., 2024) attempt to answer each question using only the RAG tool (Lewis et al., 2020), with-out access to volumetric images. If at least two specialists succeed, the sample is deemed trivial and discarded; oth-erwise it is retained. After this multi-agent validation and filtering process, the dataset is reduced from 30,799 auto-matically generated samples to 10,487 high-quality spatial reasoning QA pairs. For visual input, we provide 3D CT scans to MLLMs ca-pable of processing volumetric data, and multi-view 2D projections to those limited to RGB images. For the latter, we crop relevant slices based on segmentation masks of target anatomies or tumors, converting them into sagittal, coronal, and axial view RGB images along the x, y, and 
+
+z axes. This enables evaluation of spatial understanding across MLLMs with different input modalities.       
+
+> Figure 3. Benchmark Statistics. Left: Distribution of annotated anatomical regions in the MCA task. Right: Dataset distribution across the volume task, where the y-axis is shown on a log 2scale .
+
+Expert-in-the-loop Quality Review. To ensure the bench-mark’s clinical integrity and mitigate ”hallucination arti-facts” common in LLM-generated content, we implemented a rigorous, multi-stage validation phase involving three board-certified radiologists. This process refined the ini-tial pool of 10,487 VQA pairs down to a final, high-fidelity set of 9,782 samples. Each radiologist independently audited the full 3D volu-metric scans alongside the generated QA pairs, assigning a quality score based on three stringent dimensions: (1) Clini-cal Logicality – Evaluators rejected any queries that, while spatially correct, were medically nonsensical or lacked diag-nostic utility, ensuring every question mirrors a real-world clinical scenario; (2) Quantitative Consistency – Answers were verified against the imaging evidence to ensure that volumetric ratios and spatial distances remained within plau-sible anatomical ranges; (3) Exhaustive Mutuality – For comparative tasks, radiologists ensured that choice sets (e.g., volume change or size ranking) were both mutually exclu-sive and exhaustive, preventing ”lucky guesses” through flawed distractor logic. Scores are determined as: 0 for unqualified, 1 for accept-able, and 2 for well-qualified QA pairs. Final inclusion in SpatialMed required an average score greater than 1.0, effectively filtering out samples where the spatial evidences are ambiguous or the reasoning path is non-interpretable by a human expert. This expert-driven bottleneck transforms 
+
+SpatialMed from a synthetic dataset into a validated clinical instrument for measuring and attributing MLLM reliability, which makes the dataset more realistic and be aligned with the scope from the medical application. 
+
+3.3. Dataset Distribution 
+
+The overall dataset distribution is illustrated in Figure 3. The MCA task is dominated by the abdomen (5,146) and the brain (3,792), while the volume task is mainly from To-talSegmentator (18,675) and BraTS (3,714). The number of organs in the abdominal regions contributes to the diversity in the anatomical and organs of the dataset. 5Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+Table 2. Spatial Reasoning Benchmark. Comparison of 2D and 3D vision–language models on spatial reasoning tasks. The best result for each category is highlighted in bold . For 2D models, the upper block corresponds to non-medical pretraining , while the lower block uses medical-domain pretraining . DIR denotes Directional Reasoning , DIST denotes Distance Reasoning , EXT denotes Extent / Size / Shape Reasoning , VOL denotes Volume Magnitude Reasoning , and COMP denotes Comparative Reasoning .                                                                                                                                                            
+
+> Method Size Vis. backbone Lang. backbone MCA (%) Volume AVG DIR DIST EXT VOL COMP
+> Random 25.00 25.00 25.00 25.00 25.00 25.00
+> 2D Models (Non-medical Pretraining)
+> LLaVA-Next (2024) (Liu et al., 2024) 7B SigLIP-400M Mistral-7B 40.80 56.96 28.18 47.82 44.68 45.81 21.35 GLM-4.1V-9B (2025) (Hong et al., 2025) 9B AIMv2-Huge GLM-4 26.18 22.03 19.63 26.97 37.14 31.09 22.93 Qwen3-VL 4B (2025) (Bai et al., 2025) 4B SigLIP2-Large Qwen3-4B 50.81 54.50 49.90 46.20 63.90 56.20 34.14 Qwen3-VL 8B (2025) (Bai et al., 2025) 8B SigLIP2-SO-400M Qwen3-8B 44.04 34.59 60.05 40.56 58.18 50.14 20.72 InternVL3 8B (2025) (Chen et al., 2024c) 8B InternViT-300M Qwen2.5-7B 42.83 43.26 46.07 26.38 64.68 47.89 28.69 InternVL3 9B (2025) (Chen et al., 2024c) 9B InternViT-300M InternLM3-8B 47.87 51.48 56.00 37.35 50.39 56.12 35.92 2D Models (Medical Pretraining)
+> MedFlamingo (2023) (Moor et al., 2023) 9B CLIP ViT-L/14 LLaMA-7B 32.14 36.07 25.40 36.24 39.22 42.00 13.93 LLaVA-Med (2024) (Li et al., 2023) 7B CLIP ViT-L/14 Mistral-7B 46.38 73.86 31.29 55.22 47.27 55.48 15.17 HuatuoGPT-Vision (2024) (Chen et al., 2024a) 7B CLIP ViT-L/14 Qwen2-7B 1.34 1.60 1.04 1.76 2.08 1.56 NaN MedMoE (2024) (Jiang et al., 2024) 4B Swin Phi-2-2.7B 15.84 22.15 5.08 23.77 11.95 15.64 16.45 Med-VLM R1 (2025) (Pan et al., 2025) 8B Qwen2-VL’s ViT Qwen2-VL-2B 6.30 5.14 6.58 4.45 11.95 9.67 NaN Med-Gemma 4B (2025) (Sellergren et al., 2025) 4B SigLIP-400M Gemma 3 4B 43.18 54.11 24.36 50.22 47.53 57.16 25.69 3D Models
+> Med-2E3 (2024) (Shi et al., 2024) 3B M3D-CLIP+SigLIP Qwen2.5-3B-Instruct 38.60 33.68 30.25 39.32 50.65 46.09 31.58
+> M3D (2024) (Bai et al., 2024) 7B M3D-CLIP LLaMA-2-7B 8.86 0.11 0.00 31.10 1.04 12.07 NaN
+
+4. Experiments and Results 
+
+4.1. Experimental Setup Benchmark Model. We conduct a comprehensive eval-uation of 14 MLLMs spanning both general-domain and medical-domain pretraining, covering a wide range of model sizes, architectures, and training recipes. For open-source general-domain models, we evaluate LLaVA-Next (Liu et al., 2024), GLM-4.1V (Hong et al., 2025), Qwen3-VL (Bai et al., 2025), and InternVL 3 (Chen et al., 2024c). For models pretrained or fine-tuned on medical datasets, we include MedFlamingo (Moor et al., 2023), LLaVA-Med (Li et al., 2023), HuatuoGPT-Vision (Chen et al., 2024a), Med-MoE (Jiang et al., 2024), Med-VLM R1 (Pan et al., 2025), and Med-Gemma (Sellergren et al., 2025). Beyond 2D im-age–based MLLMs, we additionally evaluate 3D medical vision-language models, including RadFM (Wu et al., 2025), Med-2E3 (Shi et al., 2024), and M3D (Bai et al., 2024). All benchmarks are conducted under a zero-shot evaluation set-ting. To ensure fairness and reproducibility, we apply greedy decoding consistently across all evaluated models. 
+
+Metric Design. For MCA tasks (Section 3.1), we adopt Ac-curacy as the primary evaluation metric, computed via exact matching between the predicted option and the ground-truth answer. For numerical estimation tasks, we employ the Mean Relative Accuracy (MRA) (Yang et al., 2025a), which assesses prediction quality under varying tolerance levels. As defined in Equation 5, we use a strict confidence set 
+
+θ = {0.01 , 0.02 , . . . , 0.1}, corresponding to relative error thresholds. MRA measures the proportion of predictions whose relative error falls within each confidence bound and averages these proportions across all thresholds. This for-mulation captures both absolute correctness and numerical proximity, providing a fine-grained evaluation of quantita-tive reasoning performance. 
+
+MRA = 1
+
+|θ|
+
+X
+
+> θ∈C
+
+1
+
+ |ˆy − y|
+
+y < 1 − θ
+
+
+
+, (5) The overall model performance is computed by averaging the results across the six tasks. 
+
+4.2. Evaluation on SpatialMed 
+
+Table 2 presents evaluation across multiple model categories, including 2D models (with/without medical pretraining) and 3D models. Results use the aforementioned metrics. For models that lack the capability to produce numerical outputs, the corresponding results are reported as NaN. 
+
+Multiple Choice results. Evaluations on the MCA task reveal that several state-of-the-art models are near the ran-dom baseline of 25%, underscoring the inherent difficulty of grounded 3D reasoning. Notably, distance reasoning (DIST) emerges as a universal bottleneck, with even medically-pretrained models struggling to accurately compare geomet-ric relations. Interestingly, scaling within the Qwen3-VL family is non-monotonic: the 4B model outperforms the 8B model on overall MCA, suggesting that larger capacity does not uniformly translate into better grounded 3D decision-making. This points to sub-skill interference: improvements 6Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space        
+
+> (a) Per-organ accuracy. (b) Tumor-wise accuracy. (c) Volume-bucketed performance.
+> Figure 4. Fine-grained performance analysis across anatomical structures, tumor types, and volume scales. (a) Per-organ accuracy across models in the MCA task. (b) Tumor-wise accuracy across selected models. (c) Performance stratified by anatomical volume buckets using Mean Relative Accuracy.
+
+in some operators may come at the cost of others when the backbone changes, which is consistent with the unstable ranking patterns observed across model groups. Further-more, our human-annotated failure analysis (Fig. 5a) indi-cates that Numeric Reasoning Errors dominate the volume estimation tasks, suggesting that MLLMs lack the calibrated output stability required for clinical measurements. This aligns with evidence that common post-training methods can degrade calibration in LLMs, which would directly am-plify numeric instability in measurement-style outputs. Medical pretraining does not uniformly improve MCA per-formance. A plausible explanation is that medical tuning often prioritizes recognition and justification behaviors, but does not explicitly supervise geometric operators (e.g., dis-tance comparison), so the hardest relational sub-tasks re-main under-trained. While LLaVA-Med improves over many general domain baselines on DIR and EXT, other medically pretrained 2D models underperform, with results below the random baseline. For 3D models, Med 2E3 is competitive, whereas M3D fails on directional reasoning, suggesting that simply supporting volumetric input does not guarantee robust spatial reasoning without task-aligned training and output calibration. 
+
+Organ wise analysis. The per-organ breakdown in Fig-ure 4a reveals heterogeneity across anatomical targets. First, model ranking is unstable across organs: a model that per-forms well on one organ can still degrade sharply on another, implying MCA accuracy depends on both spatial reasoning and organ specific visual grounding. Second, weaker mod-els show uniformly low accuracy across nearly all organs, indicating the model cannot reliably localize the referenced structure and defaults to shallow answer patterns. In con-trast, stronger models show more balanced heatmaps, but still exhibit clear organ dependent gaps. This suggests CT grounded spatial reasoning is limited not only by reason-ing operators such as distance comparison, but also by the upstream perception reliability, including organ boundary cues, local context, and multi-view projection stability. This motivates reporting organ conditioned scores, since a single average can hide clinically meaningful failure cases. 
+
+Tumor-related MCA behavior. Figure 4b further isolates tumor-related MCA questions and shows that tumor un-derstanding varies by tumor type and anatomical context. While leading models form similar overall shapes, they di-verge on specific axes, indicating that improvements are not uniform across tumor categories. In particular, some tumor types appear consistently easier across models, whereas others show a larger spread, which points to sensitivity to factors such as tumor size, contrast, and proximity to sur-rounding structures. Importantly, these tumor-conditioned differences align with the earlier observation that distance reasoning is difficult: when tumors are near complex bound-aries, small spatial errors can flip relative distance or adja-cency judgments. As a result, stronger tumor recognition alone does not guarantee robust spatial reasoning, and future model training should explicitly couple lesion localization with geometric relation supervision. 
+
+Volume estimation results. Volume estimation is chal-lenging for most models. The best MRA score is obtained by InternVL3 9B, followed by Qwen3-VL 4B and the 3D model Med-2E3. The larger Qwen3-VL 8B underperforms its 4B counterpart on volume estimation (20.72 vs. 34.14), indicating scale alone is insufficient. Crucially, the 4B and 8B variants differ not only in the language backbone but also in the vision encoder, so the regression cannot be attributed to language scaling alone. Because volume estimation is highly sensitive to boundary cues and fine-grained local-ization, changes in visual feature granularity/geometry can materially alter quantitative accuracy, even when a larger LLM is used. Medical pretraining does not improve MRA. LLaVA-Med and Med-Flamingo lag behind several general domain models, suggesting medical tuning prioritizes recog-nition over measurement. Multiple models return NaN for volume estimation, reflecting limitations in producing stable continuous outputs. Models often avoid numeric commit-ments or produce poorly calibrated values. This is consis-7Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space     
+
+> (a) Human analysis of reasoning error types.
+> (b) Reasoning faithfulness analysis.
+> Figure 5. Failure and faithfulness analysis of MLLM spatial reasoning. (a) Human-annotated taxonomy of reasoning errors, where numeric and relational errors dominate. (b) Faithfulness matrix categorizing predictions into faithful reasoning, decision errors, lucky guesses, and hallucination.
+
+tent with broader findings that instruction-tuned models can be miscalibrated, motivating explicit calibration objectives or constrained decoding for stable scalar generation (Shen et al., 2024). This requires explicit numeric supervision, unit awareness, and structured output constraints for quan-titative clinical tasks. Figure 4c further breaks down MRA by volume ranges (Small, Medium, and Large), showing volume-dependent performance. Small lesions are error-sensitive, as minor mistakes cause large relative deviations; improving quantitative stability on low-volume cases is key for reliable volume estimation. 
+
+4.3. Failure analysis 
+
+Following (Ribeiro et al., 2016) and (Yang et al., 2025c) setups, we randomly sample 50 failure cases in reasoning with the chain-of-thought setup for each task to assess the limitations in the MLLMs’ spatial understanding. 
+
+Human validation. To quantify the limitations of current MLLMs in spatial reasoning, we manually analyze and cat-egorize model failures into four major types, as illustrated in Figure 5a. These error categories reflect distinct cogni-tive and perceptual challenges encountered by MLLMs in spatial reasoning over multimodal medical data: (1) Visual perception error , which arises when models fail to rec-ognize or localize visual entities in medical images, such as misidentifying anatomical structures, missing target re-gions, or misinterpreting spatial layouts in different views; 
+
+(2) Linguistic intelligence error , stems from the error in the language artifact, format output, and logic error in rea-soning; (3) Relational reasoning error , which refers to failures in modeling spatial relationships among anatomical structures or lesions, such as incorrect reasoning about rela-tive position, distance, size, direction, or hierarchical spatial relations; and (4) Numeric reasoning error , which occurs when models incorrectly perform quantitative reasoning, in-cluding volumes, distances, ratios, etc. derived from visual or textual information. Results from the SpatialMed suggest that: The spatial rea-soning, and the language to interpret the model’s spatial understanding, is the challenge of the MLLMs .
+
+Reasoning Faithfulness. From human validation for the reasoning of MLLMs, we observe that hallucination and the random generation frequently occur during spatial reason-ing, as illustrated in Figure 5b. To further disentangle the relationship between reasoning quality and prediction accu-racy, we analyze the faithfulness of model explanations by examining whether the generated chain-of-thought supports the ground-truth answer. As shown in Figure 5b, model outputs can be categorized into four reasoning outcomes: 
+
+(i) faithful reasoning, where both the explanation and the final answer are correct; (ii) decision errors, where the ex-planation aligns with the ground truth but the final answer is incorrect; (iii) lucky guesses, where the explanation is incon-sistent with the ground truth yet the answer is correct; and 
+
+(iv) hallucinated reasoning, where both the explanation and the answer are incorrect. The results demonstrate that re-cent MLLMs suffer from fundamental limitations in spatial understanding and reasoning. Moreover, they exhibit sig-nificant hallucination issues in spatial reasoning, which can lead to unreliable predictions, posing a critical challenge for safety and trustworthiness in medical imaging applications. From the SpatialMed benchmark, we emphasize that: It is necessary for the faithfulness-aware evaluation and training strategies in medical spatial reasoning. 
+
+Model Stability and Numeric Commitment. We observe that a significant subset of evaluated models frequently re-turned NaN results for absolute volume estimation, reflect-ing a fundamental limitation in producing stable, continuous numerical outputs. Rather than a failure of the benchmark format, these results highlight a lack of numeric commit-ment in current MLLMs, where models often prioritize qualitative recognition over calibrated quantitative measure-ment. This NaN behavior underscores the urgent need for specialized numeric supervision, unit-aware training objec-tives, and structured output constraints to make MLLMs viable for quantitative clinical applications. 
+
+5. Conclusion 
+
+In conclusion, we present SpatialMed, the first benchmark for evaluating 3D spatial reasoning in medical MLLMs, comprising 9,782 QA pairs across 2,375 CT scans. Our eval-uation of 14 state-of-the-art models and extensive analyses reveals substantial limitations: even top performers achieve only modest accuracy above a random baseline, with pro-nounced failures in distance reasoning and numerical estima-tion, and the majority of reasoning chains are hallucinated. These findings demonstrate that current MLLMs lack funda-mental for robust spatial reasoning in clinical applications. Future directions include spatial chain-of-thought reasoning, self-supervised spatial objectives, structured numeric out-put constraints, and faithfulness-aware training. We release the SpatialMed along with the dataset creation pipeline to advance spatially-aware medical AI development. 8Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+Acknowledgement. This work was supported in part by U.S. NSF grants DBI-2238093, DBI-2422619, IIS-2211597, and MCB-2205148. 
+
+References 
+
+Antonelli, M., Reinke, A., Bakas, S., Farahani, K., Kopp-Schneider, A., Landman, B. A., Litjens, G., Menze, B., Ronneberger, O., Summers, R. M., et al. The medical segmentation decathlon. Nature communications , 13(1): 4128, 2022. Baharoon, M., Luo, L., Moritz, M., Kumar, A., Kim, S. E., Zhang, X., Zhu, M., Alabbad, M. H., Alhazmi, M. S., Mistry, N. P., et al. Rexgroundingct: A 3d chest ct dataset for segmentation of findings from free-text reports. arXiv preprint arXiv:2507.22030 , 2025. Bai, F., Du, Y., Huang, T., Meng, M. Q.-H., and Zhao, B. M3d: Advancing 3d medical image analysis with multi-modal large language models. arXiv preprint arXiv:2404.00578 , 2024. Bai, S., Chen, K., Liu, X., Wang, J., Ge, W., Song, S., Dang, K., Wang, P., Wang, S., Tang, J., et al. Qwen2. 5-vl technical report. arXiv preprint arXiv:2502.13923 , 2025. Bakas, S., Akbari, H., Sotiras, A., Bilello, M., Rozycki, M., Kirby, J. S., Freymann, J. B., Farahani, K., and Da-vatzikos, C. Advancing the cancer genome atlas glioma mri collections with expert segmentation labels and ra-diomic features. Scientific data , 4(1):1–13, 2017. Bakas, S., Reyes, M., Jakab, A., Bauer, S., Rempfler, M., Crimi, A., Shinohara, R. T., Berger, C., Ha, S. M., Rozy-cki, M., et al. Identifying the best machine learning algorithms for brain tumor segmentation, progression assessment, and overall survival prediction in the brats challenge. arXiv preprint arXiv:1811.02629 , 2018. Bassi, P. R., Yavuz, M. C., Hamamci, I. E., Er, S., Chen, X., Li, W., Menze, B., Decherchi, S., Cavalli, A., Wang, K., et al. Radgpt: Constructing 3d image-text tumor datasets. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 23720–23730, 2025. Butsanets, L., Corbi `ere, C., Khlaut, J., Manceron, P., and Dancette, C. Radimagenet-vqa: A large-scale ct and mri dataset for radiologic visual question answering. arXiv preprint arXiv:2512.17396 , 2025. Cai, Z., Cao, M., Chen, H., Chen, K., Chen, K., Chen, X., Chen, X., Chen, Z., Chen, Z., Chu, P., et al. Internlm2 technical report. arXiv preprint arXiv:2403.17297 , 2024. Canese, K. and Weis, S. Pubmed: the bibliographic database. 
+
+The NCBI handbook , 2(1):2013, 2013. Chen, J., Gui, C., Ouyang, R., Gao, A., Chen, S., Chen, G. H., Wang, X., Zhang, R., Cai, Z., Ji, K., et al. Huatuogpt-vision, towards injecting medical vi-sual knowledge into multimodal llms at scale. arXiv preprint arXiv:2406.19280 , 2024a. Chen, Q. and Hong, Y. Medblip: Bootstrapping language-image pre-training from 3d medical images and texts. In 
+
+Proceedings of the Asian conference on computer vision ,pp. 2404–2420, 2024. Chen, Y., Liu, C., Liu, X., Arcucci, R., and Xiong, Z. Bimcv-r: A landmark dataset for 3d ct text-image retrieval. In In-ternational Conference on Medical Image Computing and Computer-Assisted Intervention , pp. 124–134. Springer, 2024b. Chen, Z., Wu, J., Wang, W., Su, W., Chen, G., Xing, S., Zhong, M., Zhang, Q., Zhu, X., Lu, L., et al. Internvl: Scaling up vision foundation models and aligning for generic visual-linguistic tasks. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 24185–24198, 2024c. Cheng, J., Ye, J., Deng, Z., Chen, J., Li, T., Wang, H., Su, Y., Huang, Z., Chen, J., Sun, L. J. H., He, J., Zhang, S., Zhu, M., and Qiao, Y. Sam-med2d, 2023. Gai, X., Liu, J., Li, Y., Meng, Z., Wu, J., and Liu, Z. 3d-rad: A comprehensive 3d radiology med-vqa dataset with multi-temporal analysis and diverse diagnostic tasks. 
+
+arXiv preprint arXiv:2506.11147 , 2025. Grattafiori, A., Dubey, A., Jauhri, A., Pandey, A., Kadian, A., Al-Dahle, A., Letman, A., Mathur, A., Schelten, A., Vaughan, A., et al. The llama 3 herd of models. arXiv preprint arXiv:2407.21783 , 2024. Hamamci, I. E., Er, S., Almas, F., Simsek, A. G., Esir-gun, S. N., Dogan, I., Dasdelen, M. F., Durugol, O. F., Wittmann, B., Amiranashvili, T., Simsar, E., Simsar, M., Erdemir, E. B., Alanbay, A., Sekuboyina, A., Lafci, B., Bluethgen, C., Ozdemir, M. K., and Menze, B. Devel-oping generalist foundation models from a multimodal dataset for 3d computed tomography, 2024a. URL 
+
+https://arxiv.org/abs/2403.17834 .Hamamci, I. E., Er, S., Almas, F., Simsek, A. G., Esirgun, S. N., Dogan, I., Dasdelen, M. F., Wittmann, B., Simsar, E., Simsar, M., et al. A foundation model utilizing chest ct volumes and radiology reports for supervised-level zero-shot detection of abnormalities. CoRR , 2024b. Hamamci, I. E., Er, S., and Menze, B. Ct2rep: Automated radiology report generation for 3d medical imaging. In In-ternational Conference on Medical Image Computing and Computer-Assisted Intervention , pp. 476–486. Springer, 2024c. 9Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+Hamamci, I. E., Er, S., Sekuboyina, A., Simsar, E., Tezcan, A., Simsek, A. G., Esirgun, S. N., Almas, F., Do ˘gan, I., Dasdelen, M. F., et al. Generatect: Text-conditional gen-eration of 3d chest ct volumes. In European Conference on Computer Vision , pp. 126–143. Springer, 2024d. Hamamci, I. E., Er, S., Wang, C., Almas, F., Simsek, A. G., Esirgun, S. N., Dogan, I., Durugol, O. F., Hou, B., Shit, S., et al. Developing generalist foundation models from a multimodal dataset for 3d computed tomography. arXiv preprint arXiv:2403.17834 , 2024e. Heller, N., Sathianathen, N., Kalapara, A., Walczak, E., Moore, K., Kaluzniak, H., Rosenberg, J., Blake, P., Ren-gel, Z., Oestreich, M., et al. The kits19 challenge data: 300 kidney tumor cases with clinical context, ct semantic segmentations, and surgical outcomes. arXiv preprint arXiv:1904.00445 , 2019. Heller, N., Isensee, F., Maier-Hein, K. H., Hou, X., Xie, C., Li, F., Nan, Y., Mu, G., Lin, Z., Han, M., et al. The state of the art in kidney and kidney tumor segmentation in contrast-enhanced ct imaging: Results of the kits19 challenge. Medical Image Analysis , pp. 101821, 2020. Hong, W., Yu, W., Gu, X., Wang, G., Gan, G., Tang, H., Cheng, J., Qi, J., Ji, J., Pan, L., et al. Glm-4.1 v-thinking: Towards versatile multimodal reasoning with scalable reinforcement learning. arXiv preprint arXiv:2507.01006 ,2025. Huang, S.-C., Huo, Z., Steinberg, E., Chiang, C.-C., Lan-glotz, C., Lungren, M. P., Yeung, S., Shah, N., and Fries, J. A. Inspect: A multimodal dataset for pulmonary embolism diagnosis and prognosis. arXiv preprint arXiv:2311.10798 , 2023. Hudson, D. A. and Manning, C. D. Gqa: A new dataset for real-world visual reasoning and compositional question answering. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 6700– 6709, 2019. Ichinose, A., Hatsutani, T., Nakamura, K., Kitamura, Y., Iizuka, S., Simo-Serra, E., Kido, S., and Tomiyama, N. Visual grounding of whole radiology reports for 3d ct images. In International Conference on Medical Image Computing and Computer-Assisted Intervention , pp. 611– 621. Springer, 2023. Ji, Y., Bai, H., Ge, C., Yang, J., Zhu, Y., Zhang, R., Li, Z., Zhanng, L., Ma, W., Wan, X., et al. Amos: A large-scale abdominal multi-organ benchmark for versatile medical image segmentation. Advances in neural information processing systems , 35:36722–36732, 2022. Jiang, S., Zheng, T., Zhang, Y., Jin, Y., Yuan, L., and Liu, Z. Med-moe: Mixture of domain-specific experts for lightweight medical vision-language models. arXiv preprint arXiv:2404.10237 , 2024. Johnson, J., Douze, M., and J ´egou, H. Billion-scale similar-ity search with GPUs. IEEE Transactions on Big Data , 7 (3):535–547, 2019. Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., K ¨uttler, H., Lewis, M., Yih, W.-t., Rockt ¨aschel, T., et al. Retrieval-augmented generation for knowledge-intensive nlp tasks. Advances in neural information pro-cessing systems , 33:9459–9474, 2020. Li, C., Wong, C., Zhang, S., Usuyama, N., Liu, H., Yang, J., Naumann, T., Poon, H., and Gao, J. Llava-med: Training a large language-and-vision assistant for biomedicine in one day. Advances in Neural Information Processing Systems , 36:28541–28564, 2023. Liu, H., Li, C., Li, Y., Li, B., Zhang, Y., Shen, S., and Lee, Y. J. Llava-next: Improved reasoning, ocr, and world knowledge, January 2024. URL 
+
+https://llava-vl.github.io/blog/ 2024-01-30-llava-next/ .Menze, B. H., Jakab, A., Bauer, S., Kalpathy-Cramer, J., Farahani, K., Kirby, J., Burren, Y., Porz, N., Slotboom, J., Wiest, R., et al. The multimodal brain tumor image segmentation benchmark (brats). IEEE transactions on medical imaging , 34(10):1993–2024, 2014. Moor, M., Huang, Q., Wu, S., Yasunaga, M., Dalmia, Y., Leskovec, J., Zakka, C., Reis, E. P., and Rajpurkar, P. Med-flamingo: a multimodal medical few-shot learner. In Machine Learning for Health (ML4H) , pp. 353–367. PMLR, 2023. Pan, J., Liu, C., Wu, J., Liu, F., Zhu, J., Li, H. B., Chen, C., Ouyang, C., and Rueckert, D. Medvlm-r1: Incen-tivizing medical reasoning capability of vision-language models (vlms) via reinforcement learning. arXiv preprint arXiv:2502.19634 , 2025. Qwen. Qwen3 technical report, 2025. URL https:// arxiv.org/abs/2505.09388 .Rajabi, N. and Kosecka, J. Gsr-bench: A benchmark for grounded spatial reasoning evaluation via multimodal llms. arXiv preprint arXiv:2406.13246 , 2024. Ribeiro, M. T., Singh, S., and Guestrin, C. ” why should i trust you?” explaining the predictions of any classifier. In Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining , pp. 1135–1144, 2016. 10 Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+Sellergren, A., Kazemzadeh, S., Jaroensri, T., Kiraly, A., Traverse, M., Kohlberger, T., Xu, S., Jamil, F., Hughes, C., Lau, C., et al. Medgemma technical report. arXiv preprint arXiv:2507.05201 , 2025. Shen, M., Das, S., Greenewald, K., Sattigeri, P., Wornell, G., and Ghosh, S. Thermometer: Towards universal calibration for large language models. arXiv preprint arXiv:2403.08819 , 2024. Shi, Y., Zhu, X., Wang, K., Hu, Y., Guo, C., Li, M., and Wu, J. Med-2e3: A 2d-enhanced 3d medical multimodal large language model. arXiv preprint arXiv:2411.12783 , 2024. Soni, S., Gudala, M., Pajouhi, A., and Roberts, K. Radqa: A question answering dataset to improve comprehension of radiology reports. In Proceedings of the thirteenth language resources and evaluation conference , pp. 6250– 6259, 2022. Trinh, Q.-H., Nguyen, M.-V., Zeng, J., Bagci, U., and Jha, D. Prs-med: Position reasoning segmentation with vision-language model in medical imaging. arXiv preprint arXiv:2505.11872 , 2025. Wang, P., Bai, S., Tan, S., Wang, S., Fan, Z., Bai, J., Chen, K., Liu, X., Wang, J., Ge, W., et al. Qwen2-vl: Enhancing vision-language model’s perception of the world at any resolution. arXiv preprint arXiv:2409.12191 , 2024. Wasserthal, J., Breit, H.-C., Meyer, M. T., Pradella, M., Hinck, D., Sauter, A. W., Heye, T., Boll, D. T., Cyriac, J., Yang, S., et al. Totalsegmentator: robust segmenta-tion of 104 anatomic structures in ct images. Radiology: Artificial Intelligence , 5(5):e230024, 2023. Wu, C., Zhang, X., Zhang, Y., Hui, H., Wang, Y., and Xie, W. Towards generalist foundation model for radiology by leveraging web-scale 2d&3d medical data. Nature Communications , 16(1):7866, 2025. Yang, J., Yang, S., Gupta, A. W., Han, R., Fei-Fei, L., and Xie, S. Thinking in space: How multimodal large lan-guage models see, remember, and recall spaces. In Pro-ceedings of the Computer Vision and Pattern Recognition Conference , pp. 10632–10643, 2025a. Yang, J., Yang, S., Gupta, A. W., Han, R., Fei-Fei, L., and Xie, S. Thinking in space: How multimodal large lan-guage models see, remember, and recall spaces. In Pro-ceedings of the Computer Vision and Pattern Recognition Conference , pp. 10632–10643, 2025b. Yang, J., Yang, S., Gupta, A. W., Han, R., Fei-Fei, L., and Xie, S. Thinking in space: How multimodal large lan-guage models see, remember, and recall spaces. In Pro-ceedings of the Computer Vision and Pattern Recognition Conference , pp. 10632–10643, 2025c. Ye, J., Cheng, J., Chen, J., Deng, Z., Li, T., Wang, H., Su, Y., Huang, Z., Chen, J., Jiang, L., et al. Sa-med2d-20m dataset: Segment anything in 2d medical imaging with 20 million masks. arXiv preprint arXiv:2311.11969 , 2023. Yi, K., Gan, C., Li, Y., Kohli, P., Wu, J., Torralba, A., and Tenenbaum, J. B. Clevrer: Collision events for video representation and reasoning. arXiv preprint arXiv:1910.01442 , 2019. Zhang, X., Wu, C., Zhao, Z., Lei, J., Tian, W., Zhang, Y., Xie, W., and Wang, Y. Development of a large-scale grounded vision language dataset for chest ct analysis. 
+
+Scientific Data , 12(1):1636, 2025a. Zhang, Y., Li, M., Long, D., Zhang, X., Lin, H., Yang, B., Xie, P., Yang, A., Liu, D., Lin, J., Huang, F., and Zhou, J. Qwen3 embedding: Advancing text embedding and reranking through foundation models. arXiv preprint arXiv:2506.05176 , 2025b. 11 Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+# Appendices 
+
+A. Prompt for Dataset Creation 
+
+In this section, we provide the additional details of the prompt for Spatial QA Generation, Filtering Process, and Trivial Validation as follows: 
+
+Prompt for Spatial QA Generation 
+
+[Medical context retrieved from the RAG pipeline] You are a radiologist analyzing a 3D medical volume. You are given: • [a list of anatomical volumes], • [a list of distances between pairs of anatomical structures], • [a set of 3D bounding boxes]. Example question–answer pairs are provided below: 
+
+[List of example question–answer pairs] 
+
+Instruction. Based on the provided spatial information, and your knowledge for the tumor names , generate 10 question–answer pairs that require clinically meaningful spatial reasoning. The questions and answers must be medically relevant and consistent with a radiologist’s viewpoint, and must be diverse in the medical context linguistic. Return response in tempate Question: [Your question here] - Answer: [Your answer here] 
+
+Prompt for quality filtering 
+
+You are a radiologist, and you are seeing the 3D volumes. You are given: Context: Relevant contexts to the question and answer pair 
+
+• [a list of anatomical volumes], • [a list of distances between pairs of anatomical structures], • [a set of 3D bounding boxes]. You are giving a question and an answer pair: Question and answer pair 
+
+Instruction. From your knowledge, evaluate if this question and answer pairs meet these criteria: (1) contain medical content, (2) the correctness of the content with the context you know. Return only 0 for unqualified, and 1 for qualified data. 
+
+Prompt for trivial validation 
+
+Context: Medical Context relevant to question retrieved from RAG pipeline 
+
+You are a doctor, and you get these question and answers from the client. 
+
+Instruction: With the provided relevant context you are provided, answer the question: 
+
+Question and choices 
+
+Return the final answer only, for example, ”A. liver.”, do not return anything else. 
+
+For the spatial annotations input for the prompt, they are calculated by the tools, mentioned in Section 3.1. During the generation process, by using few-shot prompting and provide the context from the RAG pipeline, the agents are provided the medical knowledge, therefore enhance the capability to generate robust medical content robust, and ensure the linguistic quality of the question-answer samples. Moreover, all of stages, we also leverage the instruction prompting template for the output, which can help us to ensure the correct format of the generation from the models. 12 Beyond Medical Diagnostics: How Medical Multimodal Large Language Models Think in Space 
+
+B. Retrieved Augmented Generation Details 
+
+In terms of the Retrieved Augmented Generation pipeline, we leverage the Qwen3-8B-Embedding model (Zhang et al., 2025b) as the based embedding model to extract all embeddings from the text of the PubMed (Canese & Weis, 2013) dataset. All of the embeddings are stored via the index storage of Faiss (Johnson et al., 2019). During the inference process of the agent, the top 5 most relevant records are chosen as the input context for the agent. 
+
+C. Impact Statement 
+
+This paper introduces a new benchmark and data generation pipeline to study spatial reasoning in medical vision language models using 3D CT scans. The main goal of this work is to advance machine learning methods for understanding spatial relations in medical images, which is an important step toward more reliable AI systems in healthcare. 
+
+Potential positive impact. Improved spatial reasoning in medical AI systems may support clinical practice in several ways. Models that better understand size, distance, and relative position of anatomical structures could assist with image interpretation, treatment planning, and medical education. This may help reduce workload for clinicians and improve consistency in image based analysis. The proposed benchmark may also encourage more transparent evaluation of model limitations, which is important for safety in medical AI. 
+
+Risks and limitations. Despite these potential benefits, there are risks. First, models evaluated on this benchmark may still make errors in real clinical settings. Good performance on a benchmark does not guarantee safe or correct behavior in practice. Second, there is a risk that users may over trust model outputs, especially for quantitative values such as volume or distance. Such errors could lead to incorrect clinical decisions if systems are used without proper human oversight. The dataset is built from existing medical imaging data with segmentation masks. Although the data are processed for research use, any use of medical data raises concerns about privacy and data governance. We follow the licenses and usage rules of the source datasets. Future work should continue to consider data protection and responsible sharing. 
+
+Future societal considerations. As medical vision language models become more capable, they may be integrated into clinical tools. This increases the need for clear evaluation standards, human in the loop design, and regulatory review. Our benchmark highlights current weaknesses in spatial and numeric reasoning, which may help prevent premature deployment of unreliable systems. 13

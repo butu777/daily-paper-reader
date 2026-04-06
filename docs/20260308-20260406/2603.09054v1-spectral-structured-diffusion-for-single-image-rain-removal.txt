@@ -1,0 +1,534 @@
+Title: Spectral-Structured Diffusion for Single-Image Rain Removal
+
+URL Source: https://arxiv.org/pdf/2603.09054v1
+
+Published Time: Wed, 11 Mar 2026 00:21:18 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# SPECTRAL -S TRUCTURED DIFFUSION FOR SINGLE -I MAGE RAIN 
+
+# REMOVAL 
+
+Yucheng Xing 
+
+Department of Electrical and Computer Engineering Stony Brook University Stony Brook, NY 11794, USA 
+
+yucheng.xing@stonybrook.edu 
+
+Xin Wang 
+
+Department of Electrical and Computer Engineering Stony Brook University Stony Brook, NY 11794, USA 
+
+x.wang@stonybrook.edu 
+
+# ABSTRACT 
+
+Rain streaks manifest as directional and frequency-concentrated structures that overlap across multiple scales, making single-image rain removal particularly challenging. While diffusion-based restoration models provide a powerful framework for progressive denoising, standard spatial-domain diffusion does not explicitly account for such structured spectral characteristics. We introduce SpectralDiff , a spectral-structured diffusion-based framework tailored for single-image rain removal. Rather than redefining the diffusion formulation, our method incorporates structured spectral perturbations to guide the progressive suppression of multi-directional rain components. To support this design, we further propose a full-product U-Net architecture that leverages the convolution theorem to replace convolution operations with element-wise product layers, improving computational efficiency while preserving modeling capacity. Extensive experiments on synthetic and real-world benchmarks demonstrate that SpectralDiff achieves competitive rain removal performance with improved model compactness and favorable inference efficiency compared to existing diffusion-based approaches. 
+
+# 1 Introduction 
+
+Rain streaks significantly degrade image visibility and interfere with scene understanding in outdoor vision systems. They exhibit strong directional and frequency-concentrated characteristics that overlap across multiple scales, interacting with scene textures and edges. As a result, suppressing rain while preserving fine details remains challenging in the single-image setting. Single-image rain removal is fundamentally challenging for several reasons. First, rain streaks possess distinctive physical and spectral structure, yet many existing models do not explicitly encode such properties, often leading to over-smoothing or detail loss. Second, the problem is inherently ill-posed, as the separation between rain patterns and scene details often depends on strong priors that may not generalize to complex real-world conditions. Third, unlike video deraining, single-image settings lack temporal cues, making it difficult to isolate rain layers without introducing artifacts. Existing deraining methods span both model-driven and data-driven approaches. Early techniques rely on handcrafted frequency decomposition or layer separation priors [ 51 , 11 , 59 , 22 ], which often struggle in complex real-world conditions. With the rise of deep learning, CNN-based models directly learn rainy-to-clean mappings [ 12 , 13 ], while multi-stage [ 35 , 42 , 56 , 3 ] and recurrent architectures [ 26 , 54 ], progressively remove rain layers. More recently, generative models, including GAN-based [ 25 , 49 , 58 , 43 ] and AutoEncoder-based [ 17 , 24 , 40 ] approaches, further improve visual quality. However, most of these methods rely on assumptions that may break on real data, and do not explicitly incorporate the structured spectral characteristics of rain streaks into the restoration process. Diffusion-based restoration models provide a progressive refinement mechanism that iteratively removes corruption and recover image details. This step-wise denoising process naturally aligns with the layered characteristic of rain streaks, where degradations can be gradually attenuated across multiple stages. Motivated by this observation, we build upon the diffusion model [ 16 ] and introduce SpectralDiff , a spectral-structured diffusion framework tailored for single-image rain removal. Rather than redefining the diffusion formulation, our spectral-structured perturbation design 
+
+> arXiv:2603.09054v1 [cs.CV] 10 Mar 2026
+
+introduces directional and scale-aware modulation guided by rain-specific frequency structure. This design exposes the model to diverse rain patterns across orientations and scales during training, reducing reliance on rigid handcrafted priors and improving robustness under complex real-world conditions. To support this design efficiently, we further propose a full-product U-Net architecture that leverages the convolution theorem to replace convolution operations with equivalent element-wise product layers, improving computational efficiency while preserving modeling capacity. Extensive experiments on synthetic and real-world benchmarks demonstrate that SpectralDiff achieves competitive deraining performance while offering improved model compactness and favorable inference efficiency compared to existing diffusion-based approaches. Our contributions are summarized as follows: • We introduce SpectralDiff, a spectral-structured diffusion framework tailored for single-image rain removal. • We design structured spectral perturbations that incorporate rain-specific frequency characteristics into the diffusion-based restoration process. • We propose a full-product U-Net architecture that improves computational efficiency through operator-level redesign while preserving modeling capacity. The remainder of this paper is organized as follows: Sec. 2 reviews related works, while the details of our model are provided in Sec. 3. To evaluate its effectiveness, we have conducted extensive experiments as well as ablation studies in Sec. 4. Finally, we make a conclusion and point out potential future directions in Sec. 5. Code will be released upon acceptance. 
+
+# 2 Related Works 
+
+2.1 Single Image Rain Removal 
+
+Single-image deraining plays an important role in adverse-weather vision systems. Unlike video deraining, single-image rain removal lacks temporal information, making the problem significantly more challenging. Traditional approaches primarily relied on decomposition techniques [ 1, 21 , 28 ] to separate high-frequency rain streaks from background contents [ 52 , 59 , 11 , 22 ]. However, these methods often led to over-smoothing, inadvertently removing fine details in the underlying image. Another line of work introduced prior assumptions about rain, such as rankness, sparsity, directions, and scales, into decomposition models [27, 2, 21, 62] to improve robustness. With the development of deep learning techniques, Fu et al . [ 12 ] first introduced Convolutional Neural Networks (CNNs) for single image rain removal, inspiring more advanced CNN architectures [ 13 , 53 ]. Multi-scale fusion strategies [ 19 , 39 , 20 , 61 ] were proposed to capture texture details at different resolutions. In parallel, multi-stage progressive designs [ 35 , 56 , 42 , 3, 10 ] stacked similar modules to remove rain streaks layer by layer, while Recurrent Neural Networks (RNNs) [26, 54] followed a similar progressive philosophy. More recently, transformer-based models [ 55 , 15 , 5, 61 , 45 , 50 ] have been adopted for single-image rain removal, leveraging self-attention mechanisms to capture long-range dependencies and improve restoration quality. However, most of these methods do not explicitly encode the spectral structure of rain streaks. Generative approaches, including Generative Adversarial Networks (GANs) [ 25 , 49 , 58 , 43 ] and AutoEncoders [ 17 , 24 , 40 ], further enhance perceptual quality by modeling the rain formation process. Diffusion models have recently been explored for image restoration tasks due to their progressive denoising formulation. Their iterative refinement mechanism provides a natural way to gradually suppress corruption and recover image details. However, their application to single-image deraining remains relatively limited, and existing approaches typically adopt standard spatial Gaussian perturbations [ 33 , 47 , 57 ]. In this work, we investigate how diffusion models can be adapted for deraining by explicitly incorporating rain-specific spectral structure into the denoising trajectory. 
+
+2.2 Spectral Domain Convolution 
+
+Spectral-domain convolution has been explored to improve both computational efficiency and modeling capacity in deep neural networks. In the spatial domain, convolution requires repeated element-wise multiplications and summations, leading to substantial computational cost, particularly for large inputs or deep architectures. By the convolution theorem [ 32 ], spatial convolution can be reformulated as element-wise multiplication in the frequency domain via Fast Fourier Transform (FFT), reducing computational complexity and enabling more efficient implementations. Mathieu et al . [ 30 ] systematically explored frequency-domain operations in deep networks and reported significant speedups for large kernels and inputs. Similar acceleration effects were further analyzed by Lavin and Gray [ 23 ]. Rippel et al . [ 36 ]2introduced spectral pooling and spectral parameterization, demonstrating that spectral representations can improve both efficiency and training behavior. Subsequent work extended spectral techniques beyond acceleration. Cheng et al . [ 6] approximated convolution kernels as circulant matrices to exploit their diagonalization in the frequency domain. Chi et al . [ 8] proposed spectral residual learning to model global dependencies efficiently. Spectral operations have also been integrated into modern architectures and optimized within widely used libraries [38, 31]. Beyond computational benefits, frequency-domain representations have shown advantages in modeling structured patterns. Zhong et al . [ 60 ] employed wavelet-based representations for high-quality image restoration, while Chi et al . [ 7] introduced hybrid spatial-spectral units to achieve mixed receptive fields. Such hybrid designs have been adopted in various applications [ 37 , 9, 4 ]. As noted in [ 37 ], spectral operations are particularly effective in capturing periodic or quasi-periodic structures, which are often observed in rain streak patterns. This observation motivates the incorporation of spectral modeling into our deraining framework. 
+
+# 3 Methodology 
+
+In this section, we analyze the relationship between the layered structure of rain streaks and the iterative denoising mechanism of diffusion models. Building upon this observation, we present SpectralDiff , a spectral-structured diffusion framework that progressively suppresses rain components via a structured spectral perturbation design. We further introduce an operator-level redesign of the U-Net architecture to improve computational efficiency. Together, these components define a spectrally structured and computationally efficient framework for single-image rain removal. 
+
+3.1 Layered Characteristic of Rain Streaks 
+
+Given a rainy image O, it can be modeled as the superposition of a clear image B with background content and a mask 
+
+R of rain streaks, which can be expressed as 
+
+O = B + R. (1) In real-world scenarios, rain streaks exhibit variations in scale and direction due to factors such as rain density and wind speed. Based on this observation, we can divide the rain-streak mask R into multiple layers, where each layer consists of streaks sharing similar physical properties (e.g., scale, thickness and direction), as illustrated in Fig. 1. Accordingly, we can rewrite Eq. 1 as 
+
+O = B +
+
+> D
+
+X
+
+> d
+
+Rd, (2) where Rd represents the mask corresponding to the d-th rain layer, which contains linear rain streak components, and 
+
+D denotes the total number of such rain streak layers. While some prior multi-stage methods have attempted to model this layered structure, they remain limited in effectiveness. In practice, the true value of D in real-world rainy scenes can be significantly larger and more complex than the number of stages pre-defined in these models, making such approximations insufficient for fully capturing the diverse rain streak patterns.     
+
+> (a) (b) (c) (d) (e)
+
+Figure 1: Illustration of the rain layer adding process. 1a is the original image B, 1b - 1d are example rain-streak layers 
+
+Rd (d ∈ [1 , 3]) , and 1e is the final rainy image O.Diffusion models, due to their iterative denoising mechanism, naturally provide a progressive transformation framework that conceptually aligns with such layered structures. In standard diffusion models, a clean image x0 is progressively transformed into a pure Gaussian noise mask xT by iteratively adding Gaussian noise ϵ ∼ N (0, I) through a Markov chain, and this diffusion process can be formulated as 
+
+xt = p1 − βtxt−1 + pβtϵ, (3) 3i.e., 
+
+q(xt|xt−1) = N (xt; p1 − βtxt−1, β tI), (4) where T is the total number of steps in this process and {β1, . . . , β T } is the corresponding noise variance schedule. To obtain a clear and realistic image, starting from a pure noise p(xT ) = N (xT ; 0, I), the diffusion process in Eqs. (3) -(4) is reversed with the learned transitions 
+
+pϕ(xt−1|xt) = N (xt−1; μϕ(xt, t ), β tI), (5) where μϕ(·) is parameterized by a neural network. Both forward and reverse diffusion processes are illustrated in Fig. 2. Forward Reverse 
+
+Figure 2: Illustration of forward / reverse diffusion process. By comparing Fig. 1 and Fig. 2, as well as Eq. 2 and Eq. 3, we observe a conceptual resemblance between the layered accumulation of rain streaks and the iterative structure of diffusion models. In both cases, complex observations are formed or refined through a sequence of incremental transformations. This structural analogy suggests that the removal of rain may benefit from a progressive restoration strategy, where different rain components are attenuated across multiple steps rather than in a single pass. In particular, if rainy images can be viewed as the superposition of multiple rain layers with diverse orientations and scales, then a step-wise denoising process naturally aligns with this layered structure. For notational convenience, we associate the diffusion step index with conceptual rain layers, allowing us to describe the restoration process in a unified progressive framework. This alignment serves as an intuitive bridge between the physical decomposition in Eq. 2 and the iterative formulation of diffusion models. 
+
+3.2 Iterative Rain Removal via Spectral Diffusion 
+
+Inspired by the layered interpretation in Sec. 3.1, we adopt diffusion as a progressive restoration mechanism for single-image rain removal. While diffusion models have shown strong performance in conditional generation and restoration tasks, most existing approaches [ 33 , 47 , 57 ] employ standard isotropic Gaussian perturbations in the spatial domain. However, rain residuals are neither spatially independent nor isotropic. Each rain layer Rd consists of elongated, direction- and scale-consistent structures with correlated spatial patterns, which are not well represented by spatial i.i.d. Gaussian noise. The key observation is that although rain streaks are highly structured in the spatial domain, their dominant frequency content can be compactly characterized in the spectral domain. Straight and elongated structures correspond to concentrated energy ridges in the spectral domain, oriented orthogonally to their spatial direction. Fine and dense streaks mainly occupy higher frequency bands, while thicker streaks are associated with lower or medium frequencies. Therefore, modeling the dominant frequency distribution of rain layers is often more critical than enforcing a specific spatial marginal distribution. Based on this insight, we introduce a spectral-structured perturbation design. Instead of injecting isotropic spatial noise, we modulate complex Gaussian noise in the frequency domain using direction- and scale-aware masks, as illustrated in Fig. 3. This produces structured spectral perturbations whose frequency matches the dominant frequency characteristics of rain streak layers. Formally, we use the following structured perturbation proxy: 
+
+Rd ≃ F −1(Md ⊙ ϵf ), (6) where ϵf ∼ N C(0, I) denotes i.i.d. complex Gaussian noise (i.e., ϵf = ϵf, real + jϵ f, imag with ϵf, real , ϵ f, imag ∼ N (0, I)), 
+
+Md is a frequency-direction-aware mask associated with rain layer Rd, and F−1(·) denotes the inverse FFT (IFFT). We emphasize that this formulation serves as a structured spectral perturbation mechanism capturing dominant frequency, rather than an exact physical rain simulator. For each spectral coordinate f = {fx, f y }, the mask Md determines how noise energy is distributed. It consists of radial and angular components: 4(a) Rain-Streak Layers Rd
+
+(b) Magnitude Map of F(Rd)
+
+(c) Magnitude Map of F(Rd) + Directional Sector 
+
+Figure 3: Illustration of rain layers in the frequency domain. 
+
+Radial Mask Md,r . Rain streaks within a layer share similar scale and density, corresponding to specific radial frequency bands. We model this using a Gaussian-shaped band-pass filter: 
+
+Md,r = Mrd,σ rd 
+
+> d,r
+
+(f ) = exp 
+
+
+
+− (r − rd)2
+
+2σ2
+
+> rd
+
+
+
+, (7) where r = ∥f ∥2 =
+
+q
+
+f 2 
+
+> x
+
++ f 2 
+
+> y
+
+is the radial frequency, rd denotes the density of rain streaks to be retained in the d-th layer by controlling the dominant band, and σrd determines the bandwidth to control the thickness. 
+
+Angular Mask Md,θ . Since rain streaks exhibit consistent orientation within each layer, their spectral responses concentrate along specific angular sectors. We model this using a von Mises distribution [29]: 
+
+Md,θ = Mθd,κ d 
+
+> d,θ
+
+(f ) = exp ( κd cos ( θ − θd)) , (8) where θ = arctan 2( fy , f x) denotes the spectral angle, θd is the dominant orientation that is orthogonal to the rain direction, and κd controls angular concentration. The complete mask is given by 
+
+Mrd,σ rd ,θ d,κ d 
+
+> d
+
+(f ) = Mrd,σ rd 
+
+> d,r
+
+(f ) ⊙ Mθd,κ d 
+
+> d,θ
+
+(f ), (9) and is normalized as 
+
+Md =
+
+q
+
+Mrd,σ rd ,θ d,κ d 
+
+> d
+
+(f )
+
+q
+
+Mrd,σ rd ,θ d,κ d 
+
+> d
+
+(f ) 2
+
+. (10) We now define the spectral-structured diffusion process. Let xf, 0 = F(B) be the spectral representation of the clean image. The spectral representation of the rainy image xf,D = F(O) is obtained by progressively injecting masked complex Gaussian noise: 
+
+xf,d = p1 − βdxf,d −1 + pβd(Md ⊙ ϵf ), (11) 5and we define the corresponding forward transition kernel as 
+
+q(xf,d |xf,d −1) ≜ NC(xf,d ; p1 − βdxf,d −1, β dM2
+
+> d
+
+I). (12) In addition to the standard noise schedule βd, we introduce layer-wise parameters (rd, σ rd , θ d, κ d) that are uniformly sampled to cover diverse rain scales and directions. These parameters are globally defined and fixed across datasets. In practice, this corresponds to pre-computing a fixed mask Md for each step d, analogous to using a fixed βd schedule. Because the mask Md is normalized such that P 
+
+> f
+
+|Md|2 = 1 , the per-step perturbation maintains controlled second-order energy. Although each step introduces anisotropic spectral perturbations, this normalization ensures stable variance scaling across diffusion steps. Importantly, we do not claim that this masked perturbation is theoretically equivalent to the standard isotropic Gaussian diffusion process. Instead, we treat it as a task-aligned structured corruption mechanism that injects rain-specific spectral structure while retaining a tractable Gaussian parameterization. Empirically, we observe stable optimization and consistent deraining behavior. The reverse process is parameterized as 
+
+pϕ(xf,d −1|xf,d ) ≜ NC(xf,d −1; μϕ(xf,d , d, c), β dM2
+
+> d
+
+I), (13) where μϕ(·) is implemented by a neural network trained to predict the clean spectral representation from xf,d at step d
+
+under condition c. Here, the Gaussian form captures the mean and energy structure induced by the masked perturbation and provides a practical denoising parameterization. It should be interpreted as a modeling choice under the structured corruption, rather than a strict posterior derived from the forward process. Through this spectral-structured diffusion process, rain components are progressively attenuated in a frequency-aware manner, enabling stable and structured single-image rain removal. 
+
+3.3 Accelerating with Full-Product U-Net 
+
+While Sec. 3.2 defines a spectral-structured diffusion process, directly performing denoising in the spectral domain is computationally expensive. A naive implementation requires applying FFT before each reverse step and IFFT afterward, introducing additional transformations. Moreover, spectral representations are complex-valued, doubling the effective computational cost at each diffusion step. Given the inherently iterative nature of diffusion models, such overhead becomes substantial. Product U-Net PRB(Concat) PRB PRB(Attn) PRB(Attn) PRB(Attn) PRB PRB 
+
+𝐜 𝐢𝐦𝐠 𝐱 𝐝ା𝟏 d
+
+𝐱 𝐝 
+
+> Condition Encoder
+
+𝐜 𝐟𝐞𝐚𝐭 
+
+> Product Res-Block
+
+[𝐱 , 𝐜 𝐢𝐦𝐠 ] if Concat else 𝐱 𝐱 𝐢𝐧𝐩𝐮𝐭 𝑮 (·) 
+
+𝐜 𝐟𝐞𝐚𝐭 d
+
+> 𝑮 (·)
+
+Conv 1x1 Conv 1x1 ReLU Sigmoid Self-Attention Cross-Attention FiLM 
+
+𝜸 , 𝝀 𝐱 𝐨𝐮𝐭𝐩𝐮𝐭 
+
+Modulation 
+
+Figure 4: Structure of our Product U-Net and Product Res-Block. To address this issue, we leverage the convolution theorem, which states that convolution in the spatial domain corresponds to element-wise multiplication in the spectral domain and vice versa. Inspired by this relationship, we 6design a full-product U-Net that performs input-dependent element-wise modulation in the spatial domain, thereby providing an operator-level approximation to frequency-selective convolutional filtering without explicitly operating in the frequency domain. The architecture is illustrated in Fig. 4. Specifically, we introduce a spatial full-product layer: 
+
+h = xinput ⊙ w = xinput ⊙ G(xinput ), (14) where ⊙ denotes the element-wise multiplication, and G(·) is implemented using a 1 × 1 convolution with a bottleneck structure. Unlike traditional convolutional layers with static kernels, the modulation weight w is dynamically generated conditioned on the input features. This allows adaptive feature modulation while significantly reducing computational cost. The bottleneck further improves efficiency by compressing intermediate channels. The computational reduction of the proposed full-product U-Net can be quantified by comparing the FLOPs of a standard convolutional layer and the proposed product layer. Since we retain components such as self-attention, cross-attention, and other activation functions, the primary architectural difference lies in replacing standard convolutional layers with full-product layers. Suppose the input feature has size (Cin , H, W ) and the output feature has size (Cout , H, W ). For a commonly used 3 × 3 convolutional layer, the numbers of additions and multiplications are both 
+
+3 ∗ 3 ∗ Cin ∗ Cout ∗ H ∗ W. (15) For simplicity, let Cin = Cout = C, then the total FLOPs of a single convolutional layer are 
+
+2 ∗ (3 ∗ 3 ∗ C ∗ C ∗ H ∗ W ) = 18 C2HW. (16) In contrast, our product layer employs two consecutive 1 × 1 convolutional layers with a bottleneck ratio rC , the total FLOPs of these two convolutions are 
+
+2 ∗ (1 ∗ 1 ∗ (C ∗ CrC
+
++ CrC
+
+∗ C) ∗ H ∗ W ) = 4
+
+rC
+
+C2HW. (17) Taking into account the element-wise multiplication between w and xinput , whose FLOPs are CHW , the total number of operations within the product layer becomes 
+
+4
+
+rC
+
+C2HW + CHW. (18) Typically, we choose rC = 4 . In this case, the theoretical per-layer computation reduction for a single layer replacement is about 18 C2HW C2HW + CHW = 18 CC + 1  
+
+> large C
+
+≈ 18 , (19) While the end-to-end runtime improvement depends on implementation details and hardware, this layer-wise analysis highlights the computational advantage of the product formulation. Importantly, although the spectral perturbation is defined in Sec. 3.2, the denoiser can now operate entirely in the spatial domain. Instead of operating on complex-valued noise ϵf in the spectral domain, we realize the same structured perturbation in the spatial domain through its induced counterpart. Specifically, once masked noise Md ⊙ ϵf is injected in the spectral domain, the corresponding spatial perturbation is uniquely determined by the inverse transform: 
+
+ϵs ≜ F−1(Md ⊙ ϵf ). (20) We train the denoiser to predict this induced spatial perturbation directly: 
+
+ϵs = ϵϕ(xs,d , d, cimg ), (21) given diffusion step d and the conditional image cimg (i.e., the input rainy image O). ϵs is not an additional modeling assumption, instead, it is the deterministic image-domain perturbation produced by the masked spectral noise we sample during training. Thus, we can follow the standard noise-prediction training paradigm while keeping the perturbation design in the spectral domain and the denoiser in the spatial domain. Since FFT and IFFT are linear unitary transforms, the spectral forward update in Eq. 11 induces an equivalent recursion in the spatial domain. Let xs,d = F−1(xf,d ) denote the spatial-domain image, then 
+
+xs,d = F−1(xf,d )= F−1 p 1 − βdxf,d −1 + pβd(Md ⊙ ϵf )
+
+
+
+= p1 − βdF−1(xf,d −1) + pβdF−1(Md ⊙ ϵf )= p1 − βdxs,d −1 + pβdϵs.
+
+(22) 7In other words, the same noise schedule βd can be used consistently in both spectral and spatial domains, while the structured perturbation effect is carried by ϵs. During training, as shown in Algorithm. 1, we sample ϵf , apply the mask 
+
+Md in the spectral domain, obtain ϵs via Eq. 20, and optimize ϵϕ(·) to predict ϵs from xs,d . In implementation, the IFFT output is used as the spatial-domain sample xs,d under standard numerical precision. Note that the inversion formula used in Algorithm. 1 is algebraically equivalent to Eq. 20, and is adopted to ensure numerical consistency with the realized noisy sample xs,d .
+
+Algorithm 1 Training Process of SpectralDiff 
+
+Input : Dataset of clean and rainy image pairs D = {Bi, Oi}|D| 
+
+> i=1
+
+Parameter : Total diffusion step D, noise schedule {βd}Dd=1 , pre-computed modulation mask {Md}Dd=1 
+
+Output : Parameters ϕ of SpectralDiff  
+
+> 1:
+
+repeat  
+
+> 2:
+
+Randomly select a paired sample {Bi, Oi}
+
+Let the clean image xs, 0 = Bi
+
+Let the condition image cimg = Oi 
+
+> 3:
+
+Randomly sample a step d ∼ Uniform {1, ..., D }.Let ¯αd = Qdt=1 (1 − βt)
+
+Use the corresponding pre-computed mask Md for step d 
+
+> 4:
+
+Add structured noise in the spectral domain Convert the clean image to the spectral domain 
+
+xf, 0 = F(xs, 0)
+
+Sample complex Gaussian noise 
+
+ϵf ∼ N C(0, I)
+
+Inject masked noise 
+
+xf,d = √¯αdxf, 0 + √1 − ¯αd(Md ⊙ ϵf ) 
+
+> 5:
+
+Compute induced spatial perturbation Convert back to the spatial domain 
+
+xs,d = F−1(xf,d )
+
+Define the induced spatial noise by inversion 
+
+ϵs = ( xs,d − √¯αdxs, 0)/√1 − ¯αd 
+
+> 6:
+
+Estimate the spatial noise with the denoiser 
+
+ˆϵs = ϵϕ(xs,d , d, cimg ) 
+
+> 7:
+
+Minimize the noise-prediction objective (MSE) 
+
+L(ϕ) = ∥ϵs − ˆϵs∥22 
+
+> 8:
+
+Update parameters ϕ by gradient descent on L(ϕ) 
+
+> 9:
+
+until converged  
+
+> 10:
+
+return ϕ
+
+During inference, we start from xs,D = O and adopt a deterministic DDIM-style update rule as a parameterized conditional deraining trajectory under the structured corruption, rather than interpreting it as the exact posterior associated with the forward kernel. Instead of using uniformly spaced DDIM steps, we estimate a directional probability distribution p(θ) from the frequency spectrum of the input rainy image and sample denoising steps accordingly. This non-uniform scheduling allocates more inference budget to dominant rain directions and scales, improving both inference efficiency and directional consistency in the reconstructed image. Detailed inference procedure is provided in Algorithm. 2. 
+
+# 4 Experiments 
+
+4.1 Datasets 
+
+We evaluate on Rain1400 [ 13 ], RainCityscapes [ 17 ], and SPA-Data [ 44 ], covering both synthetic paired settings and real-world rain scenarios. Detailed statistics and data splits are provided in Appendix. 1.     
+
+> 0†Time is measured under each method’s author-recommended inference settings (e.g., WeatherDiff, RainDiff, DM-DIRR: 100
+> steps, SpectralDiff: 10 steps)
+
+8Algorithm 2 Inference Process of SpectralDiff 
+
+Input : A rainy image O
+
+Parameter : Total diffusion steps D, number of DDIM steps S, noise schedule {βd}Dd=1 , SpectralDiff denoiser ϵϕ(·)
+
+Output : A clean image B 
+
+> 1:
+
+Estimate directional probability p(θ) from O 
+
+> 2:
+
+Assign each step d ∈ { 1, ..., D } a weight wd ∝ p(θd) 
+
+> 3:
+
+Sample (S − 1) steps with replacement according to {wd}Dd=1 and include D:
+
+{d1, . . . , d S−1} ∼ Multinomial (w1, . . . , w D ), dS ← D 
+
+> 4:
+
+Sort the steps in non-increasing order: dS ≥ dS−1 ≥ · · · ≥ d1 
+
+> 5:
+
+Pre-compute ¯αd = Qdt=1 (1 − βt) 
+
+> 6:
+
+Initialize ˆxs,d S = O 
+
+> 7:
+
+Let the condition image cimg = O 
+
+> 8:
+
+for i = S, ..., 1 do  
+
+> 9:
+
+Estimate current noise 
+
+ˆϵs = ϵϕ(ˆ xs,d i , d i, cimg ) 
+
+> 10:
+
+Estimate clean image at step di
+
+ˆxs, 0 = (ˆ xs,d i − √1 − ¯αdi ˆϵs)/√¯αdi 
+
+> 11:
+
+if i > 1 then  
+
+> 12:
+
+Deterministic DDIM update 
+
+ˆxs,d i−1 = √¯αdi−1 ˆxs, 0 + p1 − ¯αdi−1 ˆϵs 
+
+> 13:
+
+end if  
+
+> 14:
+
+end for  
+
+> 15:
+
+return B = ˆ xs, 0
+
+Table 1: Overall performance (PSNR ( ↑), SSIM ( ↑)) and efficiency (Time[ s†] ( ↓)) comparison among different deraining methods. Rain1400 RainCityscapes SPA-Data PSNR SSIM Time PSNR SSIM Time PSNR SSIM Time DSC [28] 27.60 0.825 0.320 19.90 0.795 0.341 24.26 0.696 0.321 LayerPrior [27] 24.75 0.780 7.398 13.71 0.736 4.461 33.03 0.867 5.065 DDN [13] 28.33 0.815 0.001 21.99 0.819 0.001 34.06 0.869 0.002 PReNet [35] 33.40 0.901 0.007 28.56 0.902 0.007 35.55 0.886 0.014 SIRR [48] 30.70 0.874 0.002 22.08 0.846 0.002 36.39 0.891 0.002 DiG-CoM [34] 25.19 0.772 0.466 13.78 0.734 0.297 33.62 0.863 0.378 RCDNet [42] 26.59 0.795 0.071 22.99 0.887 0.083 31.55 0.867 0.054 DRCDNet [41] 30.97 0.849 0.356 25.09 0.892 0.375 36.40 0.894 0.280 WeatherDiff [33] 30.28 0.855 3.117 23.58 0.889 3.419 36.86 0.894 6.606 RainDiff [47] 25.93 0.791 11.159 20.49 0.850 10.604 30.69 0.851 9.676 DM-DIRR [57] 20.21 0.491 4.169 19.66 0.689 4.630 23.53 0.684 2.306 
+
+SpectralDiff 30.39 0.860 0.114 29.04 0.915 0.115 38.03 0.895 0.118 
+
+4.2 Overall Performance 
+
+We compare SpectralDiff with representative optimization-based [ 28 , 27 , 34 ], NN-based [ 13 , 35 , 42 , 41 , 48 ], and diffusion-based methods [ 33 , 47 , 57 ]. To ensure a controlled comparison, all baselines are retrained on each dataset following their originally reported training protocols, with the batch size standardized across methods (details in Appendix. 3). PSNR and SSIM are used as evaluation metrics. As shown in Table. 1, SpectralDiff achieves competitive performance on synthetic benchmarks and superior performance on real-world SPA-Data. On synthetic datasets such as Rain1400 and RainCityscapes, several spatial-domain models obtain slightly higher PSNR/SSIM. However, these methods exhibit noticeable performance degradation on real-world SPA-Data, where rain streaks present more complex and diverse structures. In contrast, SpectralDiff maintains stable performance across both synthetic and real settings, suggesting improved robustness to natural rain distributions. Table. 1 also reports average inference time measured under each method’s author-recommended inference configuration. These diffusion baselines follow a conditional generation paradigm starting from pure noise, while SpectralDiff adopts a denoising-based trajectory initialized from the rainy image, which is more aligned with image restoration settings. Diffusion-based baselines follow their recommended 
+
+100 -step settings. In contrast, SpectralDiff converges within 10 steps, resulting in substantially lower latency while 9maintaining competitive fidelity. Even when normalized by the number of steps, SpectralDiff exhibits lower average per-step runtime than diffusion baselines, reflecting the efficiency of the product U-Net design. 
+
+4.3 Ablation Study 
+
+We conduct ablation studies to evaluate the impact of the spectral perturbation design and the product U-Net architecture. 
+
+Spatial vs. Spectral Diffusion. We compare spatial diffusion and spectral diffusion under identical architectures and training settings. Both variants adopt the same denoising-based formulation initialized from the rainy image, ensuring that the comparison isolates the effect of domain and perturbation design. As shown in Table. 2, naive spectral variants (magnitude-only, phase-only, or unmasked spectral noise) suffer from severe degradation, indicating that frequency representation alone is insufficient. In contrast, introducing the structured mask Md restores performance to a level comparable to spatial diffusion while adopting a frequency-aware perturbation mechanism. This demonstrates that the performance gain arises from the structured spectral corruption rather than from simply switching domains. Table 2: Performance comparison of diffusion models deraining in spatial domain and spectral domain on Rain1400. Diffusion ( S = 10 ) PSNR SSIM FLOPs Params Spatial ( ϵs) 30.93 0.853 376.60 6.08 Spectral ( |xf |) 6.89 0.114 376.60 6.08 Spectral ( ∠xf ) 24.27 0.806 376.60 6.08 Spectral ( ϵf ) 14.68 0.246 1269.59 16.66 Spectral ( Md ⊙ ϵf ) 30.86 0.857 1269.59 16.66 
+
+Convolutional vs. Product U-Net. Table. 3 compares a standard convolutional U-Net and the proposed product U-Net within the SpectralDiff framework. The product design significantly reduces FLOPs and parameters while incurring only marginal performance change, consistent with the efficiency gains observed during inference. Table 3: Performance comparison of our SpectralDiff model with different U-Nets on Rain1400. (S = 10 ) PSNR SSIM FLOPs Params SpectralDiff (Conv) 30.86 0.857 1269.59 16.66 SpectralDiff (Prod) 30.39 0.860 199.81 3.15 
+
+# 5 Conclusion 
+
+In this paper, we propose SpectralDiff, a diffusion-based framework for single-image rain removal. By analyzing the layered characteristics of rain streaks in the frequency domain, we introduce a structured spectral perturbation mechanism that enables progressive and frequency-aware rain suppression within a denoising-based diffusion trajectory. To improve computational efficiency, we further replace conventional convolutional layers with a full-product U-Net, leveraging the connection between spectral convolution and spatial element-wise modulation. Experiments on both synthetic and real-world datasets demonstrate that SpectralDiff achieves competitive or superior deraining performance while substantially reducing model complexity and inference latency. Future work will explore adaptive spectral masking and more general structured corruption designs for broader restoration scenarios. 
+
+# References 
+
+[1] Chen, B.H., Huang, S.C., Kuo, S.Y.: Error-optimized sparse representation for single image rain removal. IEEE Transactions on Industrial Electronics 64 (8), 6573–6581 (2017) [2] Chen, D.Y., Chen, C.C., Kang, L.W.: Visual depth guided color image rain streaks removal using sparse coding. IEEE transactions on circuits and systems for video technology 24 (8), 1430–1455 (2014) [3] Chen, L., Lu, X., Zhang, J., Chu, X., Chen, C.: Hinet: Half instance normalization network for image restoration. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 182–192 (2021) 10 [4] Chen, Q., Wen, W., Qin, J.: Globalsr: Global context network for single image super-resolution via deformable convolution attention and fast fourier convolution. Neural Networks 180 , 106686 (2024) [5] Chen, X., Li, H., Li, M., Pan, J.: Learning a sparse transformer network for effective image deraining. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 5896–5905 (2023) [6] Cheng, Y., Yu, F.X., Feris, R.S., Kumar, S., Choudhary, A., Chang, S.F.: An exploration of parameter redundancy in deep networks with circulant projections. In: Proceedings of the IEEE international conference on computer vision. pp. 2857–2865 (2015) [7] Chi, L., Jiang, B., Mu, Y.: Fast fourier convolution. Advances in Neural Information Processing Systems 33 ,4479–4488 (2020) [8] Chi, L., Tian, G., Mu, Y., Xie, L., Tian, Q.: Fast non-local neural networks with spectral residual learning. In: Proceedings of the 27th ACM International Conference on Multimedia. pp. 2142–2151 (2019) [9] Chu, T., Chen, J., Sun, J., Lian, S., Wang, Z., Zuo, Z., Zhao, L., Xing, W., Lu, D.: Rethinking fast fourier convolution in image inpainting. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 23195–23205 (2023) [10] Das, B., Saha, A., Mukhopadhyay, S.: Rain removal from a single image using refined inception resnet v2. Circuits, Systems, and Signal Processing 42 (6), 3485–3508 (2023) [11] Ding, X., Chen, L., Zheng, X., Huang, Y., Zeng, D.: Single image rain and snow removal via guided l0 smoothing filter. Multimedia Tools and Applications 75 , 2697–2712 (2016) [12] Fu, X., Huang, J., Ding, X., Liao, Y., Paisley, J.: Clearing the skies: A deep network architecture for single-image rain removal. IEEE Transactions on Image Processing 26 (6), 2944–2956 (2017) [13] Fu, X., Huang, J., Zeng, D., Huang, Y., Ding, X., Paisley, J.: Removing rain from single images via a deep detail network. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 3855–3863 (2017) [14] Garg, K., Nayar, S.K.: Photorealistic rendering of rain streaks. ACM Transactions on Graphics (TOG) 25 (3), 996–1002 (2006) [15] Guo, Y., Xiao, X., Chang, Y., Deng, S., Yan, L.: From sky to the ground: A large-scale benchmark and simple baseline towards real rain removal. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 12097–12107 (2023) [16] Ho, J., Jain, A., Abbeel, P.: Denoising diffusion probabilistic models. Advances in neural information processing systems 33 , 6840–6851 (2020) [17] Hu, X., Fu, C.W., Zhu, L., Heng, P.A.: Depth-attentional features for single-image rain removal. In: Proceedings of the IEEE/CVF Conference on computer vision and pattern recognition. pp. 8022–8031 (2019) [18] Huynh-Thu, Q., Ghanbari, M.: Scope of validity of psnr in image/video quality assessment. Electronics letters 
+
+44 (13), 800–801 (2008) [19] Jiang, K., Wang, Z., Yi, P., Chen, C., Huang, B., Luo, Y., Ma, J., Jiang, J.: Multi-scale progressive fusion network for single image deraining. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 8346–8355 (2020) [20] Jiang, K., Wang, Z., Yi, P., Chen, C., Wang, X., Jiang, J., Xiong, Z.: Multi-level memory compensation network for rain removal via divide-and-conquer strategy. IEEE Journal of Selected Topics in Signal Processing 15 (2), 216–228 (2021) [21] Kang, L.W., Lin, C.W., Fu, Y.H.: Automatic single-image-based rain streaks removal via image decomposition. IEEE transactions on image processing 21 (4), 1742–1755 (2011) [22] Kim, J.H., Lee, C., Sim, J.Y., Kim, C.S.: Single-image deraining using an adaptive nonlocal means filter. In: 2013 IEEE international conference on image processing. pp. 914–917. IEEE (2013) [23] Lavin, A., Gray, S.: Fast algorithms for convolutional neural networks. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 4013–4021 (2016) [24] Li, G., He, X., Zhang, W., Chang, H., Dong, L., Lin, L.: Non-locally enhanced encoder-decoder network for single image de-raining. In: Proceedings of the 26th ACM international conference on Multimedia. pp. 1056–1064 (2018) [25] Li, R., Cheong, L.F., Tan, R.T.: Heavy rain image restoration: Integrating physics model and conditional adversarial learning. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 1633–1642 (2019) 11 [26] Li, X., Wu, J., Lin, Z., Liu, H., Zha, H.: Recurrent squeeze-and-excitation context aggregation net for single image deraining. In: Proceedings of the European conference on computer vision (ECCV). pp. 254–269 (2018) [27] Li, Y., Tan, R.T., Guo, X., Lu, J., Brown, M.S.: Rain streak removal using layer priors. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 2736–2744 (2016) [28] Luo, Y., Xu, Y., Ji, H.: Removing rain from a single image via discriminative sparse coding. In: Proceedings of the IEEE international conference on computer vision. pp. 3397–3405 (2015) [29] Mardia, K.V., Jupp, P.E.: Directional statistics. John Wiley & Sons (2009) [30] Mathieu, M., Henaff, M., LeCun, Y.: Fast training of convolutional networks through ffts. arXiv preprint arXiv:1312.5851 (2013) [31] NVIDIA Corporation: cuFFT Library User’s Guide (2020), https://docs.nvidia.com/cuda/cufft/ , ver-sion 11.0 [32] Oppenheim, A.V.: Discrete-time signal processing. Pearson Education India (1999) [33] Özdenizci, O., Legenstein, R.: Restoring vision in adverse weather conditions with patch-based denoising diffusion models. IEEE Transactions on Pattern Analysis and Machine Intelligence 45 (8), 10346–10357 (2023) [34] Ran, W., Yang, Y., Lu, H.: Single image rain removal boosting via directional gradient. In: 2020 IEEE International Conference on Multimedia and Expo (ICME). pp. 1–6. IEEE (2020) [35] Ren, D., Zuo, W., Hu, Q., Zhu, P., Meng, D.: Progressive image deraining networks: A better and simpler baseline. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 3937–3946 (2019) [36] Rippel, O., Snoek, J., Adams, R.P.: Spectral representations for convolutional neural networks. Advances in neural information processing systems 28 (2015) [37] Shchekotov, I., Andreev, P., Ivanov, O., Alanov, A., Vetrov, D.: Ffc-se: Fast fourier convolution for speech enhancement. arXiv preprint arXiv:2204.03042 (2022) [38] Vasilache, N., Johnson, J., Mathieu, M., Chintala, S., Piantino, S., LeCun, Y.: Fast convolutional nets with fbfft: A gpu performance evaluation. arXiv preprint arXiv:1412.7580 (2014) [39] Wang, C., Xing, X., Wu, Y., Su, Z., Chen, J.: Dcsfn: Deep cross-scale fusion network for single image rain removal. In: Proceedings of the 28th ACM international conference on multimedia. pp. 1643–1651 (2020) [40] Wang, G., Sun, C., Sowmya, A.: Erl-net: Entangled representation learning for single image de-raining. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 5644–5652 (2019) [41] Wang, H., Xie, Q., Zhao, Q., Li, Y., Liang, Y., Zheng, Y., Meng, D.: Rcdnet: An interpretable rain convolutional dictionary network for single image deraining. IEEE Transactions on Neural Networks and Learning Systems (2023) [42] Wang, H., Xie, Q., Zhao, Q., Meng, D.: A model-driven deep neural network for single image rain removal. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 3103–3112 (2020) [43] Wang, H., Yue, Z., Xie, Q., Zhao, Q., Zheng, Y., Meng, D.: From rain generation to rain removal. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 14791–14801 (2021) [44] Wang, T., Yang, X., Xu, K., Chen, S., Zhang, Q., Lau, R.W.: Spatial attentive single-image deraining with a high quality real rain dataset. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 12270–12279 (2019) [45] Wang, Z., Cun, X., Bao, J., Zhou, W., Liu, J., Li, H.: Uformer: A general u-shaped transformer for image restoration. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 17683– 17693 (2022) [46] Wang, Z., Bovik, A.C., Sheikh, H.R., Simoncelli, E.P.: Image quality assessment: from error visibility to structural similarity. IEEE transactions on image processing 13 (4), 600–612 (2004) [47] Wei, M., Shen, Y., Wang, Y., Xie, H., Qin, J., Wang, F.L.: Raindiffusion: When unsupervised learning meets diffusion models for real-world image deraining. arXiv e-prints pp. arXiv–2301 (2023) [48] Wei, W., Meng, D., Zhao, Q., Xu, Z., Wu, Y.: Semi-supervised transfer learning for image rain removal. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 3877–3886 (2019) [49] Wei, Y., Zhang, Z., Wang, Y., Xu, M., Yang, Y., Yan, S., Wang, M.: Deraincyclegan: Rain attentive cyclegan for single image deraining and rainmaking. IEEE Transactions on Image Processing 30 , 4788–4801 (2021) [50] Xiao, J., Fu, X., Liu, A., Wu, F., Zha, Z.J.: Image de-raining transformer. IEEE Transactions on Pattern Analysis and Machine Intelligence 45 (11), 12978–12995 (2022) 12 [51] Xu, J., Zhao, W., Liu, P., Tang, X.: An improved guidance image based method to remove rain and snow in a single image. Computer and Information Science 5(3), 49 (2012) [52] Xu, J., Zhao, W., Liu, P., Tang, X.: Removing rain and snow in a single image using guided filter. In: 2012 IEEE International Conference on Computer Science and Automation Engineering (CSAE). vol. 2, pp. 304–307. IEEE (2012) [53] Yang, W., Tan, R.T., Feng, J., Guo, Z., Yan, S., Liu, J.: Joint rain detection and removal from a single image with contextualized deep networks. IEEE transactions on pattern analysis and machine intelligence 42 (6), 1377–1393 (2019) [54] Yang, Y., Lu, H.: Single image deraining via recurrent hierarchy enhancement network. In: Proceedings of the 27th ACM International conference on multimedia. pp. 1814–1822 (2019) [55] Zamir, S.W., Arora, A., Khan, S., Hayat, M., Khan, F.S., Yang, M.H.: Restormer: Efficient transformer for high-resolution image restoration. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 5728–5739 (2022) [56] Zamir, S.W., Arora, A., Khan, S., Hayat, M., Khan, F.S., Yang, M.H., Shao, L.: Multi-stage progressive image restoration. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 14821– 14831 (2021) [57] Zeng, X., Jiang, M., Huang, R.: Multi-stage image deraining based on pre-trained diffusion model. In: Proceedings of the 6th ACM International Conference on Multimedia in Asia. pp. 1–7 (2024) [58] Zhang, H., Sindagi, V., Patel, V.M.: Image de-raining using a conditional generative adversarial network. IEEE transactions on circuits and systems for video technology 30 (11), 3943–3956 (2019) [59] Zheng, X., Liao, Y., Guo, W., Fu, X., Ding, X.: Single-image-based rain and snow removal using multi-guided filter. In: Neural Information Processing: 20th International Conference, ICONIP 2013, Daegu, Korea, November 3-7, 2013. Proceedings, Part III 20. pp. 258–265. Springer (2013) [60] Zhong, Z., Shen, T., Yang, Y., Lin, Z., Zhang, C.: Joint sub-bands learning with clique structures for wavelet domain super-resolution. Advances in neural information processing systems 31 (2018) [61] Zhou, H., Wu, X., Chen, H.: Dual-path multi-scale transformer for high-quality image deraining. arXiv preprint arXiv:2405.18124 (2024) [62] Zhu, L., Fu, C.W., Lischinski, D., Heng, P.A.: Joint bi-layer optimization for single-image rain streak removal. In: Proceedings of the IEEE international conference on computer vision. pp. 2526–2534 (2017) 13 Appendix 
+
+1 Experimental Settings – Dataset Details 
+
+• Rain1400 [ 13 ]: A synthetic benchmark containing 12600 training images and 1400 testing images. We further split the training set into training and validation subsets with an 85% : 15% ratio. Rain streaks are synthesized using a photo-realistic rendering model [ 14 ]. Following common practice, all images are resized to 256 × 256 
+
+and normalized to [0 , 1] for both training and evaluation. • RainCityscapes [ 17 ]: This dataset consists of 10620 outdoor images ( 9432 for training and 1188 for testing) synthesized with more complex rain–background blending compared to Rain1400. During training, we randomly crop 256 × 256 patches, while center cropping is applied at test time. All inputs are normalized to 
+
+[0 , 1] .• SPA-Data [ 44 ]: A real-world rain dataset constructed from 170 rain videos ( 84 collected from public sources and 86 manually captured). The training set contains 638 ,492 image pairs and the testing set contains 1000 
+
+pairs. Clean targets are estimated based on temporal consistency across video frames as described in [ 44 ]. We apply the same 256 × 256 cropping and normalization strategy as in RainCityscapes. 
+
+2 Experimental Settings – Evaluation Metrics 
+
+In order to evaluate the deraining effectiveness, we adopt the following metrics, computed on RGB images normalized to [0 , 1] , to measure the quality of images after rain removal: • Peak-Signal-Noise-Ratio (PSNR, ↑) [18]: Given a clean image B with size of m × n and a derained image 
+
+ˆB of the same size, we can calculate the Mean-Squared-Error (MSE) as 
+
+M SE (B, ˆB) = 1
+
+mn 
+
+> m−1
+
+X
+
+> i=0
+> n−1
+
+X
+
+> j=0
+
+[ ˆB(i, j ) − B(i, j )] 2 . (23) Then, PSNR can be defined as 
+
+P SN R (B, ˆB) = 10 log 10 ( M AX (B)2
+
+M SE (B, ˆB) ) , (24) where M AX (B) is the maximum pixel value in image B. The larger the PSNR value, the smaller the distortion introduced during rain removal. • Structure Similarity (SSIM, ↑) [ 46 ]: SSIM compares clean image B and derained image ˆB in three aspects: luminance ( l), contrast ( c) and structure ( s) and can be defined as 
+
+SSIM (B, ˆB) = [ l(B, ˆB)α · c(B, ˆB)β · s(B, ˆB)γ ] , (25) and l, c and s are calculated as 
+
+l(B, ˆB) = 2μBμ ˆB + c1
+
+μ2 
+
+> B
+
++ μ2ˆB + c1
+
+,c(B, ˆB) = 2σBσ ˆB + c2
+
+σ2 
+
+> B
+
++ σ2ˆB + c2
+
+,s(B, ˆB) = σB ˆB + c3
+
+σBσ ˆB + c3
+
+,
+
+(26) where μB and μ ˆB are mean values of images B and ˆB, σ2 
+
+> B
+
+and σ2ˆB are corresponding variances, σB ˆB is the covariance between B and ˆB, c1 = ( K1L)2, c2 = ( K2L)2 and c3 = c2/2 are constant values. For simplicity, let α = β = γ = 1 and Eq. 25 can be rewritten as 
+
+SSIM (B, ˆB) = (2 μBμ ˆB + c1)(2 σB ˆB + c2)(μ2 
+
+> B
+
++ μ2ˆB + c1)( σ2 
+
+> B
+
++ σ2ˆB + c2) . (27) The larger the SSIM value, the better the image quality after rain removal. 14 3 Experimental Settings – Implementation Details 
+
+All experiments are conducted on a single 48G NVIDIA RTX 6000 Ada Generation GPU. Models are optimized using AdamW with a ReduceLROnPlateau scheduler, where the learning rate decreases from 2e − 4 to 1e − 6. A batch size of 4 is used for training and 1 for evaluation across all methods. SpectralDiff is trained using DDPM with 1080 diffusion steps under a cosine noise schedule. The number of diffusion steps equals the total number of predefined spectral masks (see below). During inference, we adopt deterministic DDIM sampling with 10 steps. The U-Net backbone follows a symmetric encoder–decoder architecture with three down-sampling blocks, one middle block, and three up-sampling blocks. The base channel dimension is 64 , with channel sizes {64 , 128 , 256 } in the encoder and {128 , 64 , 64 } in the decoder. All blocks are implemented as residual blocks. Self-attention and cross-attention are applied in the last downsampling block, the middle block, and the first upsampling block. The conditional rainy image is concatenated with the input at the first downsampling layer. Directional spectral masks are constructed by enumerating representative parameter combinations. Specifically, 
+
+rd ∈ { 0.1, 0.3, 0.5} and σrd ∈ { 0.05 , 0.2} (relative to the maximum frequency radius), θd is sampled every 3◦ within 
+
+[0 ◦, 180 ◦) (60 orientations), and κd ∈ { 2, 5, 10 }. All combinations of (rd, σ rd , θ d, κ d) result in 1080 predefined masks, each assigned to a corresponding diffusion step. These masks are fixed across all datasets and serve as a global spectral prior rather than dataset-specific hyperparameters. 15

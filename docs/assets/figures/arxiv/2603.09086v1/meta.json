@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09086v1/fig-001.webp",
+      "caption": "Fig. 1. A visual roadmap visualization of the paper.",
+      "page": 2,
+      "index": 1,
+      "width": 1074,
+      "height": 600
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09086v1/fig-002.webp",
+      "caption": "Fig. 3. Internal mechanics of latent world models for automated driving.",
+      "page": 7,
+      "index": 2,
+      "width": 1076,
+      "height": 500
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09086v1/fig-003.webp",
+      "caption": "Fig. 6. Illustration of future horizons and research directions for latent world models in automated driving.",
+      "page": 14,
+      "index": 3,
+      "width": 786,
+      "height": 400
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09086v1/fig-004.webp",
+      "caption": "Fig. 2. Taxonomy of world models for automated driving: A conceptual overview of Neural Simulation, Latent Planning, Data Synthesis, and Cognitive Reasoning within a unified latent-centric framework.",
+      "page": 3,
+      "index": 4,
+      "width": 1076,
+      "height": 600
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09086v1/fig-005.webp",
+      "caption": "TABLE I COMPARISON OF REPRESENTATIVE WORLD MODEL METHODS: PARADIGMS AND ATTRIBUTES",
+      "page": 4,
+      "index": 5,
+      "width": 1076,
+      "height": 769
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09086v1/fig-006.webp",
+      "caption": "Fig. 4. Evaluation paradigms for latent world models in automated driving: open-loop evaluation (left), and closed-loop evaluation (right).",
+      "page": 9,
+      "index": 6,
+      "width": 529,
+      "height": 302
+    }
+  ]
+}

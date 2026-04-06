@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-001.webp",
+      "caption": "Fig. 4. Main results. We present the main experimental results, including instance segmentation, point cloud reconstruction, novel view synthesis, and scene edits through object removal. Each row corresponds to a test scene. The left column shows the instance segmentation results. The center section labeled “Original” displays the reconstructed point cloud (top) and novel view synthesis results (bottom, with ground truth images on the top and rendered results on the bottom) of original input images. The two columns on the right illustrate two different object removal results, with the removed objects are highlighted with black dashed boxes in the point clouds",
+      "page": 7,
+      "index": 1,
+      "width": 1044,
+      "height": 1169
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-002.webp",
+      "caption": "Fig. 8. Anomaly points elimination. We show the reconstruction, warping, and rendering visualization results before and after anomaly point elimination. On the left, the baseline method without anomaly point removal shows a large number of outlier points in the reconstructed point cloud, which significantly degrades the warping and final rendering results. In contrast, our proposed method effectively eliminates these anomaly points, resulting in cleaner reconstructions and better rendering quality.",
+      "page": 10,
+      "index": 2,
+      "width": 1064,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-003.webp",
+      "caption": "Fig. 9. Rendering masks.We show the object removal results with and without applying rendering masks to the source images. Without rendering masks, the rendered outputs tend to preserve the full geometry from the source images, even after the object has been removed from the point cloud. This leads to a failure in reflecting the intended object removal in the final rendered image.",
+      "page": 10,
+      "index": 3,
+      "width": 1022,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-004.webp",
+      "caption": "Fig. 2. Framework. We apply a feed-forward a feed-forward model (e.g., MV-DUSt3R) to predict the initial point cloud from the input unposed sparse images, followed by a novel warping-based anomaly points removal strategy to eliminate unreliable points in the initial point cloud, forming a clean and accurate scene point cloud. For 2D-to-3D instance segmentation, we first utilize a foundational segmentation model (e.g., SAM) to generate initial segmentation masks. We then introduce a warping-based instance unification strategy to align instances across frames. By associating the instance masks with the corresponding pointmaps, we obtain an instance-segmented 3D point cloud. The instance-segmented 3D point cloud facilitates downstream tasks such as object-level editing. Finally, the point cloud can be directly rendered into high-quality 2D images through our designed diffusion-based rendering pipeline.",
+      "page": 3,
+      "index": 4,
+      "width": 1064,
+      "height": 485
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-005.webp",
+      "caption": "Fig. 5. Novel views rendering. We show the visualization comparisons on novel view synthesis.",
+      "page": 8,
+      "index": 5,
+      "width": 1064,
+      "height": 583
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-006.webp",
+      "caption": "Table 3. Rendering evaluation on novel views. We show the overall novel views synthesis performance of methods on selected reconstruction scenes. We indicate whether each method requires camera parameter input or per-scene training. We apply our rendering pipeline to the reconstructed point clouds produced by PE3R and MV-DUSt3R for a comparison.",
+      "page": 8,
+      "index": 6,
+      "width": 756,
+      "height": 295
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-007.webp",
+      "caption": "Fig. 10. Editing tasks example. We show the original image of the view on the left. We apply a object point-cloud translation (red arrow) in the first row, followed by warping and rendering. We modify the object (red box) color of the input images before reconstruction, and the final rendered results reflect the applied color changes.",
+      "page": 12,
+      "index": 7,
+      "width": 510,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-008.webp",
+      "caption": "Fig. 6. Object removal comparison. We present the visualization results of removing the same object under two different views, with the original groundtruth image on the left as reference. For each method, we display the rendered results before and after object removal. The removed object is highlighted with a red box in our results.",
+      "page": 9,
+      "index": 8,
+      "width": 790,
+      "height": 290
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21166v1/fig-009.webp",
+      "caption": "Fig. 7. Instance segmentation. We present a visual comparison between our 2D-to-3D instance segmentation results and those of PE3R, with the reference raw 3D point cloud on the left. While PE3R’s reconstructed point cloud appears to be of lower quality than ours, it is worth noting that their segmentation results are produced independently and are not affected by the reconstruction quality.",
+      "page": 9,
+      "index": 9,
+      "width": 977,
+      "height": 262
+    }
+  ]
+}

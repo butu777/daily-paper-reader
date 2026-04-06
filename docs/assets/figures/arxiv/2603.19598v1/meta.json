@@ -1,0 +1,134 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-001.webp",
+      "caption": "Table 3: Scene Perception Evaluation. For FPVScore, we report the average ranking across all scenes, where 1.00 is the worst and 5.00 is the best. For the perceptual study, scores range from 1.00 to 10.00. Each score is averaged across all participants and scenes. Both FPVScore and the perceptual study benchmark prompt adherence (PA), layout correctness (LC), visual quality (VQ), style consistency (SC), and overall preference (OP). The best results are highlighted in bold. * denotes the retrieval mode.",
+      "page": 6,
+      "index": 1,
+      "width": 1044,
+      "height": 191
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-002.webp",
+      "caption": "Table 1: Scene-Level Fidelity. This is evaluated by comparing top-down renderings of generated and real scenes at 2562 resolution using FID, FIDCLIP, and KID (×0.001), following [84] (lower is better). * denotes their retrieval branches, which generate layouts and retrieve well-designed meshes from 3D-FUTURE [17]. The best results are in bold.",
+      "page": 6,
+      "index": 2,
+      "width": 856,
+      "height": 271
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-003.webp",
+      "caption": "Table 2: Object-Level Fidelity. Quantitative evaluation of generated object quality and diversity using MMD (×0.01), COV, and 1-NNA metrics across different categories. The best results are highlighted in bold.",
+      "page": 6,
+      "index": 3,
+      "width": 1000,
+      "height": 338
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-004.webp",
+      "caption": "Figure 8: Qualitative comparison on object generation with other methods.",
+      "page": 15,
+      "index": 4,
+      "width": 940,
+      "height": 692
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-005.webp",
+      "caption": "Figure 14: The Interface of GUI.",
+      "page": 21,
+      "index": 5,
+      "width": 898,
+      "height": 1236
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-006.webp",
+      "caption": "Figure 4: Qualitative comparison. The first column shows the input multimodal graph with key scene edges. Red rectangles show inconsistencies and artifacts, while green rectangles highlight consistent regions. †Text-only scene graphs are given.",
+      "page": 7,
+      "index": 6,
+      "width": 1028,
+      "height": 499
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-007.webp",
+      "caption": "Figure 5: Qualitative comparison with training-free, language-based methods. The grey boxes display the input textual instructions derived from text-only scene graphs, while FlowScene takes the text-only graphs as input.",
+      "page": 7,
+      "index": 7,
+      "width": 1052,
+      "height": 423
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-008.webp",
+      "caption": "Figure 7: Qualitative comparison with graph-conditioned generative models. The top row illustrates the input graphs, highlighting key semantic and spatial edges. In the generated scenes, red rectangles indicate generation failures in baselines (e.g., collisions), whereas green rectangles mark consistent regions in our results. * denotes the retrieval mode. †Text-only scene graphs are given.",
+      "page": 14,
+      "index": 8,
+      "width": 955,
+      "height": 1130
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-009.webp",
+      "caption": "Figure 2: Multimodal Graph Processing. Given a graph GM (upper left), the graph network (right) first projects multimodal features of nodes VM, followed by message passing and feature aggregation along the edges E connecting VM. Within the denoising process of a generative model, it acts as an InfoExchangeUnit to incorporate temporal denoising data D𝑡 , which is projected and fused with the node features (lower left). In this way, the network yields node-wise conditioning C𝑡 while respecting the global constraints imposed by the graph structure (bottom).",
+      "page": 3,
+      "index": 9,
+      "width": 506,
+      "height": 374
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-010.webp",
+      "caption": "Figure 11: Perceptual Study Interface: Instructions and Metrics. This introductory page is presented to participants at the start of the perceptual study. It outlines the study objectives, provides detailed instructions for viewing and rating, and clearly defines the five evaluation metrics (PA, LC, VQ, SC, OP).",
+      "page": 18,
+      "index": 10,
+      "width": 994,
+      "height": 789
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-011.webp",
+      "caption": "Figure 3: FlowScene Pipeline. Conditioned on GM in Figure 2, FlowScene stacks three coordinated branches to generate a scene. A. Layout Branch generates the scene layout from noise B1, where the x-axis (red) points to the right and the z-axis (blue) points to the front. The LayoutExchangeUnit iteratively applies temporal layout constraints to the generation process by conditioning ΘB . B. Shape Branch is parallel to the layout branch. It exchanges shape information among nodes according to GM through the ShapeExchangeUnit. At inference, we sample noise S1, and generate latent shape codes S via ΘS , and decode them into voxelized shapes X using Φ𝐷 . C. Texture Branch is subsequent to the shape branch. It anchors Gaussian noise onto X to form X𝑒 1 , which is then denoised by ΘT into structured latents X𝑒 . Finally, Ψ𝐷 decodes them into objects O, which are scaled and placed into the generated layout B to complete the scene.",
+      "page": 4,
+      "index": 11,
+      "width": 998,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-012.webp",
+      "caption": "Figure 12: Perceptual Study Interface: Example Page. Participants are presented with a detailed text prompt (top) and the corresponding generated 3D scenes from five different methods. Users interactively rate each method using sliding scales (1.00-10.00) across the five defined criteria, allowing for a direct and comprehensive comparison of generation quality.",
+      "page": 19,
+      "index": 12,
+      "width": 1048,
+      "height": 1070
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-013.webp",
+      "caption": "Figure 10: Prompt template for evaluating FPVScore [26] with GPT-4o [1].",
+      "page": 17,
+      "index": 13,
+      "width": 1056,
+      "height": 794
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-014.webp",
+      "caption": "Table 8: Scene graph constraints. Comparisons are across three modes: Relationship Change, Node Addition, and Generation Only (listed top to bottom). The best results are highlighted in bold.",
+      "page": 12,
+      "index": 14,
+      "width": 682,
+      "height": 388
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-015.webp",
+      "caption": "Figure 6: Data Preparation.",
+      "page": 12,
+      "index": 15,
+      "width": 1056,
+      "height": 367
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19598v1/fig-016.webp",
+      "caption": "Figure 13: The Interface of Language Description with Images.",
+      "page": 20,
+      "index": 16,
+      "width": 864,
+      "height": 1240
+    }
+  ]
+}

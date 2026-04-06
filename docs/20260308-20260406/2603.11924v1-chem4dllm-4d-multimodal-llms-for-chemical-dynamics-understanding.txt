@@ -1,0 +1,473 @@
+Title: Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding
+
+URL Source: https://arxiv.org/pdf/2603.11924v1
+
+Published Time: Fri, 13 Mar 2026 00:57:23 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+# Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+Xinyu Li * 1 Zhen Zhang * 1 Qi Chen 1 Anton van den Hengel 1 Lina Yao 2 Javen Qinfeng Shi 1
+
+## Abstract 
+
+Existing chemical understanding tasks primarily rely on static molecular representations, limiting their ability to model inherently dynamic phe-nomena such as bond breaking or conformational changes, which are essential for a chemist to un-derstand chemical reactions. To address this gap, we introduce Chem ical Dynamics Understanding (ChemDU), a new task that translates 4D molecu-lar trajectories into interpretable natural-language explanations. ChemDU focuses on fundamen-tal dynamic scenarios, including gas-phase and catalytic reactions, and requires models to rea-son about key events along molecular trajectories, such as bond formation and dissociation, and to generate coherent, mechanistically grounded nar-ratives. To benchmark this capability, we con-struct Chem4DBench , the first dataset pairing 4D molecular trajectories with expert-authored expla-nations across these settings. We further propose 
+
+Chem4DLLM , a unified model that integrates an equivariant graph encoder with a pretrained large language model to explicitly capture molec-ular geometry and rotational dynamics. We hope that ChemDU, together with Chem4DBench and Chem4DLLM, will stimulate further research in dynamic chemical understanding and multimodal scientific reasoning. 
+
+## 1. Introduction 
+
+The advancement of large language models (LLMs) (Achiam et al., 2023; Chen et al., 2024) has triggered a wave of innovation, moving these models from processors of human language to powerful reason-ing engines for complex scientific data (AI4Science & Quantum, 2023; Wei et al., 2025; Xin et al., 2025). In chemistry and biology, this has sparked a new frontier of 
+
+> 1
+
+Australian Institute for Machine Learning, Adelaide Univer-sity, Adelaide, Australia 2CSIRO’s Data61, Sydney, Australia. Correspondence to: Xinyu Li <henry.li@adelaide.edu.au >.
+
+Preprint. March 13, 2026. 3D Molecular Captioning (Static)          
+
+> Input: Static 3D
+> Point Cloud
+> (N ×3)
+> Output:
+> Cyclohex -2-enone is a
+> cyclohexenone having its
+> C=C double bond at the 2 -
+> position.
+> 4D Molecular Understanding (Ours)
+> Input: 4D Point
+> Cloud
+> (T ×N×3)
+> Output:
+> This trajectory shows the C -
+> O bond break inside the
+> Cyclohex -2-enone. It begins
+> at step 3 and breaks at step
+> 5.
+> t=1 t=3 t=5
+
+Figure 1. Comparison between static 3D molecular captioning and our proposed 4D molecular understanding task. (Top) Previous 3D methods utilize a static point cloud input N × 3 to identify the molecule, such as Cyclohex-2-enone. (Bottom) Our 4D approach processes a temporal sequence of point clouds T ×N ×3, enabling the model to describe dynamic chemical events. In this example, the model correctly identifies the trajectory of a C-O bond breaking within the Cyclohex-2-enone molecule, noting that the process initiates at t = 3 and completes by t = 5 .
+
+molecule-text modeling. Early efforts successfully unified textual knowledge with 1D molecular sequences (like SMILES (Weininger, 1988) and SELFIES (Krenn et al., 2022; Christofidellis et al., 2023) and/or 2D molecular graphs (Luo et al., 2023) enabling powerful models for tasks like molecule captioning and text-based retrieval (Edwards et al., 2021). More recently, research has pushed into incorporating static 3D structures (Li et al., 2024; Pei et al., 2025), recognizing that a molecule’s geometry is critical to its function. However, these static snapshots fail to capture the true nature of biomolecular processes, which are fundamentally dynamic. Indeed, all chemical phenomena are dynamic since an atomic system can be truly static only at absolute zero temperature, which does not exist in any known physical or biological environment. Computational chemistry simulations such as Molecular Dynamics (MD) simulates such dynamic processes, gen-erating massive spatio-temporal datasets that describe the fundamental mechanisms of biology and materials science. These trajectories, which can be conceptualized as dynamic 4D point clouds—where atomic coordinates (3D) evolve with time steps (1D)—hold the key to understanding pro-1
+
+> arXiv:2603.11924v1 [cs.LG] 12 Mar 2026 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding
+
+cesses like drug binding, protein folding, and catalytic reac-tions. Currently, such data is primarily interpreted through low-dimensional, quantitative metrics such as root-mean-square deviation or radial distribution functions. While useful, these metrics are insufficient; they fail to capture the qualitative, event-driven ”story” of the molecular pro-cess. The true scientific insight lies in a high-level narra-tive: for example, ”the inhibitor first docks into the active site, inducing a subtle conformational change in a nearby loop, which in turn allosterically closes the binding pocket.” Automatically generating such qualitative descriptions is not only fundamental for human scientific insight but also crucial for agentic scientific discovery, where an agent is ex-pected to plan, execute, and refine both in-silico simulations and in-vitro experiments. However, translating these vast, high-dimensional, and unstructured spatio-temporal data into coherent narratives presents a formidable challenge for the computer vision, machine learning, and computational chemistry communities. The challenge comes from two sides. On the data side, while using AI and machine learning to accelerate quantum chem-istry simulations is a community focus and has generated plentiful molecular, protein, and materials 3D geometries or 4D trajectories (Ramakrishnan et al., 2014; Jain et al., 2013; Chanussot et al., 2021; Tran et al., 2023), correspond-ing text descriptions are rare. ChEBI-20 (Edwards et al., 2021) and 3D-MoIT (Li et al., 2024) are two datasets that do contain 3D geometry and a text description, but both of them are focused on describing functional groups and static properties, therefore lacking descriptions of dynamic events. Another issue is that both datasets are designed for non-Periodic-Boundary-Condition (non-PBC) molecu-lar systems, thereby lacking the capability to model PBC systems such as crystals and catalytic systems. Beyond the data-side challenges, there are also unique challenges on the model side. First, the input is a high-dimensional, unstructured sequence of point clouds, how to encode such discrete graph data into LLM. Second, the sheer scale of the data is prohibitive for standard sequence models. A naive tokenization of continuous coordinates for hundreds of atoms over one hundred steps would generate sequences that vastly exceed the context window of most of LLM. Third, 4D models are required to track state evolution, identify actions and events, and handle long-range depen-dencies—requirements significantly exceeding the static state description typical of 3D models. Finally, the target descriptions are not simple captions but requires understan-ing the causality, for example, one conformational changes is caused by an earlier binding event. To address these challenges, we make two concrete contri-butions. First, we introduce Chem4DBench, a benchmark designed to systematically evaluate large language models on 4D understanding. Chem4DBench focuses on a basic 4D scenerious – reaction– to assess whether a model can consume, condition on, and reason over molecular trajecto-ries that include temporal evolution. The benchmark spans two controlled settings—gas-phase reactions and heteroge-neous catalysis—each isolating different aspects of spatio-temporal reasoning. It covers both isolated molecular sys-tems and periodic boundary condition (PBC) systems, while remaining grounded in physically meaningful simulation data. Second, we propose Chem4DLLM, a baseline architecture that enables a pretrained LLM to directly condition on 4D molecular trajectories at atom-level resolution and gener-ate structured textual descriptions. Chem4DLLM does not aim to replace quantum chemistry or molecular simulation pipelines. Instead, it serves as a diagnostic model for study-ing how current LLMs integrate geometric, temporal, and chemical information, and where their limitations lie when confronted with physically grounded 4D inputs. Together, Chem4DBench and Chem4DLLM establish a realistic eval-uation framework for progress toward interpretable and tem-porally grounded molecular reasoning, and aim to be the eye for LLM-driven agentic simulations. 
+
+## 2. Related Work 
+
+2.1. Chemistry Large Language Models 
+
+The application of LLMs (Achiam et al., 2023; Yang et al., 2025b; Ren et al., 2025) to chemistry necessitates a critical dimensional progression in molecular representation, mov-ing from 1D sequential strings to 2D topological graphs, and further to 3D geometric structures. Initial efforts treated molecules as one-dimensional (1D) strings using notations like SMILES (Weininger, 1988) and SELFIES (Krenn et al., 2022). These approaches adapted existing NLP architec-tures, often T5-based (Raffel et al., 2020), for sequence-to-sequence tasks such as property prediction and molecule-to-text/text-to-molecule generation (Edwards et al., 2021; 2022). Notable foundational models in this direction in-clude MolT5 (Edwards et al., 2022), ChemT5 (Christofidel-lis et al., 2023), BioT5 (Pei et al., 2023), BioT5 + (Pei et al., 2024) and ChemLLM (Zhang et al., 2024), which were jointly trained on 1D molecular sequences and text. Further-more, instruction tuning efforts, such as Mol-Instructions (Fang et al., 2024) and LlaSMol (Yu et al., 2024), have also been tried. However, 1D models suffer from fundamental limitations, including multi-injection, sequence ambiguity (a single molecule having multiple valid SMILES strings), and a high frequency of syntactically or chemically invalid sequences. To address these issues, the field advanced to 2D graph-based LLMs, which integrate Graph Neural Networks 2Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+(GNNs) or external graph encoding modules to explic-itly infuse topological knowledge. Several works utilize cross-modal learning to align 2D molecular graphs with text, including MoleculeSTM (Liu et al., 2023a), MolFM (Luo et al., 2023), MolCA (Liu et al., 2023b), and MolX (Le et al., 2025). UniMoT (Guo et al., 2025) further pro-poses a Vector Quantization-driven tokenizer to convert 2D molecular graphs into tokens for unified modeling with text. ChemVLM (Li et al., 2025) leverages pretrained VLMs to understand 2D molecular structure by transferring the 2D graph into an image. More recent endeavors incorporate 3D molecular information to capture spatial arrangements. MolBind (Xiao et al., 2024) aligns a 2D graph encoder, a 3D structure encoder, and a language encoder via con-trastive learning. 3D-MoLM (Li et al., 2024) equips an LLM with an external Uni-Mol encoder (Zhou et al., 2023) for molecule-to-text interpretation. In contrast, 3D-MolT5 utilizes a classical 3D feature engineering method, E3FP (Axen et al., 2017), to replace the neural network-based Uni-Mol encoder in 3D-MoLM. Except for using encoder or classical geometrical representations, Chem3DLLM (Jiang et al., 2025) used a method SDF2Text which direct transfer the 3D coordinates into text, to make it compatible with LLM. One similar approach is CrystalLLM (Gruver et al., 2024), which directly output crystal CIF format text for crys-tal generation. Despite recent advancements, most existing frameworks remain tailored for static structural analysis and lack a unified mechanism to encode the temporal evolution in 4D molecular trajectories. 
+
+2.2. Spatio-temporal Language Benchmarks 
+
+The task of translating complex, continuous spatio-temporal data into natural language has been explored in several ma-chine learning domains other than chemistry. The most direct analogue to molecular motion is the field of 3D hu-man motion captioning. Foundational work, such as the KIT Motion-Language dataset (Plappert et al., 2016), established the pairing of 3D human pose sequences with simple, de-scriptive sentences. More recently, large-scale benchmarks like HumanML3D (Guo et al., 2022) have emerged, leverag-ing vast motion capture repositories such as AMASS (Mah-mood et al., 2019). These datasets provide a rich corpus of 3D human motions, typically represented as parametric body models or joint coordinates, paired with descriptive textual annotations. While invaluable, these benchmarks primarily focus on holistic, descriptive captions of a sin-gle agent’s actions. In the broader context, video-language understanding is a mature field supported by large-scale benchmarks, including MSR-VTT (Xu et al., 2016) and VA-TEX (Wang et al., 2019). These datasets, however, pair 2D video clips with textual annotations. Consequently, they op-erate on 2D projections of the 3D world, lacking the precise, high-dimensional coordinate data inherent to our domain. 
+
+2.3. Representation Learning for 4D and 3D Data 
+
+Machine learning for molecular modeling has transitioned from relying on expert-designed features, such as Coulomb Matrices (Montavon et al., 2012), toward the use of GNNs. This field progressed from invariant models, such as SchNet (Sch ¨utt et al., 2017; 2018) and DimeNet (Klicpera et al., 2020), eventually leading to equivariant models like NequIP (Batzner et al., 2022) and MACE (Batatia et al., 2022). These equivariant architectures, which respect the necessary physical symmetry of rotation, have achieved state-of-the-art results in predicting quantum-chemical properties from static 3D geometries. More recently, universal atomic mod-els—including M3GNet (Chen & Ong, 2022), MACE-MP (Batatia et al., 2025), and UMA (Wood et al., 2025)—have emerged. These models aim to be trained on massive, di-verse datasets to provide a general-purpose potential that does not require task-specific fine-tuning. However, the primary goal of these GNNs is simulation rather than in-terpretation; they are trained to predict atomic forces to generate a trajectory, replacing computationally expensive quantum chemical calculations. Make LLM understand 3D or 4D data requires 3D fea-tures or representations. Previous 3D-LLM works, such as 3D-MoLM (Li et al., 2024) and 3D-MolT5 (Pei et al., 2025), primarily utilize invariant features. Specifically, 3D-MoLM employs the Uni-Mol encoder (Zhou et al., 2023) which uses invariant spatial positional encodings , while 3D-MolT5 adopts the E3FP fingerprinting algorithm (Axen et al., 2017). These features are suitable for describing static 3D structures as they ensure the output is invariant to global translations and rotations. However, in 4D spatiotempo-ral scenarios, reliance on purely invariant features presents a significant limitation: they cannot distinguish between different rotational states of a molecule. To address this, equivariant GNNs—specifically those incorporating at least 
+
+l = 1 features—are necessary for 4D LLMs to comprehend molecular rotations and dynamics. 
+
+## 3. ChemDU Task and Chem4DBench 
+
+3.1. Problem Definition for ChemDU Task 
+
+We define Chemical Dynamics Understanding (ChemDU) as the task of translating a 4D molecular trajectory into a concise, scientifically grounded natural-language descrip-tion of the underlying chemical processes. Formally, a trajectory is represented as 
+
+T = {X t}Tt=1 ,
+
+where each frame Xt = ( A, Ct) consists of a fixed set of atoms A and their 3D Cartesian coordinates Ct ∈ RN ×3 at 3Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding Chemical 4D Understanding Benchmark (Chem4DBench)            
+
+> User Query and Input
+> Category 3:
+> Molecular Motion
+> Describe the molecule
+> and summarize its
+> movement.
+> This molecule belongs to the
+> class of carboxylic acids that
+> … It starts rotating at step 5.
+> Desorption
+> This is an OC=C desorption on
+> Na2S3Te(012) surface. The
+> transition state occurred at step
+> 7…
+> Category 2:
+> Catalytic Reaction
+> Describe the reaction and
+> summarize its movement.
+> The product SMILES is
+> CC=O.CN=C=N. The reaction
+> barrier is 1.71 eV. The reaction
+> enthalpy is 0.52 eV.
+> Category 1:
+> Reaction Product
+> Prediction
+> Predict the product
+> SMILES, reaction barrier
+> and reaction enthalpy.
+> Key Events LLM Response
+> Reactant Transition State Product
+> Rotation
+> Bond Break
+> Reaction Barrier
+> Reaction Enthalpy
+
+Figure 2. Overview of the Chem4D benchmark. This benchmark is a suit which encompasses three distinct categories: (1) Reaction Product Prediction, involving the analysis of bond breaking/forming events and reaction barriers (derived from Transition1x and RGD1); (2) Catalytic Reaction, covering complex surface interactions such as desorption (derived from OC20). For each category, the figure illustrates the workflow from the user query and 4D input, through the identification of key physical events, to the generation of the final scientific narrative. 
+
+time step t. The ChemDU task learns a mapping 
+
+f : T , P → Y , (1) where P is a sequences of tokens known as prompts that describes the goal of dynamic understanding (e.g. reac-tion path prediction), and Y is a natural-language explana-tion summarizing the key chemical dynamics observed over time. Unlike static molecule captioning, ChemDU focuses on temporal evolution and event-level abstraction, requiring models to identify salient events (e.g., molecular motion, bond breaking and formation, adsorption or conformational changes), determine when they occur, and describe their mechanistic progression. The generated descriptions em-phasize key events and their consequence, rather than static structural properties. By explicitly targeting temporal grounding, event abstrac-tion, and next frame prediction, ChemDU extends prior 1D–3D molecule–text tasks to dynamic molecular systems, enabling language-based interpretation of molecular dynam-ics simulations. 
+
+3.2. Chem4DBench 
+
+Chem4DBench is a benchmark for evaluating LLMs on 4D dynamic trajectories, focusing on reaction trajectories with explicit transition states, temporal evolution, and periodic boundary conditions. It consists of two complementary categories: gas-phase Reaction Products Prediction, and Catalytic Reactions—designed to probe different aspects of spatio-temporal and chemical reasoning. 
+
+Reaction Products Prediction Chemical reactions repre-sent a fundamentally 4D scenario, where atoms moving from their initial positions, through high-energy transition states, and finally ending with product geometries. Conven-tional reaction benchmarks such as USPTO-50K (Seidl et al., 2022; Lowe, 2012), largely derived from the USPTO patent dataset (Lowe, 2012), and treat reactions as a simple map-ping between molecular graphs or SMILES strings. There-fore, they lack the essential dynamics and physics—such as steric hindrance, electronic reorganization, and the 3D spatial orientation of functional groups. Crucially, USPTO-based tasks completely omit the transition state, the most critical bottleneck of a chemical transformation. By focus-ing only on the ”before and after” of a reaction, these models fail to account for the kinetic barriers and the specific ge-ometric path required for a reaction to occur. To bridge this gap, we designed the Reaction Product Prediction to explicitly model the reaction coordinate. This task requires the model to predict the product geometry given a 2 step input (geometries of the reactants and the TS). By incorporating the TS geometry, the model is forced to learn the actual pathways of atom migration and bond rearrangement rather than relying on statistical patterns in patent literature. Furthermore, Chem4D extends evalua-tion to intrinsic physical properties critical for experimental chemistry: the reaction barrier ( ∆E‡), which determines the reaction rate, and the reaction enthalpy ( ∆H), which rep-resents the net heat change and determines thermodynamic feasibility. This task is constructed using two complementary reaction datasets: Transition1x (Schreiner et al., 2022) and RGD1 (Zhao et al., 2023). Both datasets provide explicit reactant, TS, and product geometries, along with reaction barriers and enthalpies, making them uniquely suitable for evalu-ating physically grounded reaction understanding. Transi-tion1x contains nudged elastic band (NEB)-generated tra-jectories for ∼10k organic reactions involving C, H, N, 4Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+and O atoms. In contrast, RGD1 emphasizes chemical di-versity and generalization. It contains over 170k distinct reactions enumerated via graphically defined elementary steps, covering molecules with up to 10 heavy atoms. To rigorously assess extrapolative reasoning, we construct mul-tiple evaluation splits: an in-domian (ID) test set for Transi-tion1x, an ID test set and three out-of-distribution (OOD) splits—OOD-Reactants, OOD-Products, and OOD-Both for RGD1. These OOD splits are determined via Scaffold split-ting (Bemis & Murcko, 1996). By evaluating on molecules unseen during training, this framework shifts reaction mod-eling from pattern matching toward a physically grounded 4D understanding of kinetics and thermodynamics. 
+
+Catalytic Reactions A problem of previous 3D-based LLMs is that they are designed for molecules therefore can not be used for periodic boundary systems such as crys-tals and catalysts. Therefore, we also designed the catalytic reactions category, which aims to evaluate a model’s ability to understand complex 4D molecular dynamics in heteroge-neous catalysis, where reactions occur at solid surfaces and involve strong coupling between adsorbates and the catalyst lattice. This subset is constructed based on the OC20-NEB dataset (Wander et al., 2025), an extension of the Open Catalyst 2020 dataset (Chanussot et al., 2021) that provides NEB tra-jectories for surface reactions. OC20-NEB explicitly models transition pathways for three key classes of elementary sur-face reactions—transfer, dissociation, and desorption—by resolving the atomic-scale evolution from reactant states, through TS, to product configurations. To overcome the limited scale of OC20-NEB, which contains only around 700 NEB pathways, we expand this subset with approxi-mately 6,000 additional surface-reaction trajectories. This expansion is started by sampling catalyst–adsorbate reac-tant states from the OC20 dataset (Chanussot et al., 2021). Then we randomly assign a reaction from transfer, disso-ciaiton and desorption to each sample and re-simulate it. All expanded sampled are relaxed using NEB optimization in together with the pretrianed UMA model (Wood et al., 2025), and energies are recorded along the reaction coordi-nate to identify TS, reaction barriers, and reaction enthalpies. This augmentation yields a large and diverse set of kineti-cally meaningful surface reaction pathways, substantially strengthening the Catalytic Reactions category and enabling rigorous evaluation of 4D understanding for heterogeneous catalytic systems. 
+
+Evaluation We evaluate models on both Chem4DBench categories using metrics that jointly assess language quality, structural correctness, and physical fidelity (see Appendix B for details). For gas-phase reactions, we ask the model to predict the final product SMILES, and we measure product SMILES accuracy as well as the regression error for the Enquiry          
+
+> …
+> Describe the molecule
+> and summarize its
+> movement.
+> This molecule is 3 -methyladipic acid. It is
+> an alpha,omega -dicarboxylic acid…. It
+> starts breaking at the C -C bond at step 7.
+> Text tokens
+> Atom tokens
+> Frame spli ttokens
+> Universal Model for Atoms
+> Fixed Model
+> Trainable Model
+> LLM (Qwen3 -8B)
+> Projector
+> Outpu ttokens
+
+Figure 3. The Chem4DLLM model architecture. (1) A 4D equiv-ariant graph encoder (UMA) processes each 3D frame Xt into a graph embedding; (2) A projector transforms the graph embed-dings into vectors that are additively fused with the embeddings of the corresponding special <graph> tokens; (3) The language model (Qwen3-8B) takes the resulting embedding sequence E as a prefix and autoregressively generates the output. 
+
+reaction barrier and enthalpy. For catalytic reactions, pre-dicting the final product is less meaningful (e.g., transfer and desorption can yield the same product); therefore, we ask the model to identify the transition-state step, as well as the reaction barrier and enthalpy. We report reaction type accuracy, adsorbate and product SMILES accuracy, and energetic MAE. 
+
+## 4. Model Architecture 
+
+Our model, built upon the Qwen3-8B architecture (Yang et al., 2025a), is a multimodal LLM capable of process-ing and reasoning about 4D molecular trajectories. A key design choice is to use equivariant representations (rather than rotationally invariant features): in 4D trajectories, rigid-body rotation and reorientation are meaningful dynamics, and invariant features discard this information, making dis-tinct rotational states indistinguishable. By preserving how atomic features transform under 3D rotations, equivariant embeddings enable the model to track rotational dynamics and better localize geometry changes over time. Our archi-tecture consists of three key components: (1) an equivariant graph encoder that translates each 3D frame into embed-dings, (2) a graph projector, and (3) the Qwen3-8B LLM backbone. 
+
+Equivariant Graph Encoder The input to our model is a 4D trajectory T represented as a sequence of atomic sys-tems (frames). Each frame contains N atoms. For each frame, we use UMA (Wood et al., 2025), a pretrained equiv-ariant graph neural network, to encode per-atom features. To retain rotational information while remaining computa-tionally efficient, we use irreducible representations up to 5Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+l = 1 , resulting in a 512-dimensional embedding per atom. Because EGNN-style message passing uses relative posi-tion differences (e.g., pos i − pos j ), using only the UMA equivariant features would still be invariant to translations. Besides, these features primary describe the atomic environ-ment and obscure the unit-cell information. To address this, we concatenate additional raw features, including atomic numbers, 3D Cartesian coordinates, PBC flags, and lattice cell vectors. This yields a total feature dimensionality of 527 per atom. For a trajectory with K frames, we represent the input as a sequence of node-embedding tensors H = [ H1, . . . , HK ],where each Hk ∈ RN ×527 .
+
+Graph Projector We introduce three special tokens to mark the start of a graph, graph-node placeholders, and the end of a graph. For each trajectory frame, we serialize the graph as: <graph start> , followed by N repeated 
+
+<graph> placeholder tokens (one per atom), followed by 
+
+<graph end> .Within the model, for each <graph> placeholder token, the projected per-atom embeddings—obtained by mapping the 527-dimensional per-atom embeddings into the 4096-dimensional hidden space of Qwen3-8B via a learnable linear projector—are additively fused with the correspond-ing token embedding. This design allows the LLM to attend directly to individual atoms and their features across multi-ple time steps through standard self-attention. In contrast to prior approaches that rely on temporal pooling or frame-level aggregation, our method preserves full atom-level resolution, enabling fine-grained reasoning about atomic interactions and their temporal evolution. 
+
+LLM Backbone The core of Chem4DLLM is the Qwen3-8B language model, implemented using a standard Trans-former architecture with FlashAttention 2 for efficiency. The model processes a mixed sequence of text tokens and projected graph tokens. The full input sequence Z is formed by concatenating the system prompt, the sequence of graph spans, and the user query or instruction. This formulation treats physical states as a foreign language that the LLM learns to interpret in context. 
+
+Training We perform full-parameter fine-tuning (or FSDP-based efficient fine-tuning) on the combined graph– text inputs. The model is trained using the standard causal language modeling (CLM) objective: 
+
+L = − X
+
+> t
+
+log p(yt | y<t , H, P), (2) where the node embedding tensors H is a proejcted repre-sentation of chemical trajectories T , P is the prompt that describes the task, and yt denotes the target text tokens (e.g., scientific descriptions or reasoning traces). Optimization is performed using AdamW with a cosine annealing learning rate schedule. Overall, Chem4DLLM treats a molecular trajectory as a temporally ordered sequence of physical states embedded directly into the token space of a causal language model. By preserving atom-level resolution across time and using autoregressive decoding, the model is forced to condition each generated token on all preceding structural states. This naturally induces a form of causal reasoning, where later textual descriptions must be grounded in earlier geometric and chemical events (e.g., bond formation, conformational rearrangements, or adsorption), enabling coherent narration of molecular processes rather than static captioning. 
+
+## 5. Results 
+
+Both of the proposed Chem4DBench and Chem4DLLM are designed for general chemical scenarios, covering isolated molecules and periodic catalysts. This setting extends be-yond most existing 3D molecule-language models, which are typically limited to molecules, and makes many prior baselines inapplicable to all Chem4D tasks. We therefore selectively adapt suitable baselines for each task category, as detailed below. 
+
+5.1. Baselines 
+
+We compare our Chem4DLLM against several representa-tive baselines that span both static 3D molecular understand-ing and na ¨ıve extensions to 4D trajectories. Specifically, we include three strong 3D molecular LLMs, 3D-MoLM (Li et al., 2024), 3D-MolT5 (Pei et al., 2025), and Chem3D-LLM (Jiang et al., 2025), as well as their na ¨ıve 4D variants. 
+
+3D LLM Baselines. 3D-MoLM and 3D-MolT5 are de-signed for static molecular representations and are there-fore evaluated only on the Reaction Product Prediction task. Chem3D-LLM, although originally proposed for molecular understanding, encodes atomic positions in a textual form, which allows it to be naturally extended to periodic bound-ary condition (PBC) systems. We thus adapt Chem3D-LLM (details in Appendix C) and evaluate it on both Reaction Product Prediction and Catalytic Reaction Understanding. 
+
+4D LLM Baselines. We construct 4D-MolT5 by extend-ing 3D-MolT5 (Pei et al., 2025) to the temporal setting, in which a molecular trajectory is serialized as a temporally ordered sequence of 3D molecular frames. This formulation leverages the pretrained 3D-MolT5 backbone, allowing the model to jointly attend to spatial structures and their tempo-ral evolution without modifying the underlying architecture. However, because 3D-MolT5 relies on E3FP-based rota-tionally invariant molecular representations, this baseline is fundamentally limited in modeling rigid-body molecu-6Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+Table 1. Reaction product prediction results on Transition1x and RDG1. We evaluate models on the task of predicting product SMILES from reaction trajectories. BLEU measures sequence-level similarity between predicted and ground-truth SMILES. EXACT and Levenshtein distance assess string-level accuracy, while MACCS, RDK, and Morgan report fingerprint-based structural similarity. VALIDITY measures the fraction of chemically valid predictions, and MAE of reaction barriers and enthalpies evaluates energetic consistency. Results are reported for in-distribution (ID) and multiple out-of-distribution (OOD) settings with unseen reactants, products, or both. Overall, Chem4DLLM achieves strong performance across string, structural, and energetic metrics, particularly in challenging OOD regimes.                                                                                                                                                                                                                                                                                        
+
+> Model BLEU ↑EXACT ↑LEVENSHTEIN ↓MACCS ↑RDK ↑MORGAN ↑VALIDITY ↑MAE Barrier ↓MAE Enthalpy ↓
+> Transition1x In Distribution
+> 3D-MoLM 0.216 0.075 10.385 0.296 0.258 0.168 0.514 3.157 3.618 3D-MolT5 0.431 0.070 4.566 0.514 0.400 0.240 0.992 0.902 1.392 Chem3D LLM 0.059 0.000 8.347 0.206 0.124 0.053 0.954 1.262 2.064 4D-MolT5 0.480 0.131 4.381 0.568 0.477 0.308 0.990 0.900 1.265 4D Text-based 0.051 0.000 8.318 0.200 0.119 0.049 0.957 1.552 2.204
+> Chem4DLLM 0.785 0.582 1.633 0.809 0.765 0.677 0.995 0.150 0.505
+> RDG1 In Distribution
+> 3D-MoLM 0.182 0.042 12.472 0.344 0.213 0.222 0.501 1.295 1.205 3D-MolT5 0.640 0.280 4.416 0.722 0.476 0.484 0.996 0.687 0.639 Chem3D LLM 0.273 0.003 8.106 0.214 0.087 0.083 0.634 0.903 0.782 4D-MolT5 0.706 0.405 3.760 0.770 0.566 0.572 0.995 0.443 0.532 4D Text-based 0.258 0.002 8.418 0.211 0.084 0.080 0.648 0.823 0.784
+> Chem4DLLM 0.785 0.527 3.176 0.860 0.726 0.733 0.993 0.211 0.393
+> RDG1 Out of Distribution Reactants
+> 3D-MoLM 0.162 0.012 14.018 0.274 0.124 0.134 0.481 3.400 3.668 3D-MolT5 0.531 0.203 5.564 0.600 0.343 0.353 0.980 0.879 1.204 Chem3D LLM 0.281 0.003 9.592 0.333 0.125 0.119 0.856 1.205 1.080 4D-MolT5 0.535 0.227 5.648 0.604 0.360 0.367 0.954 0.797 1.253 4D Text-based 0.275 0.003 9.742 0.328 0.123 0.116 0.857 0.998 1.042 Chem4DLLM 0.416 0.124 8.640 0.579 0.308 0.307 0.954 0.738 1.369
+> RDG1 Out of Distribution Products
+> 3D-MoLM 0.149 0.002 13.377 0.284 0.102 0.091 0.598 1.906 2.051 3D-MolT5 0.346 0.019 7.274 0.483 0.180 0.169 0.984 0.906 1.254 Chem3D LLM 0.180 0.000 13.048 0.247 0.086 0.058 0.844 0.998 1.354 4D-MolT5 0.366 0.055 7.413 0.489 0.204 0.199 0.954 0.761 1.231 4D Text-based 0.179 0.000 13.111 0.243 0.084 0.057 0.847 0.994 1.417
+> Chem4DLLM 0.433 0.083 9.240 0.562 0.306 0.295 0.948 0.459 1.117
+> RDG1 Out of Distribution Both
+> 3D-MoLM 0.132 0.000 14.419 0.218 0.086 0.082 0.437 4.384 4.692 3D-MolT5 0.356 0.021 7.702 0.479 0.188 0.177 0.959 0.994 1.454 Chem3D LLM 0.214 0.000 12.545 0.267 0.099 0.060 0.915 1.132 1.433 4D-MolT5 0.338 0.046 8.200 0.460 0.198 0.193 0.860 1.004 1.560 4D Text-based 0.209 0.000 12.653 0.260 0.095 0.058 0.903 1.068 1.450
+> Chem4DLLM 0.418 0.046 10.092 0.520 0.249 0.234 0.903 0.710 1.379
+
+lar rotations across time steps and cannot handle periodic boundary condition (PBC) systems such as catalytic sur-faces. We further include a 4D Text-based LLM baseline adapted from Chem3D-LLM (Jiang et al., 2025), which represents molecular trajectories purely as serialized textual descriptions of atomic coordinates and time indices. While conceptually simple, this representation suffers from se-vere input-length limitations; for instance, a trajectory with 10 frames and 200 atoms can easily exceed 20,000 tokens. To partially alleviate this issue, we apply a heuristic com-pression strategy that records atomic positions only when coordinate changes exceed a threshold of 0.1. Additional implementation details are provided in Appendix C. 
+
+5.2. Chemical Dynamics Understanding Reaction Products Prediction We begin our discussion by evaluating 4D models on the task of reaction product prediction and compare its performance against baselines mentioned above. As shown in Table 1, Chem4DLLM demonstrates a clear advantage in capturing the complex atomistic rearrangements of chemical reactions. On the Transition1x dataset, Chem4DLLM achieves a BLEU score of 0.785 and an EXACT match rate of 0.582, significantly outperforming the next-best, 4D-MolT5 (BLEU 0.480, EX-ACT 0.131). This superior performance extends to chemical structural metrics, where Chem4DLLM reaches a Morgan (Morgan, 1965) fingerprint similarity of 0.677, nearly dou-bling the performance of 4D-MolT5 (0.308). In the larger and more chemically diverse RGD1 dataset, Chem4DLLM maintains its lead with an EXACT match rate of 0.527 in the ID split. Even in challenging OOD scenarios—such as when both reactants and products involve unseen molecular scaffolds—Chem4DLLM achieves a BLEU score of 0.418, which remains superior to the 0.338 achieved by 4D-MolT5. Beyond structural prediction, Chem4DLLM excels at es-timating intrinsic physical properties, which is crucial for downstream chemical applications. It achieves a MAE for the reaction barrier of only 0.150 eV on Transition1x, com-pared to 0.900 eV for 4D-MolT5. Similarly, the MAE for enthalpy is reduced to 0.505 eV, demonstrating that the model’s spatio-temporal event tokenizer effectively captures the energetic landscape of the reaction. 7Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding                                          
+
+> Table 2. Evaluation results on the catalytic reaction subset. Metrics cover reaction type classification (Type Acc), inital adsorbate and reaction product SMILES prediction using exact match and Morgan fingerprint similarity, transition-state timestep prediction (TS Step MAE), and MAEs for the predicted reaction barriers and enthalpies. Chem4DLLM consistently outperforms both 4D text-based method and Chem3DLLM baselines across both structural and energetic metrics, highlighting the importance of explicit spatio-temporal modeling for reaction dynamics.
+> Model Type Acc ↑Ads Exact ↑Ads Morgan ↑Prod Exact ↑Prod Morgan ↑TS Step MAE ↓Barrier MAE ↓Enthalpy MAE ↓
+> Chem3D 0.517 0.355 0.392 0.054 0.064 2.437 0.985 1.069 4D text-based 0.535 0.373 0.410 0.068 0.084 1.947 1.019 1.102 Chem4DLLM 0.774 0.762 0.776 0.432 0.454 1.348 0.848 1.019
+
+The strong gains of Chem4DLLM suggest that a 4D formu-lation provides critical advantages for reaction modeling. Chemical reactions are inherently dynamical: bond breaking and formation arise from continuous atomic motion along a reaction coordinate, rather than from any single static structure. Static 3D models such as 3D-MolM (Li et al., 2024) and 3D-MolT5 (Pei et al., 2025) operate on isolated geometries and collapse this process into a snapshot, limit-ing their ability to distinguish inert structures from actively transforming ones. In contrast, 4D models represent molecules as time-ordered trajectories, explicitly capturing the evolution from reactants to transition states. This temporal context is essential for differentiating reactions with similar initial geometries but distinct kinetic pathways, and explains the poor performance of 3D models on trajectory-dependent quantities such as reaction barriers and enthalpies. Because these properties are determined by the highest-energy configuration along the path, the 4D representation enables Chem4DLLM to encode energetic evolution directly, resulting in substantially lower prediction errors and a more physically grounded understanding of chemical reactivity. 
+
+Catalytic Reaction Understanding We further evaluate Chem4DLLM on catalytic reaction understanding using the OC20Bench, which represents a substantially more challenging setting involving PBC, surface–adsorbate in-teractions, and heterogeneous reaction pathways. As sum-marized in Table 2, Chem4DLLM consistently outper-forms both static 3D and text-based 4D baselines across all evaluated metrics. In particular, Chem4DLLM achieves a reaction type accuracy of 0.774, significantly exceed-ing Chem3DLLM (0.517) and the 4D text-based method (0.535), indicating a stronger capability to recognize global catalytic reaction patterns. For adsorption structure pre-diction, Chem4DLLM attains an Adsorbate Exact match of 0.762 and a Morgan similarity of 0.776, demonstrating precise modeling of surface binding motifs and adsorbate conformations that are critical for catalytic reactivity. Chem4DLLM also shows substantial gains in product SMILES prediction, reaching a Product Exact match rate of 0.432 and a Morgan similarity of 0.454, whereas all baselines struggle in this regime. This gap highlights the difficulty of inferring surface-mediated bond formation and breaking from static or weakly structured representations. By contrast, Chem4DLLM explicitly captures adsorption, diffusion, and reaction events along the trajectory, enabling more accurate reasoning over catalytic reaction pathways. In addition to structural accuracy, Chem4DLLM exhibits improved performance on physically meaningful regression targets. It reduces the MAE for transition-state step predic-tion to 1.348 and achieves lower barrier and enthalpy MAEs compared to all baselines. These results suggest that the use of pretrained foundation model preserve essential energetic information and reflect the underlying reaction coordinate, rather than relying on superficial correlations. Overall, the OC20 results demonstrate that Chem4DLLM generalizes beyond molecular-scale reactions to complex catalytic systems under PBC. 
+
+## 6. Conclusion 
+
+We introduced Chemical Dynamics understanding task, aim-ing to translate spatio-temporal molecular simulation data into coherent, scientifically grounded narratives. To sup-port systematic evaluation, we presented Chem4DBench, the first benchmark that pairs 4D trajectories with expert-authored text for both gas-phase reactions and catalytic reactions. We further proposed Chem4DLLM, a multimodal 4D-LLM framework that injects equivariant graph representations of atomic systems into an LLM via a lightweight projection interface. Across both gas-phase and catalytic reactions, Chem4DLLM demonstrates strong performance compared with both 3D baselines and their 4D variants, particularly on metrics that require temporal reasoning. Our results suggest that explicitly modeling 4D structure, rather than relying on static snapshots or long coordinate serializations, is critical for undersatnd dynamic process. Looking forward, we believe Chem4DBench can serve as a foundation for future research on scalable 4D tokenization, long-horizon trajectory reasoning, and richer supervision beyond end-to-end narration (e.g., intermediate event dis-covery and mechanistic rationales). Extending coverage to more diverse chemistries, longer trajectories, and higher-fidelity simulation/experiment pairings is an important next step toward robust agentic scientific discovery. 8Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+## Impact Statement 
+
+This work introduces Chemical Dynamics Understanding benchmark , providing a framework to translate 4D molec-ular trajectories into interpretable scientific narratives. By automating the explanation of complex events like bond breaking , reaction pathways , and catalytic interactions , we expect to accelerate discovery in drug design and sustain-able materials. This advancement supports agentic scientific discovery by helping models plan and refine simulations through high-level qualitative insights. While dual-use risks exist in molecular modeling, our goal is to enhance trans-parency and reasoning in Machine Learning for the broader benefit of the scientific community 
+
+## References 
+
+Achiam, J., Adler, S., Agarwal, S., Ahmad, L., Akkaya, I., Aleman, F. L., Almeida, D., Altenschmidt, J., Altman, S., Anadkat, S., et al. Gpt-4 technical report. arXiv preprint arXiv:2303.08774 , 2023. AI4Science, M. R. and Quantum, M. A. The impact of large language models on scientific discovery: a preliminary study using gpt-4, 2023. URL https://arxiv.org/ abs/2311.07361 .Axen, S. D., Huang, X.-P., C ´aceres, E. L., Gendelev, L., Roth, B. L., and Keiser, M. J. A simple representa-tion of three-dimensional molecular structure. Jour-nal of Medicinal Chemistry , 60(17):7393–7409, August 2017. ISSN 1520-4804. doi: 10.1021/acs.jmedchem. 7b00696. URL http://dx.doi.org/10.1021/ acs.jmedchem.7b00696 .Batatia, I., Kovacs, D. P., Simm, G. N. C., Ortner, C., and Csanyi, G. MACE: Higher order equivariant mes-sage passing neural networks for fast and accurate force fields. In Oh, A. H., Agarwal, A., Belgrave, D., and Cho, K. (eds.), Advances in Neural Information Processing Systems , 2022. URL https://openreview.net/ forum?id=YPpSngE-ZU .Batatia, I., Benner, P., Chiang, Y., Elena, A. M., Kov ´acs, D. P., Riebesell, J., Advincula, X. R., Asta, M., Avaylon, M., Baldwin, W. J., Berger, F., Bernstein, N., Bhowmik, A., Bigi, F., Blau, S. M., C ˘arare, V., Ceriotti, M., Chong, S., Darby, J. P., De, S., Pia, F. D., Deringer, V. L., Elijo ˇsius, R., El-Machachi, Z., Falcioni, F., Fako, E., Fer-rari, A. C., Gardner, J. L. A., Gawkowski, M. J., Genreith-Schriever, A., George, J., Goodall, R. E. A., Grandel, J., Grey, C. P., Grigorev, P., Han, S., Handley, W., Heenen, H. H., Hermansson, K., Holm, C., Ho, C. H., Hofmann, S., Jaafar, J., Jakob, K. S., Jung, H., Kapil, V., Kaplan, A. D., Karimitari, N., Kermode, J. R., Kourtis, P., Kroupa, N., Kullgren, J., Kuner, M. C., Kuryla, D., Liepuoniute, G., Lin, C., Margraf, J. T., Magd ˘au, I.-B., Michaelides, A., Moore, J. H., Naik, A. A., Niblett, S. P., Norwood, S. W., O’Neill, N., Ortner, C., Persson, K. A., Reuter, K., Rosen, A. S., Rosset, L. A. M., Schaaf, L. L., Schran, C., Shi, B. X., Sivonxay, E., Stenczel, T. K., Svahn, V., Sutton, C., Swinburne, T. D., Tilly, J., van der Oord, C., Vargas, S., Varga-Umbrich, E., Vegge, T., Vondr ´ak, M., Wang, Y., Witt, W. C., Wolf, T., Zills, F., and Cs ´anyi, G. A foundation model for atomistic materials chemistry, 2025. URL https://arxiv.org/abs/2401.00096 .Batzner, S., Musaelian, A., Sun, L., Geiger, M., Mailoa, J. P., Kornbluth, M., Molinari, N., Smidt, T. E., and Kozinsky, B. E(3)-equivariant graph neural networks for data-efficient and accurate interatomic potentials. Nature Communications , 13(1), May 2022. ISSN 2041-1723. doi: 10.1038/s41467-022-29939-5. URL http://dx. doi.org/10.1038/s41467-022-29939-5 .Bemis, G. W. and Murcko, M. A. The properties of known drugs. 1. molecular frameworks. Journal of Medicinal Chemistry , 39(15):2887–2893, January 1996. ISSN 1520-4804. doi: 10.1021/jm9602928. URL http://dx. doi.org/10.1021/jm9602928 .Chanussot, L., Das, A., Goyal, S., Lavril, T., Shuaibi, M., Riviere, M., Tran, K., Heras-Domingo, J., Ho, C., Hu, W., Palizhati, A., Sriram, A., Wood, B., Yoon, J., Parikh, D., Zitnick, C. L., and Ulissi, Z. Open catalyst 2020 (oc20) dataset and community challenges. ACS Catalysis , 11 (10):6059–6072, May 2021. ISSN 2155-5435. doi: 10. 1021/acscatal.0c04525. URL http://dx.doi.org/ 10.1021/acscatal.0c04525 .Chen, C. and Ong, S. P. A universal graph deep learning interatomic potential for the periodic ta-ble. Nature Computational Science , 2(11):718–728, November 2022. ISSN 2662-8457. doi: 10.1038/ s43588-022-00349-3. URL http://dx.doi.org/ 10.1038/s43588-022-00349-3 .Chen, Q., Zhang, B., Wang, G., and Wu, Q. Weak-eval-strong: Evaluating and eliciting lateral thinking of llms with situation puzzles. Advances in Neural Information Processing Systems , 37:79642–79665, 2024. Christofidellis, D., Giannone, G., Born, J., Winther, O., Laino, T., and Manica, M. Unifying molecular and tex-tual representations via multi-task language modelling. In Krause, A., Brunskill, E., Cho, K., Engelhardt, B., Sabato, S., and Scarlett, J. (eds.), International Confer-ence on Machine Learning, ICML 2023, 23-29 July 2023, Honolulu, Hawaii, USA , volume 202 of Proceedings of Machine Learning Research , pp. 6140–6157. PMLR, 2023. URL https://proceedings.mlr.press/ v202/christofidellis23a.html .9Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+Edwards, C., Zhai, C., and Ji, H. Text2mol: Cross-modal molecule retrieval with natural language queries. In Pro-ceedings of the 2021 Conference on Empirical Meth-ods in Natural Language Processing . Association for Computational Linguistics, 2021. doi: 10.18653/v1/ 2021.emnlp-main.47. URL http://dx.doi.org/ 10.18653/v1/2021.emnlp-main.47 .Edwards, C., Lai, T. M., Ros, K., Honke, G., Cho, K., and Ji, H. Translation between molecules and nat-ural language. In Goldberg, Y., Kozareva, Z., and Zhang, Y. (eds.), Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, EMNLP 2022, Abu Dhabi, United Arab Emirates, De-cember 7-11, 2022 , pp. 375–413. Association for Com-putational Linguistics, 2022. doi: 10.18653/V1/2022. EMNLP-MAIN.26. URL https://doi.org/10. 18653/v1/2022.emnlp-main.26 .Fang, Y., Liang, X., Zhang, N., Liu, K., Huang, R., Chen, Z., Fan, X., and Chen, H. Mol-instructions: A large-scale biomolecular instruction dataset for large language models. In The Twelfth International Conference on Learning Representations, ICLR 2024, Vienna, Austria, May 7-11, 2024 . OpenReview.net, 2024. URL https: //openreview.net/forum?id=Tlsdsb6l9n .Gruver, N., Sriram, A., Madotto, A., Wilson, A. G., Zitnick, C. L., and Ulissi, Z. W. Fine-tuned language models generate stable inorganic materials as text. In The Twelfth International Conference on Learning Representations, ICLR 2024, Vienna, Austria, May 7-11, 2024 . OpenRe-view.net, 2024. URL https://openreview.net/ forum?id=vN9fpfqoP1 .Guo, C., Zou, S., Zuo, X., Wang, S., Ji, W., Li, X., and Cheng, L. Generating diverse and natural 3d human motions from text. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 5152–5161, June 2022. Guo, S., Bian, Y., Wang, R., Yin, N., Wang, Z., and Yao, Q. Unimot: Unified molecule-text language model with discrete token representation, 2025. URL https:// arxiv.org/abs/2408.00863 .Jain, A., Ong, S. P., Hautier, G., Chen, W., Richards, W. D., Dacek, S., Cholia, S., Gunter, D., Skinner, D., Ceder, G., and Persson, K. A. Commentary: The materials project: A materials genome approach to accelerating materials innovation. APL Materials , 1(1), July 2013. ISSN 2166-532X. doi: 10.1063/1.4812323. URL http: //dx.doi.org/10.1063/1.4812323 .Jiang, L., Sun, S., Qi, B., Fu, Y., Xu, X., Li, Y., Zhou, D., and Fu, T. Chem3dllm: 3d multimodal large language models for chemistry, 2025. URL https://arxiv. org/abs/2508.10696 .Klicpera, J., Groß, J., and G ¨unnemann, S. Directional mes-sage passing for molecular graphs. In 8th International Conference on Learning Representations, ICLR 2020, Ad-dis Ababa, Ethiopia, April 26-30, 2020 . OpenReview.net, 2020. Krenn, M., Ai, Q., Barthel, S., Carson, N., Frei, A., Frey, N. C., Friederich, P., Gaudin, T., Gayle, A. A., Jablonka, K. M., Lameiro, R. F., Lemm, D., Lo, A., Moosavi, S. M., N ´apoles-Duarte, J. M., Nigam, A., Pollice, R., Rajan, K., Schatzschneider, U., Schwaller, P., Skreta, M., Smit, B., Strieth-Kalthoff, F., Sun, C., Tom, G., Falk von Rudorff, G., Wang, A., White, A. D., Young, A., Yu, R., and Aspuru-Guzik, A. Selfies and the future of molecular string representations. 
+
+Patterns , 3(10):100588, 2022. ISSN 2666-3899. doi: https://doi.org/10.1016/j.patter.2022.100588. URL https://www.sciencedirect.com/ science/article/pii/S2666389922002069 .Le, K., Guo, Z., Dong, K., Huang, X., Nan, B., Iyer, R., Zhang, X., Wiest, O., Wang, W., Hua, T., and Chawla, N. V. Molx: Enhancing large language models for molec-ular understanding with a multi-modal extension, 2025. URL https://arxiv.org/abs/2406.06777 .Li, J., Zhang, D., Wang, X., Hao, Z., Lei, J., Tan, Q., Zhou, C., Liu, W., Yang, Y., Xiong, X., Wang, W., Chen, Z., Wang, W., Li, W., Su, M., Zhang, S., Ouyang, W., Li, Y., and Zhou, D. Chemvlm: exploring the power of multimodal large language models in chemistry area. In Proceedings of the Thirty-Ninth AAAI Confer-ence on Artificial Intelligence and Thirty-Seventh Con-ference on Innovative Applications of Artificial Intelli-gence and Fifteenth Symposium on Educational Advances in Artificial Intelligence , AAAI’25/IAAI’25/EAAI’25. AAAI Press, 2025. ISBN 978-1-57735-897-8. doi: 10.1609/aaai.v39i1.32020. URL https://doi.org/ 10.1609/aaai.v39i1.32020 .Li, S., Liu, Z., Luo, Y., Wang, X., He, X., Kawaguchi, K., Chua, T.-S., and Tian, Q. Towards 3d molecule-text interpretation in language models. In ICLR ,2024. URL https://openreview.net/forum? id=xI4yNlkaqh .Liu, S., Nie, W., Wang, C., Lu, J., Qiao, Z., Liu, L., Tang, J., Xiao, C., and Anandkumar, A. Multi-modal molecule structure–text model for text-based retrieval and edit-ing. Nature Machine Intelligence , 5(12):1447–1457, December 2023a. ISSN 2522-5839. doi: 10.1038/ s42256-023-00759-6. URL http://dx.doi.org/ 10.1038/s42256-023-00759-6 .10 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+Liu, Z., Li, S., Luo, Y., Fei, H., Cao, Y., Kawaguchi, K., Wang, X., and Chua, T.-S. MolCA: Molecular graph-language modeling with cross-modal projector and uni-modal adapter. In Bouamor, H., Pino, J., and Bali, K. (eds.), Proceedings of the 2023 Conference on Em-pirical Methods in Natural Language Processing , pp. 15623–15638, Singapore, December 2023b. Association for Computational Linguistics. doi: 10.18653/v1/2023. emnlp-main.966. URL https://aclanthology. org/2023.emnlp-main.966/ .Lowe, D. M. Extraction of chemical structures and reactions from the literature . PhD thesis, Apollo - University of Cambridge Repository, 2012. URL https://www.repository.cam.ac.uk/ handle/1810/244727 .Luo, Y., Yang, K., Hong, M., Liu, X. Y., and Nie, Z. Molfm: A multimodal molecular foundation model, 2023. URL 
+
+https://arxiv.org/abs/2307.09484 .Mahmood, N., Ghorbani, N., Troje, N. F., Pons-Moll, G., and Black, M. J. AMASS: Archive of motion capture as surface shapes. In International Conference on Computer Vision , pp. 5442–5451, October 2019. Montavon, G., Hansen, K., Fazli, S., Rupp, M., Biegler, F., Ziehe, A., Tkatchenko, A., von Lilienfeld, A., and M ¨uller, K.-R. Learning invariant representations of molecules for atomization energy prediction. In Bartlett, P. L., Pereira, F. C., Burges, C. J., Bottou, L., and Weinberger, K. Q. (eds.), Advances in Neural Information Processing Sys-tems 25: 26th Annual Conference on Neural Information Processing Systems 2012. Proceedings of a Meeting Held December 3-6, 2012, Lake Tahoe, Nevada, United States ,pp. 449–457, 2012. Morgan, H. L. The generation of a unique machine de-scription for chemical structures-a technique developed at chemical abstracts service. Journal of Chemical Docu-mentation , 5(2):107–113, May 1965. ISSN 1541-5732. doi: 10.1021/c160017a018. URL http://dx.doi. org/10.1021/c160017a018 .Pei, Q., Zhang, W., Zhu, J., Wu, K., Gao, K., Wu, L., Xia, Y., and Yan, R. Biot5: Enriching cross-modal integration in biology with chemical knowledge and natural language associations. In The 2023 Conference on Empirical Meth-ods in Natural Language Processing , 2023. URL https: //openreview.net/forum?id=uhVJ3SLq80 .Pei, Q., Wu, L., Gao, K., Liang, X., Fang, Y., Zhu, J., Xie, S., Qin, T., and Yan, R. Biot5+: Towards general-ized biological understanding with IUPAC integration and multi-task tuning. In Ku, L., Martins, A., and Srikumar, V. (eds.), Findings of the Association for Computational Linguistics, ACL 2024, Bangkok, Thailand and virtual meeting, August 11-16, 2024 , pp. 1216–1240. Association for Computational Linguistics, 2024. doi: 10.18653/V1/ 2024.FINDINGS-ACL.71. URL https://doi.org/ 10.18653/v1/2024.findings-acl.71 .Pei, Q., Yan, R., Gao, K., Zhu, J., and Wu, L. 3d-molt5: Leveraging discrete structural information for molecule-text modeling, 2025. URL https://arxiv.org/ abs/2406.05797 .Plappert, M., Mandery, C., and Asfour, T. The KIT motion-language dataset. Big Data , 4(4):236–252, dec 2016. doi: 10.1089/big.2016.0028. URL http://dx.doi.org/ 10.1089/big.2016.0028 .Raffel, C., Shazeer, N., Roberts, A., Lee, K., Narang, S., Matena, M., Zhou, Y., Li, W., and Liu, P. J. Ex-ploring the limits of transfer learning with a unified text-to-text transformer. Journal of Machine Learning Research , 21(140):1–67, 2020. URL http://jmlr. org/papers/v21/20-074.html .Ramakrishnan, R., Dral, P. O., Rupp, M., and von Lilienfeld, O. A. Quantum chemistry structures and properties of 134 kilo molecules. Scientific Data , 1(1), August 2014. ISSN 2052-4463. doi: 10.1038/sdata.2014.22. URL http: //dx.doi.org/10.1038/sdata.2014.22 .Ren, X., Chen, Q., and Liu, L. Efficiently selecting response generation strategies for synthetic data construction by self-aligned perplexity. In Findings of the Association for Computational Linguistics: EMNLP 2025 , pp. 11584– 11605, 2025. Schreiner, M., Bhowmik, A., Vegge, T., Busk, J., and Winther, O. Transition1x - a dataset for building gen-eralizable reactive machine learning potentials. Sci-entific Data , 9(1), December 2022. ISSN 2052-4463. doi: 10.1038/s41597-022-01870-w. URL http://dx. doi.org/10.1038/s41597-022-01870-w .Sch ¨utt, K., Kindermans, P.-J., Felix, H. E. S., Chmiela, S., Tkatchenko, A., and M ¨uller, K.-R. SchNet: A continuous-filter convolutional neural network for modeling quantum interactions. In Advances in Neural Information Process-ing Systems , pp. 992–1002, 2017. Sch ¨utt, K. T., Sauceda, H. E., P. -J. Kindermans, Tkatchenko, A., and K. -R. M ¨uller. SchNet – A deep learning architec-ture for molecules and materials. The Journal of Chemical Physics , 148(24):241722, 2018. doi: 10.1063/1.5019779. Seidl, P., Renz, P., Dyubankova, N., Neves, P., Verho-even, J., Wegner, J. K., Segler, M., Hochreiter, S., and Klambauer, G. Improving few- and zero-shot re-action template prediction using modern hopfield net-works. Journal of Chemical Information and Mod-
+
+11 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+eling , 62(9):2111–2120, January 2022. ISSN 1549-960X. doi: 10.1021/acs.jcim.1c01065. URL http: //dx.doi.org/10.1021/acs.jcim.1c01065 .Tran, R., Lan, J., Shuaibi, M., Wood, B. M., Goyal, S., Das, A., Heras-Domingo, J., Kolluru, A., Rizvi, A., Shoghi, N., Sriram, A., Therrien, F., Abed, J., Voznyy, O., Sargent, E. H., Ulissi, Z., and Zitnick, C. L. The open catalyst 2022 (oc22) dataset and challenges for oxide electrocatalysts. 
+
+ACS Catalysis , 13(5):3066–3084, February 2023. ISSN 2155-5435. doi: 10.1021/acscatal.2c05426. URL http: //dx.doi.org/10.1021/acscatal.2c05426 .Wander, B., Shuaibi, M., Kitchin, J. R., Ulissi, Z. W., and Zitnick, C. L. Cattsunami: Accelerating tran-sition state energy calculations with pretrained graph neural networks. ACS Catalysis , 15(7):5283–5294, March 2025. ISSN 2155-5435. doi: 10.1021/acscatal. 4c04272. URL http://dx.doi.org/10.1021/ acscatal.4c04272 .Wang, X., Wu, J., Chen, J., Li, L., Wang, Y.-F., and Wang, W. Y. Vatex: A large-scale, high-quality multilingual dataset for video-and-language research. In The IEEE International Conference on Computer Vision (ICCV) ,October 2019. Wei, J., Yang, Y., Zhang, X., Chen, Y., Zhuang, X., Gao, Z., Zhou, D., Wang, G., Gao, Z., Cao, J., Qiu, Z., Hu, M., Ma, C., Tang, S., He, J., Song, C., He, X., Zhang, Q., You, C., Zheng, S., Ding, N., Ouyang, W., Dong, N., Cheng, Y., Sun, S., Bai, L., and Zhou, B. From ai for science to agentic science: A survey on autonomous scientific discovery, 2025. URL https://arxiv.org/abs/ 2508.14111 .Weininger, D. Smiles, a chemical language and information system. 1. introduction to methodology and encoding rules. Journal of Chemical Information and Computer Sciences , 28(1):31–36, February 1988. ISSN 1520-5142. doi: 10.1021/ci00057a005. URL http://dx.doi. org/10.1021/ci00057a005 .Wood, B. M., Dzamba, M., Fu, X., Gao, M., Shuaibi, M., Barroso-Luque, L., Abdelmaqsoud, K., Gharakhanyan, V., Kitchin, J. R., Levine, D. S., Michel, K., Sriram, A., Cohen, T., Das, A., Rizvi, A., Sahoo, S. J., Ulissi, Z. W., and Zitnick, C. L. Uma: A family of universal models for atoms, 2025. URL https://arxiv.org/abs/ 2506.23971 .Xiao, T., Cui, C., Zhu, H., and Honavar, V. G. Mol-bind: Multimodal alignment of language, molecules, and proteins, 2024. URL https://arxiv.org/abs/ 2403.08167 .Xin, H., Kitchin, J. R., and Kulik, H. J. To-wards agentic science for advancing scientific discov-ery. Nature Machine Intelligence , 7(9):1373–1375, September 2025. ISSN 2522-5839. doi: 10.1038/ s42256-025-01110-x. URL http://dx.doi.org/ 10.1038/s42256-025-01110-x .Xu, J., Mei, T., Yao, T., and Rui, Y. MSR-VTT: A large video description dataset for bridging video and lan-guage. In 2016 IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2016, Las Vegas, NV, USA, June 27-30, 2016 , pp. 5288–5296. IEEE Computer Society, 2016. doi: 10.1109/CVPR.2016.571. URL 
+
+https://doi.org/10.1109/CVPR.2016.571 .Yang, A., Li, A., Yang, B., Zhang, B., Hui, B., Zheng, B., Yu, B., Gao, C., Huang, C., Lv, C., Zheng, C., Liu, D., Zhou, F., Huang, F., Hu, F., Ge, H., Wei, H., Lin, H., Tang, J., Yang, J., Tu, J., Zhang, J., Yang, J., Yang, J., Zhou, J., Zhou, J., Lin, J., Dang, K., Bao, K., Yang, K., Yu, L., Deng, L., Li, M., Xue, M., Li, M., Zhang, P., Wang, P., Zhu, Q., Men, R., Gao, R., Liu, S., Luo, S., Li, T., Tang, T., Yin, W., Ren, X., Wang, X., Zhang, X., Ren, X., Fan, Y., Su, Y., Zhang, Y., Zhang, Y., Wan, Y., Liu, Y., Wang, Z., Cui, Z., Zhang, Z., Zhou, Z., and Qiu, Z. Qwen3 technical report, 2025a. URL https: //arxiv.org/abs/2505.09388 .Yang, Z., Tao, Z., Chen, Q., Li, L., Qi, Y., Van Den Hengel, A., and Huang, Q. Separation of powers: On segregating knowledge from observation in llm-enabled knowledge-based visual question answering. In Proceedings of the Computer Vision and Pattern Recognition Conference , pp. 24753–24762, 2025b. Yu, B., Baker, F. N., Chen, Z., Ning, X., and Sun, H. LlaS-Mol: Advancing large language models for chemistry with a large-scale, comprehensive, high-quality instruc-tion tuning dataset. In First Conference on Language Modeling , 2024. URL https://openreview.net/ forum?id=lY6XTF9tPv .Zhang, D., Liu, W., Tan, Q., Chen, J., Yan, H., Yan, Y., Li, J., Huang, W., Yue, X., Ouyang, W., Zhou, D., Zhang, S., Su, M., Zhong, H.-S., and Li, Y. Chemllm: A chemical large language model, 2024. URL https://arxiv. org/abs/2402.06852 .Zhao, Q., Vaddadi, S. M., Woulfe, M., Ogunfowora, L. A., Garimella, S. S., Isayev, O., and Savoie, B. M. Compre-hensive exploration of graphically defined reaction spaces. 
+
+Scientific Data , 10(1), March 2023. ISSN 2052-4463. doi: 10.1038/s41597-023-02043-z. URL http://dx.doi. org/10.1038/s41597-023-02043-z .Zhou, G., Gao, Z., Ding, Q., Zheng, H., Xu, H., Wei, Z., Zhang, L., and Ke, G. Uni-mol: A universal 3d molecu-12 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+lar representation learning framework. In The Eleventh International Conference on Learning Representations ,2023. URL https://openreview.net/forum? id=6K2RM6wVqKu .13 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+## A. Chem4DBench 
+
+We provide further details in constructing the Chem4D benchmark 
+
+A.1. Reaction Product Prediction 
+
+Chemical reactions represent a fundamentally 4D scenario, where atoms evolve from initial reactant positions through high-energy transition states to final product geometries. To decouple the understanding of reaction mechanisms from simple 2D pattern matching, we constructed the Reaction Product Prediction task using two complementary quantum-chemical datasets: Transition1x (Schreiner et al., 2022) and RGD1 (Zhao et al., 2023). For both datasets, we constructed the task by providing the LLM with two 3D frames—the initial reactant geometries and the TS geometries—and asking it to predict the product SMILES, reaction barrier, and reaction enthalpy. To evaluate the model’s performance in various OOD cases, we constructed four distinct evaluation splits: an in-distribution (ID) split and three out-of-distribution (OOD) splits—OOD-Reactants, OOD-Products, and OOD-Both. These OOD splits are determined via scaffold partitioning, ensuring that the evaluation probes the model’s ability to extrapolate to molecular frameworks that are structurally distinct from those seen during training. 2 4 6 8 10             
+
+> Number of Atoms
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> 120
+> 140
+> Count
+> (a) Molecular Size Distribution
+> 0123456
+> Barrier (eV)
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 80
+> Count
+> (b) Reaction Barrier Distribution
+> 3210123
+> Enthalpy (eV)
+> 0
+> 25
+> 50
+> 75
+> 100
+> 125
+> 150
+> 175
+> 200
+> Count
+> (c) Reaction Enthalpy Distribution
+
+Figure 4. Statistical distribution of Reaction Product Prediction in the Chem4D benchmark. (a) The distribution of the number of atoms. (b) The distribution of the reaction barrier (eV). (c) The distribution of the reaction enthalpy (eV). 
+
+A.2. Catalytic Reaction 
+
+Heterogeneous catalysis involves complex spatio-temporal processes where reactants adsorb onto extended surfaces, undergo bond rearrangements mediated by the catalyst, and subsequently desorb as products. Compared to gas-phase or isolated molecular reactions, catalytic systems introduce additional challenges, including PBC (PBC), surface–adsorbate interactions, and collective atomic rearrangements of the catalyst lattice. To capture these characteristics, we construct the Catalytic Reactions category, which focuses on surface-mediated reaction dynamics in periodic environments. We build this subset based on the OC20-NEB dataset (Wander et al., 2025), an extension of Open Catalyst 2020 (Chanussot et al., 2021) that provides nudged elastic band (NEB) trajectories for surface reactions. OC20-NEB explicitly resolves transition pathways for three key classes of elementary surface reactions—transfer, dissociation, and desorption—by tracing the atomic-scale evolution from reactant states, through transition-state (TS) regions, to product configurations. To overcome the limited scale of OC20-NEB ( ∼ 700 samples), we further augment this category with approximately 6,000 additional surface-reaction trajectories. We start by sampling catalyst–adsorbate reactant states from OC20 (Chanussot et al., 2021). For each sampled structure, we randomly assign a reaction class (transfer, dissociation, or desorption) and re-simulate the corresponding pathway with NEB optimization using the pretrained UMA model as the underlying surrogate potential. We record energies along the reaction coordinate to identify the TS frame, reaction barrier ( ∆E‡), and reaction enthalpy ( ∆H). This augmentation yields a larger and more diverse set of kinetically meaningful surface reaction pathways, substantially strengthening evaluation of 4D 4D understanding under PBC. 14 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 0 50 100 150 200              
+
+> Number of Atoms
+> 0
+> 200
+> 400
+> 600
+> 800
+> 1000
+> Count
+> (a) Number of Atoms Distribution
+> 0246810 12
+> Barrier (eV)
+> 0
+> 250
+> 500
+> 750
+> 1000
+> 1250
+> 1500
+> 1750
+> Count
+> (b) Reaction Barrier Distribution
+> 5.0 2.5 0.0 2.5 5.0 7.5 10.0 12.5
+> Enthalpy (eV)
+> 0
+> 1000
+> 2000
+> 3000
+> 4000
+> 5000
+> Count
+> (c) Reaction Enthalpy Distribution
+
+Figure 5. Statistical distribution of Catalytic Reaction Understanding in the Chem4D benchmark. (a) The distribution of the number of atoms. (b) The distribution of the reaction barrier (eV). (c) The distribution of the reaction enthalpy (eV). 
+
+## B. Evaluation Protocol 
+
+Evaluation is performed separately for each Chem4D category, with metrics designed to reflect both linguistic correctness and underlying chemical and physical validity, as summarized in Tables 1, 2. 
+
+Reaction Product Prediction. For gas-phase reaction product prediction, we measure product SMILES accuracy using EXACT match and Levenshtein distance, capturing strict correctness and string-level edit error. Second, we compute structural similarity between predicted and ground-truth products using fingerprint metrics: MACCS, RDK, and Morgan. Third, we report VALIDITY, defined as the fraction of predicted SMILES that are chemically valid (i.e., can be parsed into a molecular graph). Fourth, we evaluate intrinsic physical targets—reaction barrier ( ∆E‡) and reaction enthalpy (∆H)—using mean absolute error (MAE) in eV. Finally, we report sequence-level BLEU to quantify overall similarity between predicted and reference SMILES. Performance is reported on both in-domain (ID) and out-of-distribution (OOD) splits to evaluate extrapolative generalization. 
+
+Catalytic Reactions. For heterogeneous catalysis under PBC, evaluation focuses on joint reasoning over surface structure, reaction type, and energetics. As shown in Table 2, we report reaction type accuracy (transfer, dissociation, desorption), Adsorbate EXACT and Product EXACT match rates, together with their corresponding Morgan similarities. Reaction barriers and enthalpies are again evaluated using MAE. These metrics collectively assess whether the model correctly identifies the catalytic event, predicts physically correct surface-bound structures, and captures the associated energetic landscape. 
+
+## C. Details of baselines 
+
+C.1. Chem3DLLM 
+
+We consider Chem3DLLM (Jiang et al., 2025) baseline that converts molecular geometries into structured natural-language descriptions, enabling a standard large language model to consume 3D information without any dedicated geometric encoder. This design is intentionally lightweight and contrasts with multimodal architectures that rely on learned 3D embeddings or equivariant networks. 
+
+Difference from SDF-to-text in Chem3DLLM. Unlike the SDF-to-text encoding used in Chem3DLLM, which performs a includs exact bond orders and coordinates via compressed tokenization, the 3D text-based baseline adopted here is descriptive rather than generative. It does not aim to reconstruct the original structure from text, nor does it preserve complete bonding information. Instead, it provides a human-readable geometric summary—atomic identities, Cartesian coordinates, and a bounded set of local interatomic distances—sufficient for downstream reasoning tasks such as adsorption understanding and reaction description. As a result, this baseline trades reversibility and completeness for simplicity and prompt efficiency. 15 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+Handling periodic boundary conditions. For periodic systems, which are common in heterogeneous catalysis, the text-based baseline explicitly exposes lattice information rather than attempting to encode periodicity implicitly. When PBC are present, the 3 × 3 lattice matrix is printed as three basis vectors labeled by the x, y, and z directions. Atomic positions are reported in Cartesian coordinates within the reference cell. Neighbor distances under PBC are computed using a radius-based search that accounts for periodic images. In practice, the unit cell is tiled sufficiently to ensure that all neighbors within the cutoff radius are captured. For slab geometries, periodicity is applied only in the surface plane, while the surface-normal direction remains non-periodic. After candidate neighbors are generated from periodic images, a strict cap on the maximum number of neighbors per atom is enforced to maintain a bounded and consistent textual representation. 
+
+C.2. 4D Text-based 
+
+We modify Chem3DLLM to 4D Text-based by representing a molecular trajectory as an ordered sequence of frames, where 
+
+X0 denotes the initial state and Xt denotes the configuration at time step t. To control prompt length and ensure scalability to long trajectories, we adopt a compact text-based encoding that combines numeric truncation with sparse temporal updates. 
+
+Initial State Encoding ( X0). The first frame provides a complete description of the system. For each atom, we record its chemical symbol and absolute Cartesian coordinates (x, y, z ), rounded to two decimal places. For periodic systems, the 
+
+3 × 3 lattice matrix is explicitly included as three basis vectors. To expose local geometric context, we construct a radius-based neighborhood graph with a cutoff of 2.5 ˚A . To bound the textual length, we cap the maximum number of neighbors per atom at k = 4 , retaining only the nearest neighbors. For systems under PBC, distances are computed using the minimum image convention. The resulting neighborhood information is serialized as tuples of the form (src idx, tgt idx, distance) , where all distances are also rounded to two decimal places. 
+
+Sparse Differential Encoding ( Xt> 0). For subsequent frames, we apply a sparse, event-driven encoding strategy. Instead of re-listing the full structure, we include only atoms whose displacement exceeds a predefined threshold. Specifically, an atom i is reported at frame t only if 
+
+∥r(t) 
+
+> i
+
+− r(t−1)  
+
+> i
+
+∥ > δ, δ = 0 .1 ˚A.
+
+For each such atom, we report: 1st, Geometry updates: the updated Cartesian coordinates, rounded to two decimal places. 2nd, Topology updates: newly computed neighbor distances, but only for edges incident to atoms that satisfy the displacement criterion. Atoms that do not exceed the displacement threshold are omitted entirely from the frame description. This design significantly reduces token consumption for rigid or inactive regions, while preserving high-resolution information around dynamically evolving reaction centers. The final input to the language model is formed by concatenating the textual descriptions of X0 and all subsequent sparse updates {X t}t> 0. This representation allows the LLM to reason over temporal evolution while remaining within a practical context window. Table 3 provides the examples of Chem3DLLM and 4D Text-based methods. 
+
+4D-MolT5. We further develop 4D-MolT5 as a temporal extension of 3D-MolT5, designed to interpret molecular dynamics and reaction pathways by lifting static spatial encoding into the temporal domain. In 3D-MolT5, a 1D SELFIES sequence is aligned with a single static 3D molecular conformation, which limits its ability to represent conformational ensembles, transition states, or trajectory-dependent phenomena. In contrast, 4D-MolT5 processes an entire molecular trajectory. Formally, a 4D trajectory is represented as a sequence of T frames, 
+
+D = {D(1) , D (2) , . . . , D (T )},
+
+where each D(t) corresponds to the 3D token sequence of the molecule at time step t. To capture spatiotemporal dependencies without modifying the underlying T5 encoder architecture, we flatten the temporal dimension into the token sequence dimension. This results in an extended input sequence of length T × N , where N is the number of atoms. 16 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding 
+
+Table 3. Example inputs for Chem3D-style (3D) and 4D-text-based models. Both settings aim to predict the product SMILES, reaction barrier, and reaction enthalpy, but differ in how geometric information is provided.                                                                                                                                     
+
+> Chem3DLLLM-style (3D Input) 4D-Text-based (Trajectory Input)
+> Given the reactant and transition state geometries, predict the product SMILES, reaction barrier and reaction enthalpy. The geometry is as follows: The system is non-periodic. The atom and its position are as follows: C1 -1.6169 0.5542 0.9918 C2 -2.2864 -0.7707 1.3265 C3 -1.4256 0.7574 -0.4801 ... H21 1.0702 -0.4440 -2.0669 The distance between atoms is as follows: atom1_index atom2_index distance(A) 171.0930 161.0964 ... 21 19 2.3363 Given the reactant and transition state geometries, predict the product SMILES, reaction barrier and reaction enthalpy. The geometry is as follows: Frame 1: The system is non-periodic. The atom and its position are as follows: C1 -1.62 0.55 0.99 C2 -2.29 -0.77 1.33 ... The distance between atoms is as follows: atom1_index atom2_index distance(A) 171.09 161.10 ... 21 19 2.34 Frame 2: The atom with big movements are listed as follows: C1 0.77 1.22 -0.69 C2 2.26 1.20 -0.37 ... H21 -1.48 -1.01 1.37 New edge distances: atom1_index atom2_index distance(A) 171.09 161.09 ... 21 19 2.25
+
+To preserve atom-level semantic alignment across time, the corresponding 1D SELFIES-based semantic tokens are broad-casted T times and paired with each frame. This serialization strategy allows the global self-attention mechanism of T5 to jointly model intra-frame spatial geometry and inter-frame temporal evolution, effectively enabling the model to observe 
+
+molecular dynamics and reaction trajectories as a unified 4D sequence. While this approach allows 4D-MolT5 to ingest time-resolved structural information using an unmodified language backbone, it relies on sequence flattening and lacks explicit mechanisms to preserve atomic identity or enforce physical inductive biases across frames, which can limit scalability and fine-grained causal reasoning for long trajectories or large systems. 
+
+## D. Output Example 
+
+17 Chem4DLLM: 4D Multimodal LLMs for Chemical Dynamics Understanding Query: Given the reactant and transition state geometries, predict the 
+
+product SMILES, reaction barrier and reaction enthalpy. 
+
+t= 1 t=2 
+
+Label: The product SMILES is CCCCCO.O, the reaction barrier is 3.225 eV, 
+
+reaction enthalpy is 0.945 eV. 
+
+3D -MoLM: The product SMILES is CC(O)CCCO.[H][H], the reaction barrier is 
+
+5.060 eV, reaction enthalpy is 1.780 eV. 
+
+3D -MolT5: The product SMILES is CC(C=O)CCO, the reaction barrier is 4.610 
+
+eV, reaction enthalpy is 0.000 eV. 
+
+Chem3DLLM: The product SMILES is CC(C(=O)C)CO, the reaction barrier is 
+
+2.420 eV, reaction enthalpy is -1.220 eV. 
+
+4D -MolT5: The product SMILES is CC(O)CCCO, the reaction barrier is 2.780 
+
+eV, reaction enthalpy is 0.390 eV. 
+
+4D Text -based: The product SMILES is CC(=O)CC(=C)O, the reaction barrier 
+
+is 1.920 eV, reaction enthalpy is -0.600 eV. 
+
+Chem4DLLM: The product SMILES is CCCCCO.O, the reaction barrier 
+
+is 3.280 eV, reaction enthalpy is 0.890 eV. 
+
+Figure 6. Sample of Reaction Product Prediction Query: Given the provided reaction trajectory on a catalyst surface, identify 
+
+the reaction, the catalyst involved, the transition state along the pathway, 
+
+and determine the reaction energy barrier and reaction enthalpy. 
+
+t= 1 t=3 
+
+Label: This is a [H][N -][N -][O -] transfer on Pd3Zn(111) surface. The Transition 
+
+State occurred at step 1. The reaction barrier is 0.56 eV and the reaction 
+
+enthalpy is 0.52 eV. 
+
+Chem3DLLM: This is a [H]O[N -][N+]([H])[H] transfer on Pd2Zn(111) surface. 
+
+The Transition State occurred at step 3. The reaction barrier is 0.71 eV and the 
+
+reaction enthalpy is 0.67 eV. 
+
+4D Text -based: This is a [H]ON=O desorption on Pd3Zn(101) surface. The 
+
+Transition State occurred at step 3. The reaction barrier is 0.82 eV and the 
+
+reaction enthalpy is 0.82 eV. 
+
+Chem4DLLM : This is a [H][N -][N -][O -] transfer on Pd3Zn(001) surface. 
+
+The Transition State occurred at step 2. The reaction barrier is 0.01 eV 
+
+and the reaction enthalpy is -0.02 eV .
+
+t=5 t=7 
+
+Figure 7. Sample of Catalytic Reaction Understanding 
+
+18

@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-001.webp",
+      "caption": "Figure 5: Generative prior (GP) pipeline for HDR dynamic radiance fields optimization. Unseen novel views are first rendered and then refined via a GP to restore details in regions with broken correspondences. These enhanced views serve as pseudo-labels for the progressive optimization of HDR dynamic radiance fields. This bootstrapping mechanism stabilizes correspondences, mitigating issues related to sparse viewpoints and saturated pixels in monocular videos with alternating exposures.",
+      "page": 6,
+      "index": 1,
+      "width": 822,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-002.webp",
+      "caption": "Figure 2: Comparison of HDR video reconstruction on training views. Given alternating-exposure video, HDR video reconstruction baselines, i.e., LAN-HDR (Chung and Cho, 2023), HDRFlow (Xu et al., 2024), and NECHDR (Cui et al., 2024) fail to produce consistent results, while our model ensures temporal coherence and recovers valid information in saturated regions.",
+      "page": 2,
+      "index": 2,
+      "width": 808,
+      "height": 525
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-003.webp",
+      "caption": "Figure 6: Evaluation setup and sampled sequences from our proposed GoPro dataset. To evaluate novel view synthesis, we use nine GoPro Hero 13 Black cameras synchronized to record multi-view video at three exposures (mid, low, high). We construct a alternating-exposure monocular video by selecting one frame per time step across exposures, and use the remaining views for evaluation.",
+      "page": 7,
+      "index": 3,
+      "width": 786,
+      "height": 311
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-004.webp",
+      "caption": "Figure 9: Qualitative results on novel LDR/HDR view synthesis. We visualize LDR rendering results at varying exposure levels (low, mid, and high), tone-mapped HDR rendering by ours and corresponding ground-truth HDR references. We also visualize histograms of our HDR images and ground truth. For better visualization, we plot HDR histogram using smoothed KDE method.",
+      "page": 10,
+      "index": 4,
+      "width": 826,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-005.webp",
+      "caption": "Figure 7: Qualitative results of novel view synthesis on GoPro dataset. The odd-numbered rows show the LDR-rendered novel views along with their corresponding L1 error maps against the groundtruth novel view (leftmost). Our method consistently yields the smallest error across all scenes. The even-numbered rows present tone-mapped HDR novel views. Compared with HDR-HexPlane (Wu et al., 2024a), our approach produces more accurate radiance, geometry, and motion representations.",
+      "page": 8,
+      "index": 5,
+      "width": 784,
+      "height": 726
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-006.webp",
+      "caption": "Figure 3: Overall pipeline of our proposed method. HDR-NSFF takes an alternating-exposure monocular video as input and estimates 3D scene flow for the sampled points along each ray. Neighboring frames are then warped to render the HDR radiance at the target frame, which is tonemapped to LDR via a white-balance and camera-response function module. Photometric loss with the ground-truth LDR images, along with optical flow and depth constraints from off-the-shelf models, jointly optimize both the scene flow fields and tone-mapping module in an end-to-end manner.",
+      "page": 4,
+      "index": 6,
+      "width": 814,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08313v1/fig-007.webp",
+      "caption": "Figure 4: Visualization of flow estimation under varying exposure conditions. RAFT yields noticeable errors when exposures vary. Even with gamma correction, RAFT (Gamma) still fails to produce accurate results. While fine-tuning on synthetic data RAFT (Finetuned) shows moderate improvement, our proposed semantic-based approach achieves superior accuracy.",
+      "page": 5,
+      "index": 7,
+      "width": 816,
+      "height": 464
+    }
+  ]
+}

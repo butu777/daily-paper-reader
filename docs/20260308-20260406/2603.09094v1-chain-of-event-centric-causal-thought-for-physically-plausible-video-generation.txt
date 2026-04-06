@@ -1,0 +1,413 @@
+Title: Chain of Event-Centric Causal Thought for Physically Plausible Video Generation
+
+URL Source: https://arxiv.org/pdf/2603.09094v1
+
+Published Time: Wed, 11 Mar 2026 00:27:21 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# Chain of Event-Centric Causal Thought for Physically Plausible Video Generation 
+
+## Zixuan Wang *
+
+## Sichuan University Chengdu,China 
+
+zixuan98@stu.scu.edu.cn 
+
+## Yixin Hu *
+
+## Sichuan University Chengdu,China 
+
+yixinhu@stu.scu.edu.cn 
+
+## Haolan Wang Sichuan University Chengdu,China 
+
+haolan.wang.scu@gmail.com 
+
+## Feng Chen The University of Adelaide Adelaide, Australia 
+
+chenfeng1271@gmail.com 
+
+## Yan Liu Hong Kong Polytechnic University Hong Kong, China 
+
+yan2297.liu@polyu.edu.hk 
+
+## Wen Li University of Electronic Science and Technology of China Chengdu,China 
+
+liwen@uestc.edu.cn 
+
+## Yinjie Lei †
+
+## Sichuan University Chengdu,China 
+
+yinjie@scu.edu.cn Retrieve physical formula 
+
+Event N Metadata 
+
+Event 1 Metadata 
+
+First , ... oil pours and grows slightly. 
+
+Finally , ... oil layer upon water layer. 
+
+Semantic Prompt 
+
+Summarize 
+
+• Semantic compression 
+
+• Causal conjunctions 
+
+Event 1 Description 
+
+Event N Description 
+
+... 
+
+Drag, mask, …
+
+Editing Operator 
+
+Keyframe n 
+
+Define Operator 
+
+• Operator type 
+
+• Operator parameters 
+
+Visual Prompt 
+
+Image Editing Update 
+
+Formula 
+
+Volume conservation: 
+
+Text Prompt 
+
+The oil in the beaker was 
+
+poured into the 
+
+water in the beaker. 
+
+…
+
+Generated Video 
+
+... 
+
+Update the following event metadata based on the physical formula: 
+
+• Physical condition 
+
+• Scene graph 
+
+> Oil above Water below
+> Level height=3cm
+> Oil
+> Water Level height=1cm
+
+Image Editing Model Large Language Model 
+
+Transition-aware 
+
+Cross-modal Prompting (TCP , Sec. 3.3 )
+
+Physics-driven 
+
+Event Chain Reasoning (PECR , Sec. 3.2 )
+
+Key Objects 
+
+## ... 
+
+Query 
+
+Text Prompt 
+
+Video Diffusion 
+
+User Instruction 
+
+... MM DiT 
+
+MM DiT 
+
+MM DiT 
+
+Figure 1. Overview of our physically plausible video generation framework. We firstly decompose complex physical phenomena into a sequence of elementary events guided by physical formulas ( Sec. 3.2), and secondly map logically ordered events to a holistic description and a set of keyframes, both of which are causally coherent ( Sec. 3.3). Our inferred vision-language prompts enable off-the-shelf diffusion frameworks to generate videos capturing the causal progression of physical phenomena.  
+
+> *
+
+Equal contribution.  
+
+> †
+
+Corresponding author. 
+
+## Abstract 
+
+Physically Plausible Video Generation (PPVG) has emerged as a promising avenue for modeling real-world physical phenomena. PPVG requires an understanding of 
+
+> arXiv:2603.09094v1 [cs.CV] 10 Mar 2026
+
+commonsense knowledge, which remains a challenge for video diffusion models. Current approaches leverage com-monsense reasoning capability of large language models to embed physical concepts into prompts. However, genera-tion models often render physical phenomena as a single moment defined by prompts, due to the lack of conditioning mechanisms for modeling causal progression. In this pa-per, we view PPVG as generating a sequence of causally connected and dynamically evolving events. To realize this paradigm, we design two key modules: (1) Physics-driven Event Chain Reasoning. This module decomposes the phys-ical phenomena described in prompts into multiple ele-mentary event units, leveraging chain-of-thought reasoning. To mitigate causal ambiguity, we embed physical formu-las as constraints to impose deterministic causal dependen-cies during reasoning. (2) Transition-aware Cross-modal Prompting (TCP). To maintain continuity between events, this module transforms causal event units into temporally aligned vision-language prompts. It summarizes discrete event descriptions to obtain causally consistent narratives, while progressively synthesizing visual keyframes of indi-vidual events by interactive editing. Comprehensive experi-ments on PhyGenBench and VideoPhy benchmarks demon-strate that our framework achieves superior performance in generating physically plausible videos across diverse phys-ical domains. Our code will be released soon. 
+
+## 1. Introduction 
+
+PPVG has opened up a wide range of real-world applica-tions, including movie production [1], autonomous driv-ing [2], and embodied AI [3]. In recent years, video dif-fusion models, such as Kling [4] and OpenAI-Sora [5], have demonstrated remarkable capabilities in synthesizing photorealistic scenes from user prompts. However, brief prompts fail to provide the detailed physical laws required for the physically plausible generation. Additionally, video diffusion models lack the ability to implicitly infer com-monsense knowledge from these prompts. This gap hinders such generative models from simulating real-world physi-cal phenomena, e.g. , fluid dynamics, light refraction, and thermodynamic effects. Recent PPVG studies [6–8] have augmented user prompts with physical concepts based on Large Language Model (LLM)-assisted reasoning. The augmented prompts act as clearer physical constraints, guiding video generative models to render appearance and style with higher physical plausibility. However, these approaches typically simplify the generated physical phenomena to a single moment de-fined by static prompts. This challenge arises due to sev-eral key factors: (1) Causal Ambiguity . In the real-world, physical phenomena unfold as causally ordered event units. Unfortunately, embedding a semantic tag to describe such complex phenomena often fails to capture their dynamic na-ture. This requires a structured decomposition of physical phenomena by causal deterministic reasoning. (2) Insuffi-cient Physics-consistent Constraints. Language alone is in-herently incapable of conveying the causal continuous be-tween events. Visual cues ( e.g. , reference videos) can pro-vide observable evidence of event transitions. Even so, vi-sual priors tightly aligned with specified physical phenom-ena are often hard to obtain. In this paper, we propose an event-centric physically plausible video generation framework that models physical phenomena as transitions between causally linked events, as shown in Fig. 1. The framework consists of two core mod-ules: (1) We design a Physics-driven Event Chain Reason-ing (PECR) module ( Sec. 3.2) to decompose physical phe-nomena into a sequence of fine-grained event units. To mit-igate causal ambiguities, we embed computational analysis driven by physical formulas into the reasoning process with scene graphs. This enables the inference of physically real-istic events with clear causal relationships. (2) We develop a Transition-aware Cross-modal Prompting (TCP) module ( Sec. 3.3) to ensure causal coherence and visual continu-ity between generated events, through the synergy of se-mantic and visual prompts. From a semantic perspective, this module compresses multiple event descriptions into a single causally consistent representation using causal con-junctions. On the visual side, this module uses keyframes synthesized by interactive editing as visual prompts, main-taining the smooth transition between events. We evaluate our framework on PhyGenBench [9] and VideoPhy [10] benchmarks. Our framework signifi-cantly outperforms current PPVG approaches on physics-informed metrics across diverse physical domains. Cru-cially, videos generated by our framework can preserve rea-sonable chronological order of physical events. Our contri-butions are summarized as follows: • We propose an event-centric generation framework that models physically plausible videos as sequences of causally connected and dynamically evolving events. • To address causal ambiguity, we decompose physical phenomena into causally ordered event units by causal reasoning with deterministic physical constraints. • To constrain continuous generation between physical events, we synthesize temporally aligned semantic-visual prompts to guide event transitions. • Comprehensive experiments demonstrate that our frame-work outperforms existing methods in generating physi-cally realistic and causally coherent videos. 
+
+## 2. Related Works 
+
+Physical Plausible Video Generation. To make videos obey physical laws, physics-aware generation has been ex-plored. Several works [11–13] characterize physical phe-nomena through simulations based on graphics engines ,which are integrated into diffusion sampling to enhance physical realism. Unfortunately, engine properties re-quire manual specification. To handle diverse open-domain physical phenomena , VideoREPA [14] leverages physi-cal knowledge from foundation models. WISA [15] and PhysHPO [16] guide diffusion models to learn physical phe-nomena from decomposed principles. VLIPP [17], DiffPhy [8], PAG-SAD [7], and PhyT2V [6] leverage CoT reasoning to design physics-aware prompts. However, physical events unfold as causally ordered processes, while current meth-ods, hindered by lack of causal modeling, often collapse them into a single scene. 
+
+Chain-of-Thought in Visual Generation. Recent stud-ies have adapted CoT reasoning [18] from language un-derstanding to visual generation. These approaches are di-vided into two categories. The first leverages reasoning before generation paradigm to augment conditioning sig-nals. For example, IRG [19] and Draw-In-Mind [20] re-fine user prompts for fine-grained image generation. Lay-erCraft [21], and GoT [22] enable the generation of multi-ple objects by reasoning about spatial arrangements. Oth-ers embed step-by-step reasoning into the synthesis process through reasoning during generation paradigm. For exam-ple, Z-Sampling [23] performs diffusion self-reflection, ex-ploiting the gap between denoising and inversion to enhance semantic consistency. Visual-CoG [24] adopts a chain-of-guidance framework with reinforcement learning to super-vise each generation stage. However, current approaches mainly focus on semantic and spatial reasoning, neglecting the modeling of deterministic causal relationships. 
+
+Dual-Prompt in Video Generation. While natural lan-guage defines scene semantic, it often underspecifies de-tailed geometry and motion. Accordingly, visual cues are introduced to guide video generation, including reference image, spatial layouts, and motion priors. Some works [25– 29] employ reference image as the appearance prior for gen-erating high-fidelity textures and diverse visual styles. To enhance geometric details, several studies introduce spa-tial layouts during generation. For example, SketchVideo [30] leverages sketches to constrain the contours of objects. DyST-XL [31] and BlobGEN-Vid [32] specify the locations of objects through bounding boxes and blobs, respectively. Given the dynamic nature of videos, recent studies use mo-tion priors to capture sophisticated trajectories. For exam-ple, TrackGo [33] and Mojito [34] regulate the direction and intensity of movement to achieve smooth dynamics. However, these approaches primarily constrain individual scenes, lacking the ability to ensure smooth transitions be-tween multiple events. 
+
+## 3. Methodology 
+
+3.1. Overall Framework 
+
+Given a user-provided linguistic description w of physi-cal phenomenon, our goal is to generate the corresponding physically plausible video V which characterizes underly-ing progression of described phenomenon. 
+
+Γ : w → V, (1) where Γ denotes our physics-aware video generation frame-work. Specifically, our framework is organized as two syn-ergistic modules. In Sec. 3.2, we design a Physics-driven Event Chain Reasoning (PECR) module, which interprets each complex phenomenon described in user-provided de-scription into an ordered collection of physical events. In Sec. 3.3, we develop a Transition-aware Cross-modal Prompting (TCP) module, which bridges the event chain in-ferred by PECR module to the video generation process. In-stead of time-invariant linguistic descriptions and reference images, our TCP module dynamically synthesizes dual-conditions evolving with physical processes. Overall, our framework captures the continuous evolution of physical processes, allowing the generated videos to faithfully repro-duce dynamic physical phenomena. 
+
+3.2. Physics-driven Event Chain Reasoning 
+
+Physical phenomenon involves the progression of events to-gether with the corresponding changes of the physical pa-rameters. Current studies [6, 8] typically bind a physical phenomenon to an individual object, and simply use a se-mantic tag to coarsely describe each phenomenon. Unlike such approaches, we conceptualize physical phenomena as a series of causally ordered events, as shown in Fig. 2. Each event can be regarded as a composite unit, encompassing descriptive information of objects’ semantic and interac-tions, as well as measurable physical conditions governed by physics formulas. This enables the characterization of crucial moments in a physical process from both qualitative and quantitative perspectives. 
+
+Physics Formula Grounding. To numerically describe physical processes, we perform reasoning over the physics formulas F∗ based on the physical laws L embedded in the linguistic description w. Specifically, physical laws L are determined by question answering, where options are de-fined according to [35]. Formula names associated with physical laws are inferred from the linguistic description. After that, inferred formula names NL are used as queries to retrieve physical formulas F∗ from knowledge bases. 
+
+F∗ = TopK f ∈F L P (f | N L, L), (2) where FL denotes all formulas in the online knowledge base associated with physical laws L. P (·) is the scoring Physics Phenomena Decomposition Physics Formula Grounding Text Prompt                                                       
+
+> The oil in the beaker was poured into the water in the beaker.
+> Physical Condition Check Oil height rise = 110 A2h2A1
+> …=h1
+> Scene Graph
+> <beaker 1> <water> <oil> <beaker 2> <oil> contain contain float on contain pour into List all the physical parameters
+> required for the calculation.
+> Physical Parameters
+> A1=52 cm 2,h1=5 cm A2=8 cm 2,h2=6 cm
+> h1A1A2
+> h2Infer the physical condition of event n.
+> event n-1
+> physical condition Infer the scene graph of event n. × N Retrieve the physical formula that fits the phenomenon described in the text prompt.
+> Formula
+> A1h1= A 2h2
+> Base Area: A1,A2; Liquid Height: h1,h2
+> Volume Conservation Law
+
+Query  
+
+> event n-1
+> scene graph
+> Event Metadata
+> <beaker 1, contain, water> <beaker 1, contain, oil> <beaker 2, contain, water> <oil, float on, water> <oil, pour into, beaker 1>
+> event n
+> Oil height rise 110 h1
+> event 1 event N
+> ……
+
+Figure 2. Overview of our PECR module ( Sec. 3.2). This module conceptualizes physical phenomena in user-provided descriptions as a series of causally ordered events governed by real-world physical formulas, where each event encompasses semantic descriptions and measurable physical parameters for key objects. This characterizes the underlying scene changes induced by such phenomena. 
+
+function over the candidate formulas FL. When no direct match of inferred formula names NL is found in FL, we regenerate formula names using FL. Once the formula is retrieved, the physical parameters required for formula anal-ysis are set by commonesense reasoning. 
+
+Physical Phenomena Decomposition. To characterize the scene changes induced by complex physical phenomena, we decompose these phenomena into an ordered sequence of key events {E t}Tt=1 = {{C t}Tt=1 , {G t}Tt=1 }. Where 
+
+{E t}Tt=1 denotes the metadata of events, {C t}Tt=1 specifies the physical conditions, {G t}Tt=1 denotes the dynamic scene graph, and T is the event number. Physical conditions are calculated on the basis of our re-trieved physics formulas. Intermediate quantities produced during the analytical calculation provide additional physi-cally meaningful signals. By analyzing whether significant variations occur in physical parameters, the boundaries of physical events can be determined. These boundaries en-able the continuous video to be discretized into a sequence of events. 
+
+Ct =   Pt, F∗(Pt) ∥Pt − Pt−1∥ > τ p , (3) where Pt denotes the physical parameter vectors of all ob-jects within the t-th event. τp is the variation threshold, de-termining whether the change in physical parameters is suf-ficient to indicate a new event. In order to ensure physical consistency, the parameters inferred for current event are validated against those of neighboring events by detecting abrupt changes that violate physical continuity. When in-valid changes are found, the corresponding parameters and physical contexts are fed back for re-inference. After that, we update the scene graph based on physical conditions. Given Ct, we update the nodes Vt and edges 
+
+Rt of the scene graph Gt = {V t, Rt}. For nodes Vt, ap-pearance ( e.g. , liquid changes color) or semantic label ( e.g. ,burn to ashes) would be updated according to variations in their physical parameters. Update of edges Rt is driven by changes of interactions between objects ( e.g. , a decrease in distance), which requires considering coordinated vari-ations of physical parameters across multiple objects, that is: 
+
+Gt = Φ( Gt−1, Ct), (4) where Φ( ·) denotes the scene graph update function, which incorporates physical variations captured in Ct into previous scene graph Gt−1 to produce current new graph Gt.
+
+3.3. Transition-aware Cross-modal Prompting 
+
+With a sequence of events inferred from the previous stage, the key challenge is to bridge such events to physically real-istic video generation. A dual-condition framework [26, 28] serves as a promising solution. However, current frame-works fail to make conditions evolve over time, leading to an inability to capture events’ progression. Unlike prior work, we progressively synthesize semantic–visual prompts for each event while preserving seamless temporal progres-sion, as shown in Fig. 3. The semantic prompt serves as a guidance during the denoising and the visual prompt re-places original Gaussian noise to provide physics-aware pri-ors. Generation process is formally defined as: 
+
+Zτz −1 = ϵθ (Zτz ; W), (5) where Zτz denotes the visual priors. W specifies the em-bedding of linguistic description. ϵθ is denoising network of the video diffusion model. 
+
+Progressive Narrative Revision. Describing events in-dependently can disrupt holistic coherence of narratives. Generated Video Visual Prompt 
+
+# ...      
+
+> Select and define an operator for keyframe editing. Generate the description of event <n> by minimally revising.
+> Semantic Prompt
+> First , …liquid rises slightly…
+> Finally , the liquid surface …
+> Summarize all event descriptions into one concise.
+> Event n Description: the oil gradually pours into the beaker as a stream ... showing the change that liquid surface slightly rising. × N × N event <1> →event <2>: 52 frames event <n-1> →event <n>:
+
+...   
+
+> Event Metadata from PECR
+> Determine the interpolation steps between keyframes. mask add remove drag
+
+...   
+
+> Keyframe n-1 Keyframe n
+> Qwen Image Edit
+> MM DiT MM DiT Video Diffusion Framework Text Encoder
+> Frame Interpolation
+> Keyframe n-1
+> ...
+> Keyframe N Keyframe 1 Keyframe 2
+
+Progressive Narrative Revision Interactive Keyframe Synthesis              
+
+> Drag Signal
+> P1:[(433,320),(433,360)] drag Pi=(x i, y i)Pi= (x i, y i+Δh)
+
+... 
+
+> Add Noise
+
+...  
+
+> Event n-1 Description Event 1 Description Event N Description
+> ...
+
+... Figure 3. Overview of our TCP module ( Sec. 3.3). This module aims to generate semantic-visual prompts for each event based on its meta data. Semantic prompts are inferred by our proposed progressive narrative revision, serving as the guidance during denoising steps. Visual prompts are obtained by our proposed interactive keyframe synthesis, replacing original noise to provide physics-aware priors. 
+
+Therefore, we perform minimal progressive revisions con-ditioned on the preceding context. Specifically, physi-cal conditions Ct constrain physically permissible transi-tions, e.g. , rising temperature allows “melting” and ex-cludes “freezing”. We employ scene graphs Gt to preserve object identities and to specify which attributes and rela-tions may change. Let wt denotes the description of the t-th event, we obtain wt via: 
+
+wt = LLM  wt−1 + ∆( wt−1, Ct, Gt), (6) where ∆( ·) denotes an incremental semantic revision guided by Ct and Gt.Video diffusion models typically condition on a single sentence. However, concatenating multiple event descrip-tions produces semantic redundancy. Given this, we merge event descriptions into a positive semantic prompt via se-mantic condensation and causal connectives. Additionally, we construct a negative description w∗−. Two descriptions are embedded separately and concatenated as: 
+
+W = [ ψtext (w∗
+
+> +
+
+); ψtext (w∗−) ] , (7) where ψtext (·) is the text encoder. 
+
+Interactive Keyframe Synthesis. While language provides conceptual semantic guidance, physically realistic details remain under-specified, due to the ambiguity of linguistic description. To embed physics-aware details into random Gaussian noise, we synthesize keyframes vt for each phys-ical event by interactive image editing. These generated keyframes serve as priors to guide video generation process. To be specific, we select the appropriate editing operator from a predefined set ( e.g. , drag or mask). The change in physical parameters across consecutive conditions acts as a numerical regularizer. It bounds the action space, including dragging magnitude and area of visual change. Practically, we draw operator cues on a source image to lead the modi-fications through Qwen-Image-Edit [36]. Each keyframe is obtained as follows: 
+
+Ot = LLM  (Ct−1, Gt−1) → (Ct, Gt), (8) 
+
+vt = Edit (vt−1; Ot) (9) where Ot denotes the editing operator. The keyframe v1 is directly synthesized from the event description. To provide a smooth progression, we apply linear inter-polation between keyframes. In parallel with inferring Ot,a physically plausible time span dt for the variation from the (t − 1) -th to the t-th event is also predicted, which de-termines how many in-between frames are interpolated be-tween vt−1 and vt. Because video diffusion models often operate in a compressed feature space, we use VAE [37] to encode each keyframe. Based on predicted time span and embedded keyframe features, we perform frame interpola-tion as follows: 
+
+z0,t = INTERP( ψimg (vt−1), ψ img (vt); dt
+
+, (10) where z0,t denotes the interpolated features for variation between two events. INTERP( ·) specifies linear interpo-lation. ψimg (·) is VAE encoder. Given a predefined timestep 
+
+τz , we add noise to [z0, . . . , zT ], serving as priors to denois-ing process of the video diffusion model. 
+
+Zτz = [ z0, . . . , zT ] + σ2 
+
+> τz
+
+ϵ, ϵ ∼ N (0 , I ), (11) where σ2 
+
+> τz
+
+denotes the variance of Gaussian noise. Table 1. Performance comparison on PhyGenBench [9] across four physical domains. The best and second-best results are high-lighted and underlined, respectively. Methods Physical domains ( ↑) Avg. Mechanics Optics Thermal Material                                                                            
+
+> Video Foundation Model
+> Lavie [40] 0.30 0.44 0.38 0.32 0.36 VideoCrafter v2.0 [41] ----0.48 Open-Sora v1.2 [42] 0.43 0.50 0.34 0.37 0.44 Vchitect v2.0 [43] 0.41 0.56 0.44 0.37 0.45 Wan [44] 0.36 0.53 0.36 0.33 0.40 Kling [45] 0.45 0.58 0.50 0.40 0.49 Pika [46] 0.35 0.56 0.43 0.39 0.44 Gen-3 [47] 0.45 0.57 0.49 0.51 0.51
+> Physics-aware Video Generation Model
+> WISA [15] ----0.43 DiffPhy [8] 0.53 0.59 0.58 0.46 0.54 CogVideoX-5B [38] 0.39 0.55 0.40 0.42 0.45 + PhyT2V [6] 0.45 0.55 0.43 0.53 0.50 + SGD [7] 0.49 0.58 0.42 0.48 0.49 + PhysHPO [16] 0.55 0.68 0.50 0.65 0.61 + Ours 0.67 0.72 0.65 0.60 0.66
+
+## 4. Experiments 
+
+4.1. Experimental Setups 
+
+Datasets. We evaluate on PhyGenBench [9] and Video-Phy [10] datasets. Specifically, PhyGenBench comprises 160 designed linguistic descriptions spanning 27 physical laws across four fundamental domains, namely mechanics, optics, thermal, and material. VideoPhy provides a collec-tion of 688 human-verified linguistic prompts, describing various physical interactions between objects, comprising solid-solid, solid-fluid, and fluid-fluid. 
+
+Evaluation Metrics. Following PhyGenBench [9], we use Physical Commonsense Alignment (PCA) as our met-ric, which indicates video quality by considering key phe-nomena detection, physics order verification, and over-all naturalness evaluation. For VideoPhy [10], we use its provided VideoCon-Physics evaluator to assess Seman-tic Adherence (SA) and Physical Commonsense (PC). SA evaluates whether a linguistic description is semantically grounded in generated video frames. PC examines whether the depicted actions and object properties conform to real-world physics laws. 
+
+Implementation Details. We use CogVideoX 5B [38] as our video generation baseline. Following the official imple-mentation, the video generation model is configured with 161 frames per sample and a resolution of 1360 ×768. For language reasoning, we employ an open-source GPT-OSS-20B [39] with the default configuration. We use the Qwen-Image family [36] for keyframe generation. 
+
+Table 2. PhyGenBench [9] evaluation of Phenomena Detection (PD) and Physical Order (PO).The best and second-best results are highlighted and underlined, respectively.                                            
+
+> Model Mechanics Optics Thermal Material PD PO PD PO PD PO PD PO Kling [45] 0.61 0.45 0.75 0.55 0.61 0.37 0.62 0.34 Wan [44] 0.61 0.40 0.76 0.56 0.50 0.27 0.58 0.25 DiffPhy [8] 0.73 0.53 0.83 0.66 0.70 0.58 0.73 0.43 Ours 0.79 0.79 0.84 0.85 0.78 0.69 0.75 0.58
+
+4.2. Evaluation on PhyGenBench 
+
+We compare our framework with video foundation models [38, 40–45, 47] and physics-aware video generation mod-els [6–8, 15, 16] on the PhyGenBench [9] benchmark. As shown in Tab. 1, our framework consistently achieves the best overall performance of 0.66, surpassing PhysHPO [16] (previous SOTA) by 8.19% on average. Detailed PhyGen-Bench evaluations of key phenomena and physical orders are provided in Tab. 2. As shown in Fig. 4, compared with the baseline CogVideo-5B [38], our framework achieves vi-sually more realistic generation of gradual sinking (row 1), light refraction (row 2), realistic melting (row 3), and nat-ural combustion (row 4). These results indicate the abil-ity of our framework to understand physical laws and their corresponding visual dynamics by explicitly considering causally ordered events. 
+
+4.3. Evaluation on VideoPhy 
+
+We compare our framework with some video generation models [6, 16, 38, 40–42, 46, 48–50] on the VideoPhy [10] benchmark. As shown in Tab. 3, our approach achieves 49.3% scores (SA=1, PC=1) in general, significantly out-performing previous SOTA approach PhysHPO [16] by ap-proximately 3.4%. This confirms the effectiveness of our framework in adhering to the semantic cues and follow-ing physical laws by leveraging vision-language prompts inferred via CoT reasoning. As shown in Fig. 5, compared with the baseline CogVideo-5B [38], our approach shows butter spreads along the knife path (row 1), honey pouring as a continuous viscous stream with a steadily rising liquid level (row 2), and the spring shortens monotonically under sustained compression (row 3). These cases emphasize that our framework can capture interactions between objects in diverse physical phases. 
+
+4.4. Ablation Studies 
+
+We perform ablation studies based on PhyGenBench [9] to systematically analyze the contributions of each block in our proposed PECR and TCP modules. 
+
+PFG and PPD blocks in PECR. We analyze the effective-ness of the Physics Formula Grounding (PFG) and Physi-cal Phenomena Decomposition (PPD) blocks in the PECR Baseline   
+
+> + Ours
+> Baseline
+> + Ours
+> Baseline
+> + Ours
+> Baseline
+> + Ours
+> A ray of light is shining diagonally on a glass bottle in the dark, with the shadow of the glass bottle appearing at the bottom .
+> A timelapse captures the gradual transformation of a piece of ice as the temperature rises significantly .
+> A small burning ball of paper was thrown into a pile of dry paper.
+> Ball sinking Dynamic lighting Ice melting Fire propagation
+> A glass ball is gently placed on the surface of a bathtub filled with water.
+
+Figure 4. Visualization of physics-aware video generation results across four physical domains. Compared with baseline CogVideo-5B [38], our approach yields causally coherent progressions of physical phenomena, e.g. , the glass ball sinks, the bottom shadow extends in the direction of the light, gradual melting of ice, fire spreading through the paper. All prompts are sourced from PhyGenBench [9]. Table 3. Performance comparisons on VideoPhy [10] across various physical interactions between objects. The best and second-best results are highlighted and underlined, respectively. Methods Overall (%) Solid-Solid (%) Solid-Fluid (%) Fluid-Fluid (%) SA, PC SA PC SA, PC SA PC SA, PC SA PC SA, PC SA PC 
+
+Video Foundation Model 
+
+VideoCrafter2 [41] 19.0 48.5 34.6 4.9 31.5 23.8 27.4 57.5 41.8 32.7 69.1 43.6 LaVIE [40] 15.7 48.7 28.0 8.5 37.3 19.0 15.8 52.1 30.8 34.5 69.1 43.6 SVD-T2I2V [48] 11.9 42.4 30.8 4.2 25.9 27.3 17.1 52.7 32.9 18.2 58.2 34.5 OpenSora [42] 4.9 18.0 23.5 1.4 7.7 23.8 7.5 30.1 21.9 7.3 12.7 27.3 Pika [46] 19.7 41.1 36.5 13.6 24.8 36.8 16.3 46.5 27.9 44.0 68.0 58.0 Dream Machine [49] 13.6 61.9 21.8 12.6 50.0 24.3 16.6 68.1 23.6 9.0 76.3 11.0 Lumiere [50] 9.0 38.4 27.9 8.4 26.6 27.3 9.6 47.3 26.0 9.1 45.5 34.5 
+
+Physics-aware Video Generation Model 
+
+CogVideoX-5B [38] 39.6 63.3 53 24.4 50.3 43.3 53.1 76.5 59.3 43.6 61.8 61.8 
+
++ PhyT2V [6] 40.1 - - 25.4 - - 48.6 - - 55.4 - -+ Vanilla DPO [51] 41.3 - - 28.2 - - 50.0 - - 51.8 - -+ Ours 49.3 79.5 59.4 40.6 73.4 53.8 60.0 85.6 66.7 54.5 85.4 61.8 
+
+module. When removing the PFG block, we rely solely on original descriptions to infer physical events; whereas re-moving the PPD block, cross-modal conditions are derived only from physical formulas. As shown in Tab. 4, exclud-ing the PFG block results in average performance drops of about 6% across physical domains, underscoring the neces-sity of standard formulas to quantitatively understand phys-ical laws. Similarly, removing the PPD block leads to an average decline of around 11%, indicating its effectiveness in generating realistic progressions of physical phenomena by decomposing complex processes into logically ordered event chains. 
+
+PNR and IKS blocks in TCP. We further investigate the impact of the Progressive Narrative Revision (PNR) and In-Honey pours into a cup of tea. 
+
+> Baseline
+> + Ours
+> A knife spreads butter on a slice of bread.
+> Baseline
+> + Ours
+> The heavy weight compresses the spring-loaded pad.
+> Baseline
+> + Ours
+> Butter scraping continuously Honey pouring continuously Weight compressing pad
+
+Figure 5. Visualization of physics-aware video generation results across various physical interactions between objects. Compared with baseline CogVideo-5B [38], our approach demonstrates clearer causal progression, e.g. , butter spread along the knife movement, continuous honey inflow with a rising level, and monotonic spring compression. All prompts are sourced from VideoPhy [10]. Table 4. Ablation analysis of PECR and TCP modules, including Physics Formula Grounding (PFG) and Physical Phenomena De-composition (PPD) in PECR, and Progressive Narrative Revision (PNR) and Interactive Keyframe Synthesis (IRS) in TCP. Variant Physical domains ( ↑) Avg. Mechanics Optics Thermal Material Ours 0.67 0.72 0.65 0.60 0.66 
+
+Ablations of PECR module 
+
+w/o PFG 0.63 0.69 0.61 0.53 0.62 w/o PPD 0.58 0.67 0.61 0.52 0.59 
+
+Ablations of TCP module 
+
+w/o PNR 0.65 0.70 0.64 0.56 0.64 w/o IKS 0.50 0.64 0.58 0.48 0.55 
+
+teractive Keyframe Synthesis (IRS) blocks within the TCP module. As shown in Tab. 4, removing the PNR block causes a moderate average drop of about 3%, demonstrating its supportive role in improving the continuity and smooth evolution of scenes. Conversely, excluding the IKS block results in a significant average decrease of approximately 17%, which underscores the essential role of explicitly gen-erating dedicated keyframes for each physical phase in an-choring cross-frame dynamics and preserving a physically grounded visual progression. 
+
+Analysis of Event Number. As shown in Fig. 6, our frame-work achieves the best performance with 4 events across all physical domains. Since each event serves as a guidance, too few events (e.g., 1–3) provide weak temporal supervi-sion, making it difficult for the model to follow instructions 
+
+Figure 6. Effect of event number on Physical Commonsense Alignment (PCA) Score [9] across four physical domains: Me-chanics, Optics, Thermal, and Material. 
+
+accurately, thus reducing PCA scores. Meanwhile, increas-ing the number of events (e.g., 5–6) introduces accumulated errors in keyframe generation due to editing-based propa-gation, leading to poor leading signals and degraded video quality. To balance temporal guidance and keyframe stabil-ity, we set the event number to 4. 
+
+## 5. Conclusion and Limitations 
+
+This paper addresses the challenge of generating physics-aware videos characterizing the ordered progression of physical phenomena governed by real-world physical laws. In place of depicting a complex physical phenomenon by simple semantic labels, we decompose each phenomenon into a sequence of causally linked physical events based on standard physical formulas. We infer physical events and translate them into vision-language prompts that correspond to each event. These prompts are then used to condition the video generation process, ensuring alignment with physical dynamics. Comprehensive experiments confirm the effec-tiveness of our framework in generating physically plausi-ble videos, especially in modeling complex and evolving physical phenomena. However, as shown in Fig. 7, our framework occasionally fails in scenarios governed by com-positional physical laws, as off-the-shelf foundation models have a weak capability in compositional physical reason-ing [52–54]. In the future, we plan to leverage advances in compositional visual reasoning [55, 56] to enhance multi-physics consistency in physics-aware video generation. “A Newton’s cradle swings and one metal ball strikes a water-filled balloon. The balloon bursts upon impact, splashing water outward as the pendulum balls continue to move under gravity. ”
+
+> Compositional Physical Law Newton’s law of motion; Conservation of energy; Navier-Stokes equations.
+
+Figure 7. Failure case. As foundation models lack capability in compositional physical reasoning, our framework fails to generate scenarios governed by multiple physical laws. 
+
+## References 
+
+[1] Ruihan Zhang, Borou Yu, Jiajian Min, Yetong Xin, Zheng Wei, Juncheng Nemo Shi, Mingzhen Huang, Xianghao Kong, Nix Liu Xin, Shanshan Jiang, et al. Generative ai for film creation: A survey of recent advances. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 6267–6279, 2025. 2 [2] Boyang Deng, Richard Tucker, Zhengqi Li, Leonidas Guibas, Noah Snavely, and Gordon Wetzstein. Streetscapes: Large-scale consistent street view generation using autore-gressive video diffusion. In ACM SIGGRAPH 2024 Confer-ence Papers , pages 1–11, 2024. 2 [3] Niket Agarwal, Arslan Ali, Maciej Bala, Yogesh Balaji, Erik Barker, Tiffany Cai, Prithvijit Chattopadhyay, Yongxin Chen, Yin Cui, Yifan Ding, et al. Cosmos world foun-dation model platform for physical ai. arXiv preprint arXiv:2501.03575 , 2025. 2 [4] Kuaishou. Kling. https://klingai.kuaishou. com/ , 2024. Accessed: 2024-09-03. 2 [5] Yixin Liu, Kai Zhang, Yuan Li, Zhiling Yan, Chujie Gao, Ruoxi Chen, Zhengqing Yuan, Yue Huang, Hanchi Sun, Jian-feng Gao, et al. Sora: A review on background, technology, limitations, and opportunities of large vision models. arXiv preprint arXiv:2402.17177 , 2024. 2 [6] Qiyao Xue, Xiangyu Yin, Boyuan Yang, and Wei Gao. Phyt2v: Llm-guided iterative self-refinement for physics-grounded text-to-video generation. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 18826–18836, 2025. 2, 3, 6, 7 [7] Yutong Hao, Chen Chen, Ajmal Saeed Mian, Chang Xu, and Daochang Liu. Enhancing physical plausibility in video generation by reasoning the implausibility. arXiv preprint arXiv:2509.24702 , 2025. 3, 6 [8] Ke Zhang, Cihan Xiao, Yiqun Mei, Jiacong Xu, and Vishal M Patel. Think before you diffuse: Llms-guided physics-aware video generation. arXiv preprint arXiv:2505.21653 , 2025. 2, 3, 6 [9] Fanqing Meng, Jiaqi Liao, Xinyu Tan, Wenqi Shao, Quan-feng Lu, Kaipeng Zhang, Yu Cheng, Dianqi Li, Yu Qiao, and Ping Luo. Towards world simulator: Crafting physical commonsense-based benchmark for video generation. arXiv preprint arXiv:2410.05363 , 2024. 2, 6, 7, 8 [10] Hritik Bansal, Zongyu Lin, Tianyi Xie, Zeshun Zong, Michal Yarom, Yonatan Bitton, Chenfanfu Jiang, Yizhou Sun, Kai-Wei Chang, and Aditya Grover. Videophy: Evaluating physical commonsense for video generation. arXiv preprint arXiv:2406.03520 , 2024. 2, 6, 7, 8 [11] Yuanming Hu, Luke Anderson, Tzu-Mao Li, Qi Sun, Nathan Carr, Jonathan Ragan-Kelley, and Fr´ edo Durand. Difftaichi: Differentiable programming for physical simulation. arXiv preprint arXiv:1910.00935 , 2019. 2 [12] Yuanming Hu, Tzu-Mao Li, Luke Anderson, Jonathan Ragan-Kelley, and Fr´ edo Durand. Taichi: a language for high-performance computation on spatially sparse data structures. ACM Transactions on Graphics (TOG) , 38(6):1– 16, 2019. [13] Hao-Yu Hsu, Chih-Hao Lin, Albert J Zhai, Hongchi Xia, and Shenlong Wang. Autovfx: Physically realistic video editing from natural language instructions. In 2025 Inter-national Conference on 3D Vision (3DV) , pages 769–780. IEEE, 2025. 2 [14] Xiangdong Zhang, Jiaqi Liao, Shaofeng Zhang, Fanqing Meng, Xiangpeng Wan, Junchi Yan, and Yu Cheng. Vide-orepa: Learning physics for video generation through re-lational alignment with foundation models. arXiv preprint arXiv:2505.23656 , 2025. 3 [15] Jing Wang, Ao Ma, Ke Cao, Jun Zheng, Zhanjie Zhang, Jiasong Feng, Shanyuan Liu, Yuhang Ma, Bo Cheng, Dawei Leng, et al. Wisa: World simulator assistant for physics-aware text-to-video generation. arXiv preprint arXiv:2503.08153 , 2025. 3, 6 [16] Harold Haodong Chen, Haojian Huang, Qifeng Chen, Harry Yang, and Ser-Nam Lim. Hierarchical fine-grained prefer-ence optimization for physically plausible video generation. 
+
+arXiv preprint arXiv:2508.10858 , 2025. 3, 6 [17] Xindi Yang, Baolu Li, Yiming Zhang, Zhenfei Yin, Lei Bai, Liqian Ma, Zhiyong Wang, Jianfei Cai, Tien-Tsin Wong, Huchuan Lu, et al. Vlipp: Towards physically plausible video generation with vision and language informed phys-ical prior. arXiv preprint arXiv:2503.23368 , 2025. 3 [18] Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, et al. Chain-of-thought prompting elicits reasoning in large lan-guage models. Advances in Neural Information Processing Systems (NeurIPS) , 35:24824–24837, 2022. 3 [19] Wenxuan Huang, Shuang Chen, Zheyong Xie, Shaosheng Cao, Shixiang Tang, Yufan Shen, Qingyu Yin, Wenbo Hu, Xiaoman Wang, Yuntian Tang, et al. Interleaving rea-soning for better text-to-image generation. arXiv preprint arXiv:2509.06945 , 2025. 3 [20] Ziyun Zeng, Junhao Zhang, Wei Li, and Mike Zheng Shou. Draw-in-mind: Learning precise image editing via chain-of-thought imagination. arXiv preprint arXiv:2509.01986 ,2025. 3 [21] Yuyao Zhang, Jinghao Li, and Yu-Wing Tai. Layercraft: En-hancing text-to-image generation with cot reasoning and lay-ered object integration. arXiv preprint arXiv:2504.00010 ,2025. 3 [22] Rongyao Fang, Chengqi Duan, Kun Wang, Linjiang Huang, Hao Li, Shilin Yan, Hao Tian, Xingyu Zeng, Rui Zhao, Jifeng Dai, et al. Got: Unleashing reasoning capability of multimodal large language model for visual generation and editing. arXiv preprint arXiv:2503.10639 , 2025. 3 [23] Lichen Bai, Shitong Shao, Zikai Zhou, Zipeng Qi, Zhiqiang Xu, Haoyi Xiong, and Zeke Xie. Zigzag diffusion sampling: Diffusion models can self-improve via self-reflection. arXiv preprint arXiv:2412.10891 , 2024. 3 [24] Yaqi Li, Peng Chen, Mingyang Han, Bu Pi, Haoxiang Shi, Runzhou Zhao, Yang Yao, Xuan Zhang, and Jun Song. Visual-cog: Stage-aware reinforcement learning with chain of guidance for text-to-image generation. arXiv preprint arXiv:2508.18032 , 2025. 3 [25] Rohit Girdhar, Mannat Singh, Andrew Brown, Quentin Du-val, Samaneh Azadi, Sai Saketh Rambhatla, Akbar Shah, Xi Yin, Devi Parikh, and Ishan Misra. Factorizing text-to-video generation by explicit image conditioning. In Euro-pean Conference on Computer Vision (ECCV) , pages 205– 224. Springer, 2024. 3 [26] Zongyu Lin, Wei Liu, Chen Chen, Jiasen Lu, Wenze Hu, Tsu-Jui Fu, Jesse Allardice, Zhengfeng Lai, Liangchen Song, Bowen Zhang, et al. Stiv: Scalable text and image con-ditioned video generation. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 16249–16259, 2025. 4 [27] Bolin Lai, Sangmin Lee, Xu Cao, Xiang Li, and James M Rehg. Incorporating flexible image conditioning into text-to-video diffusion models without training. arXiv preprint arXiv:2505.20629 , 2025. [28] Haomiao Ni, Bernhard Egger, Suhas Lohit, Anoop Cherian, Ye Wang, Toshiaki Koike-Akino, Sharon X Huang, and Tim K Marks. Ti2v-zero: Zero-shot image condition-ing for text-to-video diffusion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 9015–9025, 2024. 4 [29] Xin Li, Wenqing Chu, Ye Wu, Weihang Yuan, Fanglong Liu, Qi Zhang, Fu Li, Haocheng Feng, Errui Ding, and Jingdong Wang. Videogen: A reference-guided latent diffusion ap-proach for high definition text-to-video generation. arXiv preprint arXiv:2309.00398 , 2023. 3 [30] Feng-Lin Liu, Hongbo Fu, Xintao Wang, Weicai Ye, Pengfei Wan, Di Zhang, and Lin Gao. Sketchvideo: Sketch-based video generation and editing. In Proceedings of the Com-puter Vision and Pattern Recognition Conference (CVPR) ,pages 23379–23390, 2025. 3 [31] Weijie He, Mushui Liu, Yunlong Yu, Zhao Wang, and Chao Wu. Dyst-xl: Dynamic layout planning and content control for compositional text-to-video generation. arXiv preprint arXiv:2504.15032 , 2025. 3 [32] Weixi Feng, Chao Liu, Sifei Liu, William Yang Wang, Arash Vahdat, and Weili Nie. Blobgen-vid: Compositional text-to-video generation with blob video representations. In Pro-ceedings of the Computer Vision and Pattern Recognition Conference (CVPR) , pages 12989–12998, 2025. 3 [33] Haitao Zhou, Chuang Wang, Rui Nie, Jinlin Liu, Dongdong Yu, Qian Yu, and Changhu Wang. Trackgo: A flexible and efficient method for controllable video generation. In Pro-ceedings of the AAAI Conference on Artificial Intelligence (AAAI) , volume 39, pages 10743–10751, 2025. 3 [34] Xuehai He, Shuohang Wang, Jianwei Yang, Xiaoxia Wu, Yiping Wang, Kuan Wang, Zheng Zhan, Olatunji Ruwase, Yelong Shen, and Xin Eric Wang. Mojito: Motion trajectory and intensity control for video generation. arXiv preprint arXiv:2412.08948 , 2024. 3 [35] Minghui Lin, Xiang Wang, Yishan Wang, Shu Wang, Fengqi Dai, Pengxiang Ding, Cunxiang Wang, Zhengrong Zuo, Nong Sang, Siteng Huang, et al. Exploring the evolution of physics cognition in video generation: A survey. arXiv preprint arXiv:2503.21765 , 2025. 3 [36] Chenfei Wu, Jiahao Li, Jingren Zhou, Junyang Lin, Kaiyuan Gao, Kun Yan, Sheng-ming Yin, Shuai Bai, Xiao Xu, Yilei Chen, et al. Qwen-image technical report. arXiv preprint arXiv:2508.02324 , 2025. 5, 6 [37] Diederik P Kingma and Max Welling. Auto-encoding varia-tional bayes. arXiv preprint arXiv:1312.6114 , 2013. 5 [38] Zhuoyi Yang, Jiayan Teng, Wendi Zheng, Ming Ding, Shiyu Huang, Jiazheng Xu, Yuanming Yang, Wenyi Hong, Xiao-han Zhang, Guanyu Feng, et al. Cogvideox: Text-to-video diffusion models with an expert transformer. arXiv preprint arXiv:2408.06072 , 2024. 6, 7, 8 [39] OpenAI. Gpt-oss-20b model card, 2025. https:// openai.com/index/gpt-oss-model-card/ . 6 [40] Yaohui Wang, Xinyuan Chen, Xin Ma, Shangchen Zhou, Ziqi Huang, Yi Wang, Ceyuan Yang, Yinan He, Jiashuo Yu, Peiqing Yang, et al. Lavie: High-quality video generation with cascaded latent diffusion models. International Journal of Computer Vision , 133(5):3059–3078, 2025. 6, 7 [41] Haoxin Chen, Yong Zhang, Xiaodong Cun, Menghan Xia, Xintao Wang, Chao Weng, and Ying Shan. Videocrafter2: Overcoming data limitations for high-quality video diffu-sion models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7310– 7320, 2024. 6, 7 [42] Zangwei Zheng, Xiangyu Peng, Tianji Yang, Chenhui Shen, Shenggui Li, Hongxin Liu, Yukun Zhou, Tianyi Li, and Yang You. Open-sora: Democratizing efficient video production for all. arXiv preprint arXiv:2412.20404 , 2024. 6, 7 [43] Weichen Fan, Chenyang Si, Junhao Song, Zhenyu Yang, Yinan He, Long Zhuo, Ziqi Huang, Ziyue Dong, Jing-wen He, Dongwei Pan, et al. Vchitect-2.0: Parallel trans-former for scaling up video diffusion models. arXiv preprint arXiv:2501.08453 , 2025. 6 [44] Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di Chen, Feiwu Yu, Haiming Zhao, Jianx-iao Yang, et al. Wan: Open and advanced large-scale video generative models. arXiv preprint arXiv:2503.20314 , 2025. 6[45] Kling AI. Kling, 2024. https://www.klingai.com/ .6[46] Pika. Pika, 2024. https://pika.art/ . 6, 7 [47] Anastasis Germanidis and Runway Research. Intro-ducing gen-3 alpha: A new frontier for video genera-tion, 2024. https://runwayml.com/research/ introducing-gen-3-alpha/ . 6 [48] Andreas Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, Dominik Lorenz, Yam Levi, Zion English, Vikram Voleti, Adam Letts, et al. Stable video diffusion: Scaling latent video diffusion models to large datasets. arXiv preprint arXiv:2311.15127 , 2023. 6, 7 [49] Luma AI. Luma dream machine: Ai video generator, 2024. 
+
+https://lumalabs.ai/dream-machine . 7 [50] Omer Bar-Tal, Hila Chefer, Omer Tov, Charles Her-rmann, Roni Paiss, Shiran Zada, Ariel Ephrat, Junhwa Hur, Guanghui Liu, Amit Raj, et al. Lumiere: A space-time diffu-sion model for video generation. In SIGGRAPH Asia 2024 Conference Papers , pages 1–11, 2024. 6, 7 [51] Bram Wallace, Meihua Dang, Rafael Rafailov, Linqi Zhou, Aaron Lou, Senthil Purushwalkam, Stefano Ermon, Caiming Xiong, Shafiq Joty, and Nikhil Naik. Diffusion model align-ment using direct preference optimization. In CVPR , pages 8228–8238, 2024. 7 [52] Shi Qiu, Shaoyang Guo, Zhuo-Yang Song, Yunbo Sun, Zeyu Cai, Jiashen Wei, Tianyu Luo, Yixuan Yin, Haoxu Zhang, Yi Hu, et al. Phybench: Holistic evaluation of physical perception and reasoning in large language models. arXiv preprint arXiv:2504.16074 , 2025. 9 [53] Jiajun Shi, Chaoren Wei, Liqun Yang, Zekun Moore Wang, Chenghao Yang, Ge Zhang, Stephen Huang, Tao Peng, Jian Yang, and Zhoufutu Wen. Cryptox: Compositional reason-ing evaluation of large language models. arXiv preprint arXiv:2502.07813 , 2025. [54] Chenyu Zhang, Daniil Cherniavskii, Andrii Zadaianchuk, Antonios Tragoudaras, Antonios Vozikis, Thijmen Nijdam, Derck WE Prinzhorn, Mark Bodracska, Nicu Sebe, and Ef-stratios Gavves. Morpheus: Benchmarking physical reason-ing of video generative models with real physical experi-ments. arXiv preprint arXiv:2504.02918 , 2025. 9 [55] Fucai Ke, Joy Hsu, Zhixi Cai, Zixian Ma, Xin Zheng, Xindi Wu, Sukai Huang, Weiqing Wang, Pari Delir Haghighi, Gholamreza Haffari, et al. Explain before you answer: A survey on compositional visual reasoning. arXiv preprint arXiv:2508.17298 , 2025. 9 [56] Zixuan Wang, Duo Peng, Feng Chen, Yuwei Yang, and Yin-jie Lei. Training-free dense-aligned diffusion guidance for modular conditional image synthesis. In Proceedings of the Computer Vision and Pattern Recognition Conference (CVPR) , pages 13135–13145, 2025. 9

@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.17165v1/fig-001.webp",
+      "caption": "TABLE I: Experimental perturbation parameters. L, M, H, S denote light to severe levels. Top rows: single perturbations. Bottom: composite perturbations.",
+      "page": 6,
+      "index": 1,
+      "width": 1048,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17165v1/fig-002.webp",
+      "caption": "Fig. 4: Indoor (TUM left, EuRoC right) SLAM trajectory evaluation in the X-Y plane. Legend as in Fig. 3.",
+      "page": 7,
+      "index": 2,
+      "width": 496,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17165v1/fig-003.webp",
+      "caption": "TABLE II: SLAM results (ATE RMSE, m). ∆: % change from Clean to S (or H if S fails). ×: tracking failure. Clean is shared per algorithm/dataset.",
+      "page": 7,
+      "index": 3,
+      "width": 475,
+      "height": 717
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17165v1/fig-004.webp",
+      "caption": "Fig. 3: Outdoor (KITTI) SLAM trajectory evaluation in the X-Z plane. baseline, Light, Moderate, Heavy, Severe.",
+      "page": 7,
+      "index": 4,
+      "width": 844,
+      "height": 326
+    }
+  ]
+}

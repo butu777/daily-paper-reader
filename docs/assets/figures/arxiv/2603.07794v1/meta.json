@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07794v1/fig-001.webp",
+      "caption": "Fig. 1. Adverse lighting conditions significantly impact the camera-only baseline; however, our network still detects the cyclist through radar-camera fusion.",
+      "page": 1,
+      "index": 1,
+      "width": 529,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07794v1/fig-002.webp",
+      "caption": "TABLE I SEMANTIC OCCUPANCY PREDICTION PERFORMANCE ON THE PERCIV-SCENES DATASET.",
+      "page": 7,
+      "index": 2,
+      "width": 1081,
+      "height": 416
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07794v1/fig-003.webp",
+      "caption": "Fig. 5. Depth association strategies enhance predictions by improving spatial accuracy and semantic understanding in complex environments.",
+      "page": 10,
+      "index": 3,
+      "width": 1074,
+      "height": 658
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07794v1/fig-004.webp",
+      "caption": "Fig. 2. The architecture of 4DRC-OCC: The main network, Version A, processes radar and camera separately in a multi-scale manner, reaching a higher level of abstraction before merging them in voxel space to produce the final prediction. Versions B and Version C build upon version A by incorporating additional radar depth cues at different stages, enhancing the camera image and further assisting the lifting mechanism. This allows for a more refined fusion of radar and camera information, improving performance.",
+      "page": 3,
+      "index": 4,
+      "width": 1074,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07794v1/fig-005.webp",
+      "caption": "Fig. 4. 4DRC-OCC improves prediction accuracy in poor lighting conditions by integrating data from 4D radar and cameras.",
+      "page": 9,
+      "index": 5,
+      "width": 1076,
+      "height": 793
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07794v1/fig-006.webp",
+      "caption": "Fig. 3. The process of auto-labeling dense occupancy pseudo-ground truth involves capturing dense lidar data (1), performing semantic segmentation (2), and separately extracting and accumulating dynamic (3) and static objects (4). Both point clouds are transformed into the world coordinate system (5) before being voxelized and refined to create the final occupancy labels (6).",
+      "page": 5,
+      "index": 6,
+      "width": 1076,
+      "height": 193
+    }
+  ]
+}

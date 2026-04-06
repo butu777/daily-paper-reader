@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-001.webp",
+      "caption": "Figure 6. Overview of the five core modalities in the PanoCity dataset. Row 1: representative urban scenes from three captured cities or regions (City-1, City-2, City-3), annotated with their coverage areas (15km2, 113km2, 6km2). Row 2: example panoramic RGB images collected along the acquisition routes, showing diverse lighting, weather, and façade structures. Row 3: corresponding ground-truth 3D point clouds for the same scenes. Row 4: ground-truth panoramic depth maps derived from the point clouds, with depth encoded by color. Row 5: camera trajectories in bird’s-eye view, illustrating long-range paths with wide baselines and varied viewpoints.",
+      "page": 15,
+      "index": 1,
+      "width": 1036,
+      "height": 996
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-002.webp",
+      "caption": "Table 4. Zero-shot depth estimation on Pano3D (GibsonV2) under scale-only (top) and scale+shift (bottom) alignments. † denotes pinhole-based models evaluated on panoramas using the dodecahedral projection protocol of MoGe.",
+      "page": 7,
+      "index": 2,
+      "width": 471,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-003.webp",
+      "caption": "Table 3. Monocular Depth estimation performance. Bold = best, underline = second best.",
+      "page": 7,
+      "index": 3,
+      "width": 1040,
+      "height": 236
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-004.webp",
+      "caption": "Table 2. Camera pose estimation results. Bold = best, underline = second best.",
+      "page": 7,
+      "index": 4,
+      "width": 1036,
+      "height": 183
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-005.webp",
+      "caption": "Figure 5. Multi-view point-cloud reconstructions on the PanoCity dataset using ten unordered panoramic inputs. From left to right: π3 [35], π3* [35], π3† [35], and PanoVGGT. The baseline methods struggle to learn accurate geometry on this long-trajectory setup, whereas PanoVGGT reconstructs large-scale outdoor scenes with coherent structure and accurate alignment across views.",
+      "page": 14,
+      "index": 5,
+      "width": 1021,
+      "height": 860
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-006.webp",
+      "caption": "Table 1. Comparison of PanoCity with prior panoramic datasets (✓: available; ×: unavailable). Unlike existing datasets that are limited in scale, annotation completeness, or multi-view continuity, our dataset provides large-scale, high-fidelity, trajectory-based multi-view panoramas with complete 6DoF pose and 16-bit depth supervision.",
+      "page": 3,
+      "index": 6,
+      "width": 1059,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-007.webp",
+      "caption": "Figure 4. Multi-view point-cloud reconstructions on the Stanford2D3D dataset [3] using two unordered panoramic inputs. From left to right: π3 [35], π3* [35], π3† [35], and PanoVGGT. Our method achieves higher geometric accuracy and cross-view consistency than the baselines.",
+      "page": 13,
+      "index": 7,
+      "width": 1029,
+      "height": 289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-008.webp",
+      "caption": "Figure 3. Multi-view point-cloud reconstructions on the Matterport3D dataset from two unordered panoramic inputs. From left to right: π3, π3*, π3†, and PanoVGGT. Here, † denotes the original pinhole-only π3 applied to panoramic inputs via MoGe’s dodecahedral projection protocol, which decomposes each panorama into 12 perspective views. PanoVGGT produces sharper and more structurally consistent indoor reconstructions.",
+      "page": 8,
+      "index": 8,
+      "width": 1029,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17571v1/fig-009.webp",
+      "caption": "Figure 2. Overview of the proposed PanoVGGT framework. Given one or multiple panoramic images, PanoVGGT extracts spherical patch tokens using a ViT backbone, augments them via SO(3) geometric augmentation, and encodes them with shared and branch-adapted positional embeddings. A multi-branch attention aggregator jointly reasons about local geometry, global structure, and camera motion. The model outputs dense depth maps, camera poses (under a randomly selected global anchor), and local/global point maps for final 3D reconstruction.",
+      "page": 4,
+      "index": 9,
+      "width": 1036,
+      "height": 485
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.21987v1/fig-001.webp",
+      "caption": "Fig. 1: Illustration of the characteristics of LiDAR, RADAR, and Camera sensors. Contextually, LiDAR-RADAR-Camera fusion has the highest complementary properties.",
+      "page": 1,
+      "index": 1,
+      "width": 420,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21987v1/fig-002.webp",
+      "caption": "Fig. 4: Confusion matrix of the proposed LRC-WeatherNet model predictions on MSU-4S.",
+      "page": 6,
+      "index": 2,
+      "width": 529,
+      "height": 447
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21987v1/fig-003.webp",
+      "caption": "Fig. 6: Visualization of weight maps learned in the gated fusion mechanism for two sample scenes: snowy (top row) and clear daytime (bottom row) scenes.",
+      "page": 7,
+      "index": 3,
+      "width": 529,
+      "height": 327
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21987v1/fig-004.webp",
+      "caption": "Fig. 3: Illustration of the gated fusion mechanism, where adaptive weights are computed to control the contributions of each modality.",
+      "page": 3,
+      "index": 4,
+      "width": 529,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21987v1/fig-005.webp",
+      "caption": "TABLE I: Quantitative performance evaluation across different unimodal and fusion configurations.",
+      "page": 5,
+      "index": 5,
+      "width": 848,
+      "height": 248
+    }
+  ]
+}

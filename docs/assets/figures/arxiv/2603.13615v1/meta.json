@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13615v1/fig-001.webp",
+      "caption": "Table 2: VBench Evaluation of the Baselines. Reported scores cover subject consistency, background consistency, motion smoothness, dynamic degree, aesthetic quality, and imaging quality. For the consistency and perceptual quality metrics, higher values correspond to better results, whereas dynamic degree characterizes how dynamic the generated content is rather than its realism.",
+      "page": 11,
+      "index": 1,
+      "width": 723,
+      "height": 284
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13615v1/fig-002.webp",
+      "caption": "Fig. 3: Qualitative comparison with baselines (part I). Rows from top to bottom show the ground truth (GT), Cosmos-2B, Cosmos-14B, Wan, Uni3C, and our EgoHOI model. Each column block shows consecutive frames from one egocentric test sequence in temporal order. All methods receive the same first frame as input. Compared with the baselines, our model better preserves hand and object geometry, maintains object identity, and produces more stable interaction dynamics over time. See the zooming boxes for comparison of the fine-grained details.",
+      "page": 30,
+      "index": 2,
+      "width": 472,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13615v1/fig-003.webp",
+      "caption": "Fig. 6: Qualitative results for ablation of object integrity. Rows: GT, Base, OEE Injection, Ours (EgoHOI). OEE reduces texture flicker and appearance drift, preserving object-specific details through interaction and occlusion. Zoom-ins highlight more stable patterns and edges. The full model yields the most consistent results.",
+      "page": 14,
+      "index": 3,
+      "width": 573,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13615v1/fig-004.webp",
+      "caption": "Fig. 2: Hand Segmentation for RMSE Evaluation. For each frame, we extract the ground-truth hand region (left) and the corresponding inferred hand region produced by EgoHOI (right). The RMSE is computed as the per-pixel root-mean-square error between these two hand masks, averaged over all frames.",
+      "page": 28,
+      "index": 4,
+      "width": 719,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13615v1/fig-005.webp",
+      "caption": "Fig. 5: Qualitative results for ablation of ego-motion consistency Rows: GT, Base, EME Injection, Ours (EgoHOI). EME mitigates long-horizon ego-motion drift and improves viewpoint stability. Zoom-ins highlight cleaner details under viewpoint changes. The full model best matches ATE/RRE/RPE gains.",
+      "page": 13,
+      "index": 5,
+      "width": 718,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13615v1/fig-006.webp",
+      "caption": "Fig. 4: Qualitative results for ablation on kinematic fidelity. Rows: GT, Base, HKE Injection, Ours (EgoHOI). HKE improves hand articulation stability and reduces local shape distortion. Zoom-in boxes highlight clearer hand–object contact details. The full model is the most stable, matching MR/MPJPE/RMSE.",
+      "page": 12,
+      "index": 6,
+      "width": 716,
+      "height": 485
+    }
+  ]
+}

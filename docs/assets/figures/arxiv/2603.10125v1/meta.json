@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.10125v1/fig-001.webp",
+      "caption": "Figure 4. Qualitative comparison with the SOTA methods on the AiM dataset. GART∗: Few-shot GART. “Input” here is the middle frame of each test video clip. Note that the input image for EquineGS is the first image in the video; therefore, the results of “Ours” shown in this figure correspond to novel-pose animation.",
+      "page": 6,
+      "index": 1,
+      "width": 1014,
+      "height": 438
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10125v1/fig-002.webp",
+      "caption": "Figure 8. Visualization of camera trajectory settings in the VarenPoser dataset. We illustrate the three camera behaviors used during data generation: Top: Fixed camera; Middle: Orbit camera; Bottom: Dolly camera (The camera moves farther away from or closer to the object). Background images are sampled from the COCO dataset.",
+      "page": 14,
+      "index": 2,
+      "width": 488,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10125v1/fig-003.webp",
+      "caption": "Figure 6. Ablation study for Sub-Division.",
+      "page": 8,
+      "index": 3,
+      "width": 521,
+      "height": 255
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10125v1/fig-004.webp",
+      "caption": "Table 1. Quantitative comparisons on the APT36K dataset, AiM dataset and VarenPoser dataset.",
+      "page": 8,
+      "index": 4,
+      "width": 872,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10125v1/fig-005.webp",
+      "caption": "Figure 2. Overview of 4DEquine. (a) AniMoFormer: A spatio-temporal transformer with post-optimization for motion recovery. (b) EquineGS: A feed-forward network to reconstruct a canonical 3D Gaussian avatar from a single image. (c) DSTG-Block: The dual-stream architecture used in EquineGS.",
+      "page": 4,
+      "index": 5,
+      "width": 1025,
+      "height": 500
+    }
+  ]
+}

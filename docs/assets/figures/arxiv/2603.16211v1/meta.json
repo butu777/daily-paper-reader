@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16211v1/fig-001.webp",
+      "caption": "Fig. 4: Qualitative result of depth estimation on TartanAir [31] and ScanNet [8] datasets. Our method refines geometry-consistent novel views within the extrapolated artifact areas, leveling up the 3DGS representation to achieve complete scene reconstruction with superior geometry detail recovery and boundary coherence.",
+      "page": 11,
+      "index": 1,
+      "width": 704,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16211v1/fig-002.webp",
+      "caption": "Table 1: Quantitative comparison on MipNeRF360 [4] and VRNeRF [37] datasets with sparse two-views input. The best result is in bold, and the secondbest is underlined. All experiments are conducted with the same baseline [13].",
+      "page": 10,
+      "index": 2,
+      "width": 642,
+      "height": 192
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16211v1/fig-003.webp",
+      "caption": "Fig. 3: Qualitative result on MipNeRF360 [4] and VRNeRF [37] datasets.",
+      "page": 10,
+      "index": 3,
+      "width": 709,
+      "height": 422
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16211v1/fig-004.webp",
+      "caption": "Fig. 6: Qualitative result by removing geometry tokens and palette filtering.",
+      "page": 14,
+      "index": 4,
+      "width": 636,
+      "height": 297
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16211v1/fig-005.webp",
+      "caption": "Table 3: Quantitative evaluation of view-dependency on the ScanNet dataset. We compare our method against AnySplat across varying numbers of input views. Bold numbers indicate the best performance.",
+      "page": 12,
+      "index": 5,
+      "width": 496,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16211v1/fig-006.webp",
+      "caption": "Fig. 2: Overview of the Leveling3D pipeline. Our pipeline integrates a geometryaware leveling adapter that fuses geometry tokens with diffusion control, enabling robust refinement of extrapolated views and leveling up the 3D reconstruction with extended geometric-consistent extrapolation areas.",
+      "page": 5,
+      "index": 6,
+      "width": 712,
+      "height": 437
+    }
+  ]
+}

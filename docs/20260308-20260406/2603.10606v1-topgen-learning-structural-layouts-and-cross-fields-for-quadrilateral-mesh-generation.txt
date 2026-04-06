@@ -1,0 +1,230 @@
+Title: TopGen: Learning Structural Layouts and Cross-Fields for Quadrilateral Mesh Generation
+
+URL Source: https://arxiv.org/pdf/2603.10606v1
+
+Published Time: Thu, 12 Mar 2026 00:57:48 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# TopGen: Learning Structural Layouts and Cross-Fields for Quadrilateral Mesh Generation 
+
+Yuguang Chen 1,2, Xinhai Liu 2, Xiangyu Zhu 2, Yiling Zhu 2,Zhuo Chen 2, Dongyu Zhang 1,‡, Chunchao Guo 2,‡
+
+> 1
+
+SYSU, 2 Tencent Hunyuan 
+
+Figure 1: TopGen achieves high-quality quadrilateral remeshing across diverse geometries, ranging from organic to mechanical models and AI-generated meshes. 
+
+## Abstract 
+
+High-quality quadrilateral mesh generation is a fundamental challenge in computer graphics. Traditional optimization-based methods are often constrained by the topological quality of input meshes and suffer from severe efficiency bottlenecks, frequently becoming computationally prohibitive when handling high-resolution models. While emerging learning-based approaches offer greater flexibility, they primarily focus on cross-field prediction, often resulting in the loss of critical struc-tural layouts and a lack of editability. In this paper, we propose TopGen, a robust and efficient learning-based framework that mimics professional manual modeling workflows by simultaneously predicting structural layouts and cross-fields. By processing input triangular meshes through point cloud sampling and a shape encoder, TopGen is inherently robust to non-manifold geometries and low-quality initial topologies. We introduce a dual-query decoder—utilizing edge-based and face-based sampling points as queries—to perform structural line classification 
+
+> ‡
+
+Corresponding author 
+
+> arXiv:2603.10606v1 [cs.GR] 11 Mar 2026
+
+and cross-field regression in parallel. This integrated approach explicitly extracts the geometric "skeleton" while concurrently capturing orientation fields. Such synergy ensures the preservation of geometric integrity and provides an intuitive, editable foundation for subsequent quadrilateral remeshing. To support this frame-work, we also introduce a large-scale, comprehensive quadrilateral mesh dataset, TopGen-220K, featuring high-quality paired data comprising raw triangular meshes, structural layouts, cross-fields, and their corresponding quad-meshes. Experimental results demonstrate that TopGen significantly outperforms existing state-of-the-art methods in both geometric fidelity and topological edge flow rationality. 
+
+## 1 Introduction 
+
+Quadrilateral meshes (or Quad Meshes) are a fundamental 3D representation in computer graphics and geometric modeling. As the industry standard for character modeling and high-fidelity surface representation, they play a critical role in animation, industrial design, and digital content creation. With the rapid advancement of 3D generative techniques [ 19 , 24 , 22 ], high-resolution models with rich details can now be synthesized automatically. However, the resulting topologies are often fragmented and chaotic, rendering them incompatible with professional game and production pipelines. Thus, a fast and high-precision method for quadrilateral mesh generation is of significant research and practical value. In industrial production, high-quality quad meshes are typically authored by skilled artists following a "layout-first, generation-second" workflow. They first meticulously mark structural lines on the model surface to establish an organized structural layout, then utilize retopology tools (e.g., ZBrush ZRemesher) to convert dense triangular meshes into regular quadrilateral grids. While this manual process ensures peak topological rationality and faithful alignment with design intent, it remains an extremely labor-intensive and time-consuming task. Consequently, this bottleneck hinders its integration into large-scale production pipelines and fails to keep pace with the rapid surge in AI-generated 3D content. Historically, the academic community has focused on optimization-based automated remeshing [ 13 , 1,12 , 18 , 21 ]. These algorithms rely on cross-field guidance and global parametrization to facilitate the triangle-to-quad transition [ 20 ]. They typically construct smooth cross-fields with sparse constraints to determine singularity placements, followed by surface cutting [ 2] and parametrization. However, the high complexity of global optimization leads to severe efficiency bottlenecks, particularly for high-resolution meshes. Furthermore, these methods demand high-quality manifold input and struggle with complex features, often resulting in irrational singularity distributions, distorted edge flows, and a lack of high-level semantic awareness. Recently, learning-based quad remeshing has attracted significant attention. These methods [ 9 , 8, 16 ]focus on frame-field or cross-field prediction to overcome the limitations of Optimization-based approaches, such as heavy reliance on local geometry and low optimization efficiency. By leveraging auto-encoder architecture [ 8 ] or diffusion models [ 16 ], these techniques learn the mapping between geometric features and cross-fields from large-scale datasets, subsequently using the predicted fields to guide quad-mesh generation. However, cross-fields act only as "soft constraints" and inherently struggle to resolve geometric discontinuities, such as sharp edges and corners. This limitation often results in jagged boundaries and a loss of critical geometric detail, making it difficult to produce truly game-ready quad meshes that meet professional industry standards. Therefore, our work is motivated by two key challenges. First, traditional optimization-based methods suffer from low computational efficiency and struggle to handle complex geometries or integrate high-level semantic information. Second, existing learning-based approaches rely exclusively on cross-fields as guidance; this dependency often leads to compromised geometric fidelity, loss of sharp details, and a lack of intuitive editability in the generated quad-meshes. In this paper, we propose TopGen, a novel learning-based framework that generates quadrilateral meshes by jointly predicting structural layouts and cross-fields. Mimicking the professional "layout-first, generation-second" workflow, TopGen utilizes a unified Encoder-Decoder architecture to predict structural lines and cross-fields in parallel. In this framework, the structural lines act as hard constraints to ensure global structural integrity, while the cross-fields serve as soft constraints to optimize internal edge flow. 2Specifically, we employ a point cloud sampling strategy coupled with the Sharp Edge Sampling technique [ 4 ]. It samples points both along sharp features and uniformly across the surface of the input mesh to preserve fine-grained geometric details. These points are processed by a powerful pre-trained shape encoder that compresses geometric features into a continuous latent space. Then, we introduce a Dual Query Decoder. We sample query points at the midpoints of all edges and the centroids of all faces, termed edge queries and face queries, respectively. We then model structural line prediction as an edge-based classification task and cross-field prediction as a face-based regression task. These queries aggregate local topological information with neighborhood points through attention mechanisms and then extract structural lines and cross-fields from the global latent space via a cross-attention mechanism. To facilitate model training, we construct TopGen-220K, a large-scale quadrilateral mesh dataset. This dataset provides a comprehensive suite of paired data, including raw triangular meshes, high-quality structural layouts, cross-fields, and their corresponding quad-meshes. Once trained, our framework demonstrates exceptional robustness in processing meshes with diverse topological qualities and surface attributes. Notably, it can predict high-quality structural lines and cross-fields in under one second. Guided by these structural and field-based constraints, our method further synthesizes high-fidelity quadrilateral meshes that align with rigorous professional artistic standards. In summary, our primary contributions are as follows: • We present TopGen, the first learning-based quadrilateral mesh generation framework to jointly pre-dict structural layouts and cross-fields, ensuring both the integrity of external geometric boundaries and the regularity of internal edge flows. • We introduce a novel Dual-Query Decoder that leverages the synergy between structure lines and cross-fields to perform parallel edge classification and field regression. • We contribute a significant large-scale dataset providing paired triangular meshes, high-quality structure lines, cross-fields, and high-fidelity quadrilateral meshes, filling a critical gap in the field. 
+
+## 2 Related work 
+
+2.1 Optimization-based Quad Mesh Generation Method 
+
+Traditional optimization-based quadrilateral remeshing [ 13 , 1, 12 , 12 ] has evolved through diverse frameworks centered on direction field design, surface segmentation, and the trade-off between global and local optimization. Based on their primary guidance mechanisms, these methods are generally categorized into cross-field-guided and feature-line-guided approaches. Among cross-field-guided methods, Instant-Meshes [ 13 ] employs a local optimization paradigm. By utilizing a unified local smoothing operator based on N -RoSy direction fields and position fields, it achieves linear time complexity and parameter-independent alignment with surface features, enabling the efficient processing of large-scale meshes and point clouds. MIQ [ 1 ] proposes a pipeline that first identifies critical bending directions to construct smooth cross-fields with automatically localized singularities, followed by mixed-integer linear programming to facilitate mesh cutting, flattening, and tiling. QuadriFlow [ 12 ] further improves upon Instant-Meshes by integrating a hybrid strategy—combining min-cost network flow with local Boolean satisfiability solvers—to significantly reduce the number of singularities. In the realm of feature-line-guided methods, QuadWild [ 18 ] introduces a feature-driven patch partition scheme. By optimizing the input mesh and constructing feature-aligned cross-fields, it generates a polygonal layout bounded by feature lines, resulting in pure quad meshes with superior feature preservation. FSCQ [ 14 ] optimizes patch generation by prioritizing path tracing in regions with high field smoothness, effectively minimizing distortion caused by singularities. Furthermore, Frame Fields [ 17 ] extend direction fields to anisotropic and non-orthogonal domains, providing flexible control over edge orientations. FlowRep [ 11 ] extracts dominant streamlines from curvature-aligned meshes and combines them with sharp feature curves to construct a compact 3D curve network. This network serves as a structural layout to guide quad mesh generation. Despite their rigor, these optimization-based methods suffer from high computational costs and potential convergence failures on complex models. Furthermore, they are sensitive to input quality 3and lack semantic awareness, often producing edge flow that deviate from professional artistic standards. 
+
+2.2 Learning-based Quad Mesh Generation Method 
+
+In recent years, learning-based quadrilateral remeshing [ 19 , 15 , 9, 8, 16 ] has gained significant traction, primarily evolving along two distinct technical trajectories. The first category treats mesh faces or vertices as discrete tokens, utilizing autoregressive models for direct mesh synthesis. MeshGPT [ 19 ]pioneered this paradigm by modeling triangular meshes as sequences of face tokens. QuadGPT [ 15 ]extended this approach to the quadrilateral domain, introducing the first end-to-end autoregressive model for generating native quad-dominant meshes. However, due to the inherent sequence-length bottlenecks of transformers, these methods struggle to produce high-resolution, high-precision meshes. Furthermore, they lack explicit control over topological edge flow, often resulting in fragmented or structurally inconsistent outputs. The second trajectory integrates deep learning with traditional geometric optimization to predict coherent orientation fields. NeurCross [ 9] adopts a self-supervised framework, transforming remesh-ing into a continuous energy minimization process by jointly optimizing neural implicit SDFs and cross-fields. CrossGen [8] proposes a data-driven framework that models geometry and cross-fields within a shared latent space to achieve cross-category generalization. Furthermore, NeuFrameQ [ 16 ]utilizes frame fields as the core representation, employing regression networks and diffusion models to predict field orientation and magnitude, respectively. Despite these advancements, existing methods lack explicit control over structural layouts, often leading to jagged boundaries, lost details, and poor editability. To address this, we propose simultane-ously predicting structural lines and cross-fields. By learning semantic priors from large-scale data, our approach generates quad-meshes with high-quality topologies that meet industry standards. 
+
+## 3 The TopGen-220K Dataset Tri -Mesh  Struct Line  Cross -Field  Quad -Mesh 
+
+Figure 2: A sample from TopGen-220K dataset . From left to right: the input triangular mesh, the structural layout, the cross-field, and the quadrilateral mesh. Constructing a structural layout is a pivotal step in professional artist-driven quadrilateral mod-eling. However, as these layouts are typically intermediate artifacts that are rarely preserved, such data remains critically scarce in existing research. To support our proposed joint-prediction framework for cross-fields and structure lines, we constructed TopGen-220K, a large-scale, di-verse dataset comprising paired data of raw triangular meshes, structural layouts, cross-fields, and quadrilateral meshes (Figure 2). We aggregated 1.3 million raw meshes from ShapeNetV2 [ 3], 3D-FUTURE [ 10 ], Objaverse [ 6], Objaverse-XL [ 5 ], and proprietary licensed sources, utilizing the FlowRep [ 11 ] to extract initial structure lines. For cross-field computation, we adopted the approach from [7 ] for quadrilateral regions. For non-quadrilateral regions, we followed the methodology of QuadWild [ 18 ], aligning the cross-field with the structure lines in adjacent areas and employ-ing interpolation-diffusion for internal regions. Finally, using these structure lines and cross-fields as initial constraints, we optimized the final quadrilateral results via the QuadWild framework. 4Figure 3: Distribution of TopGen-220K. To ensure data quality, we recruited professional mod-elers to perform rigorous manual filtering based on the structural rationality and edge flow of the meshes. We excluded cases with cluttered, fragmented, or in-discernible structure lines, resulting in a curated set of 220,000 samples. As shown in Figure 3, these are categorized into five quality tiers: • Level 1 : Both structural lines and edge flow are of high quality. • Level 2 : High-quality edge flow with fewer than 5 structural layout issues. • Level 3 : Acceptable edge flow with fewer than 5 structural layout issues. • Level 4 : High-quality edge flow with fewer than 5 structural layout issues. • Level 5 : Acceptable edge flow with fewer than 10 structural layout issues. Data from Levels 1 through 3 were selected for the training set, ultimately forming the TopGen-220K dataset. 
+
+## 4 Method 𝑸 𝒆   
+
+> 𝑸 𝒇
+> 𝑷 𝒖
+> 𝑷 𝒂
+> ...  ...
+> SES Sample
+> Query Construction
+> Cross
+> Attn.
+> Cross
+> Attn.
+> FPS Self
+> Attn.
+> x12
+> x1
+> Self
+> Attn.
+> Self
+> Attn.
+> Topology -Aware
+> Encode
+> x1
+> Cross
+> Attn.
+> x8
+> Cross
+> Attn.
+> Field
+> Proj .
+> Struct
+> Proj .
+> KV
+> KV
+> Q
+> Q
+> Quad -remeshing
+> Geometry -Aware Encoder
+> Struct -Line
+> Cross -Fields
+> Dual -Query Decoder
+
+Figure 4: Overview of the TopGen pipeline. Our framework first samples point clouds from the input mesh via the SES strategy [ 4 ]. A geometry-aware encoder then maps these points into a latent space. Subsequently, our proposed Dual-Query Decoder concurrently decodes the structural layouts and cross-fields in parallel. Finally, both predictions serve as joint guidance to facilitate high-quality quadrilateral remeshing. We propose TopGen, the first method that achieves quadrilateral mesh generation through the joint prediction of structural layouts and cross-fields. As illustrated in Figure 4, our framework consists of three main components: a Geometry-Aware Encoder (Sec. 4.1) , a Dual-Query Decoder (Sec. 4.2) as well as a Structural-Lines and Cross-fields Driven Remeshing (Sec. 4.3). 54.1 Geometry-Aware Encoder 
+
+We adopt point clouds as the fundamental representation for our framework. As a flexible and expressive 3D represention, point clouds have become the predominant choice in modern deep-learning-based 3D vision tasks [ 4, 25 , 23 ]. Unlike mesh-based representations that are constrained by fixed connectivity, point clouds offer the versatility to handle diverse and potentially low-quality input topologies. Furthermore, this choice allows us to leverage powerful pre-trained point cloud encoders [ 4, 25 ]. By utilizing backbones trained on massive 3D datasets, our framework inherits robust geometric encoding capabilities and strong shape priors, which are essential for high-fidelity reconstruction. To preserve critical topological boundary information while extracting high-fidelity geometric features, we adopt a Sharp Edge Sampling (SES) strategy and the Dual Cross-Attention (DCA) architecture inspired by Dora-VAE [ 4]. This paradigm enables simultaneous perception of global shape semantics and aggregation of fine-grained local geometric details. 
+
+Sharp Edge Sampling. Given an input mesh M = ( V, E, F), the SES strategy identifies a set of salient edges Γ by computing dihedral angles τ between adjacent faces. High-density adaptive sampling is then performed around these sharp features to generate a salient point set Pa consisting of Ndesire points, which effectively captures discriminative geometric characteristics of the shape. In parallel, a set of uniformly distributed surface samples Pu also comprising Ndesire points, is employed as a complementary representation. The union Pd = Pa ∪ P u forms a comprehensive and dense point cloud, ensuring thorough coverage of both fine-scale details and the overall geometric structure. 
+
+Dual Cross-Attention Mechanism. Within the DCA framework, Farthest Point Sampling (FPS) is first applied independently to Pa and Pu to generate a unified set of sparse anchor points Ps:
+
+Ps = FPS( Pu, N u) ∪ FPS( Pa, N a) (1) where Nu and Na is the number of downsampled point clouds from Pu and Pa respectively. These anchors serve as queries and are processed through parallel cross-attention layers with the salient point set Ps and the uniform point set Pu, respectively, yielding decoupled feature embeddings Cu
+
+and Ca. By fusing these specialized representations, the encoder obtains an intermediate feature C
+
+that encapsulates the multidimensional geometric properties of the input mesh: 
+
+Cu = CrossAttn( Ps, Pu, Pu)
+
+Ca = CrossAttn( Ps, Pa, Pa) (2) 
+
+C = Cu + Ca, Z = Self Attn (C) (3) Subsequently, C is further refined by a self-attention layer to model global feature interactions, producing the final latent feature Z. This hierarchical feature extraction strategy provides rich prior information for subsequent decoding tasks. 
+
+4.2 Dual-Query Decoder 
+
+The Dual-Query Decoder is the core component of TopGen, designed to jointly predict structural lines and cross fields in a unified and topology-aware manner. 
+
+Mesh-Aligned Query Construction. We construct two types of query points that are explicitly aligned with mesh primitives. Specifically, for each face f ∈ F , we place a face query point at its barycenter, forming the set Qf . Likewise, for each edge e ∈ E , we place an edge query point at its midpoint, forming the set Qe. This design establishes a one-to-one correspondence between queries and mesh elements, thereby fully preserving the original mesh topology throughout decoding. 
+
+Topology-Aware Local Context Encoding. Although each query point is associated with a specific mesh primitive, reliable prediction of structural layouts and cross fields requires rich local geometric context. As shown in Figure 5, we therefore construct topology-aware neighborhoods for edge and face queries by explicitly exploiting mesh connectivity. For an edge query point qe ∈ Q e
+
+corresponding to an edge e ∈ E , we first collect all faces incident to e:
+
+Fe(e) = {f ∈ F | e ⊂ f }. (4) 6(a) Edge Query  (b) Face Query Figure 5: Topology-aware neighborhoods. The edge-topological neighborhood Ne is then defined as the union of all vertices and edge midpoints belonging to these incident faces: 
+
+Ne = [ 
+
+> f∈F e(e)
+
+(V(f ) ∪ E m(f )) , (5) where V(f ) and Em(f ) denote the vertex set and the set of edge midpoints of face f , respec-tively. This neighborhood encodes both local edge connectivity and surrounding surface ge-ometry, which are crucial for identifying struc-tural lines. Similarly, for a face query point qf ∈ Q f corre-sponding to a face f ∈ F , we define its adjacent face set as 
+
+Ff (f ) = {f ′ ∈ F | f ′ shares an edge with f }. (6) The face-topological neighborhood Nf is constructed by collecting the barycenters of all adjacent faces: 
+
+Nf = {qf ′ | f ′ ∈ F f (f )}, (7) providing a coherent local surface context for cross-field estimation. Each element in Ne and Nf is represented by its 3D coordinates and corresponding normal infor-mation. Edge and face queries aggregate their local topological context via attention-based feature aggregation: 
+
+Xe = SelfAttn( qe, Ne), Xf = SelfAttn( qf , Nf ), (8) yielding locally enhanced query features for subsequent decoding. 
+
+Structural Line Decoding. The enhanced edge query features Xe are decoded by attending to the encoder latent representation Z through cross-attention. Structural line prediction is formulated as a binary classification task, where each edge query outputs the probability that the corresponding edge belongs to the structural layout. Since sharp edges often correspond to structural features, we explicitly incorporate this prior by adding a bias term Wprior to edge queries associated with salient edges Γ:
+
+S = CrossAttn( Xe, Z), Spred = S + Wprior . (9) The structural line branch is supervised using a binary cross-entropy loss: 
+
+Lstruct = BCE( Spred , Sgt ). (10) 
+
+Cross Field Decoding. In parallel, the enhanced face query features Xf interact with the encoder latent features Z via a cross-attention mechanism to regress the cross-field. We employ a 2-rosy cross-field, where the field at each face is represented by a vector (u, v ). To resolve angular symmetry and facilitate network convergence, we follow the representation used in [ 16 ] by mapping the cross-field into a polyvector space: c0 = −(u2 + v2) and c1 = u2v2. Each face query directly predicts these coefficients defined on the corresponding face: 
+
+Rpred = ( c0, c 1) = CrossAttn( Xf , Z) (11) Furthermore, inspired by NeurCross [ 9], we assign spatially varying weights to the face queries based on their proximity to salient edges Γ. Queries closer to Γ are assigned higher weights to enforce sharp feature alignment. Specifically, the weighting factor Dp is defined as: 
+
+Dp = 1 − e−ρf eature ·d(p, Γ) (12) where d(p, Γ) denotes the geodesic distance between the face query point p and the nearest salient edge Γ, with ρf eature set to 10 by default. The final cross-field objective is supervised using a weighted Mean Squared Error loss: 
+
+Lcrossf ield = Dp · ∥ Rpred − Rgt ∥22 (13) The final training objective is a weighted sum of the two task-specific losses: 
+
+Ltotal = wstruct Lstruct + wcrossfield Lcrossfield (14) 74.3 Structural-Lines and Cross-fields Driven Quad-Remeshing 
+
+Upon predicting structural lines and cross-fields, we integrate them into a robust remeshing pipeline inspired by QuadWild [ 18 ]. By decoupling learned semantic guidance from the classical optimization backend, TopGen leverages the stability of traditional methods while achieving superior topological rationality. 
+
+Constraint Integration. We threshold the predicted probabilities to extract structural edges, which naturally form polylines respecting the original mesh topology. These are enforced as hard feature constraints to prevent edge flips or feature drift. Simultaneously, the predicted 2-RoSy cross-fields serve as soft orientation constraints, defining a globally consistent directional field to guide field-aligned parameterization. 
+
+Quad Extraction. Quad elements are generated by tracing integer iso-lines in the parameter domain. By enforcing structural lines as rigid boundaries and cross-fields as orientation guides, the resulting mesh faithfully captures sharp geometric features and semantic structures while maintaining high regularity and low distortion. 
+
+## 5 Experiments 
+
+5.1 Implementation Details Sampling we sample Ndesire = 16 , 384 points with a dihedral angle threshold of τ = 30 ◦. And we apply FPS to obtain Nu = Na = 2 , 048 points, effectively balancing uniform surface coverage with feature-aligned samples. The number of query points is set to Ne = Nf = 61 , 440 . To enhance training stability for structural line prediction, we adopt a 1 : 2 ratio for positive and negative samples during structural query point sampling. 
+
+Network Architecture. The Geometry-Aware Encoder employs a latent width of 768 with 12 
+
+attention heads. It comprises one parallel cross-attention layer for feature interaction, followed by 12 
+
+self-attention layers for global context extraction. The Dual-Query Decoder begins with a single-layer Topology-Aware Local Context Encoding, followed by 8 cross-attention layers to jointly decode structural layouts and cross-fields. 
+
+Training Configuration. TopGen was trained on 16 NVIDIA A100 GPUs for 30 , 000 steps with a batch size of 8 and a learning rate of 5 × 10 −5. We initialized the encoder with pre-trained Dora-VAE [ 4 ] weights. Optimization follows the objective in Eq. 14 with hyper-parameters wcrossfield = 1 .0,
+
+wstruct = 0 .1, and a structural prior bias Wprior = 0 .2.
+
+5.2 Comparison With Quadrilateral Method 
+
+We conduct a comprehensive comparative analysis against state-of-the-art open-source quadrilateral remeshing techniques, including Instant-Meshes [13], QuadriFlow [12], and QuadWild [18]. Evalu-ations are performed on the QuadWild-300 dataset and a collection of AI-generated models. The qualitative comparisons in Figure 6 reveal distinct limitations in existing methods. While Instant-Meshes minimizes local distortion, it frequently introduces an excessive density of singularities, leading to chaotic global edge flows. QuadriFlow exhibits significant instability, often suffering from geometric corruption and detail loss when encountering non-manifold topologies or high-genus models. Similarly, QuadWild struggles to maintain layout consistency across organic surfaces and complex topologies. In contrast, our method consistently synthesizes high-quality topologies across a vast spectrum of inputs—including smooth organic forms, sharp mechanical surfaces, and challenging non-manifold geometries—yielding results that closely align with professional manual modeling standards. More results are provided in Figure 1 Furthermore, we provide a quantitative evaluation of the models from Figure 6 in Table 1. We report performance across six key metrics: vertex count (V), face count (F), number of singularities (I), Chamfer Distance (CD), average Scaled Jacobian (SJ) [ 16 ], and geometric corruption (Corruption). Specifically, we define Corruption as the presence of visible structural fractures or broken faces, which are identified through meticulous visual inspection. Notably, our method achieves the lowest 8Instant -Meshes Input Mesh  QuadriFlow  Ours QuadWild     
+
+> (a) (b) (c) (d) (e)
+
+Figure 6: Qualitative comparison with quadrilateral remeshing methods. (a) Input meshes: AI-generated (Robot, Monster) and QuadWild-300 samples (Mech09, Rod). (e) Results from Instant-Meshes, QuadriFlow, ,QuadWild and Our TopGen. Table 1: Quantitative comparison with quadrilateral remeshing method. Best results are bolded and underlined; second-best are bolded. Our method consistently achieves superior geometric fidelity and topological quality without structural corruption, outperforming state-of-the-art methods in robustness.                                                                                                                                   
+
+> Robot Monster Method VFI↓CD × 10 −5↓SJ ↓Corruption VFI↓CD × 10 −5↓SJ ↓Corruption Instant-Meshes 36057 30717 8946 4.278 0.395 ✓4745 4698 367 48.463 0.475 ×QuadriFlow 37286 32505 8306 4.102 0.117 ✓4558 4495 189 64.33 0.460 ×Quadwild 19482 17144 5683 4.044 0.354 ✓5368 5275 234 52.281 0.429 ×Ours 35890 32391 8163 3.300 0.352 ×5293 5204 212 44.404 0.454 ×Mech09 Rod Method VFI↓CD × 10 −5↓SJ ↓Corruption VFI↓CD × 10 −5↓SJ ↓Corruption Instant-Meshes 8406 8433 218 6.762 0.336 ×4428 4443 133 8.924 0.497 ×QuadriFlow 8788 8790 66 6.778 0.334 ✓4296 4298 42 9.094 0.474 ×Quadwild 3593 3595 22 11.578 0.350 ×4143 4145 24 9.397 0.493 ×Ours 8274 8276 16 6.721 0.372 ×4443 4445 24 8.372 0.487 ×
+
+Chamfer Distance across all test cases, underscoring its superior ability to preserve geometric fidelity. Compared to competing methods, our approach maintains the fewest singularities and a low average Scaled Jacobian at comparable face counts, ensuring high-quality topology and geometry without any corruption. 
+
+5.3 Comparison With FlowRep 
+
+We selected models of varying geometric complexity to evaluate our predicted structure lines against the baseline FlowRep. To ensure a rigorous and controlled comparison, we utilized our model-predicted cross-field as the common guidance for both methods, and applied the identical remeshing pipeline (detailed in Sec. 4.3) to generate the final quadrilateral meshes. This experimental setup allows for a direct assessment of how the quality and topology of the structure lines themselves influence the final remeshing outcome. As shown in Figure 7, FlowRep exhibits instability on non-manifold geometries (Case 4) and often generates redundant lines that clutter the final edge flow (Cases 1, 2). Furthermore, its optimization-based nature leads to significant latency on high-resolution models (Case 3). In contrast, our model leverages learned geometric priors to produce concise, semantically meaningful structure lines across diverse topologies. Most notably, our encoder-decoder architecture reduces processing time from hundreds of seconds to a average of 0.0x seconds. 9Input Mesh  FlowRep  Ours    
+
+> 47s 0.021s
+> 35s 0.022s
+> 224s 0.031s
+> 0.035s
+> Case 1
+> Case 2
+> Case 3
+> Case 4
+
+Figure 7: Comparison with FlowRep. From left: Input, FlowRep, and TopGen. We visualize predicted structure lines and final quad-meshes with timing reported below. 
+
+5.4 Ablation Study 
+
+We evaluate the necessity of our joint-prediction framework by comparing it against two variants: (i) guidance solely by structure lines and (ii) guidance exclusively by cross-fields. As shown in Figure 8, relying only on cross-fields lacks global layout constraints, resulting in jagged boundaries and geometric detail loss. Conversely, using only structure lines maintains the external framework but leads to disorganized internal edge flows due to the absence of orientation guidance. These results confirm that joint prediction is essential for simultaneously ensuring boundary integrity and internal topological regularity. 
+
+## 6 Conclusion 
+
+In this paper, we present TopGen, the first quadrilateral mesh generation framework that jointly predicts structural layouts and cross-fields. By leveraging the synergistic guidance of structural lines and cross-fields, TopGen synthesizes quad meshes that not only preserve intricate geometric details but also exhibit high-quality, artist-standard topological edge flows. Furthermore, we introduce TopGen-220K, a large-scale, high-quality dataset featuring curated structural lines and cross-field annotations, effectively filling the long-standing void of structural feature data in the quad-remeshing community. Extensive experiments demonstrate that TopGen significantly outperforms state-of-the-art methods, offering substantial research value and practical utility for downstream graphics pipelines. 10 w/o struct line  w/o cross -field  Ours Input Mesh Figure 8: Ablation results. Red boxes highlight artifacts from omitting structure lines (jagged boundaries and detail loss) or cross-fields (irregular edge flow and topological corruption). 
+
+## A Appendix 
+
+A.1 Comparison With NeurCross 
+
+We conduct an additional experiment to evaluate our method against NeurCross [ 9 ]. For a direct and intuitive comparison, we present qualitative (Figure 9) and quantitative (Table 2) results using the same models as in the main manuscript. We utilize the official open-source implementation of NeurCross with default parameters. Since NeurCross exclusively predicts cross-fields, we apply the identical quad-remeshing pipeline (Sec. 4.3) to its outputs for a fair assessment. Notably, NeurCross encountered training divergence when processing AI-generated models (Robot and Monster), where the predicted cross-fields resulted in NaN values, precluding the generation of final quad-meshes. On the QuadWild-300 samples (Mech09 and Rod), while NeurCross produces reasonable internal edge flows through its cross-field optimization, the absence of explicit structural constraints leads to jagged boundaries and a loss of geometric detail. Furthermore, as an optimization-based approach requiring per-model fitting, NeurCross suffers from prohibitively long processing times, which is often impractical for professional production pipelines. Table 2: Quantitative comparison with NeurCross. Compared to NeurCross, our method achieves superior geometric fidelity, fewer singularities and lower average Scaled Jacobian values. No-tably, while NeurCross requires extensive optimization time (>1,000s), our approach performs near-instantaneous inference (<1s).                                             
+
+> Mech09 Method VFI↓CD ×(10 −5)↓SJ ↓Corruption Runtime(s) ↓
+> NeurCross 3932 3934 30 8.892 0.365 ×1818 Ours 8274 8276 16 6.721 0.372 ×0.028
+> Rod Method VFI↓CD ×(10 −5)↓SJ ↓Corruption Runtime(s) ↓
+> NeurCross 2291 2293 34 21.93 0.490 ×1273 Ours 4443 4445 24 8.372 0.487 ×0.027
+
+11 NeurCross Input Mesh  Ours Figure 9: Qualitative comparison with NeurCross. (Top to bottom) AI-generated models (Robot, Monster) and QuadWild-300 samples (Mech09, Rod). While NeurCross exhibits numerical instability on AI-generated inputs, our method consistently achieves superior results, ensuring both precise external geometric profiles and smooth internal edge flows across all sources. 
+
+A.2 Future Work 
+
+While our method demonstrates robustness in predicting structural lines and cross-fields across diverse mesh sources, its performance on high-resolution models (e.g., those with millions of faces) still leaves room for improvement in terms of fine-grained precision. We believe these limitations can be addressed by incorporating a larger volume of authentic, human-authored modeling data into our training set. Furthermore, we have observed that the TopGen architecture holds significant potential for other layout-prediction tasks, such as UV unwrapping and part segmentation. We intend to explore these promising directions and further refine the scalability of our approach in future research. 
+
+## References 
+
+[1] D. Bommes, H. Zimmer, and L. Kobbelt. Mixed-integer quadrangulation. ACM transactions on graphics (TOG) , 28(3):1–10, 2009. [2] M. Campen. Partitioning surfaces into quad patches. In Eurographics (Tutorials) , 2017. [3] A. X. Chang, T. Funkhouser, L. Guibas, P. Hanrahan, Q. Huang, Z. Li, S. Savarese, M. Savva, S. Song, H. Su, et al. Shapenet: An information-rich 3d model repository. arXiv preprint arXiv:1512.03012 , 2015. 12 [4] R. Chen, J. Zhang, Y. Liang, G. Luo, W. Li, J. Liu, X. Li, X. Long, J. Feng, and P. Tan. Dora: Sampling and benchmarking for 3d shape variational auto-encoders. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 16251–16261, 2025. [5] M. Deitke, R. Liu, M. Wallingford, H. Ngo, O. Michel, A. Kusupati, A. Fan, C. Laforte, V. Voleti, S. Y. Gadre, et al. Objaverse-xl: A universe of 10m+ 3d objects. Advances in Neural Information Processing Systems , 36:35799–35813, 2023. [6] M. Deitke, D. Schwenk, J. Salvador, L. Weihs, O. Michel, E. VanderBilt, L. Schmidt, K. Ehsani, A. Kembhavi, and A. Farhadi. Objaverse: A universe of annotated 3d objects. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 13142–13153, 2023. [7] A. Dielen, I. Lim, M. Lyon, and L. Kobbelt. Learning direction fields for quad mesh generation, eurographics symposium on geometry processing. Ed. K. Crane and J. Digne , 40(5), 2021. [8] Q. Dong, J. Wang, R. Xu, C. Lin, Y. Liu, S. Xin, Z. Zhong, X. Li, C. Tu, T. Komura, et al. Crossgen: Learning and generating cross fields for quad meshing. ACM Transactions on Graphics (TOG) , 44(6):1–15, 2025. [9] Q. Dong, H. Wen, R. Xu, S. Chen, J. Zhou, S. Xin, C. Tu, T. Komura, and W. Wang. Neurcross: A neural approach to computing cross fields for quad mesh generation. ACM Transactions on Graphics (TOG) , 44(4):1–17, 2025. [10] H. Fu, R. Jia, L. Gao, M. Gong, B. Zhao, S. Maybank, and D. Tao. 3d-future: 3d furniture shape with texture. International Journal of Computer Vision , 129(12):3313–3337, 2021. [11] G. Gori, A. Sheffer, N. Vining, E. Rosales, N. Carr, and T. Ju. Flowrep: Descriptive curve networks for free-form design shapes. ACM Transactions on Graphics (TOG) , 36(4):1–14, 2017. [12] J. Huang, Y. Zhou, M. Niessner, J. R. Shewchuk, and L. J. Guibas. Quadriflow: A scalable and robust method for quadrangulation. In Computer Graphics Forum , volume 37, pages 147–160. Wiley Online Library, 2018. [13] W. Jakob, M. Tarini, D. Panozzo, O. Sorkine-Hornung, et al. Instant field-aligned meshes. ACM Trans. Graph. , 34(6):189–1, 2015. [14] Z. Liang, W. Du, and X.-M. Fu. Field smoothness-controlled partition for quadrangulation. 
+
+ACM Transactions on Graphics (TOG) , 44(4):1–15, 2025. [15] J. Liu, C. Wang, S. Guo, H. Weng, Z. Zhou, Z. Li, J. Yu, Y. Zhu, J. Xu, B. Lei, et al. Quadgpt: Na-tive quadrilateral mesh generation with autoregressive models. arXiv preprint arXiv:2509.21420 ,2025. [16] Y.-T. Liu, J. Li, Y.-T. Liu, X. Yu, Y.-C. Guo, Y.-P. Cao, D. Liang, A. Shamir, and S.-H. Zhang. Neuframeq: Neural frame fields for scalable and generalizable anisotropic quadrangulation. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 28000– 28009, 2025. [17] D. Panozzo, E. Puppo, M. Tarini, and O. Sorkine-Hornung. Frame fields: Anisotropic and non-orthogonal cross fields additional material. Proceedings of the ACM TRANSACTIONS ON GRAPHICS (PROCEEDINGS OF ACM SIGGRAPH , 3, 2014. [18] N. Pietroni, S. Nuvoli, T. Alderighi, P. Cignoni, M. Tarini, et al. Reliable feature-line driven quad-remeshing. ACM Transactions on Graphics , 40(4):1–17, 2021. [19] Y. Siddiqui, A. Alliegro, A. Artemov, T. Tommasi, D. Sirigatti, V. Rosov, A. Dai, and M. Nießner. Meshgpt: Generating triangle meshes with decoder-only transformers. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 19615–19625, 2024. [20] R. W. Sumner and J. Popovi´ c. Deformation transfer for triangle meshes. ACM Transactions on graphics (TOG) , 23(3):399–405, 2004. 13 [21] J. Tao, Y.-L. Yang, and B. Deng. Learning conjugate direction fields for planar quadrilateral mesh generation. arXiv preprint arXiv:2511.11865 , 2025. [22] J. Xiang, X. Chen, S. Xu, R. Wang, Z. Lv, Y. Deng, H. Zhu, Y. Dong, H. Zhao, N. J. Yuan, et al. Native and compact structured latents for 3d generation. arXiv preprint arXiv:2512.14692 ,2025. [23] B. Zhang, J. Tang, M. Niessner, and P. Wonka. 3dshape2vecset: A 3d shape representation for neural fields and generative diffusion models. ACM Transactions On Graphics (TOG) ,42(4):1–16, 2023. [24] Z. Zhao, Z. Lai, Q. Lin, Y. Zhao, H. Liu, S. Yang, Y. Feng, M. Yang, S. Zhang, X. Yang, et al. Hunyuan3d 2.0: Scaling diffusion models for high resolution textured 3d assets generation. 
+
+arXiv preprint arXiv:2501.12202 , 2025. [25] Z. Zhao, W. Liu, X. Chen, X. Zeng, R. Wang, P. Cheng, B. Fu, T. Chen, G. Yu, and S. Gao. Michelangelo: Conditional 3d shape generation based on shape-image-text aligned latent representation. Advances in neural information processing systems , 36:73969–73982, 2023. 14

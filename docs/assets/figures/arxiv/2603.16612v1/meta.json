@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16612v1/fig-001.webp",
+      "caption": "Figure 3. The results show the conversion from sketches to component-editable 3D models.",
+      "page": 7,
+      "index": 1,
+      "width": 633,
+      "height": 504
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16612v1/fig-002.webp",
+      "caption": "Figure 2. Overview of the datasets, including the Japanese detached house dataset and the architectural component dataset.",
+      "page": 5,
+      "index": 2,
+      "width": 483,
+      "height": 520
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16612v1/fig-003.webp",
+      "caption": "Figure 4. Qualitative comparison of three pipelines: (1) Basic 3D Generation (no style adaptation), (2) Style-Enhanced 3D Generation (style adapter only), and (3) Ours (Full Pipeline) (style adapter with component replacement).",
+      "page": 8,
+      "index": 3,
+      "width": 658,
+      "height": 497
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16612v1/fig-004.webp",
+      "caption": "Figure 1. The overview of framework. Three-stage framework for component-level editing from sketches: sketch-to-image enhancement, 3D building model generation, and sketch-based retrieval and replacement.",
+      "page": 4,
+      "index": 4,
+      "width": 646,
+      "height": 550
+    }
+  ]
+}

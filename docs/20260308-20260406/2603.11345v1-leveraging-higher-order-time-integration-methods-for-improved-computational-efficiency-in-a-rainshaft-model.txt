@@ -1,0 +1,1755 @@
+Title: Leveraging higher-order time integration methods for improved computational efficiency in a rainshaft model
+
+URL Source: https://arxiv.org/pdf/2603.11345v1
+
+Published Time: Fri, 13 Mar 2026 00:20:54 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+# Leveraging higher-order time integration methods for improved computational efficiency in a rainshaft model 
+
+Justin Dong 1, Sean P. Santos 2, Steven B. Roberts 1, Christopher J. Vogl 1, and Carol S. Woodward 1
+
+> 1
+
+Lawrence Livermore National Laboratory, 7000 East Ave, Livermore, CA 94550 
+
+> 2
+
+Pacific Northwest National Laboratory, 902 Battelle Blvd, Richland, WA 99354 
+
+Key Points:  
+
+> •
+
+The time integration method commonly used by microphysics schemes requires limiters for stability and produces large approximation errors.  
+
+> •
+
+Higher-order Runge–Kutta methods with adaptive time steps drastically improve solution accuracy and efficiency compared to current methods.  
+
+> •
+
+Analysis of microphysical processes in terms of timescales and Jacobian eigenval-ues helps explain behavior of time integration methods. 
+
+Corresponding author: Sean P. Santos, sean.santos@pnnl.gov 
+
+–1–  
+
+> arXiv:2603.11345v1 [physics.ao-ph] 11 Mar 2026 manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Abstract 
+
+Cloud and precipitation microphysics packages in atmospheric general circulation mod-els typically use first-order time integration methods with a large time step, requiring 
+
+ad hoc limiters and substepping of the sedimentation scheme to prevent solutions from becoming unstable. We show that in the latest version of Energy Exascale Earth Sys-tem Model, E3SMv3, the rain microphysics provided by the Predicted Particle Proper-ties (P3) scheme is underresolved in time at the model’s default 300 s time step. The P3 scheme requires limiters to guarantee stability, but those limiters make large discretiza-tion errors more difficult to detect. When the time step of the P3 scheme is reduced to sufficiently capture correct microphysics behavior, wall clock time of the simulation is increased by nearly a factor of 40 .Instead of reducing the microphysics time step, we recommend using higher-order time integrators based on Runge–Kutta methods, which offer improved solution accu-racy at comparable computational costs. A key to obtaining computationally efficient microphysics results is the use of adaptive time stepping, which also eliminates the need for specialized substepping procedures in the sedimentation process. We also analyze in-dividual microphysical processes by extracting inverse timescales from Jacobians of the process rates, which gives insight about the maximum time step each process is able to take while maintaining stability and accuracy, and about how individual processes should be grouped together for most efficient results. The proposed integrators can achieve the accuracy level required to correctly model rain microphysics parameterizations more than 
+
+10 x faster than the P3 scheme. 
+
+Plain Language Summary 
+
+Atmospheric models for weather and climate studies simulate cloud microphysics (i.e., the mechanisms by which clouds and precipitation are created and evolve in the atmosphere). Time integration methods enable these models to produce snapshots of the cloud state at a series of points in time. Earth system models produce snapshots infre-quently (e.g. every 5 minutes), which is inexpensive but not very accurate. Producing more frequent snapshots is more expensive, requiring more computational resources, but results in more accurate simulations. In this work, we propose replacing current low-accuracy time integration methods for rain microphysics with more sophisticated, high-accuracy methods that achieve improved simulation accuracy without drastically increasing the overall computational cost of the simulation. These high-accuracy methods are paired with an adaptive procedure for guiding the generation of snapshots; snapshots are pro-duced more frequently when the rain is changing quickly and less frequently when the rain evolves slowly. 
+
+1 Introduction 
+
+Atmospheric general circulation models (AGCMs) typically run at much lower tem-poral resolution than regional atmospheric models, using time steps on the order of tens of minutes, to ameliorate the high computational cost of running on a global domain for multiple decades or centuries, as is commonly required for climate studies. Given that such long time steps are inadequate to resolve the effects of cloud and precipitation mi-crophysics, most AGCMs “substep” their cloud microphysics schemes, with time steps as low as 30-60 seconds often used for models with prognostic precipitation (Michibata et al., 2019; Sant et al., 2015). Indeed, microphysics time steps of greater than 60 sec-onds have been repeatedly shown to produce significantly different prognostic precipi-tation outputs than time steps at or below 60 seconds (Posselt & Lohmann, 2008; Chos-son et al., 2014; Zheng et al., 2020; S. P. Santos et al., 2021), indicating that time steps above 1 minute are often inadequate to resolve key precipitation processes.  
+
+> –2– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Nonetheless, there are many models that use longer microphysics time steps, such as the “family” of AGCMs descended from the Community Atmosphere Model (CAM; Neale et al., 2012), as well as some models that use microphysical parameterizations orig-inally developed for CAM (e.g., GISS ModelE3; Cesana et al., 2019). This family includes the Energy Exascale Earth System Model (E3SM) Atmosphere Model (Golaz et al., 2019), which is the focus of this study and uses a 300 s time step for its microphysics. Using long time steps (commonly 60 s to 900 s ) would ordinarily result in numerical instabil-ity or other pathological behaviors that would crash the model or produce unrealistic outputs. These outcomes are avoided by (a) substepping sedimentation of hydromete-ors at a smaller, typically adaptive, time step than the overall microphysics time step, and (b) the use of limiters to ensure nonnegativity of hydrometeor concentrations and a reasonable range of particle sizes. This approach results in a computationally cheap and robust scheme at the cost of reduced fidelity: temporal resolution is coarse, and the evolution of the systems may often be controlled by limiter “guardrails” rather than phys-ical processes. Any biases in the resulting model may be compensated by retuning the parameterizations, but since these changes do not address the numerical error underly-ing the biases, the retuning may need to be repeated whenever the time step is changed. Even for models willing to accept the computational cost of running microphysics at a 60 second time step, there may be regimes where time steps as short as 10 seconds are required to well-resolve some processes at typical AGCM spatial resolutions (S. P. San-tos et al., 2020), and even shorter time steps may be required at convection-permitting resolutions (Barrett et al., 2019). Resolving such processes might seem to require an or-der of magnitude increase in computational cost, insofar as reducing the model time step would increase the cost proportionally. However, most parameterizations of cloud and precipitation microphysics use simple first-order, explicit time integration methods, par-ticularly forward Euler for most individual microphysical processes and Lie–Trotter split-ting (Equation F1a) for process coupling. These methods are easy to implement, but they are not necessarily the most computationally efficient options, so we should consider whether there are more efficient methods for accurately calculating the effects of microphysical processes. For many applications, first-order methods are less efficient than higher-order methods as measured by wall clock time to reach a desired solution accuracy, particu-larly when leveraging adaptive time steps. The accuracy of time integration is less important when other sources of error are assumed to dominate the model uncertainty (e.g. structural or parametric error in the physics formulation, coarse spatial resolution), and implementing new time integration methods requires extra development time. However, time discretization error is not al-ways small compared to other sources of uncertainty, even for models with coarse spa-tial resolution and highly uncertain parameterizations (e.g. of convection). Furthermore, while global cloud-resolving models show great promise in reducing uncertainties related to convection and spatial resolution, this reduction comes with a very high computational cost, so it is tempting to retain relatively coarse time steps in the physics. For instance, the Simple Cloud-Resolving E3SM Atmosphere Model uses a horizontal resolution of ∼3.25 km ,over 30x finer than the “low” resolution ( ∼110 km ) dynamics grid used in E3SMv3 and over 8x finer than that of the “high” resolution ( ∼27 km ) version, but it uses a 100 s time step for the microphysics, only a 3-fold increase in temporal resolution over the lower-resolution configurations (Donahue et al., 2024). If AGCMs continue to allocate com-putational resources mainly toward higher spatial resolution rather than higher tempo-ral resolution, we should expect inaccurate time integration to make up a larger share of the numerical errors affecting model uncertainty. To avoid the aforementioned extra development time to implement second- and higher-order methods, we leverage SUNDIALS, the SUite of Nonlinear and DIfferential/ALgebraic equation Solvers (Hindmarsh et al., 2005), to provide a wide range of alternative, high-order time integration schemes. SUNDIALS is a C library containing six packages; how- 
+
+> –3– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+ever, our use is limited to the ARKODE (Reynolds et al., 2023) package which contains implementations of one-step time integration methods. In order to apply these meth-ods more easily for microphysics problems, we have created a new software framework called the Sedimentation and microPhysics Accurate and Efficient Coupler/Integrator for Earth Systems (SPAECIES). SPAECIES allows the user to implement a new micro-physical process by writing a method that accepts the atmospheric state of a column (pos-sibly including additional diagnostic variables) and outputs the rate of change of prog-nostic variables in that column. SPAECIES then allows multiple process objects to be combined and integrated in various ways using the methods provided by SUNDIALS. When using SUNDIALS methods, microphysical processes are handled via a method-of-lines approach that decouples the time and space discretizations, allowing us to eas-ily swap in different time integrators and run extensive performance comparisons, though SPAECIES is flexible enough to allow other approaches (such as those currently used by most microphysics parameterizations). Our work consists of two major contributions. The first is that we examine the ef-ficiency of several higher-order time integration methods applied to a rainshaft model based on a subset of microphysical processes in the Predicted Particle Properties (P3) scheme (Morrison & Milbrandt, 2015). We demonstrate that the current time integra-tion method in P3, while stable at E3SMv3’s default time step ( 300 s ) due to the use of positivity and size limiters (defined in Section 2.3), produces highly inaccurate solutions at such coarse temporal resolutions. Running on E3SMv3 inputs using the default ver-tical and temporal resolution from that model, we compare the solution from the cur-rent method taking a single 300 s time step to a reference solution using high-temporal-resolution substepping. The current P3 implementation produces a relative difference of 78 % compared with the reference solution which does not meaningfully decrease un-til the model time step is reduced by nearly a factor of 100 , resulting in an increase in the wall clock time to solution by a factor of 40 . We ask whether we can achieve bet-ter accuracy than P3 without drastically increasing the wall clock time to solution. To this end, we consider several explicit Runge–Kutta (ERK) methods, diagonally implicit Runge–Kutta (DIRK) methods, implicit-explicit (ImEx) Runge–Kutta methods, higher-order operator splitting methods, and multirate infinitesimal generalized additive Runge– Kutta (MRI-GARK) methods. All ERK, DIRK, ImEx, and MRI-GARK methods con-sidered support adaptive time stepping. The second major contribution of this work is to provide a rigorous analysis of sev-eral cloud microphysical processes in order to determine the impact of partitioning, if any, on time integrator performance. The P3 scheme uses Lie–Trotter splitting to eval-uate processes that do not couple spatially-separated quantities (“local” processes) sep-arately from sedimentation, which simplifies the application of limiters to guarantee pos-itivity on the one hand, while also simplifying substepping of the sedimentation to sat-isfy the Courant–Friedrichs–Levy (CFL) condition on the other. Several of the other time integration methods we consider also rely on an appropriate partitioning of the micro-physical processes based on mathematical properties such as numerical stiffness and/or physical properties such as the timescale over which the process occurs. Our analysis pro-vides a general framework for analyzing microphysical processes beyond those covered in this work. It also provides insights into the possible improved performance of time in-tegration methods which require the user to partition the processes into groups (e.g. ImEx, operator splitting, and multirate methods). The remainder of this work is structured as follows. In Section 2, we describe the minimal rainshaft model we use to test time integration methods, as well as the time in-tegration method currently used in P3. A stability and timescale analysis of microphys-ical processes is presented in Section 3. In Section 4, we describe the various higher-order time integration methods we have implemented for P3’s rain microphysics, and we pro-
+
+> –4–
+
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+vide results demonstrating their efficiency in the rainshaft model. Conclusions follow in Section 5. 
+
+2 Rainshaft Model 
+
+The rainshaft model we consider is based on a subset of the P3 scheme (Morrison & Milbrandt, 2015) with prognostic equations for t > 0 given by 
+
+
+
+∂T ∂t = − Lv
+
+cp
+
+Sq, evap (T, q, n r, q r)
+
+∂q ∂t = Sq, evap (T, q, n r, q r)
+
+∂n r
+
+∂t = 1
+
+ρ(T, q )
+
+∂ (vnr (T, q, n r, q r)nrρ(T, q )) 
+
+∂z − Sn, evap (T, q, n r, q r) − Srsc (T, q, n r, q r)
+
+∂q r
+
+∂t = 1
+
+ρ(T, q )
+
+∂ (vqr (T, q, n r, q r)qrρ(T, q )) 
+
+∂z − Sq, evap (T, q, n r, q r),
+
+(1) with suitable initial and boundary conditions (to be described in Section 2.2). In Equa-tion 1, the prognostic variables are the temperature T , water vapor mixing ratio q, rain-drop number concentration nr, and rain mass mixing ratio qr. The derived variables ρ,
+
+vnr , and vqr are the local density of air and fall speeds for rain number and mass, respec-tively. Because P3’s physics is formulated in terms of “dry” mixing ratios (hence nr and 
+
+qr are ratios over dry mass), the density ρ also refers only to dry mass of air, calculated within each grid cell by 
+
+ρ(T, q ) = pRdT (1 + q/ϵ H2O ) (2) where the constants Rd, and ϵH2O are defined in Appendix A, Table A1, and p is the to-tal ( not dry partial) pressure. Pressure is constant over time for each grid cell since the grid cells are defined by our adaptation of the E3SM grid as described below. The spe-cific microphysical processes applied to the rainshaft model in this work are sedimen-tation, raindrop self-collection and breakup denoted by Srsc , and liquid evaporation de-noted by Sn, evap and Sq, evap . Full details of these processes may be found in Appendix A. 
+
+2.1 Spatial discretization 
+
+Following the spatial discretization of the P3 scheme (Morrison & Milbrandt, 2015), the sedimentation terms in Equation 1 are discretized in space using a first-order (up-wind) finite difference formulation that guarantees rain mass and number are locally con-served (after accounting for fluxes across the model boundaries). This discretization re-sults in the semidiscrete system of equations 
+
+
+
+dT i
+
+dt = − Lv
+
+cp
+
+Sq, evap (Ti, q i, n r,i , q r,i )
+
+dq i
+
+dt = Sq, evap (Ti, q i, n r,i , q r,i )
+
+dn r,i 
+
+dt = 1
+
+ρi
+
+ vnr (ρi−1, n r,i −1, q r,i −1)nr,i −1ρi−1 − vnr (ρi, n r,i , q r,i )nr,i ρi
+
+∆zi
+
+
+
+−Sn, evap (Ti, q i, n r,i , q r,i ) − Srsc (Ti, q i, n r,i , q r,i )
+
+dq r,i 
+
+dt = 1
+
+ρi
+
+ vqr (ρi−1, n r,i −1, q r,i −1)qr,i −1ρi−1 − vqr (ρi, n r,i , q r,i )qr,i ρi
+
+∆zi
+
+
+
+−Sq, evap (Ti, q i, n r,i , q r,i ),
+
+(3) for i = 1 , . . . , N z where Nz is the number of cells in the spatial grid. Consistent with E3SM conventions, z values are altitudes measured from the ground. However, index-ing begins with the highest altitude grid cell so that z0 is the altitude of the model top 
+
+–5– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+and zNz = 0 is altitude of the interface at the Earth’s surface. For convenience, the sym-bol ρi is used to denote ρ(Ti, q i). At the upper boundary, some method of calculating the incoming fluxes of nr and qr is needed, and we accomplish this by specifying ρ0, nr,0
+
+and qr,0 as boundary conditions, which we take from E3SMv3 data (described later in Section 2.2). The choice of Nz depends on the particular atmospheric conditions and is obtained from 72 pressure contours output from E3SM. We denote by ∆zi the length of the cell (zi−1, z i) (i.e., ∆zi = zi−1 − zi). For ease of notation, we occasionally refer to the semidiscrete system in the more compact form 
+
+dy(t)
+
+dt = F(y(t)) , y(t) = ( T (t), q(t), nr(t), qr(t)) T , (4) where X(t) = ( X1(t), . . . , X Nz (t)) T for X = T, q, n r, q r, and F is the rate of change of the spatially-discretized prognostic variables. 
+
+2.2 Boundary and initial conditions 
+
+Boundary and initial conditions for our rainshaft model experiments are derived from a 15 -month global run of the E3SM Atmosphere Model version 3 (EAMv3) cou-pled to a data ocean under present-day conditions. A global snapshot of all inputs to P3’s rain microphysics is captured every 30 days and 10 hours (i.e., every 365/12 days). Although this is not a perfectly uniform random sampling of P3 inputs, using a non-integer number of days does guarantee that for any given point on the planet, multiple points in the diurnal cycle are sampled during each season. Since EAMv3 takes 1800 s time steps but subcycles the CLUBB and P3 parameterizations at a 300 s time step, the snapshots also save inputs for each of the six CLUBB/P3 substeps that occur during the selected time step. We include data from multiple CLUBB/P3 substeps because it is expected that the first substeps within every EAMv3 time step will systematically differ from later substeps. The first three snapshots (roughly 2 months) are discarded as potentially part of the model spinup, and the remaining 12 snapshots thus contain a sampling of 1 555 200 
+
+columns of P3 inputs taken roughly uniformly across locations, seasons, times of day, and P3 substeps. The vast majority of these columns did not correspond to the meteorological con-ditions for which the rainshaft model is most relevant (i.e., most cases contained no pre-cipitation from stratiform clouds at all or contained significant ice). To focus on liquid precipitation produced from boundary-layer clouds, we select atmospheric columns from the data set with the following criteria:  
+
+> •
+
+A cloud base appears between 400 and 2000 meters, where cloud base is defined as the lowest-altitude interface between grid cells such that cloud liquid is present in the grid cell above and not in the grid cell below.  
+
+> •
+
+Rain is present in the lowest cloud level, signifying recent or ongoing rain produc-tion.  
+
+> •
+
+Ice hydrometeors are not present in the lowest cloud level or below cloud base. The presence or absence of cloud liquid, rain, or ice was determined from mass mixing ratios (the grid-cell mean, not in-cloud values), requiring a value above 10 −6 kg /kg for the corresponding hydrometeor to be considered “present”. This value is chosen partly for consistency with internal limiters in E3SM and partly because we have found the dis-tributions of the logarithms of cloud liquid and rain mass mixing ratios in the E3SM snap-shots to be multimodal, with 10 −6 kg /kg corresponding to a local minimum in the dis-tribution dividing a “trace amounts” mode from the other modes (noted in Figures S1 and S2 from supplemental information).  
+
+> –6– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+The resulting selection of columns consists of Ncol = 1000 relevant columns with the initial conditions taken directly from the E3SM grid cells below cloud base. E3SM uses a maximum-overlap assumption where the precipitation fraction is considered con-stant below cloud base (except that it is set to the minimum allowed value of 10 −4 in grid cells where rain and ice mass are both below 10 −14 kg /kg and in all lower cells). The initial conditions for qr and nr are determined by diving the grid-cell-mean values from EAMv3 by rain area fraction to obtain below-cloud mean values. Such an approach sim-plifies the formulation of the rainshaft model by removing the need for further conver-sions involving rain area fraction during model evolution. Initial values of q and T are taken directly from the grid-cell-mean values in EAM. Upper boundary conditions for 
+
+qr and nr are chosen to match in-cloud values in the grid cell directly above the cloud base, providing a constant source of rain via sedimentation. Upper boundary conditions for q and T are also taken from the same grid cell, but are only used to calculate air den-sity ρ at the upper interface (since density affects the fall speed, and hence flux, at the model top). 
+
+2.3 The original P3 time integration method 
+
+The original P3 code (Morrison & Milbrandt, 2015; Morrison et al., 2015) and the modified version used in E3SM both rely on first-order explicit methods. Specifically, Lie– Trotter splitting (Equation F1a) is used to apply the effects of all local microphysical processes first, followed by sedimentation. These local processes are not sequentially split from one another, but rather applied together with a single forward Euler step. Processes involving phase changes to/from water vapor (including specifically rain evaporation here) are an exception. Those processes use an exponential integrator based on the solution to a simplified PDE, which is derived by assuming that changes in relative humidity due to microphysical processes happen on a short timescale compared to changes in hydrom-eteor properties or thermodynamic changes due to other atmospheric processes (Morrison & Milbrandt, 2015). This assumption is most appropriate within clouds where many small particles persist and relative humidity is close to 100% but may lead to inaccuracies when changes to the rain drops occur over shorter time scales than changes in relative humid-ity. In the context of the rainshaft model where only the evaporation of rain affects rel-ative humidity, this exponential integrator approach is effectively equivalent to the for-ward Euler method, except with the rate of change multiplied by the weighting factor 
+
+w∆t = 1 − e−∆t/τ 
+
+∆t/τ , (5) with ∆t being the microphysics time step and τ being a timescale associated with wa-ter vapor diffusion (see Table A2). Both the forward Euler method and the exponential integrator can produce numer-ical instabilities and unphysical states due to the long model time step (e.g. evaporat-ing so much rain water in one step that qr becomes negative), but this is prevented in P3 by a set of limiters that scale down process rates that would otherwise produce neg-ative values, ensuring that all mass mixing ratios and number concentrations remain non-negative. We refer to these adjustments as the “positivity limiters”, noting that signif-icant care is taken in P3 to implement these in such a way as to ensure conservation of mass. The value of nr is also clipped by further limiters designed to ensure that the mean drop size is kept in the range 10 μm to 500 μm, by changing nr without changing qr. We refer to these limiters as the “size limiters”. Technical descriptions of the positivity and size limiters are provided in Appendix D. As described in Section 2.1, sedimentation is discretized in space with a first-order upwind approximation. Preventing negative values (and related pathologies) resulting from evolving sedimentation with forward Euler requires substepping the process finely enough to satisfy the CFL condition, which is approximated in P3 by ∆t < ∆zi/v qr (nr,i , q r,i ) 
+
+> –7– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+for i ∈ { 1, . . . N z }. (Further discussion of the CFL condition may be found in Section 3.2.) Because this condition depends on vqr , which depends on the hydrometeor variables themselves, it needs to be reevaluated, and the time step potentially adjusted, after ev-ery substep. A summary of the P3 time integration method may be found in Algorithm 1. 
+
+Algorithm 1 The P3 time integration method applied to the rainshaft model. 
+
+Require: Initial condition y0, time step ∆t (= 300 s in E3SM), initial time t0, and final time tf. 
+
+> 1:
+
+Set n = 1  
+
+> 2:
+
+while tn < t f do  
+
+> 3:
+
+∆et = min {∆t, t f − tn} 
+
+> 4:
+
+Compute weight w∆et from Equation 5 using yn. 
+
+> 5:
+
+Apply evaporation and self-collection: 
+
+y(1) = yn−1 + ∆ et ·
+
+
+
+w∆etFevap (yn−1) + Frsc (yn−1)
+
+
+
+. 
+
+> 6:
+
+Apply positivity and size limiters: y(1) ← Lpos (y(1) ) and y(1) ← Lsize (y(1) ) 
+
+> 7:
+
+Set tsub = tn and ysub = y(1) . 
+
+> 8:
+
+while tsub < t n + ∆ et do ▷ Sedimentation substepping.  
+
+> 9:
+
+Compute time step (∆ t)sed based on Equation 11.  
+
+> 10:
+
+Apply sedimentation with substep and limiter: 
+
+ysub ← ysub + min {(∆ t)sed , t f − tsub } · Fsed (ysub ). 
+
+> 11:
+
+Apply positivity and size limiters: ysub ← Lsedpos (ysub ) and ysub ← Lsize (ysub ). 
+
+> 12:
+
+tsub ← tsub + min {(∆ t)sed , t f − tsub }. 
+
+> 13:
+
+end while  
+
+> 14:
+
+Set yn = ysub , tn ← tn + ∆ et, and n ← n + 1 . 
+
+> 15:
+
+end while  
+
+> 16:
+
+return yn
+
+2.3.1 Accuracy of the P3 time integration method 
+
+To motivate the need for more efficient time integration methods, we first exam-ine the accuracy of the P3 time integration method at its default 300 s time step applied to the rainshaft model (Equation 1). Figure 1 shows the distribution of pointwise rel-ative differences expressed as percentages between the solution obtained using the P3 method compared with a highly-resolved reference solution (details of the reference so-lution may be found in Section 4). Selected qr solution profiles at 300 s are provided in Figure 2. Results using the P3 method with significantly smaller time steps of 3.2768 s 
+
+and 0.4096 s are also provided for comparison. We observe that a large number of pointwise relative differences exceed 10% and even 100% when the default time step of 300 s is taken. Moreover, many of the solution profiles are highly inaccurate and fail to capture vital solution behavior such as sharp gradients near the cloud base in columns 5 and 821. When the time step is reduced to 
+
+3.2768 s , the typical pointwise relative differences are reduced to 0.1% – 10% , but there are many outliers, such as column 821 at the Earth’s surface, for which the P3 method produces a physically unrealistic peak where none exists in the highly-resolved reference solution. If one further reduces the time step to 0.4096 s , then the largest pointwise rel-ative differences are around 1% and the solution profiles capture the correct physical be- 
+
+> –8– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 1: 2D histogram of pointwise log difference between highly-resolved reference and P3 solution with time steps of 300 s , 3.2768 s , and 0.4096 s , with the differences shown as percentages relative to the highly-resolved reference solution. havior. However, this significant reduction in time step increases the simulation wall clock time by nearly a factor of 40 , a highly undesirable outcome considering the current com-putational costs of running a typical AGCM. Thus, when evaluating alternative time in-tegration methods in Section 4, our goal is to better resolve important solution features without drastically increasing P3’s computational cost. 
+
+2.4 Regularization of discontinuities 
+
+The nonlinear nature of the rainshaft model results in a nonlinear system to be solved when any processes are to be integrated in time implicitly. Discontinuities can delay or  
+
+> –9– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 2: Selected solution profiles at 300 s using the P3 time integration method with 
+
+∆t = 300 s , 3.2768 s , and 0.4096 s .prevent nonlinear solvers from finding a solution, especially if the nonlinear solver lever-ages Jacobian information (e.g., Newton’s method), and can also degrade convergence rates of the time integration methods. To address these issues, we regularize the mean diameter and evaporation tendency and use the regularized expressions in all numeri-cal experiments in this work. The mean diameter λr, utilized as an intermediary variable in all processes, con-tains a jump discontinuity at qr = qsmall due to the limiter imposed when qr ⩽ qsmall .Adding a small tolerance to the denominator of the non-zero branch and removing the limiter entirely resolve this continuity issue. Full details are provided in Appendix E1. In the case of evaporation, the tendency is continuous in its function values but con-tains a jump discontinuity in its derivative with respect to q due again to the use of lim-iters (see Equation A3). A polynomial interpolant with the desired continuity proper-ties is used to replace the original tendency in a small region around the original point of discontinuity. Full details are provided in Appendix E2 along with numerical exper-iments demonstrating that the proposed regularizations have negligible effect on solu-tion behavior. 
+
+3 Process Analysis 
+
+Many of the time integration methods we utilize in Section 4 allow different mi-crophysical processes to be treated with different methods and/or time steps. These meth-ods provide the most benefit when the user has some a priori knowledge of (i) the timescales associated with each process and (ii) how those timescales, along with the eigenvalues of the discretized processes, affect the stability of the integration methods. 
+
+3.1 Dimensional analysis and timescales 
+
+Let ˜t, ˜z, ˜T , ˜q, ˜nr, ˜qr, ˜Sn, evap , ˜Sq, evap , ˜v, and ˜Srsc denote a characteristic time scale, length scale, temperature, water vapor mixing ratio, raindrop number concentration, rain mass mixing ratio, liquid rain evaporation, sedimentation speed, and raindrop self-collection and breakup, respectively. Introduce x∗ = x/ ˜x, where x corresponds to one of t, z, T ,
+
+q, nr, qr, Sn, evap , Sq, evap , Srsc , or ρ. Similarly, let v∗ 
+
+> x
+
+= vx/˜v, where x corresponds to one of nr or qr. Expressing the rainshaft model (Equation 1) in the x∗ and v∗ 
+
+> x
+
+quanti-
+
+> –10–
+
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+Figure 3: Left: initial solution profiles for temperature, water vapor mixing ratio, rain-drop number concentration, and rain mass mixing ratio obtained from a single column of input to P3. Right: corresponding fall speed vqr and characteristic speeds σsed ,1 and 
+
+σsed ,2. The fall speed used in P3’s substepping calculations (vqr ) is notably slower than the speed dictated by the largest sedimentation eigenvalue. ties results in a non-dimensional form of Equation 1: 
+
+
+
+∂T ∗
+
+∂t ∗ = −
+
+> Lv
+> cp
+
+˜Sq, evap / ˜T
+
+1/˜t S∗
+
+> q, evap
+
+∂q ∗
+
+∂t ∗ = ˜Sq, evap /˜q
+
+1/˜t S∗
+
+> q, evap
+
+∂n ∗
+
+> r
+
+∂t ∗ = ˜v/ ˜z
+
+1/˜t
+
+1
+
+ρ∗
+
+∂  v∗ 
+
+> nr
+
+n∗ 
+
+> r
+
+ρ∗
+
+∂z ∗ − ˜Sn, evap /˜nr
+
+1/˜t S∗ 
+
+> n, evap
+
+− ˜Srsc /˜nr
+
+1/˜t S∗
+
+> rsc
+
+∂q ∗
+
+> r
+
+∂t ∗ = ˜v/ ˜z
+
+1/˜t
+
+1
+
+ρ∗
+
+∂  v∗ 
+
+> qr
+
+q∗ 
+
+> r
+
+ρ∗
+
+∂z ∗ − ˜Sq, evap /˜qr
+
+1/˜t S∗
+
+> q, evap
+
+.
+
+(6) Note the various timescales in the system associated with individual processes:  
+
+> •
+
+˜t = ˜T
+
+> Lv
+> cp
+> ˜Sq, evap
+
+, ˜t = ˜q
+
+> ˜Sq, evap
+
+, ˜t = ˜nr
+
+> ˜Sn, evap
+
+, ˜t = ˜qr
+
+> ˜Sq, evap
+
+: the timescales on which liquid rain evaporation significantly affects the temperature, water vapor mixing ratio, raindrop number concentration, and rain mass mixing ratio, respectively. Note that if the characteristic number and mass rates adhere to a proportionality assump-tion used in P3, given by Equation A4, then the latter two timescales are iden-tical.  
+
+> •
+
+˜t = ˜nr
+
+> ˜Srsc
+
+: the timescale on which raindrop self-collection and breakup significantly affect the raindrop number concentration.  
+
+> •
+
+˜t = ˜z 
+
+> ˜v
+
+: the timescale on which sedimentation affects the system on the charac-teristic length scale. Traditionally, the value of vqr has been used for the characteristic sedimentation speed ˜v as it is the faster of the two fallspeeds vnr and vqr . However, the speed at which the overall solution propagates in a hyperbolic system is instead given by the maximum characteristic speed (LeVeque, 2002). To see why hyperbolic system properties apply here, consider that the rainshaft model (Equation 1) can be derived from the system of con-
+
+–11– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+servation laws 
+
+∂∂t (ρT ) = −ρ Lv
+
+cp
+
+Sq, evap 
+
+∂∂t (ρq ) = ρS q, evap 
+
+∂∂t (ρn r) − ∂∂z (vnr ρn r) = −ρS n, evap − ρS rsc 
+
+∂∂t (ρq r) − ∂∂z (vqr ρq r) = −ρS q, evap ,
+
+(7) with the full derivation details available in Appendix B. For the flux function 
+
+f (T, q, n r, q r) = [0 , 0, v nr ρn r, v qr ρq r] , (8) the Jacobian taken with respect to the conserved quantities ρ, ρn r, and ρq r has two non-zero eigenvalues, σsed ,1 and σsed ,2, representing the characteristic speeds of the hyper-bolic system in Equation 7. Figure 3 shows these characteristic speeds compared to the fall speed vqr for a representative atmospheric state. Note that the fall speed vqr is sig-nificantly slower than the faster characteristic speed σsed ,2. We demonstrate in Section 3.2 that using σsed ,2 is a better choice for determining the optimal time step for time in-tegration methods applied to Equation 3. Calculating the sedimentation timescale requires a characteristic length scale ˜z as well as a velocity. To derive an appropriate length scale, one can consider the leading-order error term for the one-sided finite difference approximation of some derivative x′(z)
+
+on a grid with spacing ˜z, namely 12 ˜zx ′′ (z). Given that 12 ˜zx ′′ (z) is a point-wise measure of absolute error for each point on a grid with spacing ˜z, one can consider 12 ˜z2x′′ (z)/x (z)
+
+as the leading-order relative error term. Thus, one might define a vertical grid such that 
+
+˜z2 is proportional to |x(z)/x ′′ (z)| to attain a particular relative error, or in other words, the length scale of |x(z, t )/ ∂2x∂z 2 (z, t )|1/2, with x denoting one of nr or qr, is a character-istic length scale of the physical system. The corresponding sedimentation timescale can be interpreted as what must be resolved to accurately capture sedimentation in the nu-merical solution, herein referred to as the sedimentation timescale for accuracy. A second choice of characteristic length scale ˜z for sedimentation is the grid spac-ing ∆z of the computational grid to be used, which then results in the timescale asso-ciated with the CFL condition for a hyperbolic system (see Section 3.2 for further dis-cussion). This particular sedimentation timescale can be interpreted as what must be resolved for the numerical solution to be stable (i.e., remain bounded), herein referred to as the sedimentation timescale for stability. To gain an understanding of how the different timescales affect the evolution of the numerical solution, we compute the inverse timescales for the data described in Section 2.2 in Figure 4 at both t = 0 s and t = 200 s . This is done by computing the inverse of the timescale associated with each process within each grid cell and taking the max-ima of these values across all grid cells within a column. Traditionally, sedimentation has been viewed as a fast microphysical process which requires substepping in P3 for accu-racy. However, we observe that the sedimentation timescale for stability is faster than the sedimentation timescale for accuracy, suggesting that sedimentation is a stiff pro-cess, which may be defined informally as having a faster stability timescale than accu-racy timescale, rather than a fast process. Such processes require smaller time steps not to accurately capture a fast-evolving solution but for stability of the numerical solution. These processes often benefit from being integrated with implicit methods (described in Section 4) which have more favorable stability properties. However, we note here that sedimentation is only a mildly stiff process in the sense that its associated accuracy and stability timescales differ by only an order of magnitude (less, in many columns), and the accuracy timescale is not significantly slower than those of the other processes. Im-plicit methods are more computationally expensive per time step than their explicit coun-terparts and therefore, are most beneficial when large time steps can be taken without  
+
+> –12– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 4: Inverse timescales for sedimentation, self-collection, and evaporation for 1000 columns from E3SM described in Section 2.2 at t = 0 s and t = 200 s . Generally, sedimen-tation timescales are faster than those of the other processes, although in some columns self-collection timescales are as fast as or faster than those of sedimentation. Additionally, the sedimentation timescale for stability ( σsed ,2/
+
+q d2qr 
+
+> dz 2
+
+/q r) is faster than the sedimenta-tion timescale for accuracy ( σsed ,2/∆z), suggesting that sedimentation is a mildly stiff process. substantially reducing solution accuracy. For these reasons, we do not expect implicit methods to perform particularly well for the rainshaft model. Nevertheless, the analy-sis of process stiffness undertaken here provides a blueprint for assessing the feasibility of implicit methods, which may be more competitive with explicit methods at higher res-olution or for more intrinsically stiff atmospheric processes. We also observe that there is a wide spread among the self-collection and evapo-ration timescales and the sedimentation timescale for accuracy. While it is generally true that the sedimentation timescale for accuracy is faster than those of self-collection and evaporation by an order of magnitude or more, there are several columns in which self-collection has the fastest timescale. We thus find that none of the processes is univer-sally faster than the others. This observation helps inform our choices of process par-titioning in the MRI-GARK methods examined in Section 4.2 and suggests that such methods may not be more competitive than single-rate methods for the rainshaft model. 
+
+3.2 Sedimentation 
+
+The backward differencing scheme used in Section 2.1 is equivalent to a first-order finite volume scheme for which a well-known CFL condition (Courant et al., 1928) pro-vides a necessary criterion on the time step, ∆t, for stability of explicit time integration methods. Adherence of the time step to the CFL condition ensures that the hyperbolic characteristics cannot skip over entire grid cells zi−1 < z < z i in a single time step. The CFL condition for the backward differencing scheme within cell zi < z < zi−1
+
+(LeVeque, 2002) is 
+
+∆t
+
+∆zi
+
+max  
+
+> j
+
+|σsed ,j | ⩽ 1. (9) The condition in Equation 9 depends on the largest magnitude eigenvalue σsed ,j of the Jacobian of the flux function (Equation 8) introduced in Section 3.1. In order to gain an understanding of how the different microphysical processes limit the time step that the integration methods in Section 4 can take, we plot the upper limit of ∆t in Equa- 
+
+> –13– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 5: Predicted stability bound on time step for column 37 based on (i) CFL con-dition (see Equation 9), (ii) fall speeds (see Equation 11), and (iii) stability region of the forward Euler method when considering the rainshaft model (Equation 1) with sedimenta-tion as the only active process. We compare these bounds with the time step selected by an adaptive time step approach in SUNDIALS with a second-order ERK method which uses an embedded first-order method to estimate temporal error and adapt the time step. The SUNDIALS controller performs well in correctly capturing the CFL condition (Equa-tion 9). tion 9 over the course of a 300 s simulation. That is, we plot the quantity Stability Bound(t) = min 
+
+> i
+
+∆zi
+
+max j |σsed ,j (ρi, n r,i , q r,i )| (10) as a function of t. The nonlinear eigenvalues σsed ,j are computed using a reference so-lution obtained from a fifth-order ERK method with a fixed time step of ∆t = 0 .01 s .In comparison, the stability bound on the time step in P3 (Morrison & Milbrandt, 2015), which approximates the CFL condition (Equation 9) by assuming linearity of the fall speeds vnr and vqr , is Stability Bound P 3(t) = min 
+
+> i
+
+∆zi
+
+|vqr (ρi, n r,i , q r,i )| . (11) Figure 5 shows the stability bounds in Equation 10 and Equation 11 on the sedimenta-tion time step from t = 0 to 300 s . Given the significant difference between the fall speed 
+
+vqr and the characteristic speeds σsed ,j (c.f. Figure 3), the difference between the sta-bility bounds Equation 9 and Equation 11 are expected to have significant differences as well. Indeed, we observe in Figure 5 that Equation 11 is an overestimate of the CFL condition and, as a result, suggests time steps that may cause instability in time inte-gration methods. In P3, limiters are employed to eliminate the instabilities arising from violating the true CFL condition (Equation 9). Appendix C explains in more detail why the P3 approximation of the CFL condition may result in numerical instabilities. Recall that the CFL condition is only a necessary condition for the stability of ex-plicit time integration methods and must be considered in addition to any stability con-ditions arising from the choice of integration method. For example, the well-known lin- 
+
+> –14– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+ear stability condition for the forward Euler method takes the form Upper Bound RK1 (t) = 2max j |σF,j | , (12) where σF are the eigenvalues of F in Equation 4. Indeed, we observe in Figure 5 that the forward Euler stability bound based on the eigenvalues of the discrete operator F is stricter than the upper bounds imposed by both the CFL condition (Equation 9) and P3’s ap-proximation of the CFL condition (Equation 11). However, in general, the CFL condi-tion provides an upper bound on the time step that is closer to the true restriction aris-ing from the time integration method than that of the approximate P3 condition. Lastly, we note that the exact computation of eigenvalues of the Jacobian of indi-vidual microphysical processes can often be impractical, especially for larger systems of equations. As such, we conclude this discussion with a brief demonstration that adap-tive time integration methods can instead automatically choose time steps that adhere to the stability conditions using only local error estimates. We use a second-order ERK method from SUNDIALS which utilizes an embedded first-order method to estimate tem-poral error and adapt the time step. The second-order ERK method has the same lin-ear stability bound described in Equation 12 for operators with purely real eigenvalues. We observe in Figure 5 that the time step selected by an adaptive scheme in this sce-nario approximates the stability condition of the forward Euler method remarkably well. More details of the methods with adaptive time steps may be found in Section 4.2 and Appendix F. 
+
+3.3 Self-collection and evaporation 
+
+The CFL condition (Equation 9) only applies to the hyperbolic problem in which sedimentation is the only microphysical process under consideration. The local micro-physical processes in Equation 3, self-collection and evaporation, may be viewed as non-linear reaction terms. The effect of these processes on the maximum time step can be analyzed by considering the eigenvalues of the function F as in Section 3.2. This linear stability analysis assumes that at each time t, the behavior of the discrete operator F(y(t)) 
+
+is described sufficiently well by its Jacobian at time t.The general form of the stability condition in Equation 12 requires the eigenval-ues of the operator F to fall within the stability region prescribed by the particular time integration method being used. Since the sedimentation timescale for stability is typ-ically faster than the timescales of the other processes, the eigenvalues of F correspond-ing to the discrete sedimentation operator typically have the strongest effect on the sta-bility limit, and the eigenvalues of the nonlinear reaction terms may be viewed as ap-plying a small shift to the eigenvalues of the sedimentation operator. However, there are some columns where the shift is expected to be more significant since the self-collection timescale is at the same order of magnitude as the sedimentation timescale for stabil-ity. We examine the eigenvalues of the discrete operator as well as the predicted up-per bound on the time step for two columns: column 37, in which the sedimentation timescale for stability dominates those of the other microphysical processes; and column 821, in which the sedimentation timescale for stability does not dominate those of the other mi-crophysical processes. The eigenvalues and graphs of the predicted maximum stable time step at each time t are provided in Figure 6. We observe that for column 37, self-collection and evaporation result in a negligible shift of the eigenvalues of the discrete sedimenta-tion operator, and the CFL condition is generally a good approximation of the forward Euler stability condition. However, for column 821, self-collection and evaporation re-sult in a significant shift in the eigenvalues of the discrete sedimentation operator. Since the sedimentation timescales no longer dominate those of the other processes, the CFL condition is no longer a good approximation of the true forward Euler stability condi-   
+
+> –15– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+> (a) (b)
+> (c) (d)
+
+Figure 6: (a) Eigenvalues of the discrete sedimentation operator (blue circle) and the overall operator F (orange x) at t = 200 s for column 37. Stability regions for second, third, and fourth-order ERK methods are overlaid on the eigenvalues. (b) The predicted upper bounds on the time step based on the CFL condition (i.e., Equation 9, dotted line), the P3 approximate CFL condition (i.e., Equation 11, dashed-dotted line), stability bound of the forward Euler method (i.e., Equation 12, dashed blue line), and the time step chosen by a second-order ERK method with adaptive time step in SUNDIALS (dashed orange line) with a relative tolerance of 10 −3. (c) and (d) The analogous plots for column 821. tion. Nevertheless, we observe that the adaptive step method is able to correctly iden-tify and approximately adhere to the forward Euler stability condition (Equation 12) in both columns. 
+
+4 Evaluation of Time Integration Methods 
+
+We evaluate a number of higher-order time integration methods applied to the rain-shaft model in Section 2 with the aim of improving both the accuracy and efficiency of the original P3 time integration method described in Section 2.3. We consider ERK, DIRK, ImEx, operator splitting, and MRI-GARK methods. Brief overviews of these methods are provided in the subsequent subsections with more detailed mathematical descriptions provided in Appendix F. A discussion of the efficiency of each method may be found in its respective subsections and, where relevant, we explain how the process analysis in Sec- 
+
+> –16– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+tion 3 may be used to anticipate method efficiency and guide selection of the best-performing methods. We compare the performance of each method over the Ncol columns of P3 described in Section 2.2. The precise metric we use is a weighted root mean square (WRMS) norm defined as follows: 
+
+|| · || WRMS := 
+
+vuut 1
+
+Ncol 
+
+> Ncol
+
+X
+
+> i=1
+
+fr,i Nz,i 
+
+X
+
+> j=1
+
+(∆ z)ij 
+
+z0
+
+[( ·)ij ]2. (13) Here, (·)ij denotes the value of the argument to the norm at the jth grid point of the 
+
+ith column at time t. This norm may be viewed as the average ℓ2 norm over the column height weighted by the precipitation fraction fr,i . Since a closed form solution to Equa-tion 1 is not available, the error due to the choice of time integration method at time t
+
+is estimated by comparing the difference between qr obtained using one of the time in-tegration methods described below with a highly-resolved reference solution qr,ref obtained with a third-order ERK method using adaptive time stepping guided by relative toler-ance Rtol = 10 −13 and absolute tolerances of 10 −6, 10 −8, 10 −9, and 10 −17 for T , q,
+
+nr, and qr, respectively. These tolerances are chosen to yield a highly accurate reference solution (orders of magnitude more accurate than any practical application needs). The WRMS error estimate, herein referred to as WRMSE, is then given by || qr(t)−qr,ref (t)|| WRMS .We choose to evaluate the WRMSE at t = 300 s which is the microphysics time step used in E3SM. We are interested not only in the temporal discretization error estimate associated with each of the time integration methods but also their efficiency. To this end, we com-pare the WRMSE against the total wall clock time required to integrate all Ncol columns to the final time t = 300 s . These results are provided in the form of work-precision di-agrams which show how the estimated discretization error decreases as the wall clock time is increased, typically due to decreasing the time step for methods with fixed time steps or the relative error tolerance for methods with adaptive time steps. Additionally, we also refer to the relative WRMSE in the following sections, which is defined as Relative WRMSE := || qr(t) − qr,ref (t)|| WRMS 
+
+|| qr,ref (t)|| WRMS 
+
+× 100% . (14) 
+
+4.1 Operator Splitting Methods 
+
+As the current P3 method is based on a Lie–Trotter operator splitting method, it is natural to consider higher-order operator splitting schemes such as a Strang splitting (Equation F1b). These schemes still integrate local microphysical processes separately from sedimentation but may evaluate processes repeatedly (i.e., using multiple stages per step). See Appendix F1 for additional details on the particular operator splitting meth-ods evaluated. Notably, at order three, a splitting method with real coefficients must per-form integrations backwards in time (Blanes & Casas, 2005) which can potentially de-grade stability and efficiency. We first provide operator splitting results using the same substepping procedure for sedimentation as in P3 and employing the same limiters to prevent negative solution values. The impact of the limiters on solution accuracy and convergence is examined more closely in Section 4.1.1. Figure 7 shows the convergence behavior (the WRMSE in qr vs. the local process time step) of first, second, and third-order operator splitting methods compared to P3’s time integration method. For time steps less than approximately 3 s , the second and third-order operator splitting methods attain significantly smaller (between one and three full orders of magnitude) WRMSE than P3. For larger time steps, the first and third-order methods became unstable. The P3 method is able to take time steps up to 300 s (i.e.,  
+
+> –17– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 7: (Left) WRMSE of qr vs. local process time step when various operator splitting methods in SUNDIALS are applied to the rainshaft model. (Right) WRMSE of qr vs. total wall clock time to integrate all columns to t = 300 s . In both plots, the WRMS norm of the reference solution is provided by the dotted black line in order to contextualize the relative magnitude of the error estimates attained by each method. When the WMRSE of the solution provided by a particular method is equal to that of the WRMS norm of the reference solution, the relative WRMSE of that solution is 100%. the current time step in E3SM), but we reiterate the point from Section 2.3.1 that so-lutions at such large time steps have extremely large error. In particular, for time steps between ∼ 3 s and 300 s , the relative WRMSE of the P3 scheme is approximately 44 %. At the default time step of 300 s , the relative WRMSE is 78 %. We remark that the third-order method exhibits a degraded convergence rate caused by a discontinuity in the derivative of the rain self-collection tendency. While regular-ization of this tendency restores third-order convergence for this method, unlike the other regularizations described in Section 2.4, its effect on the physics is large enough that the regularized scheme converges to a noticeably different solution than the original un-regularized scheme. Furthermore, even with that regularization, the third-order splitting method is only the most efficient when an estimated WRMSE of 10 −9 kg /kg or smaller is desired (not shown). As a result, we have decided not to use the self-collection regularization in this study. Further details of the self-collection regularization may be found in Ap-pendix E. When the WRMSE of the numerical solution obtained with operator splitting meth-ods or the P3 scheme is less than 10 −6 kg /kg (corresponding to a relative difference of 
+
+1.8%), then the second-order operator splitting method is most efficient. For WRMSE larger than 10 −6 kg /kg , the P3 scheme and related first-order operating splitting are still the most efficient, and none of the operator splitting methods improve on the wall clock time to break out of the stagnant convergence region of the P3 scheme. Additionally, it is notable that although the third-order operator splitting method provides the small-est WRMSE of qr at a given time step, it is not the most efficient of the methods sur-veyed here due to the cost of the additional stages.  
+
+> –18– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 8: (Left) WRMSE vs. local process time step when various operator splitting methods in SUNDIALS are applied to the rainshaft model with positivity and size lim-iters turned off for all methods. (Right) WRMSE vs. total wall clock time to integrate all columns to t = 300 s . In both panels, omitted points correspond to time steps for which the model aborted or produced NaN when no limiters were active. 
+
+4.1.1 Effect of size and positivity limiters on convergence and solution accuracy 
+
+It is worthwhile to further discuss the large WRMSE associated with large time steps in P3 before analyzing the behavior of other time integration methods. It is clear from the left panel of Figure 7 that both P3 and the first-order operator splitting meth-ods achieve first-order convergence when the time step is less than ∼ 3 s . At larger time steps outside of the asymptotic regime, the convergence stagnates; for instance, when the time step is reduced from 300 s to 3 s , the estimated WRMSE of the P3 solution is not predictably changed. This stagnated convergence of the numerical solution is due to the positivity and size limiters in P3. To see this, we run the same simulations as in Figure 7 except with the positivity and size limiters disabled. The largest time step each method can take while maintaining a WRMSE estimate below 100 % without limiters active is roughly between 
+
+1 s and 7 s as observed in Figure 8. These results serve as a cautionary tale on the ex-tent to which limiters can hide the inaccuracy of numerical solutions. Model “crashes” due to instability can be costly, for instance if they delay urgent weather forecasts, or force parts of expensive climate simulations to be repeated. Therefore it is understand-able that parameterization developers rely on limiters to prevent the model state from becoming too unrealistic and potentially crashing or otherwise ruining a simulation, par-ticularly when such limiters are expected to have a very small effect on the solution (or to trigger exceedingly rarely). Unfortunately, this approach to ensuring model robust-ness can lead to a situation where users are never notified about large inaccuracies in a parameterization, even if these errors occur regularly and not only in rare edge cases. As a result, an additional goal in our subsequent investigations of time integration meth-ods is to ensure that the time integration is accurate enough to always result in an out-put state that is reasonable enough to avoid model crashes, even in the absence of lim-iters.  
+
+> –19– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+4.2 Runge–Kutta-Based Methods 
+
+To improve upon the performance benefits observed with second-order operator split-ting methods, we now consider the class of additive Runge–Kutta (ARK) methods (Cooper & Sayfy, 1980; Ascher et al., 1997) which are based on a partitioning of Equation 4 of the form ∂y(t)
+
+∂t = F(y(t)) = FE (y(t)) + FI (y(t)) . (15) Here, FE denotes a non-stiff RHS function which will be treated explicitly, and FI de-notes a stiff RHS function which will be treated in a diagonally implicit manner. See Ap-pendix F2 for additional details on the particular methods evaluated. We consider three ways to partition sedimentation, self-collection, and evaporation into the two functions. First, based on the analysis of Section 3, it is natural to treat sedimentation implicitly and the other two processes explicitly, resulting in an ImEx method (Equation F3). Sec-ond, treating all processes explicitly (i.e., FE encompasses all processes) results in an ERK method. Finally, treating all processes in a diagonally implicit manner (i.e., FI en-compasses all processes) results in a DIRK method. A key motivating factor in the exploration of ARK methods in this work is the de-sire to circumvent the restrictive sedimentation substepping procedure utilized in both P3 and the operator splitting methods explored in Section 4.1. In particular, the more favorable stability properties of DIRK and ImEx methods compared to their explicit coun-terparts indicate that these methods may be more efficient than the methods surveyed thus far. Although time integration schemes for sedimentation which have some degree of implicitness have been explored and found useful in some models (Guo et al., 2021; Gettelman et al., 2023), they typically use fall speeds calculated from the atmospheric state at the the current (rather than next) time step, to avoid solving a nonlinear sys-tem of equations. Such an approximation is valid when the fall speeds do not change too dramatically in a single time step. In contrast, we use DIRK and ImEx methods where all quantities in the implicit terms are evaluated at the same Runge–Kutta stage, increas-ing the consistency and generality of the methods at the cost of requiring a nonlinear solver to be run at each time step. Another time integration approach is to utilize the class of MRI-GARK methods (Sandu, 2019), which allow partitioning of the microphysical processes such that “faster” processes are integrated with a smaller time step than other processes. There are two key advantages of such methods over the simpler operator splitting methods. First, MRI-GARK methods tend to be more accurate due to their tighter coupling. While opera-tor splitting only couples partitions through initial conditions, MRI-GARK also employs a polynomial forcing function (Equation F4b) to approximate slow dynamics on the finer time grid used to resolve the fast dynamics. Second, high-order MRI-GARK methods do not require backwards integrations to achieve high order accuracy. The conventional assumption that sedimentation is a fast process and self-collection and evaporation are slow processes, which has motivated use of the current P3 scheme, would also suggest higher order operator splitting methods and MRI-GARK methods to be competitive al-ternatives to the P3 scheme. However, as shown in the timescale analysis of Section 3, the process timescales are not sufficiently separated across all columns to motivate use of these methods. Indeed, we show in the subsequent sections that the operator split-ting methods covered in Section 4.1 and MRI-GARK methods perform worse for this model than explicit methods which treat all processes with the same time step. More informa-tion about process partitioning for each method may be found in Section 4.2.2. 
+
+4.2.1 Time step adaptivity 
+
+As noted in Sections 3.2 and 3.3, time step adaptivity is able to more accurately estimate the maximum stable size at a given time than the P3 substepping procedure based on sedimentation fall speeds. As such, our evaluation of ARK and MRI-GARK  
+
+> –20– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+methods in the following sections include results for both fixed and adaptive time step-ping. The adaptive time stepping we employ follows the approach outlined in (Hairer et al., 1993, Section II.4) and (Reynolds et al., 2023, Section 3.1). The numerical solu-tion yn+1 ≈ y(tn+1 ) of a method is compared to an embedded solution byn+1 , which is one order of accuracy lower, using the following error estimate: 
+
+ϵn =
+
+vuut 1
+
+d
+
+> d
+
+X
+
+> i=1
+
+ yn+1 ,i − byn+1 ,i 
+
+Atol i + Rtol |yn,i |
+
+2
+
+. (16) Here, Atol i and Rtol are user-specified absolute and relative tolerances and d is the size of yn+1 . If ϵn ⩽ 1, the time step is deemed acceptable, and if ϵn > 1, it is rejected, and the time step is reduced. 
+
+4.2.2 Implementation in SPAECIES 
+
+In this section, we describe key details of the SPAECIES software implementation and hyperparameters for the time integrators that ensure a reliable and accurate solu-tion over a wide range of initial conditions. SPAECIES uses the ARKODE package of the SUNDIALS library (Hindmarsh et al., 2005; Reynolds et al., 2023) to provide im-plementations of the integrators discussed in Sections 4.1-4.2. Details on ARK and MRI-GARK implementations can be found in (Reynolds et al., 2023, Section 2.2-2.3), while operator splitting details can be found in (Roberts et al., 2026, Section 2.3). We sum-marize the particular schemes used in Table F1 which correspond to the default meth-ods in ARKODE using SUNDIALS version 7.3.0. For the MRI-GARK and operator split-ting methods, there are inner ODEs that must be solved, and corresponding numerical integrators must be selected for these to fully specify the numerical method. We use the default ERK method of the same order as the MRI-GARK or operator splitting method. For the implicit integrators, we use a standard, modified Newton’s method (Hairer & Wanner, 1996, Section IV.8) to solve the nonlinear systems arising from the stage equa-tions. For the DIRK methods, Newton’s method requires (an approximation of) the Ja-cobian ∂F/∂ y, and for the ImEx methods, this requires (an approximation of) ∂FI /∂ y.SPAECIES implements analytic Jacobians for all RHS functions and the intermediate functions used within them. Each Newton iteration requires the solution of a linear sys-tem of equations. Due to the small dimension of these systems (the largest of which has size 80 ), we find that a dense LAPACK linear solver performs well. As is typical with adaptive methods, selecting appropriate absolute tolerances in Equation 16 is critical to ensuring solution positivity while balancing accuracy with the cost of resolving quantities close to zero. In the rainshaft application, if absolute toler-ances are selected too small, a few problematic initial and boundary conditions cause the integrators to take unnecessarily small time steps without physically meaningful improve-ments to the accuracy. These tolerances and other method details are summarized in Ta-ble 1. 
+
+4.2.3 Results with fixed time steps 
+
+The disadvantage of methods with fixed time steps is that one must choose the small-est time step over the course of the entire simulation that achieves both stability and the desired accuracy. Typically, this time step varies significantly as t increases. For instance, previous results in Section 3 (Figure 6, dashed blue line in panel (b)) demonstrate that when t is close to 0 s , the maximum time step for stability can be nearly 1.4x smaller than it is at t = 300 s . Adaptive time step controllers, like those in SUNDIALS, allow one to account for these variations in maximum time step. Moreover, methods which use a nonlinear solver can respond to a convergence failure by reducing the time step which is not possible with fixed time steps. Nevertheless, we first evaluate ARK methods with  
+
+> –21– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Method Partitioning Nonlinear solver Linear solver Limiters Absolute tolerance P3 Partition 1: self-collection, evaporation Partition 2: sedimen-tation (substepped) — — Yes —Operator splitting Partition 1: self-collection, evaporation Partition 2: sedimen-tation (substepped) — — Yes —Explicit Runge– Kutta — — — No T : 10 −6
+
+q : 10 −8
+
+nr : 10 −9
+
+qr : 10 −17 
+
+Diagonally Implicit Runge– Kutta — Newton’s Method Dense LAPACK No T : 10 −6
+
+q : 10 −8
+
+nr : 10 −9
+
+qr : 10 −17 
+
+Implicit-Explicit Runge– Kutta Implicit: sedimenta-tion Explicit: self-collection, evaporation Newton’s Method Dense LAPACK No T : 10 −6
+
+q : 10 −8
+
+nr : 10 −9
+
+qr : 10 −17 
+
+MRI-GARK Fast: sedimentation Slow: self-collection, evaporation — — No T : 10 −6
+
+q : 10 −8
+
+nr : 10 −9
+
+qr : 10 −17 
+
+Table 1: Integrator settings for the methods in Sections 4.2.3 and 4.2.4. Cells with — indicate not applicable. fixed time steps in order to set a baseline for adaptive time stepping. These results al-low us to verify that correct theoretical convergence rates are achieved, provide insights into the largest stable time step each method can take, and motivate the use of adap-tive time stepping to improve computational efficiency. We first consider fixed time steps between 0.0128 s and 300 s . The WRMSE for so-lutions with these varying time steps and their corresponding total simulation wall clock times are provided in Figure 9. Explicit methods can take time steps as large as ∼20 –
+
+200 s , though the WRMSE is extremely large in these cases, often far exceeding 100 %relative error. Explicit methods that treat all processes with the same time step are more efficient than the operator splitting methods explored in Section 4.1. For instance, the second-order explicit method produces a WRMSE about an order of magnitude smaller than that of the second-order operator splitting method at comparable time steps and can achieve a target WRMSE roughly five times faster as well. DIRK and ImEx meth-ods return solutions with lower WRMSE than their explicit counterparts at compara-ble time steps, but the efficiency results show this improvement is more than offset by the higher computational cost of solving the nonlinear stage equations. Despite the promise of being able to circumvent the stability requirements of the explicit methods, the largest stable time steps for DIRK and ImEx methods are in the range of ∼1–2 s . Significantly larger time steps could not be taken even with positivity and size limiters applied. These  
+
+> –22– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 9: (Left) WRMSE vs. time step for explicit Runge–Kutta (ERK), diagonally im-plicit Runge–Kutta (DIRK), and implicit-explicit (ImEx) methods with fixed time steps. The result from the second-order operator splitting method from Section 4.1 is provided for comparison. (Right) WRMSE vs. total simulation wall clock time. small time steps result from convergence failures and nonphysical values that arise within the nonlinear solve. In principle, limiters could be added within the nonlinear solve as well, but we do not expect such limiting to make up for the performance gap with ex-plicit schemes. In general, we hypothesize that the weakly stiff nature of the sedimentation pro-cess and the relatively large size of the process timescales for accuracy are the causes of the overall poor performance of DIRK and ImEx schemes here. While it is true that the sedimentation timescale for accuracy is longer than the corresponding timescale for sta-bility (see Figure 4), the latter is not short enough relative to the timescales of the other processes to offset the cost of the nonlinear stage solves in the DIRK and ImEX meth-ods. Nevertheless, the analysis of sedimentation timescales provides valuable insights into how practitioners can decide whether DIRK and ImEx schemes are suitable for a par-ticular process. We note that both third-order DIRK and ImEx methods exhibit degraded conver-gence rates when small time steps are taken. As with the case of the third-order oper-ator splitting method, this degraded convergence is largely caused by insufficient smooth-ness of the rain self-collection tendency. Even when the regularization of self-collection is employed (not shown), the third-order DIRK and ImEx methods are never the most efficient in achieving a given error level. The results with fixed times steps presented here suggest that ERK methods are promising, although reducing the WRMSE of the P3 scheme below what the current method produces at a 300 s time step still requires significantly higher wall clock time. We ad-dress this efficiency gap with adaptive time stepping in Section 4.2.4. 
+
+4.2.4 Results with adaptive time stepping 
+
+We consider ERK, DIRK, ImEx, and MRI-GARK methods and vary the relative tolerance in Equation 16 to achieve different levels of accuracy. Figure 10 shows the WRMSE with corresponding total simulation wall clock times for relative tolerances between 10 −2
+
+and 10 −11 ; absolute tolerances are provided in Table 1. The fastest wall clock times are  
+
+> –23– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 10: WRMSE vs. total simulation wall clock time for ARK (including explicit Runge–Kutta (ERK), diagonally implicit Runge–Kutta (DIRK), and implicit-explicit (ImEx)) and MRI-GARK methods with adaptive time stepping. The result from the second-order explicit method with fixed time steps from Section 4.2.3 is provided as a comparison. achieved at the largest relative tolerance of 10 −2. Specifically, the second-order ERK method achieves a roughly 100 x reduction in WRMSE over the P3 scheme (at its default 300 s 
+
+time step) while only modestly increasing wall clock time by a factor of 2.5. Adaptiv-ity of the time steps is crucial to achieving this result and provides roughly a 6x reduc-tion in wall clock time over the same method with fixed time steps. To demonstrate the qualitative improvement in the numerical solutions over those produced by the P3 method, we plot a histogram of the pointwise relative differences for the second-order ERK method solutions with adaptive time step using the largest rel-ative tolerance of 10 −2 compared with the highly-resolved reference solution. When com-pared to the pointwise relative difference histogram for the P3 scheme in Figure 11 we see a significant improvement in the error distribution. In turn, this can result in sub-stantial changes in the solution. For instance, we see in Figure 12 for a selection of columns that the second-order ERK method is visually indistinguishable from the high-resolution reference solution while P3 often does not correctly capture features such as boundary layers. MRI-GARK methods are less efficient than their explicit counterparts (i.e., take slightly more wall clock time to achieve a given solution accuracy) for our context, since the former perform best when there is a sufficiently large separation of process timescales. Recall that the partitioning of the processes for the MRI-GARK methods is based on the analysis in Figure 4 which shows that sedimentation usually has the fastest timescale. However, there are two key scenarios to note: (1) there are columns where evaporation and/or self-collection have faster timescales than sedimentation, and (2) in columns where the sedimentation timescale is fastest, it may only be less than an order of magnitude faster than those of the other processes in some columns while in others, it is more than three orders of magnitude faster. The wide spread of timescale differences means that  
+
+> –24– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+Figure 11: 2D histogram of pointwise log error estimate of the second-order ERK (ERK2) solution with adaptive time step and Rtol = 10 −2 as a percentage relative to the reference solution. 
+
+Figure 12: Selected solution profiles at t = 300 s using the adaptive second-order ERK method with Rtol = 10 −2. A comparison with the P3 method with ∆t = 300 s is also pro-vided. overall, treating sedimentation as a fast process and evaporation and self-collection as slow processes is not more efficient than treating all processes with the same time step size (as in ERK methods). In future work with additional processes included, we expect there to be a greater separation of timescales which may yield improved results with MRI-GARK methods. As with the fixed step results in Section 4.2.3, DIRK and ImEx meth-ods are not competitive with the explicit methods when used in our rainshaft model. Based on the results in this section, we recommend the second-order ERK method with adaptive time stepping as an alternate to the P3 scheme whenever a WRMSE of 
+
+∼ 10 −7 kg /kg or greater is desired. For WRMSE less than 10 −7 kg /kg , we recommend the third-order ERK method. 
+
+5 Conclusion 
+
+We have constructed a rainshaft model by extracting the sedimentation, evapora-tion, and self-collection parameterizations from the P3 microphysics scheme, as imple-mented in E3SMv3. We have analytically derived timescales for these processes, show-ing that all three processes are associated with fast ( < 10 s ) timescales for at least some conditions present in E3SM. For sedimentation, the shortest timescales are derived from  
+
+> –25– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+the CFL condition, rather than physical, grid-independent timescales. The current E3SM microphysics time step ( 300 s ) is inadequate to resolve these processes accurately, but the ∼ 0.4 s time step required for a reasonably accurate answer would greatly increase the computational cost of P3 by a factor of 40 .Using the newly-developed SPAECIES framework, we have tested a wide variety of potential alternative time integration methods, and we use the implementations in the SUNDIALS library to accomplish this. We find that all of the tested second- and higher-order methods produce significantly lower error in qr for short ( ⩽ 1 second ) time steps than the first-order methods currently used by P3, with ERK methods being the most efficient. Furthermore, by leveraging adaptive time stepping, with time steps chosen to keep the estimated time integration error below a given target, we are able to reduce the wall clock time of these methods by roughly a factor of 6 while achieving the same level of accuracy as the same methods with fixed time stepping. These methods do not rely on limiters or an explicitly calculated CFL condition based on a single process (i.e., sed-imentation) for stability. For the three processes under consideration in the rainshaft model, we recommend that the second and third-order ERK methods with adaptive time stepping be used in place of the current P3 scheme. These methods attain at least ∼ 100 x smaller estimated time integration error over the P3 scheme at its default 300 s time step while increasing the simulation wall clock time by a factor of 2.5 and resolving important solution fea-tures that the P3 scheme is unable to resolve without increasing wall clock time by nearly 
+
+40 x. The other methods investigated (DIRK, ImEx, MRI-GARK) were found to be less efficient for this particular model, though the timescale analysis carried out in this work suggests that they may be more efficient for other models (e.g. with a different resolu-tion, or with additional slower processes). In the case of MRI-GARK methods, there is no fixed partitioning of the microphysical processes which correctly captures the most significant timescale differences across all columns. For DIRK and ImEx methods, we find that sedimentation has only a modestly faster timescale for stability than for accu-racy, which itself is only modestly faster than the timescales for the local microphysi-cal processes (or in some cases slower). This timescale analysis suggests that sedimen-tation is only a mildly stiff process which still requires a moderately small time step ( <
+
+3 s ) to return accurate solutions, and therefore DIRK and ImEx methods cannot improve efficiency simply by taking very large time steps. This analysis provides the blueprint for anticipating the performance of the various time integration methods considered here on additional microphysical processes to be studied in future work. 
+
+Open Research Section 
+
+Version 1.0.0 of SPAECIES is used to produce the output data in this manuscript. SPAECIES is developed on GitHub at https://github.com/pnnl/SPAECIES and is re-leased under a BSD-3 open source license. The E3SMv3 data used to formulate the bound-ary and initial conditions described in Section 2.2 may be found on Zenodo (S. Santos et al., 2026). Output data from SPAECIES, which includes temperature, water vapor mixing ratio, raindrop number concentration, and rain mass mixing ratio profiles at 300 s 
+
+using the time integration methods described in Section 4, may also be found on Zen-odo (Dong et al., 2026) alongside the postprocessing scripts used to produce the figures in this manuscript. Both input and output data are made available under the Creative Commons Attribution 4.0 International license. 
+
+Acknowledgments 
+
+This work was performed under the auspices of the U.S. Department of Energy by Lawrence Livermore National Laboratory under Contract DE-AC52-07NA27344. LLNL-JRNL-2013883-DRAFT. Pacific Northwest National Laboratory is operated for the U.S. Department  
+
+> –26– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+of Energy by Battelle Memorial Institute under contract DE-AC06-76RLO1830. This research was primarily supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research and Office of Biological and Environ-ment Research (BER), Scientific Discovery through Advanced Computing (SciDAC) pro-gram and through ASCR via the Frameworks, Algorithms, and Scalable Technologies for Mathematics (FASTMath) SciDAC Institute. The authors declare there are no conflicts of interest for this manuscript. 
+
+References 
+
+Ascher, U. M., Ruuth, S. J., & Spiteri, R. J. (1997). Implicit-explicit Runge–Kutta methods for time-dependent partial differential equations. Applied Numerical Mathematics , 25 (2), 151-167. (Special Issue on Time Integration) doi: 10 .1016/S0168-9274(97)00056-1 Barrett, A. I., Wellmann, C., Seifert, A., Hoose, C., Vogel, B., & Kunz, M. (2019). One step at a time: How model time step significantly affects convection-permitting simulations. Journal of Advances in Modeling Earth Systems ,
+
+11 (3), 641-658. doi: 10.1029/2018MS001418 Blanes, S., & Casas, F. (2005). On the necessity of negative coefficients for oper-ator splitting schemes of order higher than two. Applied Numerical Mathemat-ics , 54 (1), 23-37. doi: 10.1016/j.apnum.2004.10.005 Bogacki, P., & Shampine, L. (1989). A 3(2) pair of Runge–Kutta formulas. Applied Mathematics Letters , 2 (4), 321-325. doi: 10.1016/0893-9659(89)90079-7 Cesana, G., Del Genio, A. D., Ackerman, A. S., Kelley, M., Elsaesser, G., Fridlind, A. M., . . . Yao, M.-S. (2019). Evaluating models’ response of tropical low clouds to SST forcings using CALIPSO observations. Atmospheric Chemistry and Physics , 19 (5), 2813–2832. doi: 10.5194/acp-19-2813-2019 Chosson, F., Vaillancourt, P. A., Milbrandt, J. A., Yau, M. K., & Zadra, A. (2014). Adapting two-moment microphysics schemes across model resolutions: Subgrid cloud and precipitation fraction and microphysical sub–time step. Journal of the Atmospheric Sciences , 71 (7), 2635 - 2653. doi: 10.1175/JAS-D-13-0367.1 Cooper, G. J., & Sayfy, A. (1980). Additive methods for the numerical solution of ordinary differential equations. Mathematics of Computation , 35 (152), 1159–1172. doi: 10.1090/s0025-5718-1980-0583492-2 Courant, R., Friedrichs, K., & Lewy, H. (1928). Über die partiellen differenzengle-ichungen der mathematischen physik. Mathematische annalen , 100 (1), 32–74. Donahue, A. S., Caldwell, P. M., Bertagna, L., Beydoun, H., Bogenschutz, P. A., Bradley, A. M., . . . Zhang, Y. (2024). To exascale and beyond—the simple cloud-resolving E3SM atmosphere model (SCREAM), a performance portable global atmosphere model for cloud-resolving scales. Journal of Advances in Modeling Earth Systems , 16 (7), e2024MS004314. doi: 10.1029/2024MS004314 Dong, J., Santos, S., Roberts, S. B., Vogl, C. J., & Woodward, C. S. (2026, March). 
+
+Rainshaft model output data and postprocessing scripts for PAESCAL’s rain microphysics . Zenodo. Retrieved from https://doi.org/10.5281/ zenodo.18895205 doi: 10.5281/zenodo.18895205 Gear, C. (1974). Multirate methods for ordinary differential equations (Tech. Rep.). Urbana, Illinois 61801: Illinois Univ., Urbana (USA). Dept. of Computer Sci-ence. Gettelman, A., Morrison, H., Eidhammer, T., Thayer-Calder, K., Sun, J., Forbes, R., . . . Dennis, J. (2023). Importance of ice nucleation and precipitation on climate with the Parameterization of Unified Microphysics Across Scales ver-sion 1 (PUMASv1). Geoscientific Model Development , 16 (6), 1735–1754. doi: 10.5194/gmd-16-1735-2023 Giraldo, F. X., Kelly, J. F., & Constantinescu, E. M. (2013). Implicit-explicit formu- 
+
+> –27– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+lations of a three-dimensional nonhydrostatic unified model of the atmosphere (NUMA). SIAM Journal on Scientific Computing , 35 (5), B1162–B1194. doi: 10.1137/120876034 Golaz, J.-C., Caldwell, P. M., Van Roekel, L. P., Petersen, M. R., Tang, Q., Wolfe, J. D., . . . Zhu, Q. (2019). The DOE E3SM coupled model version 1: Overview and evaluation at standard resolution. Journal of Advances in Modeling Earth Systems , 11 (7), 2089-2129. doi: 10.1029/2018MS001603 Guo, H., Ming, Y., Fan, S., Zhou, L., Harris, L., & Zhao, M. (2021). Two-moment bulk cloud microphysics with prognostic precipitation in GFDL’s Atmosphere Model AM4.0: Configuration and performance. Journal of Advances in Model-ing Earth Systems , 13 (6), e2020MS002453. doi: 10.1029/2020MS002453 Hairer, E., Nørsett, S. P., & Wanner, G. (1993). Solving ordinary differential equations I: Nonstiff problems (2nd ed.) (No. 8). Berlin, Heidelberg: Springer-Verlag Berlin Heidelberg. doi: 10.1007/978-3-540-78862-1 Hairer, E., & Wanner, G. (1996). Solving ordinary differential equations ii: Stiff and differential-algebraic problems (2nd ed., Vol. 14). Berlin, Heidelberg: Springer. doi: 10.1007/978-3-642-05221-7 Hindmarsh, A. C., Brown, P. N., Grant, K. E., Lee, S. L., Serban, R., Shumaker, D. E., & Woodward, C. S. (2005). SUNDIALS: Suite of nonlinear and differ-ential/algebraic equation solvers. ACM Transactions on Mathematical Software (TOMS) , 31 (3), 363–396. doi: 10.1145/1089014.1089020 Kennedy, C. A., & Carpenter, M. H. (2003). Additive Runge–Kutta schemes for con-vection–diffusion–reaction equations. Applied Numerical Mathematics , 44 (1), 139-181. doi: 10.1016/S0168-9274(02)00138-1 Kennedy, C. A., & Carpenter, M. H. (2016). Diagonally implicit Runge–Kutta methods for ordinary differential equations. a review (Tech. Rep. No. TM-2016-219173). NASA. Knoth, O., & Wolke, R. (1998). Implicit-explicit Runge–Kutta methods for com-puting atmospheric reactive flows. Applied Numerical Mathematics , 28 (2), 327-341. doi: 10.1016/S0168-9274(98)00051-8 LeVeque, R. J. (2002). Finite volume methods for hyperbolic problems (Vol. 31). Cambridge university press. Michibata, T., Suzuki, K., Sekiguchi, M., & Takemura, T. (2019). Prognostic precip-itation in the MIROC6-SPRINTARS GCM: Description and evaluation against satellite observations. Journal of Advances in Modeling Earth Systems , 11 (3), 839-860. doi: 10.1029/2018MS001596 Morrison, H., & Milbrandt, J. A. (2015). Parameterization of cloud microphysics based on the prediction of bulk ice particle properties. part I: Scheme descrip-tion and idealized tests. Journal of the Atmospheric Sciences , 72 (1), 287 - 311. doi: 10.1175/JAS-D-14-0065.1 Morrison, H., Milbrandt, J. A., Bryan, G. H., Ikeda, K., Tessendorf, S. A., & Thompson, G. (2015). Parameterization of cloud microphysics based on the prediction of bulk ice particle properties. part II: Case study comparisons with observations and other schemes. Journal of the Atmospheric Sciences ,
+
+72 (1), 312 - 339. doi: 10.1175/JAS-D-14-0066.1 Neale, R. B., Gettelman, A., Park, S., Chen, C.-C., Lauritzen, P. H., Williamson, D. L., . . . Taylor, M. A. (2012). Description of the NCAR Community Atmo-sphere Model (CAM 5.0). (NCAR Technical Report) doi: 10.5065/wgtk-4g06 Posselt, R., & Lohmann, U. (2008). Introduction of prognostic rain in ECHAM5: design and single column model simulations. Atmospheric Chemistry and Physics , 8 (11), 2949–2963. doi: 10.5194/acp-8-2949-2008 Ralston, A. (1962). Runge–Kutta methods with minimum error bounds. Mathemat-ics of Computation , 16 (80), 431–437. doi: 10.1090/s0025-5718-1962-0150954 -0 Reynolds, D. R., Gardner, D. J., Woodward, C. S., & Chinomona, R. (2023, jun).  
+
+> –28– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+ARKODE: A flexible IVP solver infrastructure for one-step methods. ACM Trans. Math. Softw. , 49 (2). doi: 10.1145/3594632 Rice, J. R. (1960). Split Runge–Kutta methods for simultaneous equations. Journal of Research of the National Institute of Standards and Technology , 60 .Roberts, S. B., Ağgül, M., Reynolds, D. R., Balos, C. J., Gardner, D. J., & Wood-ward, C. S. (2026, February). New time integrators and capabilities in SUNDI-ALS versions 6.2.0-7.4.0. ACM Trans. Math. Softw. . doi: 10.1145/3797888 Sandu, A. (2019). A class of multirate infinitesimal GARK methods. SIAM Journal on Numerical Analysis , 57 (5), 2300-2327. doi: 10.1137/18M1205492 Sant, V., Posselt, R., & Lohmann, U. (2015). Prognostic precipitation with three liquid water classes in the ECHAM5–HAM GCM. Atmospheric Chemistry and Physics , 15 (15), 8717–8738. doi: 10.5194/acp-15-8717-2015 Santos, S., Dong, J., Roberts, S. B., Vogl, C., & Woodward, C. (2026, March). 
+
+Rainshaft model input data for PAESCAL’s rain microphysics study . Zen-odo. Retrieved from https://doi.org/10.5281/zenodo.18864779 doi: 10.5281/zenodo.18864779 Santos, S. P., Caldwell, P. M., & Bretherton, C. S. (2020). Numerically relevant timescales in the MG2 microphysics model. Journal of Advances in Modeling Earth Systems , 12 (4), e2019MS001972. doi: 10.1029/2019MS001972 Santos, S. P., Caldwell, P. M., & Bretherton, C. S. (2021). Cloud process coupling and time integration in the E3SM atmosphere model. Journal of Advances in Modeling Earth Systems , 13 (5), e2020MS002359. doi: 10.1029/2020MS002359 Strang, G. (1968). On the construction and comparison of difference schemes. SIAM Journal on Numerical Analysis , 5 (3), 506-517. doi: 10.1137/0705041 Suzuki, M. (1992). General nonsymmetric higher-order decomposition of exponential operators and symplectic integrators. Journal of the Physical Society of Japan ,
+
+61 (9), 3015-3019. doi: 10.1143/JPSJ.61.3015 Zheng, X., Klein, S. A., Ghate, V. P., Santos, S., McGibbon, J., Caldwell, P., . . . Cadeddu, M. P. (2020). Assessment of precipitating marine stratocumu-lus clouds in the E3SMv1 atmosphere model: A case study from the ARM MAGIC field campaign. Monthly Weather Review , 148 (8), 3341 - 3359. doi: 10.1175/MWR-D-19-0349.1 
+
+Appendix A Microphysical Processes 
+
+Note that in the original P3 implementation, all processes are disabled (rates and fall speeds set to zero) in grid cells where qr < q small . In our rainshaft model, regular-ization of the mean diameter (see Appendix E1) means that sedimentation is now always enabled. The rain evaporation tendency is also regularized (see Appendix E2) and is al-ways active. Lastly, the rain self-collection and breakup tendency is always active in our model. 
+
+A1 Rain self-collection and breakup 
+
+The rain self-collection and breakup process Srsc is given by 
+
+Srsc (T, q, n r, q r) = 5 .78 m3
+
+kg s · min {1, B (nr, q r)} · nrqrρ(T, q ), (A1) where B is the breakup function defined by 
+
+B(nr, q r) = 2 − exp 
+
+
+
+2300 1m
+
+ 1
+
+λr (nr, q r) − 2.8 × 10 −4 m
+
+ 
+
+. (A2) 
+
+> –29–
+
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+Symbol Quantity Value 
+
+ϵH2O Water vapor/dry air molecular mass ratio 
+
+0.621 97 
+
+Lv Latent heat of vaporiza-tion for water 
+
+2.501 × 10 6 J/kg 
+
+cp Heat capacity of dry air at constant pressure 
+
+1.004 64 × 10 3 J/(K kg) 
+
+ρw Density of water 1000 kg /m3
+
+Rd Gas constant for dry air 287 .04 J /(K kg) 
+
+Rv Gas constant for water vapor 
+
+461 .50 J /(K kg) 
+
+Table A1: Physical constants and their values used in the rainshaft model. 
+
+A2 Rain evaporation 
+
+The evaporation mass rate Sq, evap is given by 
+
+Sq, evap (T, q, n r, q r) = 
+
+
+
+qsl (T ) − qabl (T )τ (T, q, n r, q r) , if qsl (T ) > q 
+
+0, else ,
+
+(A3) in terms of the saturation specific humidity qsl , the psychrometric correction factor abl ,and timescale τ . These quantities and others necessary for their computation are defined in Table A2. The evaporation number rate is calculated assuming that evaporation does not change mean drop size and is given by 
+
+Sn, evap (T, q, n r, q r) = nr
+
+qr
+
+Sq, evap (T, q, n r, q r). (A4) 
+
+A3 Sedimentation fall speeds 
+
+The sedimentation fall speeds vnr and vqr are defined in terms of the scale param-eter λr as 
+
+vnr (T, q, n r, q r) = 
+
+ 10 5 Pa 
+
+ρ(T, q )Rd × 273 .15 K 
+
+0.54 R ∞ 
+
+> 0
+
+v(D)e−λr(nr,q r)D dD 
+
+R ∞ 
+
+> 0
+
+e−λr(nr,q r)D dD vqr (T, q, n r, q r) = 
+
+ 10 5 Pa 
+
+ρ(T, q )Rd × 273 .15 K 
+
+0.54 R ∞ 
+
+> 0
+
+v(D)D3e−λr(nr,q r)D dD 
+
+R ∞ 
+
+> 0
+
+D3e−λr(nr,q r)D dD ,
+
+(A5) where v(D) and λr (nr, q r) are defined as in Table A2. 
+
+Appendix B Derivation of Hyperbolic Characteristic Speeds for the Rainshaft Model 
+
+Recall that the value of vqr has traditionally been used for the characteristic sed-imentation speed ˜v, as it is the faster of the two fall speeds vnr and vqr . The better choice for the characteristic sedimentation speed is that from the characteristic curves from an-alyzing the hyperbolic conservation law associated with sedimentation. The rainshaft 
+
+–30– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+Quantity Definition Saturation specific humidity 
+
+qsl (T ) = ϵH2O esl (T ) 
+
+> p−esl (T)
+
+Saturation vapor pressure Given implicitly by 
+
+log esl (T ) = 54 .842763 − 6763 .22  
+
+> T
+
+− 4.21 log ( T ) + 0 .000367 T +
+
+53 .878 − 1331 .22  
+
+> T
+
+− 9.44523 log ( T ) + 0 .014025 T  ·
+
+tanh [0 .0415 ( T − 218 .8)] 
+
+Psychrometric cor-rection factor 
+
+abl (T ) = 1 + L2  
+
+> vqsl (T)
+> cpRvT2
+
+Timescale 
+
+τ (T, q, n r, q r) = 
+
+h
+
+2πn rρ(T, q )Dv (T )
+
+ 0.78  
+
+> λr(nr,q r)
+
++0.32 S1/3 
+
+> c
+
+(T, q )
+
+q ρ(T,q )  
+
+> μvisc (T)
+
+Vevap (λr(nr, q r)) 
+
+i −1
+
+Water vapor diffu-sivity 
+
+Dv (T ) = 8 .794 × 10 −5 m2 Pa /(s K 1.81 ) · T 1.81 
+
+> p
+
+Dynamic viscosity of air 
+
+μvisc (T ) = 1 .496 × 10 −6 kg m s K 0.5 × T 3/2 
+
+> T+120 K
+
+Schmidt number Sc(T, q ) = μvisc (T )  
+
+> ρ(T,q )Dv(T)
+
+Scale parameter λr(nr, q r) = 
+
+ πρ wnr
+
+> qr
+
+1/3
+
+Evaporation fall speed 
+
+Vevap (λr) = R ∞
+
+> 0
+
+pD · v(D)λrDe −λrD dD, 
+
+where v(D) is defined as 
+
+v(D) = 
+
+
+
+4579 .5 × [mcgs (D)] 2/3 if D ⩽ 134 .43 μm49 .62 × [mcgs (D)] 1/3 if 134 .43 μm < D ⩽ 1511 .64 μm17 .32 × [mcgs (D)] 1/6 if 1511 .64 μm < D ⩽ 3477 .84 μm9.17 if 3477 .84 μm < D 
+
+and mcgs (D) = 1000 g /kg × πρ w 
+
+> 6
+
+D3
+
+Table A2: Quantities required for computation of the mass and number rates. model (Equation 1) is not expressed in conservation law form, and expressing it as such requires deriving it from a set of conservation laws. Consider the 1D system of equations for the conservation of water vapor mass, rain droplet number, and rain droplet mass in air: 
+
+∂∂t (ρq ) + ∂∂z (ρqw ) = ρS q, evap 
+
+∂∂t (ρn r) + ∂∂z (ρn rw − ρn rvnr ) = −ρS n, evap − ρS rsc 
+
+∂∂t (ρq r) + ∂∂z (ρq rw − ρq rvqr ) = −ρS q, evap .
+
+(B1) Here, ρ denotes the air mass, w denotes the air speed, and q, nr, qr, vnr , vqr , Sq, evap , Sn, evap 
+
+and Srsc all retain their meaning from the rainshaft model. Note that Equation B1 is the subset of the full 3D system that excludes the horizontal motion terms. We focus 
+
+–31– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+on the 1D system because those horizontal motion terms are typically be handled by a dynamical core or other parameterizations separate from the microphysics scheme. The air mass ρ, speed w, and temperature T are governed by the following system of equations for the conservation of air mass, momentum, and energy: 
+
+
+
+∂∂t (ρ) + ∂∂z (ρw ) = 0 
+
+∂∂t (ρw ) + ∂∂z (ρw 2 + p) = −ρg ∂∂t (E) + ∂∂z 
+
+ (E + p)w = −ρc v
+
+Lv
+
+cp
+
+Sq, evap 
+
+(B2) where p is the pressure, g is the gravitational constant, E is the energy, and cv is the spe-cific heat capacity at constant volume. We assume the air follows the moist ideal gas law 
+
+p = ρR dTv (T, q ), where Tv (T, q ) = 
+
+
+
+1 + qϵH2O 
+
+
+
+T, (B3) where Rd is the ideal gas constant, which closes the system in Equation B2 by determin-ing the specific internal energy as e = cv T and therefore the energy E = ρc v T + 12 ρw 2.With this definition of E, along with the equations for the conservation of air mass and momentum, the conservation of energy equation can be expressed as 
+
+∂∂t (ρT ) + ∂∂z (ρT w ) = −ρ Lv
+
+cp
+
+Sq, evap − 1
+
+cv
+
+
+
+p ∂w ∂z − ρwg 
+
+
+
+. (B4) 
+
+B1 Deriving the rainshaft model from the system of conservation laws 
+
+Given the system of conservation laws in Equation B1 and the temperature equa-tion in Equation B4, we now derive the rainshaft model in Equation 1. First, the con-servation of air mass equation in Equation B2 is leveraged to express the system in Equa-tion B1 in the following form: 
+
+
+
+∂q ∂t + w ∂q ∂z = Sq, evap 
+
+∂n r
+
+∂t + w ∂n r
+
+∂z − 1
+
+ρ∂∂z (ρn rvnr ) = −Sn, evap − Srsc 
+
+∂q r
+
+∂t + w ∂q r
+
+∂z − 1
+
+ρ∂∂z (ρq rvqr ) = −Sq, evap 
+
+(B5) Note that if the w ∂∂z advection terms are operator split to be handled outside the cloud microphysics (e.g., by the dynamical core), then one arrives at the rainshaft model equa-tions for q, nr, and qr. Similarly, the conservation of air mass equation in Equation B2 is leveraged to express the temperature equation (Equation B4) in the following form: 
+
+∂T ∂t + w ∂T ∂z = − Lv
+
+cp
+
+Sq, evap − 1
+
+cv
+
+ pρ∂w ∂z − wg 
+
+
+
+. (B6) As with Equation B1, note that the rainshaft model equation for T is attained if the w ∂T ∂z 
+
+(advection of temperature) and pρ∂w ∂z −wg (residual of work done by vertical motion and change in potential energy) terms are operator split to be handled outside the cloud mi-crophysics. Given the rainshaft model is derived from Equation B1 and Equation B4 with some terms ignored by operator splitting, we can consider the remaining terms in Equa-
+
+> –32–
+
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+tion B1 and Equation B4 as the conservation form of the rainshaft model (Equation 1), 
+
+
+
+∂∂t 
+
+ ρ(T, q )T  = −ρ Lv
+
+cp
+
+Sq, evap 
+
+∂∂t 
+
+ ρ(T, q )q = ρS q, evap 
+
+∂∂t 
+
+ ρ(T, q )nr
+
+ − ∂∂z 
+
+ vnr (T, q, n r, q r)ρ(T, q )nr
+
+ = −ρS n, evap − ρS rsc 
+
+∂∂t 
+
+ ρ(T, q )qr
+
+ − ∂∂z 
+
+ vqr (T, q, n r, q r)ρ(T, q )qr
+
+ = −ρS q, evap 
+
+(B7) where ρ(T, q ) = pRdTv (T,q ) from the moist ideal gas law (Equation B3). 
+
+B2 Deriving the hyperbolic characteristic speeds 
+
+To derive the hyperbolic characteristic speeds in Equation B7, we first note the the fall speeds are functions of T , q, nr, and qr, through ρ(T, q ) and λr (nr, q r) ≡ λr ( nr 
+
+> qr
+
+):
+
+vnr (T, q, n r, q r) ≡ vnr
+
+ ρ(T, q ), λ r
+
+  nr
+
+> qr
+
+ and vqr (T, q, n r, q r) ≡ vqr
+
+ ρ(T, q ), λ r
+
+  nr
+
+> qr
+
+ . (B8) Introduce ˆT = ρT and ˆq = ρq , and note that the density ρ(T, q ) as defined in Equa-tion B3 can be written as ρ( ˆT , ˆq):
+
+p = ρR dT
+
+
+
+1 + qϵH2O 
+
+
+
+⇒ p = Rd ˆT
+
+
+
+1 + ˆqϵH2O 
+
+1
+
+ρ
+
+
+
+⇒ ρ = ˆq/ϵ H2O   
+
+> pRdˆT
+
+− 1 . (B9) Introduce ˆqr = ρq r and ˆqr = ρq r to fully express Equation B7 in terms of conserved quantities: 
+
+∂ ˆT∂t = −ρ Lv
+
+cp
+
+Sq, evap 
+
+∂ ˆq∂t = ρS q, evap 
+
+∂ ˆnr
+
+∂t − ∂∂z 
+
+
+
+vnr
+
+ ρ( ˆT , ˆq), λ r
+
+  ˆnr
+
+> ˆqr
+
+ ˆnr
+
+
+
+= −ρS n, evap − ρS rsc 
+
+∂ ˆqr
+
+∂t − ∂∂z 
+
+
+
+vqr
+
+ ρ( ˆT , ˆq), λ r
+
+  ˆnr
+
+> ˆqr
+
+ ˆqr
+
+
+
+= −ρS q, evap 
+
+(B10) Note the flux function is 
+
+f ( ˆT , ˆq, ˆnr , ˆqr ) = 
+
+h
+
+0, 0, v nr
+
+ ρ( ˆT , ˆq), λ r
+
+  ˆnr
+
+> ˆqr
+
+ ˆnr , v qr
+
+ ρ( ˆT , ˆq), λ r
+
+  ˆnr
+
+> ˆqr
+
+ ˆqr
+
+i
+
+, (B11) with the following Jacobian: 
+
+Jf ( ˆT , ˆq, ˆnr , ˆqr ) = 
+
+
+
+0 0 0 00 0 0 0   
+
+> ∂v nr
+> ∂ρ ∂ρ ∂ˆT∂v nr
+> ∂ρ ∂ρ ∂ˆq
+
+vnr + ∂v nr 
+
+> ∂λ r
+
+λ′  
+
+> rˆnr
+> ˆqr
+
+− ∂v nr 
+
+> ∂λ r
+
+λ′
+
+> r
+
+ ˆnr
+
+> ˆqr
+
+2   
+
+> ∂v qr
+> ∂ρ ∂ρ ∂ˆT∂v qr
+> ∂ρ ∂ρ ∂ˆq∂v qr
+> ∂λ r
+
+λ′ 
+
+> r
+
+vqr − ∂v qr 
+
+> ∂λ r
+
+λ′ 
+
+> rˆnr
+> ˆqr
+
+ . (B12) The nonzero eigenvalues of the Jacobian are the eigenvalues of 
+
+vnr + ∂v nr 
+
+> ∂λ r
+
+λ′  
+
+> rˆnr
+> ˆqr
+
+− ∂v nr 
+
+> ∂λ r
+
+λ′
+
+> r
+
+ ˆnr
+
+> ˆqr
+
+2 
+
+> ∂v qr
+> ∂λ r
+
+λ′ 
+
+> r
+
+vqr − ∂v qr 
+
+> ∂λ r
+
+λ′ 
+
+> rˆnr
+> ˆqr
+
+ . (B13) Noting that λ′  
+
+> rˆnr
+> ˆqr
+
+= 13 λr, the characteristic polynomial for the eigenvalues σsed is 
+
+
+
+vnr + ∂v nr
+
+∂λ r
+
+λr
+
+3 − σ
+
+  
+
+vqr − ∂v qr
+
+∂λ r
+
+λr
+
+3 − σ
+
+
+
++ ∂v nr
+
+∂λ r
+
+∂v qr
+
+∂λ r
+
+ λr
+
+3
+
+2
+
+= 0 . (B14) The eigenvalues σsed , which are the roots of Equation B14, are the hyperbolic charac-teristic speeds in Equation B7. 
+
+–33– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+Appendix C Why the approximate CFL condition in P3 is not suffi-cient to ensure stability 
+
+Recall the stability bound on the sedimentation time step used by P3 in Equation 11. This formula that attempts to satisfy the CFL condition (Equation 9) could be jus-tified on three grounds: 1. Intuitively, vqr is the fastest speed associated with any prognostic rain moment. 2. For a single-moment microphysics scheme where qr is the only prognosed rain mo-ment and vqr is fixed to a constant, this is the exact CFL condition. 3. This condition is sufficient to guarantee positivity for the first-order discretizations used by P3. This is because the flux through the bottom of the i-th grid cell at a given time step is approximated as vqr (nr,i , q r,i )qr,i ρ(Ti, q i), while the flux that would be needed to remove all the rain mass in a grid cell within one time step is qr,i ρ(Ti, q i)∆ zi/∆t. Thus, so long as ∆t ⩽ ∆zi/v qr (t, z i), the time step is guar-anteed not to remove so much rain mass that qr becomes negative. (Since vqr (t, z i) ⩾
+
+vnr (t, z i), satisfying the condition for rain mass also guarantees nonnegative rain number.) Despite these arguments, we have shown in Section 3.2 that this condition is neither suf-ficient for stability, nor sufficient to guarantee that the exact CFL condition (Equation 9) is satisfied, and so it is worth considering a case for which this condition fails. Consider an atmospheric column represented on a uniform grid, where the initial condition has non-zero nr and qr in only a single grid cell, and zero elsewhere. If a sin-gle time step is taken at the maximum time step according to Equation 11, then this is precisely enough to move all rain mass from the initial grid cell to the one below. If this same criterion is applied again at the next time step, the time step will be changed so that again all mass is moved from the one non-empty grid cell to the one immediately below. By iterating this argument, we see that the mass will never diffuse across mul-tiple grid cells, and be concentrated at one level at every time step. However, the rain number will fall at a slower speed, and thus will be left behind in the grid cells that the mass has left. Such particles will have zero mass, which means that (according to most physical formulations) they will fall with zero speed. As time goes on, the rain drops will be partitioned between the increasingly massive moving drops, and the massless immo-bile drops, which is already pathological in itself. Even worse, if the maximum speed of large drops is unlimited, and mass always moves significantly faster than number, then this can cause a catastrophic increase in the size and speed of the massive particles. Phys-ically, both the massless residual number and the runaway increase in mean size are re-lated to the phenomenon of size sorting in falling particles, and so these pathologies can be thought of as due to the effective velocity of size-sorting falling particles being faster than the velocity of the falling mass itself. The actual P3 implementation avoids these pathological issues by three means: 1. The actual velocity formulas used in P3 both converge to a maximum speed of 9.17 m /s
+
+as drop size increases, so catastrophically large speeds and sizes cannot occur. 2. P3’s size limiters adjust the rain number, effectively destroying very-low-mass drops and breaking up very-high-mass drops. This provides the best guarantee that the specific pathologies described above cannot become severe, but it means that sed-imentation, which should be a number-conserving process, can effectively create or destroy rain number. 3. Because of the non-uniform grid spacing of E3SM and the fact that the P3 sed-imentation substeps must add up to the overall P3 time step, the sedimentation substeps never exactly match the approximate CFL condition at every model level, and so some numerical diffusion smears mass and number distributions.  
+
+> –34– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+For these reasons, the current P3 implementation does not seem to generate obvious se-vere pathologies in its sedimentation scheme. The current approximate CFL condition implementation is not sufficient to guarantee linear stability without limiters. 
+
+Appendix D Limiters in P3 
+
+D1 Positivity limiters 
+
+Given a solution state (T, q, n r, q r), the positivity limiter may be described by the mapping Lpos defined by 
+
+Lpos (T, q, n r, q r) = 
+
+
+
+max 
+
+
+
+T − qr
+
+Lv
+
+cp
+
+, 0
+
+
+
+, max {q + qr, 0}, n r, 0
+
+
+
+, if qr < q small 
+
+
+
+max {T, 0}, max {q, 0}, n r, q r
+
+
+
+, else .
+
+(D1) This limiter is designed to ensure that if qr becomes negative due to evaporation, then its value is reset to 0, and the difference is taken from q to conserve total water mass. Additionally, a simpler positivity is applied after sedimentation, defined by 
+
+Lsedpos (T, q, n r, q r) = 
+
+
+
+max {T, 0}, max {q, 0}, max {nr, 0}, max {qr, 0}
+
+
+
+(D2) Since substepping in P3 should prevent the creation of substantially negative values, this limiter exists solely to handle very small negative values resulting from the inexact na-ture of floating point operations. 
+
+D2 Size limiter 
+
+The size limiter ensures that mean drop size in kept between Dmin (= 10 μm) and 
+
+Dmax (= 500 μm) . This is accomplished by computing the corresponding rain numbers for Dmin and Dmax :
+
+nr,min := F(Dmax ) · qr, nr,max := F(Dmin ) · qr. (D3) Here, the conversion function F is defined by 
+
+F(D) = 6   μ+1 
+
+> D
+
+3
+
+πρ w(μ + 1)( μ + 2)( μ + 3) , (D4) where μ = 0 is the shape parameter of the underlying gamma distribution for the rain number. The size limiter may then be described by the mapping Lsize defined by 
+
+Lsize (T, q, n r, q r) = 
+
+
+
+T, q, max {min {nr, n r,max }, n r,min }, q r
+
+
+
+. (D5) Given a vector of discrete solution states y defined in each grid cell of a column, we use the notation Lpos (y) and Lsize (y) to indicate that the limiters are applied to the solu-tion states in each grid cell. 
+
+Appendix E Regularization 
+
+E1 Mean diameter 
+
+At present, a limiter is applied to λr to prevent the case when qr → 0, which would otherwise result in singular behavior of λr. However, limiters in P3 introduce a jump dis-continuity with respect to qr as seen in the following definition: 
+
+λr, limited (nr, q r) = 
+
+ πρ wnr
+
+qr
+
+1/3
+
+, qr > q small 
+
+0, else .
+
+(E1)  
+
+> –35– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES)
+
+There are several ways to address the jump discontinuity in λr which prevent blow up while also maintaining continuity of λr with respect to qr. The simplest approach is to add a small tolerance to the denominator of λr to prevent it from taking on zero val-ues. We select the tolerance based on the value of qsmall :
+
+˜λr(nr, q r) := 
+
+ πρ w(nr + qsmall · 10 8)
+
+qr + qsmall 
+
+1/3
+
+. (E2) We select the value qsmall = 10 −18 for the numerical experiments in this work. The im-pact of the regularization of λr is evaluated alongside the impact of the evaporation ten-dency regularization in the next section. 
+
+E2 Evaporation tendency 
+
+It is straightforward to verify that despite its piecewise definition, the evaporation tendency in Equation A3 is continuous at q = qsl (T ). However, its derivative contains a jump discontinuity at the same location. This discontinuity impacts the convergence of Jacobian-based nonlinear solvers such as Newton’s method in DIRK methods which require continuity of the tendency Jacobians. We elect to introduce a seventh degree polynomial interpolation of Sq, evap in the interval qsl (T ) − ε ⩽ q ⩽ qsl (T ) with 0 < ε < q sl (T ) in order to enforce C3 continuity of the evaporation tendency. This smoothness is required for the third-order time inte-gration methods explored in Section 4. In particular, we define 
+
+˜Sq, evap (T, q, n r, q r) = Sq, evap (T, q, n r, q r) ·
+
+
+
+1, q < q sl (T ) − εQ(T, q, n r, q r), qsl (T ) − ε ⩽ q < q sl (T )0, q ⩾ qsl (T ),
+
+(E3) where Q is the seventh degree polynomial 
+
+Q(T, q, n r, q r) =140 
+
+ q − qsl (T )
+
+ε
+
+4
+
++ 84 
+
+ q − qsl (T )
+
+ε
+
+5
+
++ 70 
+
+ q − qsl (T )
+
+ε
+
+6
+
++ 20 
+
+ q − qsl (T )
+
+ε
+
+7
+
+.
+
+(E4) We select the value of the regularization parameter ε as ε = (10 −10 )qsl (T ) for all sim-ulations in this paper. To demonstrate that the regularizations utilized in this work do not substantially impact the solution behavior, a histogram of the pointwise relative difference between highly-resolved solutions obtained from the rainshaft model without and with regular-ization of λr and Sq, evap is provided in Figure E1. A fifth-order ERK method with ∆t =10 −2 is used to obtain these highly-resolved solutions. Points in all columns of the reg-ularized solution have a relative difference error of less than 10 −7% except for column 193 in the dataset, which has relative difference between 10 −5 and 10 −2%; we speculate that the larger differences in this column in due to the fact that the limiter in Equation A3 is particularly active here, thus resulting in solution values that more frequently fall in the cubic interpolation region of the regularized tendency. 
+
+E3 Self-collection tendency 
+
+The self-collection tendency in Equation A1 is continuous despite its piecewise def-inition, but its derivatives are discontinuous. We find that this lack of continuity in the derivatives causes degradation of the convergence rate of the third-order operator split-ting, DIRK, and ImEx methods. 
+
+> –36–
+
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+Figure E1: 2D histogram of percent relative difference between highly-resolved solutions with and without regularization. Enforcing C3 continuity via regularization of the underlying Heaviside function in Equation A1 takes the form 
+
+˜Srsc (T, q, n r, q r) = −5.78 ρ(T, q )nrqr
+
+
+
+B(nr, q r), if B(nr, q r) < 1 − εrsc 
+
+H(nr, q r), if 1 − εrsc ⩽ B(nr, q r) < 1 + εrsc 
+
+1, if B(nr, q r) ⩾ 1 + εrsc ,
+
+(E5) where εrsc > 0 is the width of the regularization region and H is defined by 
+
+H(nr, q r) = 1 −
+
+ 12 (E(nr, q r) + εrsc )2 −
+
+
+
+1 + cos 
+
+ πE(nr, q r)
+
+εrsc 
+
+ 
+
+·
+
+ εrsc 
+
+π
+
+2
+
+· 12εrsc 
+
+, (E6) with E(nr, q r) := exp[2300(1 /λ r(nr, q r) − 2.8 × 10 −4)] − 1.This regularization with εrsc = 10 −2 is sufficient to restore third-order convergence of the aforementioned time integration methods. However, using ˜Srsc in place of Srsc re-sults in significant changes to the solution profiles, and we therefore do not use this reg-ularization in any of our test simulations in Section 4. Nevertheless, we find that proper documentation of the degraded convergence rates and subsequent resolution via the reg-ularization in Equation E5 is important for furthering understanding of mathematical properties of the rainshaft model. 
+
+Appendix F Time Integration Methods 
+
+F1 Operator splitting 
+
+For brevity, we only describe the operator splitting methods for two partitions of the RHS F, which is the number of partitions considered in this work. In particular, F
+
+is decomposed into two disjoint partitions: F(y) = F(1) (y)+ F(2) (y). The three meth-ods considered in this work are the Lie–Trotter, Strang (Strang, 1968), and Suzuki (Suzuki, 1992) given respectively by 
+
+yn+1 =
+
+
+
+ϕ(2) ∆tn ◦ ϕ(1) ∆tn
+
+
+
+(yn), (F1a) 
+
+yn+1 =
+
+
+
+ϕ(1)  
+
+> 12∆tn
+
+◦ ϕ(2) ∆tn ◦ ϕ(1)  
+
+> 12∆tn
+
+
+
+(yn), (F1b) 
+
+yn+1 =
+
+
+
+ϕ(1)  
+
+> p5∆tn
+
+◦ ϕ(2) (p4+p5)∆ tn ◦ ϕ(1) (p3+p4)∆ tn ◦ ϕ(1) (p2+p3)∆ tn ◦ ϕ(2) (p1+p2)∆ tn ◦ ϕ(1) 
+
+> p1∆tn
+
+
+
+(yn),
+
+(F1c) 
+
+–37– manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+with p1, . . . , p 5 defined in (Suzuki, 1992, p. 3019). The flow map for partition k defined as 
+
+ϕ(k) 
+
+> τ
+
+(y) = v(τ ),
+
+
+
+v(0) = y,dv(t)
+
+dt = F(k)(v(t)) . (F2) 
+
+F2 Additive Runge–Kutta 
+
+One step of an ARK method (Cooper & Sayfy, 1980; Ascher et al., 1997) applied to Equation 15 is given by 
+
+Yi = yn + ∆ tnsX
+
+> j=1
+
+aEi,j FE (Yj ) + ∆ tnsX
+
+> j=1
+
+aIi,j FI (Yj ), i = 1 , . . . , s 
+
+yn+1 = yn + ∆ tnsX
+
+> j=1
+
+bEj FE (Yj ) + ∆ tnsX
+
+> j=1
+
+bIj FI (Yj ).
+
+(F3) ImEx methods take the coefficients aIi,j and bIj to correspond to a DIRK method, while the coefficients aEi,j and bEj correspond to an ERK method. The family of traditional Runge– Kutta methods is a special case of Equation F3 from setting FE or FI to zero. Any stage 
+
+i for which aIi,i and FI are nonzero generally requires the solution of a nonlinear system of equations. 
+
+F3 Multirate Infinitesimal Generalized Additive Runge–Kutta Meth-ods 
+
+Multirate methods (Rice, 1960; Gear, 1974) are designed to efficiently integrate sys-tems of ordinary differential equations with multiple time scales. A prototypical system multirate partitioning of the RHS is F(y) = FF (y) + FS (y) which has a fast dynam-ics FF that requires a smaller time step to resolve than FS . MRI-GARK methods (Sandu, 2019) are a flexible class of multirate methods given by 
+
+Y S 
+
+> 1
+
+= yn, (F4a) 
+
+
+
+v(0) = Y Si ,∂v(θ)
+
+∂θ = ∆ cSi FF (v(θ)) + 
+
+> i+1
+
+X
+
+> j=1
+
+γi,j ( θ 
+
+> ∆tn
+
+)FS (Y Sj ),
+
+Y Si+1 = v(∆ tn),i = 1 , . . . , s (F4b) 
+
+yn+1 = Y Ss+1 , (F4c) with coefficients ∆ci and polynomials γi,j (τ ), for i, j = 1 , . . . , s , defining the particu-lar method. The idea behind MRI-GARK methods traces back to the multirate infinitesimal step (MIS) methods of Knoth and Wolke (Knoth & Wolke, 1998) used for air quality mod-eling. The slow dynamics are evolved with a Runge–Kutta-like discretization involving 
+
+s stage evaluations of FS and using a time step ∆tn. The fast dynamics are evolved through Equation F4b which can be numerically integrated, typically with a time step much smaller than ∆tn. A key feature of MIS and MRI-GARK methods is the flexibility in the treat-ment of the fast dynamics (i.e., an arbitrary integrator can be applied to Equation F4b). 
+
+F4 Table of Methods 
+
+> –38–
+
+manuscript submitted to Journal of Advances in Modeling Earth Systems (JAMES) 
+
+Method Type Order 1 Order 2 Order 3 Operator Lie–Trotter Strang (Strang, 1968) Suzuki (Suzuki, 1992) Splitting Explicit — Based on Ralston’s 2 nd Order Method Bogacki–Shampine Runge–Kutta (Ralston, 1962) (Bogacki & Shampine, 1989) Diagonally Implicit — Implicit part of ARK2 ESDIRK3(2)5L[2]SA Runge–Kutta (Giraldo et al., 2013) (Kennedy & Carpenter, 2016) Implicit-Explicit — ARK2 ARK3(2)4L[2]SA Runge–Kutta (Giraldo et al., 2013) (Kennedy & Carpenter, 2003) MRI-GARK — MRI-GARK-ERK22b MRI-GARK-ERK33a (Sandu, 2019) (Sandu, 2019) 
+
+Table F1: Names and citations of integrators used in the numerical experiments. These correspond to the default integrators for the given orders in SUNDIALS 7.3.0. 
+
+–39–

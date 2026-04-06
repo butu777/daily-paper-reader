@@ -1,0 +1,84 @@
+Title: Landmark Guided 4D Facial Expression Generation
+
+URL Source: https://arxiv.org/pdf/2603.10337v1
+
+Published Time: Thu, 12 Mar 2026 00:24:30 GMT
+
+Number of Pages: 2
+
+Markdown Content:
+# Landmark Guided 4D Facial Expression Generation 
+
+## Xin Lu 
+
+School of AI, Univ. of CAS Beijing, China luxin22@mails.ucas.ac.cn 
+
+## Zhengda Lu 
+
+School of AI, Univ. of CAS Beijing, China luzhengda@ucas.ac.cn 
+
+## Yiqun Wang 
+
+Chongqing University Chongqing, China yiqun.wang@cqu.edu.cn 
+
+## Jun Xiao ∗
+
+School of AI, Univ. of CAS Beijing, China xiaojun@ucas.ac.cn 
+
+Figure 1: The overview of our framework. A series of LM-4DGANs synthesize the landmark sequence by using the generated landmark (LM) of the former level (especially, the given neutral LM for the first level) and random noise, then a displacement decoder(dis-decoder) is used to transfer the landmark displacements(LM dis) to the displacement of each mesh vertex(mesh dis-seq). Finally, the 4D facial expression is synthesized by adding these displacements to the neutral 3D mesh. 
+
+Abstract 
+
+In this paper, we proposed a generative model that learns to synthe-size the 4D facial expression with the neutral landmark. Existing works mainly focus on the generation of sequences guided by ex-pression labels, speech, etc, while they are not robust to the change of different identities. Our LM-4DGAN utilizes neutral landmarks to guide the facial expression generation while adding an identity discriminator and a landmark autoencoder to the basic WGAN for achieving better identity robustness. Furthermore, we add a cross-attention mechanism to the existing displacement decoder which is suitable for the given identity. 
+
+CCS Concepts 
+
+• Computing methodologies → Procedural animation ; Com-puter graphics; Machine learning. 
+
+Keywords 
+
+4D face, neutral landmark, expression generation, GAN 
+
+ACM Reference Format: 
+
+Xin Lu, Zhengda Lu, Yiqun Wang, and Jun Xiao. 2023. Landmark Guided 4D Facial Expression Generation. In SIGGRAPH Asia 2023 Posters (SA Posters ’23), December 12-15,2023. ACM, New York, NY, USA, 2 pages. https://doi. org/10.1145/3610542.3626119  
+
+> ∗email:xiaojun@ucas.ac.cn(Corresponding authors) Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for third-party components of this work must be honored. For all other uses, contact the owner/author(s).
+> SA Posters ’23, Sydney, NSW, Australia
+> ©2023 Copyright held by the owner/author(s). ACM ISBN 979-8-4007-0313-3/23/12 https://doi.org/10.1145/3610542.3626119
+
+1 Introduction 
+
+The synthesis of 4D facial expressions is a fundamental and crucial problem in computer vision and graphics, which is widely used in many applications, such as 3D animations, virtual reality, and games. This task aims to start from a given neutral landmark which is from neutral mesh by FLAME topology and generate a sequence of realistic 3D face meshes that dynamically evolve across time guided by conditions such as expression labels, speech, etc. However, it is necessary to use multiple visual sensors to collect dense face mesh sequences as the 4D facial expressions ground truth with local details. Therefore, there are only a few learning-based methods to study the generation of 4D facial expressions due to the difficulty of data acquisition and the lack of video streaming data. In prior works, [Potamias et al . 2020] leverages the LSTM to generate the expression latent time-sample and then decode the mesh deformation to add to the neutral expression identity mesh. Motion3D[Otberdout et al . 2022] proposes the Motion3DGAN to generate the SRVF coding of the landmark displacements in ex-pression sequence. Then they decode them into dense mesh vertex displacements by a sparse-to-dense decoder. These methods estab-lish the relationship between input conditions and the sequences of dense face mesh, while the mesh vertex displacements that they generate are not robust for different face identities. On the other hand, Motion3DGAN can only generate fixed-length sequences and cannot flexibly synthesize facial expression animations with differ-ent lengths. Therefore, these methods are difficult to be applied to downstream tasks due to these shortcomings. In this paper, we propose a 4D dynamic facial expression genera-tion network that takes a neutral landmark as guidance to generate vivid facial expressions. First, we construct a coarse-to-fine architec-ture based on GANimator[Li et al . 2022] to start from random noise and the neutral landmark. Thus, we can generate vivid expressions  
+
+> arXiv:2603.10337v1 [cs.GR] 11 Mar 2026 SA Posters ’23, December 12-15, 2023, Sydney, NSW, Australia Xin Lu, Zhengda Lu, Yiqun Wang, and Jun Xiao
+
+Figure 2: Qualitative results. The first line is the ground truth of the expression mouth-extreme with different identities. The second line is the generating results of Motion3D while the third line is the generating results of our network. 
+
+with variable lengths by a series of LM-4DGANs. Our LM-4DGANs are robust to each identity and can generate vivid expressions with variable lengths. Meanwhile, we add an identity discriminator and a temporal coherent discriminator to generate realistic landmark displacement sequences. Then, we conduct a displacement decoder to decode the landmark displacements into dense mesh vertex dis-placements. Finally, we can generate more authentic sequences of animated expressions for different identities. 
+
+2 Our approach 
+
+As shown in Fig.1, our framework consists of a series of LM-4DGANs that generate a landmark expression sequence and a displacement decoder that transfers the landmark displacements into mesh vertex displacements. In the LM-4DGAN, we construct a coarse-to-fine architecture with neutral landmark as input to guide the synthesis of expression sequences. Then, we can generate vivid expressions with variable lengths while the subsequent level receives the previous output and random noise as input. Meanwhile, we utilize an autoencoder to encode the landmarks since the sparsity of facial landmarks makes learning their deformations in 3D space difficult. In the training stage, we add an identity discriminator 𝐷 𝑖𝑑𝑒𝑛 with the loss 𝐿 𝑖𝑑𝑒𝑛 to discriminate the identity in the generation stage and a temporal coherent discriminator 𝐷 𝑐𝑜ℎ with the loss 𝐿 𝑐𝑜ℎ to maintain the consistency between consecutive frames. The loss terms are formulated as: 
+
+𝐿 𝑖𝑑𝑒𝑛 (𝐺, 𝐷 𝑖𝑑𝑒𝑛 ) = E𝑑 ∈𝑆 (𝑑 ) [log 𝐷 𝑖𝑑𝑒𝑛 (𝑑, 𝐿𝑀 )] + E𝑝 ∈𝑆 (𝑝 ) [log (1 − 𝐷 𝑖𝑑𝑒𝑛 (𝐺 (𝐿𝑀 ), 𝐿𝑀 )] (1) 
+
+𝐿 𝑐𝑜ℎ (𝐺, 𝐷 𝑐𝑜ℎ ) = E𝑑 ∈𝑆 (𝑑 ) [log 𝐷 𝑐𝑜ℎ (𝑑𝑖 𝑓 (𝑑 ))] + E𝑝 ∈𝑆 (𝑝 ) [log (1 − 𝐷 𝑐𝑜ℎ (𝑑𝑖 𝑓 (𝐺 (𝐿𝑀 )))] (2) where the operation 𝑑𝑖 𝑓 indicates the deformation between con-secutive frames. The parameter 𝐿𝑀 represents the neutral landmark, which is the input of the generator 𝐺 .In the decoder part, we add a cross-attention mechanism for the landmark displacements with the neutral landmark to Motion3D’s decoder. Thus, it can be more robust to different identities. 
+
+3 EXPERIMENTS AND RESULTS 
+
+We train our LM-4DGANs on CoMA dataset[Ranjan et al . 2018] and the experiments of landmark generation and the mesh displace-ment decoder are both evaluated with per-vertex reconstruction error(0.1mm). Furthermore, the ground truth in our experiments is obtained by interpolating the original data. Compared with Mo-tion3D, the 4D facial expressions we generate are closer to the ground truth and perform better in detail when given different identities as shown in Fig.2. Then, we conduct a quantitative com-parison between our method and Motion3D for the landmark gen-eration. Since Motion3DGAN output the SRVF coding of landmark displacement with the different expression labels, we transfer their results into landmark sequences. Meanwhile, we generate the same 30-frame expression sequences as the Motion3D for a fair com-parison. The quantitative results are shown in Tab.1. Our method achieves lower per-vertex reconstruction errors in both landmarks and mesh vertexes. Furthermore, we perform the ablation study for our LM-4DGAN and displacement decoder. Our LM-4DGAN greatly improves the accuracy of landmark sequence generation by the autoencoder of landmarks and optimizing the discriminator. In ad-dition, the cross-attention mechanism in the displacement decoder also effectively improves the result of decoding mesh displacement. 
+
+method Motion3D ours w/o 𝐿 𝑐𝑜ℎ w/o 𝐿 𝑖𝑑𝑒𝑛 w/o AE w/o atten landmark 0.750 0.562 0.562 0.562 0.583 0.668 1.262 -mesh 5.288 4.324 4.324 4.324 4.643 4.724 5.257 4.414 
+
+Table 1: Quantitative results and ablation studies. These experiment was evaluated by per-vertex reconstruction er-ror(0.1mm). 
+
+4 Conclusion 
+
+In this work, we construct a coarse-to-fine architecture to syn-thesize 4D facial expressions gradually in the time domain which achieve more accurate expression generation results for different identities. However, with the lack of 4D facial data, we only experi-ment with our method on the CoMA dataset and will test on other datasets and focus more on temporal indicators in future work. 
+
+Acknowledgments 
+
+This work is supported by the Fundamental Research Funds for the Central Universities and the Natural Science Foundation of Chongqing (CSTB2022NSCQ-MSX0924). 
+
+References

@@ -1,0 +1,134 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-001.webp",
+      "caption": "Table 2. Results on Simulated Robot Manipulation Tasks. Background colors highlight ST-VLA variants.",
+      "page": 6,
+      "index": 1,
+      "width": 1008,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-002.webp",
+      "caption": "Table 11. Evaluation on 4D Tasks (ST-Human-Planning). Evaluating instruction generation (BERTScore), progress estimation (Step/Status metrics), and future planning error.",
+      "page": 25,
+      "index": 2,
+      "width": 1017,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-003.webp",
+      "caption": "Table 5. Unified Dataset JSON Format",
+      "page": 21,
+      "index": 3,
+      "width": 674,
+      "height": 222
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-004.webp",
+      "caption": "Figure 1. ST-VLM bridges the semantic-physical gap via unified 3D-4D spatio-temporal representations. (Left) Existing 2D-based VLMs face geometric ambiguity and temporal inconsistency due to the semantic-physical mismatch. (Right) Our ST-VLA utilizes unified 3D-4D representations with explicit trajectories and smooth spatial masks, ensuring robust long-horizon manipulation.",
+      "page": 2,
+      "index": 4,
+      "width": 1000,
+      "height": 276
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-005.webp",
+      "caption": "Figure 4. Real-world experimental evaluation of ST-VLA. Left: Franka Emika Panda hardware setup. Right: Qualitative results across three dimensions: (1) zero-shot generalization to unseen object categories and geometries; (2) distractor robustness under task-irrelevant visual clutter; and (3) long-horizon chaining via sequential execution of multiple placement tasks.",
+      "page": 7,
+      "index": 5,
+      "width": 1001,
+      "height": 404
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-006.webp",
+      "caption": "Table 7. Hyperparameters for Qwen3-VL SFT Training",
+      "page": 22,
+      "index": 6,
+      "width": 550,
+      "height": 879
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-007.webp",
+      "caption": "Table 8. Hyperparameters for Peract Training and Evaluation",
+      "page": 23,
+      "index": 7,
+      "width": 487,
+      "height": 804
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-008.webp",
+      "caption": "Figure 6. Overview of the Annotation Software Workflow. Top: The Video Selection interface for temporal segmentation, displaying frame sequences and action management lists. Bottom: The Data Labeling interface featuring a central 3D point cloud editor (with manipulation gizmo), strictly synchronized with a 2D RGB preview window (bottom-left) to ensure spatial-visual alignment.",
+      "page": 13,
+      "index": 8,
+      "width": 773,
+      "height": 860
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-009.webp",
+      "caption": "Figure 2. Overview of the ST-Human Dataset Construction and Unified 2D-3D-4D Task Generation.",
+      "page": 4,
+      "index": 9,
+      "width": 1006,
+      "height": 425
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-010.webp",
+      "caption": "Figure 8. Qualitative Visualization of SAM2 Segmentation. Top: ’Close Jar’ task, showing precise masks for colored jars and loose lids. Middle: ’Light Bulb In’ task, isolating distinct components. Bottom: ’Put Groceries In Cupboard’ task, demonstrating robust segmentation in clutter.",
+      "page": 19,
+      "index": 10,
+      "width": 685,
+      "height": 962
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-011.webp",
+      "caption": "Figure 7. Qualitative Examples of Dataset Tasks. Top: ’Building Blocks’ task demonstrating multi-object spatial arrangement. Bottom: ’Scene Cleaning’ task showing interaction with irregular trash objects. Both examples highlight the diversity in background textures and lighting conditions.",
+      "page": 17,
+      "index": 11,
+      "width": 442,
+      "height": 571
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-012.webp",
+      "caption": "Table 9. Evaluation on 2D Tasks. Metric types include: Box-Hit (RoboRefit, VAB-P), Mask-Hit (W2Pl, Afford), and Success Rate (ST-Human-Point). For trajectory tasks, we report RMSE (↓).",
+      "page": 24,
+      "index": 12,
+      "width": 1017,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-013.webp",
+      "caption": "Table 10. Evaluation on 3D Tasks. Spatial tasks use multiple-choice accuracy. Depth estimation reports Ratio Accuracy (threshold 20%) and MAD.",
+      "page": 24,
+      "index": 13,
+      "width": 1017,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-014.webp",
+      "caption": "Figure 9. Qualitative Comparison of Trajectory Generation. We visualize the 2D trajectories generated by our model (top row) versus ground truth human demonstrations (bottom row) across three tasks: Close Jar (Left), Light Bulb In (Middle), and Put Groceries In Cupboard (Right). The model successfully captures the critical keypoints and temporal geometry of the manipulation paths.",
+      "page": 20,
+      "index": 14,
+      "width": 750,
+      "height": 936
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-015.webp",
+      "caption": "Table 1. VLM Performance Comparison on Selected 2D, 3D, and 4D Benchmarks. Best results are bolded.",
+      "page": 5,
+      "index": 15,
+      "width": 1017,
+      "height": 247
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13788v1/fig-016.webp",
+      "caption": "Figure 3. The ST-VLA Pipeline. Given a global instruction and an RGB-D observation, the high-level ST-VLM generates sub-instructions and 2D trajectories. These are lifted to 3D and fused with SAM2 masks to form a unified 3D-4D representation, which conditions the low-level 3D policy for continuous action execution. Guidance is refreshed every H steps for replanning and robustness to disturbances.",
+      "page": 5,
+      "index": 16,
+      "width": 997,
+      "height": 400
+    }
+  ]
+}

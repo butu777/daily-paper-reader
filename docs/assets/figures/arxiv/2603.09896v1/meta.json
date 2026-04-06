@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-001.webp",
+      "caption": "Figure 5 | Error Analysis. The VLMs are prompted to provide detailed step-by-step reasoning. Correct and incorrect reasoning steps are highlighted in green and red, respectively. Questions and VLM’s explanations are simplified for demonstration.",
+      "page": 11,
+      "index": 1,
+      "width": 950,
+      "height": 488
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-002.webp",
+      "caption": "Figure 11 | Court-Ext examples.",
+      "page": 30,
+      "index": 2,
+      "width": 950,
+      "height": 359
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-003.webp",
+      "caption": "Figure 1 | Overview. We introduce a semi-automatic data engine that reconstructs sports scenes in 3D with court, player, and ball locations. Built upon this pipeline, we present CourtSI and CourtSI-Bench, the first large-scale spatial intelligence dataset and benchmark for sports scenarios. In addition, we provide extra evaluation protocols to validate applicability on an unseen sport and spatial-aware commentary.",
+      "page": 2,
+      "index": 3,
+      "width": 919,
+      "height": 511
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-004.webp",
+      "caption": "Figure 4 | Distribution of CourtSI and CourtSI-Bench. Obj. refers to object, including the ball and players. Cam. denotes camera.",
+      "page": 7,
+      "index": 4,
+      "width": 936,
+      "height": 344
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-005.webp",
+      "caption": "Figure 3 | Taxonomy and examples of CourtSI. The questions are categorized into:",
+      "page": 7,
+      "index": 5,
+      "width": 950,
+      "height": 469
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-006.webp",
+      "caption": "Table 7 | Detailed Data Distribution. B, T, and TT denote badminton, tennis, and table tennis, respectively.",
+      "page": 29,
+      "index": 6,
+      "width": 742,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-007.webp",
+      "caption": "Figure 10 | Original broadcast frames (top) and depth maps estimated by DepthAnythingV3 (bottom). Yellow arrows indicate the ball positions.",
+      "page": 22,
+      "index": 7,
+      "width": 939,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-008.webp",
+      "caption": "Figure 7 | Evaluation on the spatial-aware commentary generation. Comparison between Qwen3-VL-8B fine-tuned on CourtSI and its base model. The left panel shows user study results assessing the quality of generated commentaries in both linguistic and spatial-awareness dimensions. The right panel presents an illustrative example.",
+      "page": 13,
+      "index": 8,
+      "width": 943,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-009.webp",
+      "caption": "Table 2 | Quantitative results on CourtSI-Bench. Dark orange and light orange highlight the best and second-best results within each group of models (proprietary and open-source). —parsed denotes results obtained by using a LLM to extract answers from the original model outputs. Dist. Means., Cnt., Loc., and Rel. denote Distance Measurement, Counting, Localization, and Relational tasks, respectively.",
+      "page": 9,
+      "index": 9,
+      "width": 951,
+      "height": 1052
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-010.webp",
+      "caption": "Figure 8 | Calibration examples. A 3D court box with real-world dimensions is reprojected onto the image using the estimated camera parameters. The close alignment between the projected court structure and the image clues indicates strong reprojection consistency, validating the accuracy of the calibration.",
+      "page": 20,
+      "index": 10,
+      "width": 950,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-011.webp",
+      "caption": "Figure 9 | Illustration of player depth estimation using PromptHMR, DepthAnythingV3, and our method. All baselines take metric-scale camera intrinsics as input.",
+      "page": 20,
+      "index": 11,
+      "width": 950,
+      "height": 416
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09896v1/fig-012.webp",
+      "caption": "Figure 2 | Overview of the data engine. It consists of court annotation for metric-aware camera parameter estimation, ball annotation, and player mesh recovery. By leveraging court geometry and incorporating human-in-the-loop supervision, the system enables accurate and worldgrounded reconstruction in sports scenarios.",
+      "page": 5,
+      "index": 12,
+      "width": 943,
+      "height": 396
+    }
+  ]
+}

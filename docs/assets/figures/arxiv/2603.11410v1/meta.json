@@ -1,0 +1,398 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-001.webp",
+      "caption": "Fig. 3: Representative samples from each dataset, including natural (Kitti, Cityscapes, Coco, SSFRB, etc.) and simulated (JTA, 3D-Future, Get-3D, etc.) sources.",
+      "page": 6,
+      "index": 1,
+      "width": 580,
+      "height": 340
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-002.webp",
+      "caption": "Fig. 29: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on View Parallelism task. See discussion Sec.Sec. C.3.",
+      "page": 43,
+      "index": 2,
+      "width": 573,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-003.webp",
+      "caption": "Fig. 12: A coarse-level VQA from the Directional Facing task in DORI, illustrating a failure case by GPT-4-1. While the ground truth indicates a leftward orientation, the model predicts ‘away,’ misreading body posture and head direction. Notably, 13 out of 15 models failed this question, underscoring a widespread struggle with coarse directional inference.",
+      "page": 25,
+      "index": 3,
+      "width": 725,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-004.webp",
+      "caption": "Fig. 13: A coarse-level VQA from the Directional Facing task in DORI, showing a failure case by Gemini-2.0-Flash. While the ground truth identifies the giraffe’s orientation as rightward, the model incorrectly infers a leftward direction. This highlights the difficulty in interpreting animal pose and orientation cues, a challenge shared by the majority of models in this example.",
+      "page": 25,
+      "index": 4,
+      "width": 725,
+      "height": 411
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-005.webp",
+      "caption": "Fig. 14: A granular-level VQA from the Single-Axis Rotation task in DORI, featuring a case where GPT-4o selects the correct answer (180° rotation) but provides flawed reasoning. While the model concludes with the correct choice, its explanation suggests uncertainty due to perceived ambiguity in object orientation. This mismatch between prediction and rationale underscores gaps in visual reasoning, with only 2 out of 15 models answering correctly.",
+      "page": 26,
+      "index": 5,
+      "width": 725,
+      "height": 409
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-006.webp",
+      "caption": "Table 14: Out-Of-Pretraining (OOP) performance when evaluated on the COCO and Cityscapes dataset.",
+      "page": 53,
+      "index": 6,
+      "width": 477,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-007.webp",
+      "caption": "Fig. 9: Distribution of fine-grained object categories mapped to broader semantic classes. Most categories fall under Vehicle, Miscellaneous, and Animals, reflecting common object types in the evaluated datasets.",
+      "page": 21,
+      "index": 7,
+      "width": 568,
+      "height": 338
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-008.webp",
+      "caption": "Fig. 33: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on Inter-object Direction task. See discussion Sec.Sec. C.3.",
+      "page": 47,
+      "index": 8,
+      "width": 573,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-009.webp",
+      "caption": "Fig. 20: Viewer-Scene Direction. Example success case on a granular-level DORI question with Gemini-2.0-Flash. While the model correctly selects the 90-degree rotation, it inaccurately describes the directional shift as ’right’ to ’bottom’ instead of the more precise ’bottom-right’ to ’bottom-left,’ reflecting a partial misunderstanding of fine-grained orientation.",
+      "page": 30,
+      "index": 9,
+      "width": 725,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-010.webp",
+      "caption": "Fig. 21: Viewer-Scene Direction. Example failure case on a granular-level DORI question with GPT-4-1. Although the model selects the correct answer of 180 degrees, its reasoning mistakenly describes a 90-degree rotation, highlighting a disconnect between answer selection and spatial understanding. Notably, 13 out of 15 models failed this case.",
+      "page": 30,
+      "index": 10,
+      "width": 725,
+      "height": 411
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-011.webp",
+      "caption": "Fig. 4: (a) DORI comprises seven orientation tasks with a balanced distribution across natural and simulated images. (b) It features diverse everyday objects to comprehensively evaluate orientation understanding.",
+      "page": 7,
+      "index": 11,
+      "width": 579,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-012.webp",
+      "caption": "Fig. 19: A granular-level VQA from the Inter-object Direction task in DORI illustrating a failure case with Gemini 1.5 Pro. While the ground truth indicates a required clockwise rotation between 46° and 90° for alignment, the model underestimates this angle. Its reasoning misinterprets the spatial alignment between the chair and sofa. All 15 models failed this example, underscoring the challenge of inter-object directional understanding.",
+      "page": 29,
+      "index": 12,
+      "width": 725,
+      "height": 409
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-013.webp",
+      "caption": "Table 11: Mapping from object categories to broad semantic classes.",
+      "page": 22,
+      "index": 13,
+      "width": 575,
+      "height": 345
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-014.webp",
+      "caption": "Fig. 26: Model accuracy for the 18 models across the broad categories described in SectionSec. A.3 with most categories tending to performing similarly except for Food which tends to have lower performances except for GPT-4o. Which highlights a gap for orientation related questions related to food.",
+      "page": 34,
+      "index": 14,
+      "width": 699,
+      "height": 578
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-015.webp",
+      "caption": "Table 4: Comparing open and closed-source MLLMs on DORI. We find that while performance is improved on closed-source models, they still perform poorly overall.",
+      "page": 10,
+      "index": 15,
+      "width": 731,
+      "height": 234
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-016.webp",
+      "caption": "Table 3: Performance of several open-source MLLMs on DORI. Most models perform poorly, particularly on granular questions. These experiments reveal a systemic gap in object orientation understanding across all four dimensions studied in DORI. See supplementary for results with model variance. C: coarse, G: granular.",
+      "page": 10,
+      "index": 16,
+      "width": 727,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-017.webp",
+      "caption": "Fig. 44: An example of the high level instructions shown for the Human Evaluation",
+      "page": 54,
+      "index": 17,
+      "width": 725,
+      "height": 471
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-018.webp",
+      "caption": "Table 10: Models perform much worse for most of the tasks when the prompts are unstructured and have no clarification examples. The degradation is particularly prominent for Compound rotation and Canonical orientation related tasks",
+      "page": 14,
+      "index": 18,
+      "width": 716,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-019.webp",
+      "caption": "Fig. 25: Performance of 18 leading Multimodal Large Language Models (MLLMs) across data types (a) and annotation granularity levels (b). Gemini and GPT models lead overall. Models perform noticeably better on simulated datasets and coarse-type questions, revealing a gap in generalizing to natural images and more fine-grained questions.",
+      "page": 33,
+      "index": 19,
+      "width": 718,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-020.webp",
+      "caption": "Fig. 32: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on Compound Rotation task. See discussion Sec.Sec. C.3.",
+      "page": 46,
+      "index": 20,
+      "width": 573,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-021.webp",
+      "caption": "Fig. 10: An example VQA from the View Parallelism orientation task illustrating a failure case on a coarse-level question in DORI, with a prediction from Gemini 1.5 Pro. Many models failed this question, highlighting a common challenge among MLLMs in understanding fundamental scene geometry. Specifically, in reasoning whether an object’s front-facing surface is oriented toward, away from, or perpendicular to the camera plane.",
+      "page": 23,
+      "index": 21,
+      "width": 725,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-022.webp",
+      "caption": "Fig. 31: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on Single-axis Rotation task. See discussion Sec.Sec. C.3.",
+      "page": 45,
+      "index": 22,
+      "width": 573,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-023.webp",
+      "caption": "Fig. 18: A coarse-level VQA from the Inter-object Direction task in DORI showing a failure case with GPT-4-1. Although the correct answer is ’Partially facing the same direction,’ the model incorrectly selects ’Partially facing opposite directions,’ misjudging the relative orientations. Notably, 13 out of 15 models failed this example, highlighting a shared difficulty in reasoning about partially aligned object directions.",
+      "page": 28,
+      "index": 23,
+      "width": 725,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-024.webp",
+      "caption": "Fig. 17: A granular-level VQA from the Compound Rotation task in DORI showing a failure case from Gemini 2.0 Flash. While the model selects the correct option, its reasoning misidentifies the vertical rotation, describing a 180° flip when the ground truth indicates a 90° transformation.",
+      "page": 28,
+      "index": 24,
+      "width": 725,
+      "height": 411
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-025.webp",
+      "caption": "Fig. 45: An example of a sample for the coarse-level VQA for the Directional Facing task in DORI shown for the Human Evaluation",
+      "page": 55,
+      "index": 25,
+      "width": 725,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-026.webp",
+      "caption": "Fig. 39: Mean and Standard Deviation of various models on Single-axis Rotation task",
+      "page": 50,
+      "index": 26,
+      "width": 573,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-027.webp",
+      "caption": "Fig. 38: Mean and Standard Deviation of various models on Directional Facing task",
+      "page": 50,
+      "index": 27,
+      "width": 568,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-028.webp",
+      "caption": "Table 13: Component-wise Error Decomposition for Compound Rotations (Q4)",
+      "page": 40,
+      "index": 28,
+      "width": 725,
+      "height": 293
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-029.webp",
+      "caption": "Table 2: Comparison with standard benchmarks for orientation-reasoning. Asterisks (*) indicate counts refer only to orientation-related tasks, not the full dataset. DORI is larger and/or more diverse than similar datasets. C = Coarse, G = Granular; View: A = Allocentric, E = Egocentric; Ω = Open-vocabulary",
+      "page": 4,
+      "index": 29,
+      "width": 733,
+      "height": 555
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-030.webp",
+      "caption": "Fig. 27: Model accuracy for the 18 models across the data-sources present in DORI. We see that overall the closed source models tend to perform better than the open source models. With more real and smaller datasets like NOCS_Real and Objectron proving to be challenging for most of the models.",
+      "page": 36,
+      "index": 30,
+      "width": 714,
+      "height": 799
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-031.webp",
+      "caption": "Fig. 36: Relative gain from using Soft accuracy rather than Standard (hard) accuracy per question. SeeSec. C.3 for discussion",
+      "page": 49,
+      "index": 31,
+      "width": 712,
+      "height": 635
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-032.webp",
+      "caption": "Fig. 37: Mean and Standard Deviation of various models on View Parallelism task",
+      "page": 49,
+      "index": 32,
+      "width": 573,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-033.webp",
+      "caption": "Fig. 7: Sample category distribution of top 25 object categories showing their sources",
+      "page": 19,
+      "index": 33,
+      "width": 704,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-034.webp",
+      "caption": "Fig. 41: Mean and Standard Deviation of various models on Inter-object direction.",
+      "page": 51,
+      "index": 34,
+      "width": 573,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-035.webp",
+      "caption": "Fig. 40: Mean and Standard Deviation of various models on Compound Rotation task",
+      "page": 51,
+      "index": 35,
+      "width": 568,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-036.webp",
+      "caption": "Fig. 24: Model accuracy as a function of answer set size. Accuracy peaks at 42.5% for 3-option questions, then declines steadily, dropping to about 25% at 5 options, 19% at 6, about 13% at 9 options, and reaching a low of about 6% at 16 options, indicating increasing difficulty with larger candidate sets.",
+      "page": 32,
+      "index": 36,
+      "width": 536,
+      "height": 318
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-037.webp",
+      "caption": "Fig. 30: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on Directional Facing task. See discussion Sec.Sec. C.3.",
+      "page": 44,
+      "index": 37,
+      "width": 573,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-038.webp",
+      "caption": "Fig. 15: A granular-level VQA from the Single-Axis Rotation in DORI, showing a failure case with a prediction from Gemini 2.0 Flash. While the correct answer is a 180° rotation, the model incorrectly selects 90° (option B), suggesting a misjudgment of the object’s current orientation relative to the camera. This highlights challenges models face in reasoning about precise rotational alignment.",
+      "page": 27,
+      "index": 38,
+      "width": 725,
+      "height": 411
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-039.webp",
+      "caption": "Fig. 16: A coarse-level VQA from the Compound Rotation task in DORI, with a correct prediction from Gemini 2.0 Flash. The model identifies a horizontal axis rotation, but its reasoning overstates the change, describing the car as ‘upside down’ when it is only partially inverted.",
+      "page": 27,
+      "index": 39,
+      "width": 725,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-040.webp",
+      "caption": "Fig. 46: An example of a sample for the coarse-level VQA for the Viewer-Scenen Direction task in DORI shown for the Human Evaluation",
+      "page": 56,
+      "index": 40,
+      "width": 725,
+      "height": 563
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-041.webp",
+      "caption": "Fig. 11: An example VQA from the View Parallelism orientation task highlighting a failure case on a granular-level question in DORI, with a response from Gemini 2.0 Flash. Although the model confidently selects an answer, its reasoning reflects a fundamental misunderstanding of the object’s orientation relative to the camera. While the ground truth indicates the object is turned between 135° and 180° away, the model incorrectly infers a near-parallel alignment, underscoring limitations in fine-grained spatial perception among current MLLMs.",
+      "page": 24,
+      "index": 41,
+      "width": 725,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-042.webp",
+      "caption": "Fig. 22: Canonical Orientation. Example failure case on a coarse-level DORI question with Gemini-2.0-Flash. While the ground truth is ’Cannot be determined,’ the model incorrectly selects a definitive orientation. Its reasoning contradicts the inherent ambiguity it acknowledges, exposing uncertainty in handling objects with no fixed canonical pose.",
+      "page": 31,
+      "index": 42,
+      "width": 725,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-043.webp",
+      "caption": "Fig. 23: An example of clockwise and counter-clockwise rotations for the Inter-object direction perception task, we utilized samples from the NOCS REAL dataset",
+      "page": 31,
+      "index": 43,
+      "width": 725,
+      "height": 429
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-044.webp",
+      "caption": "Fig. 43: Mean and Standard Deviation of various models on the Canonical Orientation task.",
+      "page": 52,
+      "index": 44,
+      "width": 573,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-045.webp",
+      "caption": "Fig. 42: Mean and Standard Deviation of various models on Viewer-Scene direction task.",
+      "page": 52,
+      "index": 45,
+      "width": 568,
+      "height": 320
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-046.webp",
+      "caption": "Fig. 8: Sample category distribution of top 25 object categories showing their associated orientation tasks",
+      "page": 20,
+      "index": 46,
+      "width": 704,
+      "height": 343
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-047.webp",
+      "caption": "Fig. 2: Structured prompt design and example question–answer pairs from DORI. Each query follows a consistent format comprising a task description, contextual definition, step-by-step instructions, multiple-choice options, and illustrative examples, enabling systematic evaluation of orientation perception. All questions include the option “Cannot be determined,” maintaining a uniform answer space while explicitly modeling cases of frontality ambiguity or insufficient visual evidence.",
+      "page": 5,
+      "index": 47,
+      "width": 725,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-048.webp",
+      "caption": "Fig. 35: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on Inter-object Direction task. See discussion Sec.Sec. C.3.",
+      "page": 48,
+      "index": 48,
+      "width": 573,
+      "height": 323
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11410v1/fig-049.webp",
+      "caption": "Fig. 34: Comparing the mean and standard deviation of soft vs. standard (hard) accuracy on Viewer-scene Direction task. See discussion Sec.Sec. C.3.",
+      "page": 48,
+      "index": 49,
+      "width": 568,
+      "height": 320
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-001.webp",
+      "caption": "Fig. 4: Overview of the VEGA-3D framework. We repurpose a frozen video generation model as a Latent World Simulator to extract implicit 3D priors. These features are dynamically integrated with the semantic stream via Adaptive Gated Fusion, equipping the MLLM with dense 3D structural awareness.",
+      "page": 6,
+      "index": 1,
+      "width": 723,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-002.webp",
+      "caption": "Table 2: The comparison with state-of-the-art models on VSI-Bench. Spatial-Enhanced Models are models that are specialized for spatial reasoning. † indicates the baseline model’s performance is finetuned on the same training dataset configurations.",
+      "page": 11,
+      "index": 2,
+      "width": 727,
+      "height": 513
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-003.webp",
+      "caption": "Fig. 11: Qualitative comparison on the Relative Direction subset of VSI-Bench. VEGA-3D yields reliable directional reasoning, such as left/right and front/behind relations, by grounding the decision in geometry-consistent visual features.",
+      "page": 30,
+      "index": 3,
+      "width": 723,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-004.webp",
+      "caption": "Fig. 10: Qualitative comparison on the Appearance Order subset of VSI-Bench. VEGA-3D better captures the ordering of object appearances and is less distracted by locally plausible but temporally inconsistent choices than the baseline.",
+      "page": 30,
+      "index": 4,
+      "width": 723,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-005.webp",
+      "caption": "Fig. 8: Qualitative comparison on ScanRefer. Compared with the baseline, VEGA3D localizes the referred object accurately under clutter, occlusion, and ambiguous referring expressions, reflecting stronger spatial grounding from the generative prior.",
+      "page": 29,
+      "index": 5,
+      "width": 709,
+      "height": 311
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-006.webp",
+      "caption": "Table 1: Performance comparison on 3D scene understanding benchmarks. Specialists are single-task methods, while generalists target multiple tasks. † indicates the model is trained on extra datasets. Avg. Rank is calculated by averaging the rankings across all available metrics for each method.",
+      "page": 10,
+      "index": 6,
+      "width": 733,
+      "height": 522
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-007.webp",
+      "caption": "Table 5: Ablation study of the effects of different feature fusion modules. All models are finetuned with the same training data and built on Wan2.1-T2V 1.3B at sampling step k = 300 and the 20th layer feature.",
+      "page": 14,
+      "index": 7,
+      "width": 696,
+      "height": 238
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-008.webp",
+      "caption": "Fig. 7: Inference overhead We cache the Wan2.1-T2V features once per scene and reuse them for all questions, substantially reducing inference overhead. The gray dashed line indicates the baseline result without the generative branch.",
+      "page": 14,
+      "index": 8,
+      "width": 706,
+      "height": 197
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-009.webp",
+      "caption": "Fig. 2: Visualization of implicit 3D priors. (a) The generation model demonstrates strong multi-view geometric consistency, evidenced by high correspondence scores and stable PCA feature representations across shifting camera views. (b) By leveraging these priors, our VEGA-3D overcomes the spatial ambiguity observed in the baseline, yielding precisely-located attention maps of the target object in the instruction.",
+      "page": 3,
+      "index": 9,
+      "width": 703,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-010.webp",
+      "caption": "Table 4: Experiments on using different discriminative and generative foundation models. Bold denotes the best in each group.",
+      "page": 13,
+      "index": 10,
+      "width": 714,
+      "height": 305
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-011.webp",
+      "caption": "Fig. 3: Feature Analysis. (a): Generative priors effectively complement semantic features with fusion, yielding consistent performance gains. (b): Multi-view correspondence strongly correlates with downstream 3D understanding performance. More details in Sec. 4.1",
+      "page": 4,
+      "index": 11,
+      "width": 658,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-012.webp",
+      "caption": "Table 3: The comparison of the simulation robotic manipulation benchmark LIBERO, the performance is evaluated with the average success rate SR (%)",
+      "page": 12,
+      "index": 12,
+      "width": 732,
+      "height": 189
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19235v1/fig-013.webp",
+      "caption": "Fig. 12: Qualitative comparison on the Relative Distance subset of VSI-Bench. VEGA3D distinguishes near/far relationships and relative depth ordering, whereas the baseline is prone to confuse objects with similar semantics but different spatial positions.",
+      "page": 31,
+      "index": 13,
+      "width": 716,
+      "height": 229
+    }
+  ]
+}

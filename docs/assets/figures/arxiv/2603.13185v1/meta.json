@@ -1,0 +1,158 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-001.webp",
+      "caption": "Fig. 8: Overview of the annotation interface used for manual floor correction. The figure illustrates the sequential adjustment process across four steps, culminating in the final corrected transform for accurate 3D scene alignment.",
+      "page": 43,
+      "index": 1,
+      "width": 694,
+      "height": 1224
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-002.webp",
+      "caption": "Table 10: 3D bounding box pipeline parameters.",
+      "page": 38,
+      "index": 2,
+      "width": 640,
+      "height": 582
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-003.webp",
+      "caption": "Table 14: Key training configuration parameters.",
+      "page": 53,
+      "index": 3,
+      "width": 640,
+      "height": 299
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-004.webp",
+      "caption": "Table 7: Notation reference.",
+      "page": 21,
+      "index": 4,
+      "width": 710,
+      "height": 971
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-005.webp",
+      "caption": "Fig. 10: Pipeline of the proposed WorldSGG framework. The model extracts DINObased object features, 3D OBB corners, and camera pose cues, encodes them into structural, motion, and camera tokens, and fuses them with buffered memory features to handle occlusions and missing observations. The resulting unified tokens are processed by a spatial GNN and relationship decoders to predict node categories and scene graph relations over time.",
+      "page": 62,
+      "index": 5,
+      "width": 702,
+      "height": 297
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-006.webp",
+      "caption": "Fig. 1: World Scene Graph Generation (WSGG). Unlike standard Video Scene Graph Generation (left) that is constrained to the instantaneous camera view and discards objects once they exit the frame or get occluded, our proposed task (right) grounds scene understanding in a global 3D world coordinate frame. Models trained on WSGG output a comprehensive world scene graph at each timestamp containing all the objects in the environment. As shown at t = 30s, out-of-view objects (e.g., bed, laptop) remain perfectly localized in 3D, enabling global, view-independent interpretable scene reasoning. Blue curves drawn from person to objects (right) represent relationships.",
+      "page": 2,
+      "index": 6,
+      "width": 725,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-007.webp",
+      "caption": "Fig. 2: WorldSGG Dataset & 3D OBB construction pipeline. Our offline framework generates persistent 3D annotations through three sequential steps: (a) Scene Construction recovers the global scene point cloud and camera poses using π3 and bundle adjustment; (b) Floor Determination establishes a canonical ground plane by aligning 3D human meshes extracted via PromptHMR; and (c) 3D OBB Construction refines raw object geometries to fit robust 3D bounding boxes in the world frame.",
+      "page": 7,
+      "index": 7,
+      "width": 725,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-008.webp",
+      "caption": "Table 9: Scene construction pipeline parameters.",
+      "page": 34,
+      "index": 8,
+      "width": 619,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-009.webp",
+      "caption": "Table 2:Recall (R@K) comparison across methods and feature backbones for PredCls and SGDet tasks on ActionGenome4D. Best results per column are in bold.",
+      "page": 10,
+      "index": 9,
+      "width": 740,
+      "height": 181
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-010.webp",
+      "caption": "Fig. 5: World Scene Graph Generation (WSGG). Left: Standard Video Scene Graph Generation (VidSGG) is anchored to the instantaneous camera view. Objects are localized as 2D bounding boxes in the image plane, and relationships are predicted only for currently detected entities. When an object exits the field of view or becomes occluded, it is silently dropped from the graph along with all of its relationships, resulting in an incomplete and temporally fragmented scene understanding. Right: Our proposed WSGG task grounds scene understanding in a persistent, global 3D world coordinate frame. Every object in the environment is represented by a 3D oriented bounding box (OBB) that persists across frames, regardless of whether the object is currently visible in the camera view. At each timestamp, the model outputs a complete world scene graph containing all known objects; observed (Ot) and unobserved (U t); together with their pairwise semantic relationships (attention, spatial, and contacting predicates). As illustrated at t=30s, objects that have left the camera’s field of view (e.g., bed, laptop) remain precisely localized in 3D world coordinates, enabling the model to continue predicting meaningful relationships for them. Blue curves drawn from person to objects denote predicted relationships. This view-independent, temporally persistent representation supports downstream tasks such as embodied navigation, robotic manipulation, and long-horizon activity understanding that require reasoning about the full state of the world, not just its currently visible slice.",
+      "page": 18,
+      "index": 10,
+      "width": 725,
+      "height": 218
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-011.webp",
+      "caption": "Fig. 9: Interface for manual relationship correction in WorldSGG. The tool presents object-centric frame sequences and allows annotators to refine attention, contact, and spatial predicates across time for accurate scene graph construction.",
+      "page": 45,
+      "index": 11,
+      "width": 710,
+      "height": 348
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-012.webp",
+      "caption": "Table 4: VLM relationship prediction on corrected ActionGenome4D annotations (micro-averaged). P=Precision, R=Recall, F1=F1-score. Micro F1: micro-average across all three predicate axes. Macro F1: mean of per-class F1 scores.",
+      "page": 13,
+      "index": 12,
+      "width": 721,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-013.webp",
+      "caption": "Table 5: VLM relationship prediction on corrected ActionGenome4D annotations (macro-averaged). Same setting as Table 4; P, R, and F1 are computed per class then averaged equally. M-F1: overall macro-averaged F1 across all three axes.",
+      "page": 13,
+      "index": 13,
+      "width": 719,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-014.webp",
+      "caption": "Fig. 3: WorldSGG Methods. Multi-modal inputs including DINO visual features, monocular 3D geometries, and camera extrinsics are processed into unified structural, motion, and ego-pose tokens. (Right & Bottom) Unobserved Object Processing: To maintain strict object permanence for entities outside the current camera frustum, we propose and evaluate three structural variants: (1) PWG (Persistent World Graph) utilizes a Last-Known-State (LKS) buffer to explicitly track and propagate historical features based on temporal staleness (∆n). (2) MWAE (Masked World Auto-Encoder) frames natural occlusion as a masked modeling task; it masks unobserved visual streams and uses an Associative Retriever with asymmetric cross-attention (querying all tokens against only visible ones) to reconstruct missing features of unobserved objects. (3) 4DST (4D Scene Transformer) fuses multi-modal tokens at a Fusion Node and applies unmasked bidirectional temporal self-attention followed by Spatial GNNs to output dense, globally-aware spatiotemporal representations (H(t)).",
+      "page": 8,
+      "index": 14,
+      "width": 677,
+      "height": 340
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-015.webp",
+      "caption": "Table 12: ActionGenome4D statistics. The train set uses VLM pseudo-annotations for unobserved object relationships; the test set uses manually corrected annotations.",
+      "page": 49,
+      "index": 15,
+      "width": 710,
+      "height": 459
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-016.webp",
+      "caption": "Fig. 4: The Graph RAG inference pipeline. (Left) Sequential video segments are processed by a VLM into local captions to construct a global Coarse Event Graph, establishing a high-level temporal narrative. (Right) To generate the fine-grained world scene graph, our Graph RAG module retrieves overarching spatiotemporal context from the coarse graph. This global prior is injected into both the visual stream (Vision Encoder) and the textual stream, where it enriches targeted Object and Relationship queries. An LLM then deduces the final, offline World Scene Graph.",
+      "page": 12,
+      "index": 16,
+      "width": 725,
+      "height": 337
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-017.webp",
+      "caption": "Fig. 6: Pipeline for constructing a 4D scene representation from Action Genome videos. The method first selects informative frames through adaptive sampling, then predicts static and dynamic world point clouds, decomposes the scene into background and per-frame dynamic components, and finally aligns dynamic point clouds to the static scene using trimmed ICP before mask-aware merging into the final 4D output.",
+      "page": 27,
+      "index": 17,
+      "width": 725,
+      "height": 432
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-018.webp",
+      "caption": "Table 17: Comparison of the two pseudo-annotation generation methods for World Scene Graph Generation.",
+      "page": 76,
+      "index": 18,
+      "width": 725,
+      "height": 276
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13185v1/fig-019.webp",
+      "caption": "Table 11: AG vs. ActionGenome4D. AG4D extends AG along geometric and semantic dimensions. Ot: observed objects; U t: unobserved objects; Wt: full world state.",
+      "page": 48,
+      "index": 19,
+      "width": 735,
+      "height": 676
+    }
+  ]
+}

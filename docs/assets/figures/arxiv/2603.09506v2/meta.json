@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09506v2/fig-001.webp",
+      "caption": "Figure 3. Stage-wise qualitative example of context-driven navigation. An episode where the agent must find a dresser described as “located next to the bed” and “a white dresser with a mirror on top”. Early dresser candidate is not selected because context objects are absent; after the bed is detected, the map concentrates around the corresponding room, frontier selection focuses on that area, and a dresser that satisfies both intrinsic attributes and 3D spatial relations with the bed and mirror is finally verified as the goal.",
+      "page": 7,
+      "index": 1,
+      "width": 1018,
+      "height": 952
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09506v2/fig-002.webp",
+      "caption": "Figure 1. Viewpoint-aware 3D verification of extrinsic attributes. Starting from the extrinsic part of the goal description, Context-Nav extracts context objects and spatial-relation triples, builds instance-level 3D point clouds, and samples candidate viewpoints around the reference–target pairs. For each candidate viewpoint, a local frame is aligned and the corresponding spatial predicates are evaluated; the figure visualizes an example viewpoint from which all extrinsic relations are satisfied simultaneously, together with the resulting relation checks for the confirmed target instance.",
+      "page": 14,
+      "index": 2,
+      "width": 870,
+      "height": 1227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09506v2/fig-003.webp",
+      "caption": "Figure 2. Overall pipeline of Context-Nav. Given RGB-D observations, odometry, and a free-form text goal, the perception and mapping modules use GOAL-CLIP, open-vocabulary detection, and 3D projection to build an occupancy map, a context-conditioned value map, and an instance-level map. Whenever a target object candidate is detected, the verification module checks intrinsic attributes with a VLM and extrinsic attributes through 3D spatial reasoning to decide whether to terminate or continue exploring.",
+      "page": 3,
+      "index": 3,
+      "width": 1025,
+      "height": 796
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09506v2/fig-004.webp",
+      "caption": "Figure 4. Qualitative results across diverse categories and context descriptions. Successful episodes on CoIN-Bench for nine different target categories, showing top-down trajectories and corresponding goal views. The instructions span a wide range of natural language, from captions that only specify extrinsic context to descriptions that combine intrinsic and extrinsic attributes, and from short hints to detailed multi-sentence goals.",
+      "page": 8,
+      "index": 4,
+      "width": 988,
+      "height": 920
+    }
+  ]
+}

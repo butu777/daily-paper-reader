@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.12144v1/fig-001.webp",
+      "caption": "Table 2: Omnidirectional 3D occupancy prediction results on H3O Homo (within-city) split. C: Camera.",
+      "page": 11,
+      "index": 1,
+      "width": 714,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12144v1/fig-002.webp",
+      "caption": "Table 1: Omnidirectional 3D occupancy prediction results on the QuadOcc validation set. Bold = best, undeline = second best (within the Fully Supervised block; Open-vocabulary block marked separately). L: LiDAR; C: Camera.",
+      "page": 10,
+      "index": 2,
+      "width": 710,
+      "height": 523
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12144v1/fig-003.webp",
+      "caption": "Fig. 5: Qualitative results. O3N more effectively maintains the clarity and continuity of global geometry and semantics, and achieves significant improvements over the baseline in terms of perception and generalization to unknown semantics.",
+      "page": 12,
+      "index": 3,
+      "width": 723,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12144v1/fig-004.webp",
+      "caption": "Fig. 3: O3N architecture. O3N takes equirectangular omnidirectional image as input and is fully end-to-end trained. The image features and text embeddings are preextracted via the language-image encoder. The 3D decoder, enhanced with the proposed Polar-spiral Mamba (PsM) module, captures both geometric and semantic dependencies across directions. The Occupancy Cost Aggregation (OCA) and Natural Modality Alignment (NMA) modules integrate pixel, voxel, and text modalities to achieve consistent open-vocabulary semantic reasoning in 3D space. We efficiently train the O3N through semantic occupancy of visible classes, occupancy cost aggregation, and voxelpixel consistency during training.",
+      "page": 5,
+      "index": 4,
+      "width": 715,
+      "height": 266
+    }
+  ]
+}

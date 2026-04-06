@@ -1,0 +1,118 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-001.webp",
+      "caption": "Fig. 5. Teacher-quality interaction scatter at multiple budgets, where ∆AbsRel = AbsRel(GS) − AbsRel(mesh+Hist) and negative is better. Dashed line marks gate threshold qs = 1.0. Correlations (Pearson/Spearman) are N=0: 0.06/−0.07, N=500: 0.21/0.08, N=2000: −0.23/−0.11.",
+      "page": 6,
+      "index": 1,
+      "width": 460,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-002.webp",
+      "caption": "TABLE B.4 COVERAGE AND SELECTION COST.",
+      "page": 11,
+      "index": 2,
+      "width": 508,
+      "height": 310
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-003.webp",
+      "caption": "TABLE B.3 POSE-SAMPLER PROTOCOL.",
+      "page": 10,
+      "index": 3,
+      "width": 508,
+      "height": 276
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-004.webp",
+      "caption": "TABLE B.1 METHOD MATRIX.",
+      "page": 10,
+      "index": 4,
+      "width": 504,
+      "height": 709
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-005.webp",
+      "caption": "TABLE B.2 TRAINING DETAILS.",
+      "page": 10,
+      "index": 5,
+      "width": 508,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-006.webp",
+      "caption": "Fig. D.4. Downstream control-proxy metrics versus budget N for Coverage and CN-Coverage.",
+      "page": 14,
+      "index": 6,
+      "width": 786,
+      "height": 307
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-007.webp",
+      "caption": "Fig. 1. Splat2Real pipeline. Real captures build a 3DGS observation teacher for high-throughput novel-view RGB rendering; simulator-style mesh rendering provides aligned metric oracle labels. A scaling policy (Random/Robot/Coverage/CN-Coverage) selects viewpoint budget N . Gated/composited fallback is used as a secondary safety layer.",
+      "page": 3,
+      "index": 7,
+      "width": 1054,
+      "height": 589
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-008.webp",
+      "caption": "Table 6 define the gate and its threshold; Appendix Table A.6 and Fig. E.1 show the threshold split, gate mapping, and heterogeneous scene-level behavior without claiming a strong linear predictor.",
+      "page": 8,
+      "index": 8,
+      "width": 491,
+      "height": 512
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-009.webp",
+      "caption": "Fig. 2. Step-matched scaling: metric AbsRel vs budget N for Random, Robot, Coverage, CN-Coverage, CN-Coverage (MeshHist), and GOL-Gated CN-Coverage. Error bars denote 95% CI across sequences; connecting lines are guides to the eye. Budgets are discrete and plotted on categorical x-axis positions. The dashed vertical marker at N=500 denotes the unique-view cap; for N>500, training samples with replacement from the selected set (resampling-based count scaling).",
+      "page": 4,
+      "index": 9,
+      "width": 464,
+      "height": 274
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-010.webp",
+      "caption": "TABLE C.6 EXPOSURE-MATCHED CONTROL.",
+      "page": 12,
+      "index": 10,
+      "width": 471,
+      "height": 293
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-011.webp",
+      "caption": "TABLE A.8 RUNTIME.",
+      "page": 9,
+      "index": 11,
+      "width": 512,
+      "height": 297
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-012.webp",
+      "caption": "TABLE V TAIL SUMMARY.",
+      "page": 5,
+      "index": 12,
+      "width": 512,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-013.webp",
+      "caption": "Fig. 4. Error versus pose-novelty bins at low/high N in vertical subpanels: (a) N = 0, (b) N = 2000. The x-axis uses per-sequence novelty quantile bins 1–5 (1 = least novel, 5 = most novel), so all 20 sequences contribute to each panel. Shaded regions denote 95% CI across sequences.",
+      "page": 5,
+      "index": 13,
+      "width": 464,
+      "height": 532
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10638v1/fig-014.webp",
+      "caption": "Fig. 3. AbsRel versus surface-coverage fraction. Each point is one (sampler, N ) setting.",
+      "page": 5,
+      "index": 14,
+      "width": 454,
+      "height": 284
+    }
+  ]
+}

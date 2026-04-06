@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-001.webp",
+      "caption": "Table 1. Performance comparison on PhyGenBench [9] across four physical domains. The best and second-best results are highlighted and underlined, respectively.",
+      "page": 6,
+      "index": 1,
+      "width": 496,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-002.webp",
+      "caption": "Figure 4. Visualization of physics-aware video generation results across four physical domains. Compared with baseline CogVideo-5B [38], our approach yields causally coherent progressions of physical phenomena, e.g., the glass ball sinks, the bottom shadow extends in the direction of the light, gradual melting of ice, fire spreading through the paper. All prompts are sourced from PhyGenBench [9].",
+      "page": 7,
+      "index": 2,
+      "width": 1036,
+      "height": 551
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-003.webp",
+      "caption": "Table 3. Performance comparisons on VideoPhy [10] across various physical interactions between objects. The best and second-best results are highlighted and underlined, respectively.",
+      "page": 7,
+      "index": 3,
+      "width": 1036,
+      "height": 388
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-004.webp",
+      "caption": "Figure 5. Visualization of physics-aware video generation results across various physical interactions between objects. Compared with baseline CogVideo-5B [38], our approach demonstrates clearer causal progression, e.g., butter spread along the knife movement, continuous honey inflow with a rising level, and monotonic spring compression. All prompts are sourced from VideoPhy [10].",
+      "page": 8,
+      "index": 4,
+      "width": 1036,
+      "height": 417
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-005.webp",
+      "caption": "Table 4. Ablation analysis of PECR and TCP modules, including Physics Formula Grounding (PFG) and Physical Phenomena Decomposition (PPD) in PECR, and Progressive Narrative Revision (PNR) and Interactive Keyframe Synthesis (IRS) in TCP.",
+      "page": 8,
+      "index": 5,
+      "width": 496,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-006.webp",
+      "caption": "Figure 6. Effect of event number on Physical Commonsense Alignment (PCA) Score [9] across four physical domains: Mechanics, Optics, Thermal, and Material.",
+      "page": 8,
+      "index": 6,
+      "width": 496,
+      "height": 263
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-007.webp",
+      "caption": "Figure 2. Overview of our PECR module ( Sec. 3.2). This module conceptualizes physical phenomena in user-provided descriptions as a series of causally ordered events governed by real-world physical formulas, where each event encompasses semantic descriptions and measurable physical parameters for key objects. This characterizes the underlying scene changes induced by such phenomena.",
+      "page": 4,
+      "index": 7,
+      "width": 1032,
+      "height": 373
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09094v1/fig-008.webp",
+      "caption": "Figure 3. Overview of our TCP module ( Sec. 3.3). This module aims to generate semantic-visual prompts for each event based on its meta data. Semantic prompts are inferred by our proposed progressive narrative revision, serving as the guidance during denoising steps. Visual prompts are obtained by our proposed interactive keyframe synthesis, replacing original noise to provide physics-aware priors.",
+      "page": 5,
+      "index": 8,
+      "width": 1034,
+      "height": 414
+    }
+  ]
+}

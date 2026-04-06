@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-001.webp",
+      "caption": "Fig. 4: Qualitative results on unconditional scene generation. We compare L3DG [52] and GaussianGPT (ours). L3DG generates full but normalized scenes; ours generates full-scale scene chunks.",
+      "page": 11,
+      "index": 1,
+      "width": 712,
+      "height": 471
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-002.webp",
+      "caption": "Fig. 9: Additional qualitative results on unconditional scene generation using our model trained only on 3D-FRONT [17].",
+      "page": 26,
+      "index": 2,
+      "width": 721,
+      "height": 735
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-003.webp",
+      "caption": "Fig. 7: Qualitative results on scene chunk completion on ScanNet++ v2 [72]. We sample completions with temperature 0.6, and Nucleus Sampling [25] with p = 0.7, yielding varied and feasible completions.",
+      "page": 21,
+      "index": 3,
+      "width": 725,
+      "height": 625
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-004.webp",
+      "caption": "Fig. 8: More examples of 12m× 12m scene synthesis via autoregressive outpainting.",
+      "page": 23,
+      "index": 4,
+      "width": 725,
+      "height": 479
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-005.webp",
+      "caption": "Fig. 11: Additional qualitative results on scene chunk completion.",
+      "page": 28,
+      "index": 5,
+      "width": 725,
+      "height": 875
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-006.webp",
+      "caption": "Fig. 6: Qualitative results on scene chunk completion. Given one quarter of a validation chunk as context, GaussianGPT produces plausible and diverse completions.",
+      "page": 13,
+      "index": 6,
+      "width": 725,
+      "height": 778
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-007.webp",
+      "caption": "Fig. 5: 12m × 12m scene synthesis via autoregressive outpainting. GaussianGPT sequentially generates and appends latent grid columns, enabling scenes to grow beyond the training horizon.",
+      "page": 12,
+      "index": 7,
+      "width": 660,
+      "height": 198
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-008.webp",
+      "caption": "Fig. 10: Qualitative results on unconditional scene generation using our model pretrained on ASE [2] and 3D-FRONT [17].",
+      "page": 27,
+      "index": 8,
+      "width": 721,
+      "height": 737
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26661v1/fig-009.webp",
+      "caption": "Fig. 2: Overview of GaussianGPT. A 3D Gaussian scene is subsampled into a sparse voxel grid and encoded into per-voxel features. A sparse 3D CNN compresses the grid into discrete codebook indices. The resulting latent grid is serialized via xyz ordering and represented as interleaved position tokens pi and feature tokens fi. A causal transformer with 3D RoPE predicts alternating position and feature tokens, which are mapped back to voxel locations and decoded through LFQ to reconstruct the 3D Gaussian scene.",
+      "page": 5,
+      "index": 9,
+      "width": 704,
+      "height": 308
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-001.webp",
+      "caption": "Fig. 2: RayMap Static Bias. Left: The main prediction and RayMap prediction produce differing depth estimates in dynamic regions, suggesting a static bias in RayMap predictions. Right: The depth discrepancy correlates with ground-truth dynamic ratio across multiple datasets, suggesting a consistent signal for dynamic identification.",
+      "page": 6,
+      "index": 1,
+      "width": 721,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-002.webp",
+      "caption": "Table 3: 3D Reconstruction on 7-Scenes [29]. Each metric reports Mean, Median, and Minimum across scenes. RayMap3R achieves leading reconstruction quality among streaming methods across the majority of metrics.",
+      "page": 11,
+      "index": 2,
+      "width": 717,
+      "height": 211
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-003.webp",
+      "caption": "Table 2: Camera Pose Estimation. RayMap3R achieves leading trajectory accuracy among streaming methods across all datasets, with particularly strong performance on dynamic sequences, while remaining competitive on static scenes.",
+      "page": 11,
+      "index": 3,
+      "width": 717,
+      "height": 273
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-004.webp",
+      "caption": "Fig. 4: Method Overview. Our method performs streaming 3D reconstruction via dual-branch inference. At time step t, the main branch predicts depth and pose from state st−1 using both image and RayMap features. The predicted pose T̂t is remapped into RayMap and encoded into tokens r′t, then queried against the frozen state st−1 by the RayMap branch to obtain a static-biased prediction. The depth difference between branches is projected via image-state attention to form staticness weights αt that suppress dynamic regions during state update (st = st−1 + αt ⊙∆st). This dualbranch scheme identifies and suppresses dynamic regions at inference time.",
+      "page": 7,
+      "index": 4,
+      "width": 717,
+      "height": 303
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-005.webp",
+      "caption": "Table 1: Video Depth Estimation. We report scale-invariant relative depth (per-sequence scale alignment) and metric-scale absolute depth accuracy. RayMap3R achieves leading depth accuracy among streaming methods under both settings. ✗ denotes offline methods; ✓ denotes streaming methods.",
+      "page": 10,
+      "index": 5,
+      "width": 717,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-006.webp",
+      "caption": "Fig. 6: Dynamic Map Visualization. We visualize the dynamic map inferred by RayMap3R across DAVIS (rows 1–2), MPI Sintel (rows 3–4), and TUM Dynamic (row 5). The RayMap-only branch suppresses dynamic objects relative to the main branch, and the resulting dynamic map aligns with ground-truth masks.",
+      "page": 19,
+      "index": 6,
+      "width": 707,
+      "height": 456
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20588v1/fig-007.webp",
+      "caption": "Fig. 5: Qualitative Results on DAVIS [24] Videos. We compare our method with CUT3R [38] and TTT3R [6]. Our method achieves more stable camera pose estimation and produces clearer reconstructions.",
+      "page": 12,
+      "index": 7,
+      "width": 709,
+      "height": 386
+    }
+  ]
+}

@@ -1,0 +1,560 @@
+Title: Unified Removal of Raindrops and Reflections: A New Benchmark and A Novel Pipeline
+
+URL Source: https://arxiv.org/pdf/2603.16446v1
+
+Published Time: Wed, 18 Mar 2026 01:21:34 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+# Unified Removal of Raindrops and Reflections: A New Benchmark and A Novel Pipeline 
+
+Xingyu Liu 1,2, Zewei He 1,2B, Yu Chen 1,2, Chunyu Zhu 3, Zixuan Chen 4, Xing Luo 1, and Zhe-Ming Lu 1,2 
+
+> 1
+
+School of Aeronautics and Astronautics, Zhejiang University  
+
+> 2
+
+Huanjiang Laboratory  
+
+> 3
+
+Hangzhou Institute of Technology, Xidian University  
+
+> 4
+
+The Chinese University of Hong Kong 
+
+Abstract. When capturing images through glass surfaces or windshields on rainy days, raindrops and reflections frequently co-occur to signifi-cantly reduce the visibility of captured images. This practical problem lacks attention and needs to be resolved urgently. Prior de-raindrop, de-reflection, and all-in-one models have failed to address this composite degradation. To this end, we first formally define the unified removal of raindrops and reflections (UR 3) task for the first time and construct a real-shot dataset, namely RainDrop and ReFlection (RDRF), which provides a new benchmark with substantial, high-quality, diverse image pairs. Then, we propose a novel diffusion-based framework (i.e., DiffUR 3)with several target designs to address this challenging task. By leveraging the powerful generative prior, DiffUR 3 successfully removes both types of degradations. Extensive experiments demonstrate that our method achieves state-of-the-art performance on our benchmark and on chal-lenging in-the-wild images. The RDRF dataset and the codes will be made public upon acceptance. 
+
+Keywords: Raindrop removal · Reflection removal · New benchmark 
+
+1 Introduction 
+
+On rainy days, raindrops and reflections frequently co-occur in autonomous driv-ing scenarios, posing challenges for onboard visual recognition systems or vehicle cameras during recording. Adherent raindrops and the reflections from camera side significantly reduce the visibility of captured images [42], and may lead to severe driving safety hazards. Therefore, Unified Removal of Raindrops and 
+
+Reflections (UR 3) is a practical problem that requires urgent solution. However, this task has not received significant attention and enough research. We notice that the physical models of raindrop (i.e., I = (1 − A) ⊙ B + A ⊙ Rd 
+
+from [31]) and reflection (i.e., I = (1 − W) ⊙ B + W ⊙ Rf from [47]) exhibit no-table similarities. I and B denote the observed image and the background scene, respectively. Rd and Rf indicate the raindrop layer and the reflection layer,  
+
+> B
+
+Corresponding author (zeweihe@zju.edu.cn). 
+
+> arXiv:2603.16446v1 [cs.CV] 17 Mar 2026
+
+2(f) Ours PSNR=31.46 dB        
+
+> (a) LQ
+> (b) GT
+> (c) DAI PSNR=28.61 dB (d) AGAN+RDNet PSNR=27.24 dB (e) Histoformer †PSNR=30.26 dB
+> (f) Ours PSNR=31.84 dB
+> (a) LQ
+> (b) GT
+> (c) DAI PSNR=30.43 dB (d) AGAN+RDNet PSNR=28.93 dB (e) Histoformer
+> †PSNR=28.86dB
+
+Fig. 1: We compare our DiffUR 3 pipeline with other methods on low-quality images with raindrops and reflections from our newly collected real-world benchmark. Specif-ically, (c) DAI [14] is designed for reflection removal, (d) A cascaded method, and (e) A re-trained all-in-one method (i.e., Histoformer [36] and † indicates re-trained on our dataset), (f) Our DiffUR 3 pipeline jointly removes both degradations in a single pass. 
+
+respectively. A is the transparent matrix and W is the reflective amplitude co-efficient map. Therefore, the raindrop degradation and the reflection degradation are mutually coupled and interacted with each other. They do not simply su-perimpose upon each other. The model designed for reflection removal can also partially eliminate raindrops (see in Fig. 1 (c)), and vice versa. Previously, re-searchers treated raindrop removal and reflection removal as two separate tasks [14, 17, 29, 31, 33, 45]. Though these methods can achieve relatively good perfor-mance in removing the target type of degradation (i.e., raindrop or reflection) from a single image, they often fail to remove both types at the same time (see in Fig. 1 (c)). In addition, arranging raindrop removal and reflection removal in a cascaded manner essentially overlooks the correlation (see in Fig. 1 (d)). In this work, we aim to finding a practical solution capable of simultaneously elim-inating this raindrop-reflection composite degradation, thereby enhancing the clarity of captured images. We hope this endeavor can provide useful support for applications such as autonomous driving, photography, and video surveillance [49, 50]. UR 3 is a fundamental but complex task. Its key challenges lie in the following three aspects. (1) Lack of data: substantial image pairs are required for training. Data synthesis represents a potential solution, yet the gap between synthetic and real-world data cannot be ignored. Existing real-captured datasets [29, 51] nor-mally contain only a single degradation. Currently, there is no publicly available dataset with the raindrop-reflection composite degradation. (2) Task interac-tion: treating raindrop removal and reflection removal as two isolated tasks of-ten yields sub-optimal performance. Recent all-in-one methods also demonstrate poor generalization performance (see in Fig. 1 (e)). A new pipeline is required for this task. (3) Void information: background scene is completely lost in regions with exceptionally large/dense raindrops or intense reflections. These occluded regions are extremely challenging, somewhat analogous to the inpainting task. 3
+
+Trying to address these challenges, we first set up an image acquisition plat-form to collect corresponding data for addressing the UR 3 task. We collect a substantial number of image pairs to constitute our Rain Drop and ReFlection (RDRF) dataset. Within each pair, one features a clean image and the other is a degraded image containing both raindrops and reflections. To the best of our knowledge, RDRF is the first real-shot dataset with raindrop-reflection compos-ite degradation. We hope RDRF dataset can contribute to the advancement and development of the UR 3 task, and benefit the entire community. Then, by leveraging the powerful generative prior, we design a novel multi-condition-controlled diffusion framework (i.e., DiffUR 3) to jointly remove both kinds of degradations. To the best of our knowledge, DiffUR 3 is the first pipeline for the UR 3 task, which contains several target designs. (1) A Modulate&Gate module is proposed to step-wisely align each condition with the noisy latent and adaptively select the effective components in the latent space. This simple yet effective module can enhance the control signals by modulating and mining the condition latents. (2) We train an additional Fidelity Encoder to correct the distortions caused by the compression operation in the VAE encoder. 
+
+2 Related work 
+
+2.1 Raindrop removal 
+
+In the realm of raindrop removal, recent studies have explored diverse methodolo-gies. Eigen et al. [9] pioneered single-image raindrop removal using CNNs. Qian et al. [29] introduced a generative adversarial network (GAN) to enhance raindrop removal. Transformer-based approaches like IDT [41], UDR-S 2Former [4] and Histoformer [36] have demonstrated superior performance. Meanwhile, the CCN [30] adopts a unique approach by employing neural architecture search. More recently, diffusion-based methods like WeatherDiff [27] and T 3-DiffWeather [5] have emerged, leveraging the generative capabilities of diffusion models to en-hance raindrop removal. 
+
+2.2 Reflection removal 
+
+In the field of single image reflection removal, various advanced techniques have been proposed to address the ill-posed nature of separating superimposed trans-mission and reflection layers. Early methods such as CEILNet [10] leverage edge information and deep learning. IBCLN [21] introduces a cascaded refinement strategy to iteratively enhance the estimations of transmission and reflection layers. More recent advancements, YTMT [15], DSRNet [16], DSIT [17], RD-Net [45], and GFRRN [7] employ dual-stream networks to enhance feature in-teraction. Further more, diffusion-based models like L-DiffER [13] and DAI [14] also show their capabilities across a wide range of real-world scenarios. 4GT  
+
+> LQs
+> Step 1
+> Step 2
+> Glass
+> Reflections
+> Rotate
+> Rotate
+> Signal
+> Receiver
+> (a) Sketch Diagram and Actual Equipment (b) Data Collection Pipeline
+> Remote
+> Controller
+> Glass
+> Align
+
+Fig. 2: (a) Sketch diagram and actual equipment of our image acquisition platform. To suppress shutter-induced micro-vibrations which may potentially induce image mis-alignment, we implement a wireless triggering mechanism. It comprises a remote con-troller and a camera-mounted signal receiver, enabling contact-free shutter operation. (b) The data collection pipeline for our RDRF dataset. é denotes light occlusion 
+
+2.3 Datasets 
+
+Existing real-world datasets for raindrop removal include AGAN [29], RainDS [30], RobotCar [28], and Raindrop Clarity [18], these datasets provide low-quality images with raindrops and their corresponding ground truth images. Differently, Windshield [34] contains degraded images along with their corresponding binary masks that indicate the raindrop-affected areas. For reflection removal task, it is noteworthy that synthetic data is commonly employed for training. Recently, some real-world datasets have been proposed, such as RRW [51] and DRR [14]. However, there are no existing datasets that specifically address the unified re-moval of raindrops and reflections, which is the focus of our work. 
+
+3 RDRF dataset 
+
+Similar to most deep learning based methods, our task (i.e., unified removal of raindrops and reflections) requires a large number of degraded images with corresponding clean labels for training. There are no existing training or testing datasets for this new task. As shown in Fig. 2 (a), we set up an image acquisition platform to collect our own Rain Drop and ReFlection (RDRF) dataset. In our case, a substantial volume of image pairs are required, where each pair comprises two images with the identical background scene, yet one has a clean foreground and the other is corrupted by raindrops and reflections. 
+
+3.1 Hardware 
+
+Drawing inspirations from previous works of Zhu et al. [51] and Li et al. [22], our RDRF dataset is captured under real scenarios deliberately constructed in controlled environments. For the hardware configuration, the camera is mounted 5RDRF -training RDRF -testing  
+
+> Fig. 3: Our RDRF dataset comprises a diverse collection of scenes, each contains a ground truth and multiple low-quality images. As illustrated in this figure, the clean ground truths are highlighted in red boxes, while corresponding low-quality images are arranged around. We divide it into the training and testing subsets, ensuring no overlapping samples between them. Please zoom in on screen for a better view.
+
+on a tripod using an adjustable base, with the glass slab positioned in front of the lens. We connect a signal receiver onto the camera, thereby enabling remote control of the shutter. This wireless triggering mechanism can effectively avoid image misalignment caused by camera vibrations resulting from manual operation. To ensure diversity, neither the camera nor the glass is fixed. They can be adjusted to simulate different shooting situations (e.g., camera-to-glass distances/angles). In addition, we utilize two cameras (Sony ILCE-7RM4A and Nikon D7100) with zoom lens and choose different glass thicknesses (3 mm, 5 mm, and 8 mm) to further enhance diversity. 
+
+3.2 Data collection pipeline 
+
+Fig. 2 (b) exhibits our data collection pipeline. For step 1, we utilize a light-blocking box to suppress the reflections from the camera side ( é denotes light occlusion). The obtained image is regarded as the ground-truth. For step 2, we keep the background scenario and camera unchanged. The light-blocking box is removed and the raindrops are created by spraying water onto the glass surface. By randomly rotating the glass at different angles, we create varying reflections with different scenes and intensities. For each scene, multiple images are captured as the low-quality ones. Some samples are illustrated in Fig. 3. As demonstrated in the dataset, our RDRF dataset comprises a comprehensive collection of scenes. The raindrops are captured under diverse shapes and sizes (circular, elliptical, and irregular), ranging from sparse to dense. Raindrop flow traces are also included. In addition, the reflections are also captured with diverse reflection scenes, ranging from weak to strong. All the images are captured in 4752 × 3168 resolution to ensure high-quality. In total, our RDRF dataset consists of 307 unique scenes. The category 6
+
+distribution diagram can be found in the supplementary material. It is divided into a training set (216 scenes with 9003 image pairs) and a testing set (91 scenes with 277 image pairs). Note that, we capture 1 to 5 image pairs for each scene in the testing set. To further address the spatial misalignment caused by our hardware, we fol-low the procedures proposed in [38]. It starts by extracting SIFT [25] key-points and descriptors, which are matched with L2 distance. Using the matched key-points, a homography matrix is estimated via RANSAC [11] to handle outliers and find a robust geometric transformation. The low-quality image is aligned to the ground truth by applying a perspective warp using the computed homogra-phy. Previously, some valuable datasets are collected to address the raindrop re-moval task (e.g., Qian’s dataset [29], RainDS [30], Raindrop Clarity [18]). Their brilliant datasets has different focus with ours. Some of their authors also no-ticed the reflection artifacts [18, 29] and tried to avoid them during data col-lection stage. Even so, there are still some reflection artifacts present in Qian’s dataset [29]. This also demonstrates that reflections and raindrops tend to oc-cur simultaneously. UR 3 is a practical task which required urgent solution. Our RDRF dataset represents the first-of-its-kind contribution to the UR 3 task. 
+
+4 Methodology 
+
+Our RDRF dataset provides sufficient and diverse training data for UR 3 task. Formally, given a low-quality (LQ) image Ilq ∈ R3×H×W with both raindrops and reflections on it, a straightforward idea is to employ conventional restoration methods [6, 36] to directly learn the mapping function from the low-quality to the ground-truth. However, their results are perceptually unsatisfying, because of the complexity of UR 3 task. Instead, we try to utilize the powerful generative priors of the diffusion model as an effective solution. In this way, UR 3 is regarded as a conditional image generation problem. Specifically, we design a two-stage network (i.e., DiffUR 3) shown in Fig. 4 (a), which consists of (I) a restoration stage , and (II) a multi-condition gen-eration stage . The restoration stage outputs an initial result Is, which is then used as the condition image in the following generation stage. Compared with DiffBIR framework, our DiffUR 3 has two major different designs: (1) Considering the fact that raindrops and reflections merely affect certain regions, some parts in the LQ image Ilq can be regarded as clean. We also integrate Ilq as one of the conditions during stage II. A Modulate&Gate module is designed to adaptively fuse the effective information from Ilq and Is.(2) We design an additional Fidelity Encoder to correct the distortions caused by the compression in VAE. Details of our DiffUR 3 pipeline are described below. 
+
+4.1 Restoration stage 
+
+In the first stage, our aim is to remove some easy yet undesired degradations from LQ input Ilq . The output image Is provides a reliable condition image for 7VAE Encoder        
+
+> VAE Decoder
+> Fidelity Encoder ܿܿ௟௤ ௦ݖ௧ݖ௧
+> zero
+> steps ݐ-1
+> Modulate&Gate Low-quality ܫ௟௤
+> Condition Latent Bank Fidelity Features Initial Result  ܫ௦Output
+> Noise Prediction U-Net Control Branch
+> Stage I
+> ݖ௧
+> Conv. Conv. CCross Attention
+> +
+> Conv. ܿܿ௟௤ ௦ߙ̂ܿ ̂ܿ௟௤ ௦
+> Modulate
+> CSpatial Attention  ××
+> 1 − ߙ
+> Gate ̅ܿ ̅ܿ௦ ௟௤
+> VAE Encoder
+> ݖ଴ݖ௧
+> Add Noise Ground Truth
+> (a) Overall Pipeline (b) Details of Modulate&Gate Module (c) Generation of ࢠ࢚during the training phase
+> 4 × ு଼ ×ௐ଼ 3 × ܪ ×ܹ
+> Frozen Trainable
+> ۴௖௢௡
+> Gate Control Signals
+> Diffusion Process
+
+Fig. 4: (a) Overall pipeline of our DiffUR 3 framework. Given a low-quality image Ilq ,the restoration stage removes the undesired degradation to obtain the initial result 
+
+Is. Both Ilq and Is are fed into the next stage as the condition images. We inject the effective condition information through a control branch, which outputs control signals for the noise prediction U-Net. (b) Details of the Modulate&Gate module within the control branch. (c) The generation of noisy latent zt during the training phase. Note that the noisy latent starts from random Gaussian noise during the inference. 
+
+training the generation stage. 
+
+Is = RM (Ilq ), (1) where RM (·) denotes the restoration model. In our implementation, we select the DRSformer [6] as the restoration model in stage I due to its superior perfor-mance and generalization capability. 
+
+4.2 Multi-condition generation stage 
+
+Our multi-condition generation stage is based on the Stable Diffusion Model [32], because its powerful generative prior can facilitate the restoration of regions that are challenging to be recovered in stage I through a conditional generation approach. To achieve better efficiency and stabilized training, the pretrained VAE [20] encoder E is employed to encode the condition images into the latent space. Both diffusion and denoising processes are performed in this space in-stead of the pixel space. The main denoising network is a pretrained U-Net. The denoising output is then converted back to the pixel space using the pretrained VAE decoder D.As mentioned above, for UR 3 task we argue LQ image Ilq contains some clean information within certain regions 5. Therefore, both Ilq and Is are encoded by the VAE encoder E:
+
+clq , c s = E(Ilq , I s), (2) 
+
+5 Unlike blind super-resolution and blind image denoising in [23], where the entire LQ image is degraded. 8
+
+where clq ∈ R4× H   
+
+> 8×W
+> 8
+
+and cs ∈ R4× H   
+
+> 8×W
+> 8
+
+denote the obtained condition latent from Ilq and Is, respectively. Besides, the noisy latent zt is also embedded, since it has been proven to enhance image quality [23]. The generation of zt is shown in Fig. 4 (c). Similar to previous work [23], we also inject the condition information via a control branch. We make a trainable copy of the pretrained U-Net encoder and middle block (i.e., Fcon in Fig. 4 (a)), which receives condition information and then outputs control signals. A normal solution is to add or concatenate 
+
+clq , cs and zt before sending to Fcon [3, 27]. However, we observe that the noisy latent zt varies at different time steps, yet the condition latent (i.e., clq or cs)remains unchanged. Instead of direct addition or concatenation, we propose a more reasonable solution to modulate clq and cs through zt. Since there are more than one condition latent, a gate mechanism is introduced to adaptively assign different spatial weights to clq and cs.To this end, before entering the Fcon , we design a Modulate&Gate module which consists of a Modulate block and a Gate block. Fig. 4 (b) shows the details of our Modulate&Gate module. We describe them as below. 
+
+Modulate block Take cs as an example, clq can be similarly derived. First, both cs and zt individually pass through a convolutional layer to extract their features fc ∈ RC× H   
+
+> 8×W
+> 8
+
+and fz ∈ RC× H   
+
+> 8×W
+> 8
+
+. C denotes the channel number of the extracted feature. In our implementation, we set C = 32 . Then, their concatenation result is fed into two consecutive transformer layers [37] to perform the cross attention operation, which can facilitate the information interaction between fc and fz . Our cross attention operation aligns the dimensions of the output fcross and fz at the end. Finally, we add fcross ∈ RC× H   
+
+> 8×W
+> 8
+
+with fz ,and employ another convolutional layer to reduce the channel number back to 
+
+4. The formulations are as follows: 
+
+fc, f z = Conv (cs, z t),fcross = CrAttn ([ fc, f z ]) , (3) 
+
+ˆcs = Conv (fcross + fz ),
+
+where Conv (·) denotes the convolutional layer, CrAttn (·) denotes the cross at-tention operation, [·, ·] denotes the concatenation, ˆcs is the modulated condition latent, and ˆclq can be derived by replacing cs with clq in Eqn. 3. 
+
+Gate block After obtaining ˆcs and ˆclq , we need to selectively extract the com-ponents that are beneficial to our DiffUR 3. We concatenate them together, and then send to a spatial attention to generate a spatial weight α ∈ R H   
+
+> 8×W
+> 8
+
+. The spatial attention operation consists of two convolutional layers, one activation layer, and one sigmoid layer. The formulations are as follow: 
+
+α = SpAttn ([ˆ cs, ˆclq ]) ,
+
+¯cs = α · ˆcs, (4) 
+
+¯clq = (1 − α) · ˆclq ,9
+
+where SpAttn (·) denotes the spatial attention operation, ¯cs and ¯clq are the out-put condition latent variables. Note that our Modulate&Gate module is simple yet effective. More sophisticated designs can be considered for better perfor-mance, which is not the focus of this work. We concatenate ¯cs, ¯clq , and the noisy latent zt together, and send them to Fcon for generating the control signals, which are added to the denoising U-Net via zero convolutions [43]. At each time step, the noise prediction U-Net estimates the noise component and performs de-noising on the noisy latent zt. During the inference phase, the noisy latent starts from random Gaussian noise and iteratively passes through the pretrained U-Net to estimate the clean latent ˆz0.
+
+Fidelity encoder By decoding ˆz0 back to the pixel space, we can obtain the final output image. As shown in Fig. 5, we observe that while stable diffusion demonstrates superior performance in recovering the degradations caused by raindrops or reflections (green box of Fig. 5 (b)), some unwanted distortions are introduced by the compression operation in the VAE encoder (red box of Fig. 5 (b)). The stable diffusion model lacks the ability to correct these kinds of distortions. To deal with this issue and improve the fidelity of the generated results, we train an additional fidelity encoder (FE) inspired by [1]. The FE is proposed to extract multi-scale features from the initial result Is and the LQ image Ilq , which are not affected by the down-sampling, for preserving local structural semantics. (a) Input (b) Output w/o FE (c) Output w/ FE 
+
+> Successfully Recover
+> Introduced by VAE encoder
+
+Fig. 5: The motivation of employing an additional fidelity encoder. VAE Decoder     
+
+> Fidelity Encoder
+> Low-quality ܫ௟௤
+> Initial Result ܫ௦
+> Reconstructed ܫመ௚௧
+> Gate
+> ݖ଴
+> Fidelity Features
+> VAE Encoder
+> Ground Truth ܫ௚௧
+> Frozen Trainable
+
+Fig. 6: Training pipeline of our fidelity encoder. 
+
+Fig. 6 shows the training pipeline of our fidelity encoder, which shares the same architecture with VAE encoder [20] (besides the first convolutional layer). To keep consistent with the control branch, both LQ image Ilq and initial result 
+
+Is are fed into the fidelity encoder through a Gate block to extract faithful features. The extracted fidelity features are added to corresponding positions in VAE Decoder via zero convolutions. Then, we encode the ground truth Igt via the pretrained VAE encoder to latent space, simulating the denoised latent i.e., 
+
+z0. Finally, guided by the fidelity features, pretrained VAE decoder [20] converts the compressed latent z0 to a reconstructed image ˆIgt . The whole pipeline is trained by minimizing a mean absolute error (i.e., L1 loss) between ˆIgt and Igt .10 
+
+Color correction Diffusion models can occasionally exhibit color shifts [8]. To tackle this issue, some simple techniques (e.g., color normalization, wavelet color correction) have been explored before [40]. We experimentally choose color normalization to align the mean and variance of the output with color reference 
+
+Is, and it is conducted patch-wisely. Note that, Ilq is not suitable here since the composite degradation may cause false correction. 
+
+5 Experimental results 
+
+5.1 Implementation details and metrics 
+
+For the training of stage I, we adopt DRSformer [6] as the restoration model. Compared with the original, we make certain simplifications to accelerate the computation in Stage I. { N0,N1,N2,N3,N4} are set to {0,2,4,4,8}, and the num-ber of attention heads for sparse transformer blocks (i.e., STBs) in level 1 to level 4 are set to {1,2,4,8}. The initial channel C is set to 16. Patches of size 
+
+256 ×256 are randomly cropped from the RDRF-training dataset, and horizontal and vertical flips are applied as the data augmentation techniques. This model is trained with an initial learning rate of 3e−4 for the first 100K iterations, which will gradually reduced to 1e−6 using cosine annealing schedule [12] during the remaining 200K iterations. For stage II, the images in our RDRF-training dataset are randomly cropped into 640 ×640 patches. Horizontal and vertical flips, resizing, rotation are applied as the data augmentation techniques. The control branch is trained with a batch size of 40 and with a fixed learning rate of 1e−4 for entire 50K iterations. To accelerate the sampling process, we adopt a spaced DDPM sampling schedule [26] which requires 50 sampling steps. For the training of the additional fidelity encoder, we follow the training settings of stage II, except the batch size and number of iterations. Note that the images in our RDRF-training dataset are firstly resized to a fixed resolution of 1080 × 720 , and we use AdamW [24] optimizer with default settings for all the training procedures. We train the restoration model in stage I for 300k iterations (batch size = 4) on a single A6000 GPU. Then we adopt the Stable Diffusion 2.1-base [32] as the generative prior, and train the control branch in stage II for 50k iterations (batch size = 40) on two A6000 GPUs. The fidelity encoder is trained for 300k iterations (batch size = 6) on two A6000 GPUs. We adopt three traditional metrics (PSNR, SSIM, LPIPS [44]) and three no-reference image quality assessment metrics (MUSIQ [19], CLIPIQA+ [39], HyperIQA [35]) to comprehensively evaluate our performance. 
+
+5.2 Ablation study and discussions Modulate&Gate module First, we perform ablation study to validate the effectiveness of Modulate&Gate module. We employ the naive diffusion-based method which solely adopts Ilq as the condition image (similar to [27]) and 11 
+
+denote it as Baseline 1 . In addition, Baseline 2 means only the Is is regarded as the condition image (similar to [23]). Table 1 summarizes the quantitative results. w/o Modulate&Gate Module means both Ilq and Is are embedded as the condition images and fused by channel-wise concatenation in latent space. We observe that our Modulate&Gate module is critically important for our DiffUR 3,as omitting this component leads to an obvious performance drop. Note that, both Modulate and Gate sub-modules are helpful for improving the performance. 
+
+Table 1: Ablation study on Modu-late&Gate module. Model Condition PSNR ↑ SSIM ↑ LPIPS ↓                            
+
+> Baseline 1 Ilq 28.33 0.9271 0.0944 Baseline 2 Is28.54 0.9273 0.0943 w/o Modulate&Gate Ilq , I s28.60 0.9294 0.0899 w/o Modulate Ilq , I s29.11 0.9355 0.0832 w/o Gate Ilq , I s29.12 0.9344 0.0841 DiffUR 3Ilq , I s29.41 0.9372 0.0813
+
+Table 2: Ablation study on Fidelity Encoder. Model PSNR ↑ SSIM ↑ LPIPS ↓              
+
+> Baseline 26.95 0.8042 0.1082 +CFW( w= 0 .5)28.78 0.9120 0.0909 +CFW( w= 1 .0)29.18 0.9320 0.0832 +FE (DiffUR 3)29.41 0.9372 0.0813
+
+Further, an in-depth analysis is provided in Fig. 7. Baseline 1 outputs oc-casionally exhibit generation errors due to the inherent characteristics of dif-fusion model. In contrast, Is is a better condition to avoid errors. However, some restoration artifacts in Is may influence the Baseline 2 outputs. They demonstrate distinct advantages across different regions. By considering Ilq and 
+
+Is together, simple channel-wise concatenation fails to systematically integrate their complementary strengths. The introduced Modulate&Gate module enables adaptive integration of information from dual condition images, thereby enhanc-ing the model performance. 
+
+Fidelity Encoder Then, we perform ablation study to validate the effectiveness of the Fidelity Encoder (FE). Baseline means directly decoding ˆz0 to pixel space without fidelity features. We observe a significant decline in fidelity, since the compression operation within the VAE encoder introduces considerable distor-tions (Fig. 5 (b)). In addition, the Controllable Feature Wrapping (CFW) [40,48], which leverages the encoder features to modulate corresponding decoder features for fidelity improvement, is also employed for comparison. In CFW, there is a adjustable hyper-parameter w to control the fidelity. We choose w = 0 .5 and 
+
+w = 1 .0. The experimental results are listed in Table 2, and both CFW and FE can boost the fidelity. Our FE ranks first in terms of PSNR, SSIM, and LPIPS. Some visual results are shown in Fig. 8. The texts recovered by our FE exhibit less distortions. Note that, the training of our fidelity encoder is independent of both restoration and control branch, enabling its flexible application to various stable diffusion architectures. 
+
+Color correction We experimentally test the color normalization and wavelet color correction in Fig. 10. It can be observed that the wavelet method mis-12 ܫ௟௤ ܫ௦          
+
+> Baseline 1 (ܫ௟௤ )
+> Baseline 2 (ܫ௦)w/o M&G (ܫ௟௤ &ܫ௦)Ours (ܫ௟௤ &ܫ௦)
+> Candidate conditions Zoom-in views of outputs
+> Cropped ܫ௟௤ Cropped ܫ௦
+
+Fig. 7: In-depth analysis on the function of our Modulate&Gate (M&G) module. (a) Baseline (b) w/ CFW (c) w/ FE 
+
+Fig. 8: Visual results with CFW and FE. AGAN+RDNet RDNet+AGAN Histoformer     
+
+> †DiffUIR
+> †Stage I
+> Method
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Voting  Rate
+> Competitor Ours
+
+Fig. 9: User study on RDRF-testing. 
+
+takenly introduces some artifacts from color reference Is in the roof region. The color normalization corrects the color shift to make the result closer to the ground truth. Our experimental results are inconsistent with [40]. Since wavelet-based method introduces the low-frequency part from Is, where may contain low-frequency artifacts caused by raindrops or reflections. Therefore, we adopt the color normalization instead of the wavelet color correction in our case. (a) Before correction (c) w/ wavelet correction (d) w/ color norm. (Ours) (e) GT (b) Color reference 𝐼 !
+
+Fig. 10: Color correction results with different methods. 
+
+5.3 Comparisons with state-of-the-art methods 
+
+Since this work is the first exploration for unified removal of raindrops and reflections (UR 3) task. There are no prior methods. We employ two classical raindrop removal methods (i.e., AGAN [29], UMAN [33]), three classical reflec-tion removal methods (i.e., RDNet [45], DSIT [17], DAI [14]), four cascaded methods, and four all-in-one methods (i.e., Histoformer [36], WeatherDiff 64 [27], DiffUIR [46], UniRestore [2]) as the competitors. We adopt their public models for calculating metrics. In addition, we re-train the all-in-one methods by using their published codes. 13 
+
+Table 3: Benchmark results on our RDRF-testing dataset. We report PSNR, SSIM, LPIPS and three no-reference image quality assessment metrics (i.e., MUSIQ, CLIP-IQA+, HyperIQA) to perform comprehensive comparisons. The bold and underline indicate the best and second best. Superscript † means re-trained on RDRF. Type Method Venue RDRF-testing PSNR ↑ SSIM ↑ LPIPS ↓ MUSIQ ↑ CLIPIQA+ ↑ HyperIQA ↑                                                                                                                                     
+
+> Raindrop removal AGAN [29] CVPR2018 25.18 0.9209 0.1136 73.39 0.6241 0.6650 UMAN [33] TIP2021 25.61 0.9222 0.1111 73.23 0.6262 0.6525 Reflection removal RDNet [45] CVPR2025 26.79 0.9169 0.1269 70.68 0.5983 0.6260 DSIT [17] NeurIPS2024 26.41 0.9128 0.1339 71.29 0.6058 0.6248 DAI [14] AAAI2026 27.48 0.9251 0.1058 73.25 0.6335 0.6518 Cascaded AGAN+RDNet -26.68 0.9291 0.0973 73.87 0.6550 0.6787 RDNet+AGAN -26.64 0.9268 0.0991 73.87 0.6453 0.6737 AGAN+DSIT -26.68 0.9283 0.0984 74.05 0.6661 0.6760 DSIT+AGAN -26.49 0.9243 0.1046 73.89 0.6536 0.6725 All-in-One Histoformer [36] ECCV2024 25.74 0.9217 0.1214 72.34 0.5955 0.6450 WeatherDiff 64 [27] TPAMI2024 24.45 0.8936 0.1313 72.39 0.6383 0.6412 DiffUIR [46] CVPR2024 23.32 0.8777 0.2190 68.39 0.5268 0.5901 UniRestore [2] CVPR2025 22.77 0.8291 0.2952 66.71 0.5459 0.5123 Re-trained All-in-One Histoformer †-28.31 0.9315 0.0955 72.19 0.6221 0.6507 WeatherDiff 64 †-26.11 0.9130 0.1140 72.33 0.6471 0.6225 DiffUIR †-28.39 0.9300 0.0991 71.83 0.6216 0.6311 UniRestore †-25.66 0.8858 0.1631 73.01 0.6350 0.5994 Stage I -28.82 0.9354 0.0925 73.48 0.6342 0.6648 Ours DiffUR 350 -29.41 0.9372 0.0813 74.72 0.6705 0.7043
+
+Table 3 shows the quantitative results on our RDRF-testing dataset. Note that, our DiffUR 3 ranks top among all metrics. Though the output from stage I exhibits relatively higher PSNR and SSIM values, it still suffers from certain distortions and residual degradations (Fig. 11 (e)), resulting in unsatisfactory visual quality and lower no-reference scores. In contrast, stage II and Fidelity Encoder effectively refines the output and produces significantly higher-quality results. We conduct a user study to evaluate our DiffUR 3 subjectively against five methods. Specifically, we randomly select 50 images from our RDRF-testing dataset and invite 20 experts with image restoration background as volunteers. For every image, each expert is asked to compare the result of our DiffUR 3 with the alternatives one by one. For each comparison, the observers are demanded to choose the favored one after at least 10 seconds of observation. Afterward, we statistic the percentage of certain method to be selected. The statistical results in Fig. 9 indicates that our DiffUR 3 is more favored by the invited experts. In addition, some visual comparisons of our DiffUR 3 and the competitors are provided in Fig. 11. It is worth mentioning that the results of our DiffUR 3 are closer to the ground truth with less degradation residuals and artifacts than the alternatives. We further evaluate the generalization capability of our DiffUR 3 on a raindrop-only dataset [29] (single degradation situation). More details are provided in the supplementary material. Since real-world driving scenarios 14 (a) LQ (b) AGAN+RDNet (c) Histoformer † (d) DiffUIR † (e) Stage I (f) Ours (g) GT 
+
+Fig. 11: Visual results of various methods on our RDRF-testing. Superscript † means this method is re-trained on our RDRF-traing dataset. Please check and zoom in on screen for a better view. (a) LQ (b) AGAN+RDNet (c) RDNet+AGAN (d) Histoformer † (e) DiffUIR † (f) Stage I (g) Ours 
+
+Fig. 12: Visual results of various methods on our RDRF-wild dataset. Please check and zoom in on screen for a better view. 
+
+in rainy weather are very challenging, we capture some testing images to form a RDRF-wild dataset. Fig. 12 shows the visual comparisons on RDRF-wild. For this situation, the whole scene is more complicated than the controlled one. Our DiffUR 3 can still obtain appealing results. This indicates the robustness and generalization capability of our approach in real-world applications. More visual results can be found in the supplementary material. 
+
+6 Conclusion 
+
+This work introduces a pioneering approach to the challenging task of UR 3. By establishing the first dedicated RDRF dataset and proposing a novel diffusion-based framework (DiffUR 3), we successfully address the limitations of previous methods that treat raindrop and reflection removal as separate tasks. Our two-stage pipeline, incorporating a restoration stage and a multi-condition genera-tion stage, effectively leverages generative priors to remove both types of degra-dations simultaneously. Extensive experiments demonstrate the superiority of our approach over SOTA methods. The RDRF dataset and DiffUR 3 framework contribute significantly to the advancement of the UR 3 task, offering valuable resources for future research. 15 
+
+References 
+
+1. Chang, Z., Weng, S., Zhang, P., Li, Y., Li, S., Shi, B.: L-CAD: Language-based Col-orization with Any-level Descriptions using Diffusion Priors. In: NeurIPS. vol. 36, pp. 1–13 (2023) 9 2. Chen, I., Chen, W.T., Liu, Y.W., Chiang, Y.C., Kuo, S.Y., Yang, M.H., et al.: Unirestore: Unified perceptual and task-oriented image restoration model using diffusion prior. In: CVPR. pp. 17969–17979 (2025) 12, 13, 23 3. Chen, J., Pan, J., Dong, J.: FaithDiff: Unleashing Diffusion Priors for Faithful Image Super-resolution. In: CVPR (2025) 8 4. Chen, S., Ye, T., Bai, J., Chen, E., Shi, J., Zhu, L.: Sparse Sampling Trans-former with Uncertainty-Driven Ranking for Unified Removal of Raindrops and Rain Streaks. In: ICCV. pp. 13060–13071 (2023) 3 5. Chen, S., Ye, T., Zhang, K., Xing, Z., Lin, Y., Zhu, L.: Teaching Tailored to Talent: Adverse Weather Restoration via Prompt Pool and Depth-Anything Constraint. In: ECCV. pp. 95–115 (2024) 3 6. Chen, X., Li, H., Li, M., Pan, J.: Learning A Sparse Transformer Network for Effective Image Deraining. In: CVPR. pp. 5896–5905 (2023) 6, 7, 10 7. Chen, Y., He, Z., Liu, X., Chen, Z., Lu, Z.: Gfrrn: Explore the gaps in single image reflection removal. In: CVPR (2026) 3 8. Choi, J., Lee, J., Shin, C., Kim, S., Kim, H., Yoon, S.: Perception Prioritized Training of Diffusion Models. In: CVPR. pp. 11462–11471 (2022) 10 9. Eigen, D., Krishnan, D., Fergus, R.: Restoring an image taken through a window covered with dirt or rain. In: ICCV. pp. 633–640 (2013) 3 10. Fan, Q., Yang, J., Hua, G., Chen, B., Wipf, D.: A Generic Deep Architecture for Single Image Reflection Removal and Image Smoothing. In: ICCV. pp. 3238–3247 (2017) 3 11. Fischler, M.A., Bolles, R.C.: Random sample consensus: a paradigm for model fitting with applications to image analysis and automated cartography. Communi-cations of the ACM 24 (6), 381–395 (1981) 6 12. He, T., Zhang, Z., Zhang, H., Zhang, Z., Xie, J., Li, M.: Bag of tricks for image classification with convolutional neural networks. In: CVPR. pp. 558–567 (2019) 10 13. Hong, Y., Zhong, H., Weng, S., Liang, J., Shi, B.: L-DiffER: Single Image Reflection Removal with Language-Based Diffusion Model. In: ECCV. pp. 58–76 (2024) 3 14. Hu, J., Yang, C., Zhou, Z., Fang, J., Yang, X., Tian, Q., Shen, W.: Dereflection Any Image with Diffusion Priors and Diversified Data. In: AAAI (2026) 2, 3, 4, 12, 13, 19, 23 15. Hu, Q., Guo, X.: Trash or Treasure? An Interactive Dual-Stream Strategy for Single Image Reflection Separation. In: NeurIPS. vol. 30, pp. 24683–24694 (2021) 316. Hu, Q., Guo, X.: Single Image Reflection Separation via Component Synergy. In: ICCV. pp. 13092–13101 (2023) 3 17. Hu, Q., Wang, H., Guo, X.: Single image reflection separation via dual-stream interactive transformers. In: NeurIPS. vol. 37, pp. 55228–55248 (2024) 2, 3, 12, 13, 23 18. Jin, Y., Li, X., Wang, J., Zhang, Y., Zhang, M.: Raindrop Clarity: A Dual-Focused Dataset for Day and Night Raindrop Removal. In: ECCV (2024) 4, 6 19. Ke, J., Wang, Q., Wang, Y., Milanfar, P., Yang, F.: Musiq: Multi-scale image quality transformer. In: ICCV. pp. 5148–5157 (2021) 10 16 20. Kingma, D.P., Welling, M.: Auto-encoding variational bayes. arXiv 1312.6114 
+
+(2013) 7, 9 21. Li, C., Yang, Y., He, K., Lin, S., Hopcroft, J.E.: Single image reflection removal through cascaded refinement. In: CVPR. pp. 3562–3571 (2020) 3 22. Li, Y., Monno, Y., Okutomi, M.: Dual-Pixel Raindrop Removal. IEEE Transactions on Pattern Analysis and Machine Intelligence 46 (12), 10748–10762 (2024) 4 23. Lin, X., He, J., Chen, Z., Lyu, Z., Dai, B., Yu, F., Qiao, Y., Ouyang, W., Dong, C.: DiffBIR: Toward Blind Image Restoration with Generative Diffusion Prior. In: ECCV. pp. 430–448 (2024) 7, 8, 11 24. Loshchilov, I., Hutter, F., et al.: Fixing weight decay regularization in adam. ArXiv 
+
+1711.05101 (2017) 10 25. Lowe, D.G.: Distinctive image features from scale-invariant keypoints. Interna-tional journal of computer vision 60 (2), 91–110 (2004) 6 26. Nichol, A.Q., Dhariwal, P.: Improved denoising diffusion probabilistic models. In: ICML. pp. 8162–8171 (2021) 10 27. Özdenizci, O., Legenstein, R.: Restoring Vision in Adverse Weather Conditions With Patch-Based Denoising Diffusion Models. IEEE Transactions on Pattern Analysis and Machine Intelligence 45 (8), 10346–10357 (2023) 3, 8, 10, 12, 13, 23 28. Porav, H., Bruls, T., Newman, P.: I can see clearly now: Image restoration via de-raining. IEEE International Conference on Robotics and Automation pp. 7087– 7093 (2019) 4 29. Qian, R., Tan, R.T., Yang, W., Su, J., Liu, J.: Attentive Generative Adversarial Network for Raindrop Removal from a Single Image. In: CVPR. pp. 2482–2491 (2018) 2, 3, 4, 6, 12, 13, 19, 21, 23 30. Quan, R., Yu, X., Liang, Y., Yang, Y.: Removing Raindrops and Rain Streaks in One Go. In: CVPR. pp. 9143–9152 (2021) 3, 4, 6 31. Quan, Y., Deng, S., Chen, Y., Ji, H.: Deep learning for seeing through window with raindrops. In: ICCV. pp. 2463–2471 (2019) 1, 2 32. Rombach, R., Blattmann, A., Lorenz, D., Esser, P., Ommer, B.: High-resolution image synthesis with latent diffusion models. In: CVPR. pp. 10684–10695 (2022) 7, 10 33. Shao, M.W., Li, L., Meng, D.Y., Zuo, W.M.: Uncertainty Guided Multi-Scale At-tention Network for Raindrop Removal from a Single Image. IEEE Transactions on Image Processing 30 , 4828–4839 (2021) 2, 12, 13, 23 34. Soboleva, V., Shipitko, O.: Raindrops on Windshield: Dataset and Lightweight Gradient-Based Detection Algorithm. In: IEEE Symposium Series on Computa-tional Intelligence. pp. 1–7 (2021) 4 35. Su, S., Yan, Q., Zhu, Y., Zhang, C., Ge, X., Sun, J., Zhang, Y.: Blindly Assess Image Quality in the Wild Guided by a Self-Adaptive Hyper Network. In: CVPR. pp. 3664–3673 (2020) 10 36. Sun, S., Ren, W., Gao, X., Wang, R., Cao, X.: Restoring Images in Adverse Weather Conditions via Histogram Transformer. In: ECCV (2024) 2, 3, 6, 12, 13, 23 37. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L.u., Polosukhin, I.: Attention is all you need. In: NeurIPS. vol. 30 (2017) 8 38. Wan, R., Shi, B., Duan, L.Y., Tan, A.H., Kot, A.C.: Benchmarking Single-Image Reflection Removal Algorithms. In: ICCV. pp. 3922–3930 (2017) 6 39. Wang, J., Chan, K.C.K., Loy, C.C.: Exploring CLIP for assessing the look and feel of images. In: AAAI. pp. 2555–2563 (2023) 10 17 40. Wang, J., Yue, Z., Zhou, S., Chan, K.C., Loy, C.C.: Exploiting Diffusion Prior for Real-World Image Super-Resolution. International Journal of Computer Vision 
+
+132 (12), 5929–5949 (2024) 10, 11, 12 41. Xiao, J., Fu, X., Liu, A., Wu, F., Zha, Z.J.: Image De-Raining Transformer. IEEE Transactions on Pattern Analysis and Machine Intelligence 45 (11), 12978–12995 (2023) 3 42. You, S., Tan, R.T., Kawakami, R., Ikeuchi, K.: Adherent Raindrop Detection and Removal in Video. IEEE Transactions on Pattern Analysis and Machine Intelli-gence 38 (9), 1721–1733 (2016) 1 43. Zhang, L., Rao, A., Agrawala, M.: Adding conditional control to text-to-image diffusion models. In: ICCV. pp. 3836–3847 (2023) 9 44. Zhang, R., Isola, P., Efros, A.A., Shechtman, E., Wang, O.: The unreasonable effectiveness of deep features as a perceptual metric. In: CVPR. pp. 586–595 (2018) 10 45. Zhao, H., Li, M., Hu, Q., Guo, X.: Reversible decoupling network for single image reflection removal. In: CVPR. pp. 26430–26439 (2025) 2, 3, 12, 13, 23 46. Zheng, D., Wu, X.M., Yang, S., Zhang, J., Hu, J.F., Zheng, W.s.: Selective hour-glass mapping for universal image restoration based on diffusion model. In: CVPR. pp. 25445–25455 (2024) 12, 13, 23 47. Zheng, Q., Chen, J., Lu, Z., Shi, B., Jiang, X., Yap, K.H., Duan, L.Y., Kot, A.C.: What does plate glass reveal about camera calibration? In: CVPR. pp. 3022–3032 (2020) 1 48. Zhou, S., Chan, K.C., Li, C., Loy, C.C.: Towards Robust Blind Face Restoration with Codebook Lookup Transformer. In: NeurIPS. vol. 35, pp. 30599–30611 (2022) 11 49. Zhu, C., Deng, S., Song, X., Li, Y., Wang, Q.: Mamba Collaborative Implicit Neural Representation for Hyperspectral and Multispectral Remote Sensing Image Fusion. IEEE Transactions on Geoscience and Remote Sensing 63 , 1–15 (2025) 2 50. Zhu, C., Song, X., Li, Y., Deng, S., Zhang, T.: A spatial-frequency dual-domain implicit guidance method for hyperspectral and multispectral remote sensing image fusion based on Kolmogorov–Arnold Network. Information Fusion 123 , 103261 (2025) 2 51. Zhu, Y., Fu, X., Jiang, P.T., Zhang, H., Sun, Q., Chen, J., Zha, Z.J., Li, B.: Revisiting Single Image Reflection Removal In the Wild. In: CVPR. pp. 25468– 25478 (2024) 2, 4 Supplementary Material for Unified Removal of Raindrops and Reflections: A New Benchmark and A Novel Pipeline 
+
+A Category distribution diagram 
+
+Our RDRF dataset covers a diverse range of urban scene categories with varying semantic attributes. As shown in Fig. 1, the category distribution diagram reveals a rich diversity of semantic groups, along with a relatively balanced proportion across them, thereby providing a solid foundation for the UR 3 task. Building 
+
+> Facades
+> & Structures
+> External
+> Structure
+> Wall
+> Window
+> Balcony
+> Public & Open
+> Spaces
+> Park
+> Yard
+> Sports Field
+> Square
+> Streets &
+> Traffic
+> Road
+> Sidewalk
+> Parking Lot
+> Vehicle
+> Industrial &
+> Commercial
+> Facilities
+> Warehouse
+> Machinery
+> Ventilation
+> Infrastructure
+> & Obstacles
+> Fire Hydrant
+> Trash Bin
+> Fence
+> Roadblock
+> Signs &
+> Markers
+> Road Sign
+> Company
+> Logo
+> Facility Sign
+> Functional
+> Components
+> of Building
+> Entrance
+> Stairs  Porches
+> Corridors
+> Others
+> Statue
+> Graffiti
+> Furniture
+> Construction
+> Site
+> Advertisement
+
+RDRF 
+
+Dataset 
+
+> Number: 1362
+> Proportion: 14.68%
+> Number: 1281
+> Proportion: 13.80%
+> Number: 1348
+> Proportion: 14.53%
+> Number: 1230
+> Proportion: 13.25%
+> Number: 1297
+> Proportion: 13.98%
+> Number: 1164
+> Proportion: 12.54%
+> Number: 557
+> Proportion: 6.00%
+> Number: 1041
+> Proportion: 11.22%
+
+Fig. 1: The category distribution diagram illustrates the hierarchical structure of our dataset. The inner ring represents the distribution of eight primary categories and their proportions, while the outer ring showcases the corresponding representative scenarios for each category. 
+
+B Discussion on stage I 
+
+Our DiffUR 3 pipeline represents a highly flexible framework. Although it needs a condition image generated by Stage I (i.e., DRSformer) during the training phase, the testing phase does not necessarily have to adhere to this specific con-dition, and instead, another condition image generated by other models (e.g., 19 (a) Input (b) DRSformer as stage I   
+
+> (c) DAI as stage I(d) Both DRSformer & DAI as stage I
+
+Fig. 2: Experimental results with different settings of stage I. 
+
+AGAN [29], DAI [14]) can be utilized. This indicates that the DiffUR 3 has al-ready learned the capability to extract valuable information from the condition image. Fig. 2 shows the experimental results with different stage I. By replac-ing DRSformer with DAI during the inference phase, our DiffUR 3 can output similar result (Fig. 2 (c)). Note this DAI model even has not been re-trained on our RDRF dataset. We also extend our DiffUR 3 to let it incorporate multiple stage I. As shown in Fig. 3, we re-design the gate block so that it can jointly process several con-dition latents extracted from diverse stage I. Specifically, we first send condition latents clq , cs1, cs2 to modulate block to perform feature modulation separately, producing modulated features ˆcs1, ˆcs2 and ˆclq . The obtained ˆcs1, ˆcs2 and ˆclq are then concatenated together along the channel dimension and fed into a spatial-attention module, the output is normalized by a softmax operation to produce the spatial weight αi ∈ R H   
+
+> 8×W
+> 8
+
+(i = 1 , 2, 3). The formulations are as follows: 
+
+α = SpAttn ([ˆ cs1, ˆcs2, ˆclq ]) ,α1, α 2, α 3 = Softmax (α),
+
+¯cs1 = α1 · ˆcs1,
+
+¯cs2 = α2 · ˆcs2,
+
+¯clq = α3 · ˆclq .
+
+(1) where ¯cs1, ¯cs2, ¯clq are the output condition latent variables, α1, α2, and α3
+
+are the corresponding attention weight slices. In our case, cs1 and cs2 represent condition latents generated from stage I results of DRSformer and DAI. This model achieves better performance (Fig. 2 (d)). Multiple stage I can provide more useful information. To incorporate more additional stage I models, we can 20 𝑧𝑧 𝑡𝑡  
+
+> Modulate ̂𝑐𝑐 𝑙𝑙𝑙𝑙
+> C
+> Spatial
+> Attention
+> ×̅𝑐𝑐 𝑠𝑠𝑠 ̅𝑐𝑐 𝑙𝑙𝑙𝑙 ̂𝑐𝑐 𝑠𝑠𝑠
+> 𝑐𝑐 𝑙𝑙𝑙𝑙
+> 𝑐𝑐 𝑠𝑠𝑠
+> 𝑐𝑐 𝑠𝑠𝑠 ̂𝑐𝑐 𝑠𝑠𝑠
+> Softmax
+> ×
+> ×̂𝑐𝑐 𝑙𝑙𝑙𝑙 ̂𝑐𝑐 𝑠𝑠𝑠 ̂𝑐𝑐 𝑠𝑠𝑠
+> 𝛼𝛼 3
+> Gate
+> 𝛼𝛼 2
+> 𝛼𝛼 1̅𝑐𝑐 𝑠𝑠𝑠
+
+Fig. 3: Detail of re-designed Gate block for integrating multiple stage I models. The newly designed gate block aims to leverage the complementary advantages of mul-tiple stage I models, since single stage I may not be able to provide comprehensive degradation-aware cues. 
+
+simply append their condition latents to the concatenation and increase the output channels of the spatial-attention module accordingly. We will further delve into an in-depth exploration of this research direction. 
+
+C Color correction visualization 
+
+Due to variations in display devices and viewing conditions, color shifts may not always be clearly perceived in the visual results. To provide a clearer comparison, we further visualize color error maps between the restored images and the ground truth. The color error map measures the mean deviation of hue and saturation in the HSV color space. As shown in Fig. 4, the proposed color normalization effectively reduces the color errors observed before correction, while the wavelet correction introduces additional errors. (f) Color reference !!   
+
+> (b) Input (c) Before correction (d) w/ wavelet correction (e) w/ color norm. (Ours) (a) GT
+> Corresponding error map
+
+Fig. 4: Visualization of color error maps. 21 
+
+D Generalization to single-degradation dataset 
+
+We also apply our DiffUR 3 on raindrop-only dataset (i.e., Qian’s dataset [29]). It contains 861 image pairs for training and another 58 pairs for testing. The benchmark results on the testing image pairs (i.e., Test-a) are listed in Table 1. We observe that our DiffUR 3 ranks first in terms of no-reference image quality assessment metrics, which aligns closely with human visual perception (some visual results are illustrated in Fig. 5). It should be noted that Qian’s dataset has a relatively small number of samples (861 pairs) and relatively low resolutions (mostly merely 720 ×480 ), which is detrimental to the training of diffusion models and may lead to sub-optimal results. During the training, we have to reduce the patch size to accommodate Qian’s dataset. 
+
+Table 1: Benchmark results on Test-a dataset. We report PSNR, SSIM and three no-reference image quality assessment metrics (i.e., MUSIQ, CLIPIQA+, HyperIQA) to perform comprehensive comparisons. The bold and underline indicate the best and second best. Method Test-a PSNR ↑ SSIM ↑ MUSIQ ↑ CLIPIQA+ ↑ HyperIQA ↑                           
+
+> AGAN 31.57 0.9023 70.52 0.6691 0.6650 Histoformer 33.06 0.9441 70.66 0.6530 0.6695 WeatherDiff 64 30.71 0.9312 71.60 0.6578 0.6771 DiffUR 332.33 0.9339 72.13 0.6873 0.7064 (a) Input (f)GT (e)Ours (b)AGAN (c)Histoformer (d) WeatherDiff 64
+
+Fig. 5: Visual results of various methods on Test-a dataset. Please check and zoom in on screen for a better view. 22 
+
+E Downstream application 
+
+To further demonstrate the downstream applicability of our DiffUR 3, we employ Google Vision API 1 to test whether our outputs can improve the object detec-tion performance. Specifically, we conduct object detection on degraded images and our restored results. As shown in Fig. 6, the original inputs yield missing or incorrect object annotations due to the visual interference of raindrops and reflections. In contrast, our DiffUR 3 effectively assist the detector in recognizing the omitted objects. This proves that our method not only improves perceptual image quality but also enhances performance in high-level vision tasks, validating its potential for real-world applications. (a) Original image as input  (b) Our result as input  
+
+> Fig. 6: We conduct object detection on original images and our restored results.
+
+F RDRF-wild 
+
+Images collected in real-world scenarios often exhibit lower quality than those captured in controlled environments, making them more suitable for evaluat-ing model robustness in practical settings. We capture a set of images from actual driving environments, namely RDRF-wild . Some samples are exhibited in Fig. 7. It comprises 41 images at present, and will continue to be expanded. We commit to making this dataset publicly available upon acceptance of our paper. We hope this data can contribute to the advancement and development of this task, and benefit the entire community. Quantitative comparisons with the competitors are shown in Table 2. Our DiffUR 3 ranks first among all three metrics.  
+
+> 1https://cloud.google.com/vision.
+
+23 RDRF -wild 
+
+Fig. 7: More visual results of various methods on our RDRF-wild dataset. Please check and zoom in on screen for a better view. 
+
+Table 2: Benchmark results on our RDRF-wild dataset. Type Method Venue RDRF-wild MUSIQ ↑ CLIPIQA+ ↑ HyperIQA ↑
+
+Raindrop removal AGAN [29] CVPR2018 66.89 0.5954 0.6328 UMAN [33] TIP2021 66.98 0.5933 0.6322 Reflection removal RDNet [45] CVPR2025 64.93 0.5762 0.6007 DSIT [17] NeurIPS2024 65.57 0.5718 0.5980 DAI [14] AAAI2026 68.05 0.6176 0.6240 Cascaded AGAN+RDNet - 67.92 0.6210 0.6562 RDNet+AGAN - 67.96 0.6132 0.6464 AGAN+DSIT - 68.31 0.6287 0.6468 DSIT+AGAN - 68.44 0.6183 0.6449 All-in-One Histoformer [36] ECCV2024 66.20 0.5809 0.6215 WeatherDiff 64 [27] TPAMI2024 65.72 0.6085 0.6019 DiffUIR [46] CVPR2024 61.06 0.5175 0.5629 UniRestore [2] CVPR2025 57.31 0.4868 0.4453 Re-trained All-in-One Histoformer † - 65.02 0.5818 0.5947 WeatherDiff 64 † - 64.99 0.5921 0.5634 DiffUIR † - 65.92 0.5794 0.5809 UniRestore † - 65.68 0.5695 0.5271 Stage I - 67.83 0.5945 0.6268 Ours DiffUR 3 - 70.28 0.6604 0.6705 
+
+G Additional visual results 
+
+Some visual results on our RDRF-wild dataset are shown in Fig. 8. The results demonstrate that our method effectively removes raindrops and reflections, sig-nificantly enhancing image quality, which further validates the generalization capability of our DiffUR 3 pipeline. We also provide additional visual results of various methods on our RDRF-testing in Fig. 9. 
+
+H Limitations 
+
+Although our method achieves promising restoration performance, its compu-tational efficiency remains the primary limitation. Our model requires 3.67s to process a 512 × 512 image on an A6000 GPU. We compare the inference time of 24 (a) LQ (b) AGAN+RDNet (c) RDNet+AGAN (d) Histoformer † (e) DiffUIR † (f) Stage I (g) Ours 
+
+Fig. 8: More visual results of various methods on our RDRF-wild dataset. Please check and zoom in on screen for a better view. (a) LQ (b) AGAN+RDNet (c) Histoformer † (d) DiffUIR † (e) Stage I (f) Ours (g) GT 
+
+Fig. 9: More visual results of various methods on our RDRF-testing dataset. Please check and zoom in on screen for a better view. 25 
+
+our DiffUR 3 with several existing methods in Table 3. In our original implemen-tation, a spaced DDPM sampling schedule with 50 steps is adopted. As shown in Fig. 10, our performance metrics are not sensitive to the number of sampling steps (when it exceeds 10). Comparable results can be achieved with merely 10 steps, which reaches a trade-off between the performance and speed. In future work, we will explore more efficient diffusion models and sampling strategies to accelerate inference speed. 
+
+Table 3: Inference time comparisons with several existing methods. Subscripts denote number of steps. Method AGAN+RDNet AGAN+DSIT Histoformer WeatherDiff 64 DiffUIR UniRestore Ours 50 Ours 10 
+
+Time (s) 0.52 0.60 0.52 58.74 0.88 0.76 3.67 0.73 0 10 20 30 40 50 
+
+> P 
+> 28.0
+> 28.5
+> 29.0
+> 29.5
+
+(a) 0 10 20 30 40 50  
+
+> SSIM-Steps
+> 0.92
+> 0.93
+> 0.94
+
+(b) 0 10 20 30 40 50  
+
+> LPIPS-Steps
+> 0.08
+> 0.10
+> 0.12
+
+(c) 0 10 20 30 40 50 
+
+> MUSIQ-Steps
+> 73.5
+> 74.0
+> 74.5
+
+(d) 0 10 20 30 40 50  
+
+> CLIPIQA+-Steps
+> 0.64
+> 0.66
+
+(e) 0 10 20 30 40 50  
+
+> HyperIQA-Steps
+> 0.690
+> 0.695
+> 0.700
+> 0.705
+
+(f) 
+
+Fig. 10: Metrics vs. steps.

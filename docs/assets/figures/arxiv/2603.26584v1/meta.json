@@ -1,0 +1,150 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-001.webp",
+      "caption": "Figure 5. Qualitative Comparison. A visualization of the alignment results for our method compared to the three baselines. Each image shows the ground truth in the lower half and the rendered image from the reference model M after alignment in the top half. As demonstrated, our inverse optimization-based approach predicts precise transformations, even in the presence of challenging, inaccurate initializations.",
+      "page": 6,
+      "index": 1,
+      "width": 490,
+      "height": 334
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-002.webp",
+      "caption": "Figure 6. Grounding Multiple Meta Images. Above we show three scenes containing two meta-images per scene (visualized in green and purple), both grounded to the scene’s global reference model. We show both the COLMAP initialization, and our final result. Ground truth reconstructions are provided on the bottom.",
+      "page": 6,
+      "index": 2,
+      "width": 477,
+      "height": 349
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-003.webp",
+      "caption": "Figure 13. Additional Qualitative Comparison: A visualization of the alignment results for our method and the COLMAP baseline. Each image shows the ground truth in the lower half and the rendered image from the reference model M after alignment in the top half. As demonstrated, our inverse optimization-based approach predicts precise transformations, even in the presence of challenging, inaccurate initializations.",
+      "page": 15,
+      "index": 3,
+      "width": 1018,
+      "height": 590
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-004.webp",
+      "caption": "Figure 7. Aligning a meta-image to a reference model with π3. As illustrated above, while π3 successfully registers the Google Earth images, it struggles to correctly align the Internet images in this model; see, for instance, the ghost structure in the center of the red box on the bottom row. The top result, reconstructed from Google Earth images only, is shown for reference.",
+      "page": 7,
+      "index": 4,
+      "width": 495,
+      "height": 364
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-005.webp",
+      "caption": "Figure 12. Qualitative Comparison on Different Scene Types A visualization of the alignment results for our method and the COLMAP baseline. The scenes are taken from the IMC-PT [22] dataset.",
+      "page": 14,
+      "index": 5,
+      "width": 478,
+      "height": 657
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-006.webp",
+      "caption": "Figure 11. Drone Reference model - Additional examples Results using a reference model from drone video frames are depicted above. The drone videos of the Freiburg Cathedral are taken from Youtube. As illustrated our approach significantly improves the alignment, in comparison to the COLMAP baseline, which serves as our initialization.",
+      "page": 14,
+      "index": 6,
+      "width": 454,
+      "height": 493
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-007.webp",
+      "caption": "Figure 10. Aligning a meta-image to a reference model with VGGT. Meta-image cameras are visualized in purple, while Google Earth images from the reference model are in blue. As illustrated above, VGGT failed to register the Murcia meta-image (i.e., the output contains two distinct regions, one for the Internet images and one for the Google Earth images) and also failed to reconstruct the reference model in the Freiburg Cathedral. For the Metz Cathedral, VGGT produced a slightly misaligned registration, as evident by the ghost structures near the top of the building.",
+      "page": 14,
+      "index": 7,
+      "width": 942,
+      "height": 216
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-008.webp",
+      "caption": "Figure 2. Scene Grounding via Semantic Feature-based Robust Optimization. Given a 3DGS reference model M (left) and a set of Internet images I (right), we propose an inverse optimization scheme that predicts a global 6DoF+scale alignment T while keeping the parameters of M fixed. We obtain an initial transformation T (in red) using a traditional SfM technique. During optimization, we calculate a semantic feature loss Lsem and backpropagate it to update T (converging to the rendered view in green after N steps).",
+      "page": 3,
+      "index": 8,
+      "width": 1019,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-009.webp",
+      "caption": "Figure 9. Reconstructions of Feed-Forward Models. We visualize three reconstructions obtained by running DUSt3R [60] MASt3R [28] and VGGT [58] over images sampled from two meta-images (visualized in green and purple). As illustrated above, all methods fail to reconstruct the Milan and Lincoln Cathedral, showing either broken or overlapping meta-images, while these cameras capture non-overlapping regions as as seen in the ground truth reconstructions (see illustration in the main paper).",
+      "page": 13,
+      "index": 9,
+      "width": 475,
+      "height": 382
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-010.webp",
+      "caption": "Figure 8. Generalization to Drone-Based Reference Models. We evaluate our method using a reference model reconstructed from drone video frames sourced from YouTube. As illustrated above, our approach significantly improves the alignment over the COLMAP baseline, which serves as our initialization.",
+      "page": 8,
+      "index": 10,
+      "width": 454,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-011.webp",
+      "caption": "Table 3. Ablations. We provide several experiments ablating our semantic features (middle) and robust optimization scheme (bottom). All the ablations where initialized with the COLMAP baseline. Best results are marked in bold. As illustrated below, the full method consistently outperforms all alternatives.",
+      "page": 8,
+      "index": 11,
+      "width": 492,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-012.webp",
+      "caption": "Table 9. COLMAP Parameters for WikiEarth Benchmark Creation. We run COLMAP mapper with two-view tracks, increased triangulation max transitivity (3), increased absolute pose maximal error (36), and increased bundle adjustment maximal refinement range (0.0015). Additionally we run the mapper with varying number of Required Matches described in the table.",
+      "page": 17,
+      "index": 12,
+      "width": 491,
+      "height": 469
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-013.webp",
+      "caption": "Table 10. Benchmark Scenes. The WikiEarth benchmark consists of 32 meta-images from 23 different landmarks found in the WikiScenes [63] dataset, as detailed above.",
+      "page": 17,
+      "index": 13,
+      "width": 491,
+      "height": 554
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-014.webp",
+      "caption": "Table 4. Performance Breakdown Per Meta-Image. Performance of our method (initialized with COLMAP) and the COLMAP baseline per meta-image, considering only metaimages where the baseline did not fail.",
+      "page": 12,
+      "index": 14,
+      "width": 492,
+      "height": 366
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-015.webp",
+      "caption": "Table 5. Performance Breakdown Per Meta-Image gDLS+++ initialization. Performance of our method (initialized with gDLS+++) and the gDLS+++ baseline per meta-image",
+      "page": 12,
+      "index": 15,
+      "width": 492,
+      "height": 367
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-016.webp",
+      "caption": "Figure 4. The WikiEarth Benchmark. Reconstruction of four landmarks from WikiEarth. The blue frustums depicts the rendered images from Google Earth Studio, and the red frustums the images from WikiScenes.",
+      "page": 5,
+      "index": 16,
+      "width": 489,
+      "height": 405
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-017.webp",
+      "caption": "Figure 3. Challenges of aligning internet photos to the reference model. Visualization of input Internet images (first and third columns) and views rendered from the reference model at the ground-truth locations (second and fourth columns). As illustrated above, high Lsem values (bottom row) often indicate outlier images, which our approach overcomes via a robust optimization scheme, as further detailed in Section 3.",
+      "page": 5,
+      "index": 17,
+      "width": 486,
+      "height": 251
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26584v1/fig-018.webp",
+      "caption": "Figure 14. Additional Analysis of our Robust Optimization Framework. Our method uses LTS to ignore the images with loss values that are higher than the median image loss. In the figure, we show a sample of images in several bins. The image below the diagonal are the real-world Internet images, and above is the rendered image from the reference model (rendered at the end of the optimization). As illustrated by the rightmost bin, images there are typically outliers, i.e., images with occlusions and images that resides behind floaters in the reference model. Further analysis is provided in Sec. 7.3.",
+      "page": 16,
+      "index": 18,
+      "width": 1040,
+      "height": 892
+    }
+  ]
+}

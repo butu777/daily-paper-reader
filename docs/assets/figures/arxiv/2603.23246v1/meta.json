@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-001.webp",
+      "caption": "Fig. 2: Overview of GO-Renderer. Given multi-view reference images, we first establish a coarse 3D geometry via 3D reconstruction to render reference and target coordinate maps. These maps bridge explicit 3D geometry with the multi-view reference images via video diffusion model. Specifically, the reference images and their coordinate maps are paired via channel-wise concatenation, while the target coordinate maps are combined with optional appearance guidance. These spatial conditions are then jointly processed by a text-conditioned Video Diffusion Transformer to render high-fidelity object videos with precise viewpoint control.",
+      "page": 6,
+      "index": 1,
+      "width": 702,
+      "height": 350
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-002.webp",
+      "caption": "Fig. 8: Failure cases. The top row (GT) displays the ground-truth sequence. In Case 1 and Case 2, the model is conditioned on the multi-view appearances of a cupcake, but provided with the explicit spatial coordinate maps of a bottle and a cube, respectively. This geometric inconsistency prevents the model from reconciling the conflicting spatial and appearance conditions, leading to structural artifacts and degraded rendering fidelity.",
+      "page": 15,
+      "index": 2,
+      "width": 718,
+      "height": 242
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-003.webp",
+      "caption": "Fig. 1: Results of our GO-Renderer. Driven by multi-view references and 3D poses, GO-Renderer renders multi-view consistent object videos seamlessly integrated into novel environments along arbitrary camera trajectories.",
+      "page": 2,
+      "index": 3,
+      "width": 714,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-004.webp",
+      "caption": "Fig. 3: Comparision of rendering quality and lighting consistency.",
+      "page": 10,
+      "index": 4,
+      "width": 692,
+      "height": 504
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-005.webp",
+      "caption": "Fig. 7: Application of our GO-Renderer.",
+      "page": 14,
+      "index": 5,
+      "width": 710,
+      "height": 313
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-006.webp",
+      "caption": "Table 1: Quantitative comparison of Rendering Quality and Lighting Consistency. Bold number indicate the best performance.",
+      "page": 12,
+      "index": 6,
+      "width": 760,
+      "height": 236
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23246v1/fig-007.webp",
+      "caption": "Fig. 4: Qualitative comparison of Multi-view Consistency.",
+      "page": 12,
+      "index": 7,
+      "width": 707,
+      "height": 315
+    }
+  ]
+}

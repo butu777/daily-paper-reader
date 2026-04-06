@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-001.webp",
+      "caption": "TABLE I: Data statistics for the original 23-channel input dataset WSTS. Statistics (Min/Max/Mean) are computed globally over all pixels and timesteps across 607 wildfire events from 2018–2021.",
+      "page": 6,
+      "index": 1,
+      "width": 470,
+      "height": 424
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-002.webp",
+      "caption": "Fig. 6: Forecasting performance under increasing masking difficulty. Average Precision (AP) is reported for direct forecasting on corrupted inputs (Masked) nd forecasting after Stage-I recovery (Recovered) under both pixel-wise and block-wise corruption. Recovery consistently reduces performance degradation, especially under severe structural occlusion.",
+      "page": 11,
+      "index": 2,
+      "width": 506,
+      "height": 341
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-003.webp",
+      "caption": "TABLE II: Land cover channel class mapping (ID 1–17).",
+      "page": 7,
+      "index": 3,
+      "width": 342,
+      "height": 415
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-004.webp",
+      "caption": "Fig. 5: Comparison of Stage-I recovery performance across varying masking difficulty levels (η ∈ [10%, 80%]). The performance is evaluated using the DICE coefficient, which is particularly effective for capturing the structural integrity of sparse flame patterns. In both (a) and (b), Random and Dilation represent the baseline methods, whereas the other four curves denote different learning-based models. The results highlight the superior recovery performance of learning-based approaches under high-sparsity conditions.",
+      "page": 10,
+      "index": 4,
+      "width": 1055,
+      "height": 372
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-005.webp",
+      "caption": "TABLE IV: STAGE-2: FORECASTING",
+      "page": 10,
+      "index": 5,
+      "width": 516,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-006.webp",
+      "caption": "Fig. 7: Visualization of the MaskUNet recovery-and-prediction pipeline under different information loss (Pixel-wise vs. Block-wise). The sequence illustrates the wildfire forecasting task for the next day based on historical observations from the preceding five days. To clarify the visual layout: orange borders denote the actual Ground Truth (GT) fire footprint on the target day, representing the real-world physical outcome. In contrast, the gray borders (labeled as 0%) represent the model’s prediction when provided with completely uncorrupted historical observations. Furthermore, pink borders highlight the (Missing) input after masking, while blue borders indicate the fire shape details reconstructed by our model (Recovered) and the final output for the next-day state (Prediction).",
+      "page": 12,
+      "index": 6,
+      "width": 1068,
+      "height": 723
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09042v1/fig-007.webp",
+      "caption": "TABLE III: STAGE-1: RECONSTRUCTION Performance under different fire scenarios (mean ± std)",
+      "page": 9,
+      "index": 7,
+      "width": 1076,
+      "height": 470
+    }
+  ]
+}

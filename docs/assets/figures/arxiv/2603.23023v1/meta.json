@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-001.webp",
+      "caption": "Table 3: Ablation study on positional embedding strategies evaluated on Scan2Cap [9]. Learnable-PE adopts learnable Fourier bases, 4D-RoPE replaces the native 3D-RoPE in Qwen3, and HRoPE employs hierarchical positional embeddings. For each memory token: fk denotes the semantic features, gk denotes the geometric features, and pk denotes the 3D coordinate. C, B-4, M, and R denote CIDEr, BLEU-4, METEOR, and ROUGE-L at an IoU threshold of 0.5.",
+      "page": 11,
+      "index": 1,
+      "width": 640,
+      "height": 237
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-002.webp",
+      "caption": "Fig. 4: Visualization of attention scores over visual tokens on a validation sample from Scan2Cap [9]. Cog3DMap assigns high attention scores to the visual tokens corresponding to the generated answer.",
+      "page": 25,
+      "index": 2,
+      "width": 702,
+      "height": 556
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-003.webp",
+      "caption": "Fig. 5: Visualization of attention scores over visual tokens on a validation sample from Scan2Cap [9]. Cog3DMap assigns high attention scores to the visual tokens corresponding to the generated answer.",
+      "page": 26,
+      "index": 3,
+      "width": 702,
+      "height": 529
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-004.webp",
+      "caption": "Table 5: Evaluation of spatial scene understanding performance on the Scan2Cap, ScanQA, and SQA3D benchmarks. † indicates methods evaluated in a zero-shot setting.",
+      "page": 21,
+      "index": 4,
+      "width": 664,
+      "height": 395
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-005.webp",
+      "caption": "Fig. 2: We compare accuracy (%) against the average number of visual tokens (log scale) for short, medium, and long horizon tasks. Cog3DMap (Ours) consistently dominates the trade-off, achieving comparable or better accuracy while requiring substantially fewer visual tokens (up to 90.2% reduction), demonstrating improved token efficiency across horizons.",
+      "page": 10,
+      "index": 5,
+      "width": 711,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-006.webp",
+      "caption": "Fig. 3: Visualization of attention scores over visual tokens across varying text queries. To analyze the model behavior, we fix the scene and vary the target object in the text query. Our Cog3DMap assigns high attention scores to visual tokens relevant to the query object, without explicit supervision for such attention.",
+      "page": 14,
+      "index": 6,
+      "width": 708,
+      "height": 512
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-007.webp",
+      "caption": "Table 8: Results on multi-view global spatial scene understanding on VSI-Bench [43]. Spatial-Enhanced Models denote methods specialized for spatial reasoning. Cog3DMap achieves state-of-the-art overall performance. It performs particularly well on absolute distance, relative direction, and appearance order, demonstrating the benefits of explicit 3D representations for spatial reasoning.",
+      "page": 23,
+      "index": 7,
+      "width": 716,
+      "height": 502
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-008.webp",
+      "caption": "Table 1: Performance comparison on VSTI-Bench [12], which evaluates joint spatial and temporal understanding. † indicates methods tested on the Tiny subset. Cog3DMap achieves strong performance on spatial reasoning and camera movement prediction tasks, demonstrating its ability to encode both geometric and temporal cues within a unified 3D representation. Due to space constraints, we include only the subset of baselines with fewer than 10B parameters. Please refer to Appendix for the full table.",
+      "page": 8,
+      "index": 8,
+      "width": 714,
+      "height": 369
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-009.webp",
+      "caption": "Fig. 1: Overall pipeline of Cog3DMap. (a) Given a sequence of multi-view images, our recurrent framework, Cog3DMap, progressively integrates visual observations into a unified 3D memory map. Each spatial coordinate in the map is associated with a token carrying both semantic and geometric information. (b) Then, the resulting compact and explicit 3D map is fed into the MLLM decoder for spatial reasoning.",
+      "page": 4,
+      "index": 9,
+      "width": 719,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-010.webp",
+      "caption": "Fig. 6: Reconstructed results of a sample video from RoboFAC [25] and its attention map visualization. Cog3DMap aggregates visual tokens across timesteps while preserving their temporal order, maintaining the spatial layout of the scene and the trajectory of moving objects.",
+      "page": 27,
+      "index": 10,
+      "width": 721,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-011.webp",
+      "caption": "Table 9: Performance comparison on VSTI-Bench [12], which evaluates joint spatial and temporal understanding. † indicates methods tested on the Tiny subset. Cog3DMap achieves strong performance on spatial reasoning and camera movement prediction tasks, demonstrating its ability to encode both geometric and temporal cues within a unified 3D representation.",
+      "page": 24,
+      "index": 11,
+      "width": 714,
+      "height": 435
+    },
+    {
+      "url": "assets/figures/arxiv/2603.23023v1/fig-012.webp",
+      "caption": "Table 2: Results on multi-view global spatial scene understanding on VSI-Bench [43]. Spatial-Enhanced Models denote methods specialized for spatial reasoning. Cog3DMap achieves state-of-the-art overall performance. It performs particularly well on absolute distance, relative direction, and appearance order, demonstrating the benefits of explicit 3D representations for spatial reasoning.",
+      "page": 9,
+      "index": 12,
+      "width": 716,
+      "height": 356
+    }
+  ]
+}

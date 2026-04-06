@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.10606v1/fig-001.webp",
+      "caption": "Figure 8: Ablation results. Red boxes highlight artifacts from omitting structure lines (jagged boundaries and detail loss) or cross-fields (irregular edge flow and topological corruption).",
+      "page": 11,
+      "index": 1,
+      "width": 826,
+      "height": 444
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10606v1/fig-002.webp",
+      "caption": "Figure 7: Comparison with FlowRep. From left: Input, FlowRep, and TopGen. We visualize predicted structure lines and final quad-meshes with timing reported below.",
+      "page": 10,
+      "index": 2,
+      "width": 826,
+      "height": 575
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10606v1/fig-003.webp",
+      "caption": "Figure 2: A sample from TopGen-220K dataset. From left to right: the input triangular mesh, the structural layout, the cross-field, and the quadrilateral mesh.",
+      "page": 4,
+      "index": 3,
+      "width": 814,
+      "height": 235
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10606v1/fig-004.webp",
+      "caption": "Figure 9: Qualitative comparison with NeurCross. (Top to bottom) AI-generated models (Robot, Monster) and QuadWild-300 samples (Mech09, Rod). While NeurCross exhibits numerical instability on AI-generated inputs, our method consistently achieves superior results, ensuring both precise external geometric profiles and smooth internal edge flows across all sources.",
+      "page": 12,
+      "index": 4,
+      "width": 826,
+      "height": 727
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10606v1/fig-005.webp",
+      "caption": "Figure 6: Qualitative comparison with quadrilateral remeshing methods. (a) Input meshes: AI-generated (Robot, Monster) and QuadWild-300 samples (Mech09, Rod). (e) Results from InstantMeshes, QuadriFlow, ,QuadWild and Our TopGen.",
+      "page": 9,
+      "index": 5,
+      "width": 826,
+      "height": 415
+    },
+    {
+      "url": "assets/figures/arxiv/2603.10606v1/fig-006.webp",
+      "caption": "Figure 4: Overview of the TopGen pipeline. Our framework first samples point clouds from the input mesh via the SES strategy [4]. A geometry-aware encoder then maps these points into a latent space. Subsequently, our proposed Dual-Query Decoder concurrently decodes the structural layouts and cross-fields in parallel. Finally, both predictions serve as joint guidance to facilitate high-quality quadrilateral remeshing.",
+      "page": 5,
+      "index": 6,
+      "width": 829,
+      "height": 414
+    }
+  ]
+}

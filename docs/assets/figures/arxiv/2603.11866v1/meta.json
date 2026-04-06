@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11866v1/fig-001.webp",
+      "caption": "Figure 1: Preliminary findings: a) static deraining leaves coupled residual degradations; b) agent-based adaptive refinement markedly improves visual quality.",
+      "page": 1,
+      "index": 1,
+      "width": 508,
+      "height": 326
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11866v1/fig-002.webp",
+      "caption": "Figure 6: Performance–throughput trade-off of different tool-path scheduling strategies across different backbones.",
+      "page": 6,
+      "index": 2,
+      "width": 508,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11866v1/fig-003.webp",
+      "caption": "Figure 7: Visual comparison of object detection and instance segmentation on LHP-Rain. Top: Baseline derainers; Bottom: Derain-Agent enhanced. Our method significantly reduces false negatives and improves mask precision.",
+      "page": 7,
+      "index": 3,
+      "width": 1052,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11866v1/fig-004.webp",
+      "caption": "Figure 2: Overview of the Derain-Agent framework. Given a preliminary deraining output Ibase, the perception stage analyzes residual degradations to produce an executable restoration program Π = (P,Λ). The execution stage then applies the scheduled tools T (ℓ) sequentially, modulated by pixel-wise strength maps λ(ℓ), to yield the final enhanced image Ifinal.",
+      "page": 3,
+      "index": 4,
+      "width": 1054,
+      "height": 448
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11866v1/fig-005.webp",
+      "caption": "Figure 4: Visual results on LHP-Rain. Top: Baseline derainers; Bottom: Derain-Agent enhanced. Please zoom in for a better view.",
+      "page": 5,
+      "index": 5,
+      "width": 1054,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11866v1/fig-006.webp",
+      "caption": "Figure 3: Visual results on LHP-Rain. Top: Baseline derainers; Bottom: Derain-Agent enhanced. Please zoom in for a better view.",
+      "page": 5,
+      "index": 6,
+      "width": 1054,
+      "height": 221
+    }
+  ]
+}

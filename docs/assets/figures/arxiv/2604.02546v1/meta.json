@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.02546v1/fig-001.webp",
+      "caption": "Fig. 1: Qualitative viewpoint grounding results. Correct and incorrect matches are highlighted in green and red, respectively, based on the referring texts. Underlined phrases denote contextual clues that guide the models in solving the grounding task.",
+      "page": 22,
+      "index": 1,
+      "width": 721,
+      "height": 406
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02546v1/fig-002.webp",
+      "caption": "Table 3: Scene retrieval results on ScanRefer, Nr3D, and Sr3D. We report results where each scene caption contains n = 5 or 10 utterances. All methods are evaluated in the zero-shot setting.",
+      "page": 9,
+      "index": 2,
+      "width": 720,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02546v1/fig-003.webp",
+      "caption": "Fig. 2: Overview of UniScene3D pretraining. UniScene3D takes multi-view image–pointmap pairs as input and performs early fusion at the patch embedding stage. The fused tokens, added with absolute positional encodings, are then processed by N Transformer blocks to produce a unified colored pointmap representation. During pretraining, UniScene3D is optimized with four alignment objectives: (1) Cross-view geometric alignment Lgeo; (2) Grounded view alignment Lground; (3) View-level alignment Lview; and (4) Scene-level alignment Lscene. Its blocks are highlighted in cyan.",
+      "page": 5,
+      "index": 3,
+      "width": 721,
+      "height": 273
+    }
+  ]
+}

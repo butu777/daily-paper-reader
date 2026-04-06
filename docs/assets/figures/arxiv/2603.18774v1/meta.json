@@ -1,0 +1,222 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-001.webp",
+      "caption": "Fig. 8: Qualitative results on the RF dataset. Our method produces more accurate point clouds than the baselines. All methods show degraded performance on 01_Annexet_No_Radars_1 and 01_Annexet_No_Radars_2, likely due to the complex camera motion in these sequences.",
+      "page": 25,
+      "index": 1,
+      "width": 697,
+      "height": 409
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-002.webp",
+      "caption": "Fig. 7: Qualitative results on SEAR dataset. Our method produces more accurate and structurally consistent point clouds than the baselines. All methods show limited performance on conference-room and old-drinking-fountain, likely because the thermal modality in these scenes provides weak localization cues.",
+      "page": 25,
+      "index": 2,
+      "width": 695,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-003.webp",
+      "caption": "Fig. 9: Qualitative results on the ThermalGaussian dataset. Our method produces more accurate point clouds than the baselines on Ebike and Parterre. For Iron Ingot, our reconstruction is visually highly accurate, although its quantitative metrics are lower than those of COLMAP and MINIMAROMA.",
+      "page": 26,
+      "index": 3,
+      "width": 694,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-004.webp",
+      "caption": "Table 6: Summary of the SEAR dataset dataset for poorly lit scenes, where the trajectories are captured under different lighting conditions. The figure includes RGB and thermal images, the camera trajectory estimated by running VGGT on the thermal images (and is therefore less accurate), the lengths of the two trajectories, and the minimum and maximum temperatures for each trajectory.",
+      "page": 21,
+      "index": 4,
+      "width": 712,
+      "height": 618
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-005.webp",
+      "caption": "Table 10: Per-scene metrics on SEAR dataset. Compared with the other methods, our approach achieves both a higher registration rate and better pose estimation accuracy. All methods obtain low scores on conference-room and old-drinking-fountain, likely because the thermal modality in these scenes provides weak localization cues.",
+      "page": 30,
+      "index": 5,
+      "width": 648,
+      "height": 660
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-006.webp",
+      "caption": "Fig. 2: The SEAR dataset includes 9 scenes, each with paired RGB-thermal images captured along two distinct trajectories. Ground-truth poses (red/blue for each trajectory) are estimated via VGGT on all RGB images. The top 6 scenes feature trajectories under similar lighting, while the bottom 3 have large lighting variations (some RGB images are near fully black).",
+      "page": 7,
+      "index": 6,
+      "width": 662,
+      "height": 462
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-007.webp",
+      "caption": "Fig. 15: PCA-based analysis of RGB-thermal feature alignment. The figure shows three experiments: generator from ThermalNeRF (rows 1-2), prpt-cup from ThermoScenes (rows 3-4), and Ebike from ThermalGaussian (rows 5-6). For each experiment, the top row illustrates the feature evolution of our model on RGB-thermal inputs, while the bottom row shows the feature evolution of VGGT on the corresponding RGB-only inputs.",
+      "page": 29,
+      "index": 7,
+      "width": 673,
+      "height": 844
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-008.webp",
+      "caption": "Table 7: Qualitative comparison of 3D reconstruction on ThermoScenes [9] if COLMAP is used to estimate ground truth camera poses.",
+      "page": 22,
+      "index": 8,
+      "width": 648,
+      "height": 638
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-009.webp",
+      "caption": "Table 15: Per-scene metrics on the ThermalMix dataset. Our method achieves a higher registration rate and better pose estimation accuracy than the competing methods.",
+      "page": 34,
+      "index": 9,
+      "width": 648,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-010.webp",
+      "caption": "Fig. 3: Qualitative results comparing RGB/thermal reconstructions (camera poses in red/blue); we show results for 4 methods at rows 1, 3, and 5, and zoom in on more interesting reconstruction details in rows 2, 4, and 6. Our method (SEAR) achieves higher accuracy, consistency, and level of detail than other methods.",
+      "page": 10,
+      "index": 10,
+      "width": 688,
+      "height": 694
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-011.webp",
+      "caption": "Table 3: Pairwise statistical significance (AUC@30). Each entry at position (i, j) reports the p-value from a one-sided Welch’s t-test for the null hypothesis that the row method outperforms the column method in AUC@30. Darker blue indicates smaller p-values (stronger evidence against the null).",
+      "page": 14,
+      "index": 11,
+      "width": 632,
+      "height": 218
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-012.webp",
+      "caption": "Table 13: Per-scene metrics on ThermalNeRF. Our method achieves a superior registration rate and higher pose estimation accuracy than the competing methods.",
+      "page": 33,
+      "index": 12,
+      "width": 648,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-013.webp",
+      "caption": "Table 14: Per-scene metrics on the ThermoScenes dataset. Our method achieves a higher registration rate and better pose estimation accuracy than the competing methods. All methods achieve low scores on freezing_ice_cup and melting_ice_cup, likely due to the inherent difficulty of these scenes.",
+      "page": 33,
+      "index": 13,
+      "width": 648,
+      "height": 636
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-014.webp",
+      "caption": "Table 8: Qualitative comparison of 3D reconstruction on ThermalMix [28] if COLMAP is used to estimate ground truth camera poses.",
+      "page": 23,
+      "index": 14,
+      "width": 719,
+      "height": 247
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-015.webp",
+      "caption": "Fig. 14: Qualitative results on the SmokeSeer dataset. Our method produces more accurate point clouds than the baselines. All methods do not reconstruct red-container, likely because the overlaid text in the thermal images introduces misleading localization cues.",
+      "page": 28,
+      "index": 15,
+      "width": 689,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-016.webp",
+      "caption": "Fig. 6: The blue line represents the median difference between RGB-to-RGB and RGBto-thermal cosine similarity dependence across layers for SEAR method. The orange line represents the same dependency for the VGGT model. The filled area represents the boundary from 0.25− to 0.75−quantiles.",
+      "page": 13,
+      "index": 16,
+      "width": 675,
+      "height": 258
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-017.webp",
+      "caption": "Fig. 1: SEAR architecture. RGB and thermal images are first tokenized using DINOv2. For each modality, camera-specific tokens are concatenated with the corresponding DINO tokens. The combined tokens are then processed by an Alternating-Attention (AA) module with LoRA adapters. Finally, the refined tokens are passed to separate prediction heads for camera parameter estimation and depth estimation. Trainable parameters are highlighted with a flame symbol.",
+      "page": 4,
+      "index": 17,
+      "width": 678,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-018.webp",
+      "caption": "Table 4: Detailed description of the datasets and split used for training and for evaluation.",
+      "page": 19,
+      "index": 18,
+      "width": 714,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-019.webp",
+      "caption": "Table 12: Per-scene metrics on the ThermalGaussian dataset. Our method achieves the best pose estimation accuracy on Ebike and Parterre, while also delivering competitive performance on Iron Ingot.",
+      "page": 32,
+      "index": 19,
+      "width": 648,
+      "height": 419
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-020.webp",
+      "caption": "Fig. 16: The blue line represents the median symmetrized KL-divergence between RGB-thermal tokens dependency across layers for SEAR method. The orange line represents the same dependency for the VGGT model. The filled area represents the boundary from 0.25− to 0.75−quantiles.",
+      "page": 32,
+      "index": 20,
+      "width": 678,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-021.webp",
+      "caption": "Fig. 4: Reconstructions from the SmokeSeer3D dataset (dense smoke, top) and our new dataset’s scenes (lighting changes, middle and bottom rows). The first column shows cases where RGB images (right) are unreliable for localization, so thermal images (left) are used. Our method recovers the scene even with smoke (SmokeSeer3D) and aligns RGB and thermal camera poses in different lighting conditions (our dataset).",
+      "page": 12,
+      "index": 21,
+      "width": 714,
+      "height": 366
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-022.webp",
+      "caption": "Fig. 5: The AUC, RRA, RTA (errors <30◦, 15◦, 5◦) across varying thermal-to-RGB image ratios. The filled area represents the boundary from 0.25− to 0.75−quantiles estimated by bootstrapping scenes 2000 times.",
+      "page": 12,
+      "index": 22,
+      "width": 701,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-023.webp",
+      "caption": "Fig. 12: Qualitative results on the ThermoScenes dataset. Our method produces more accurate point clouds than the baselines. All methods demonstrate limited performance on freezing_ice_cup, likely because of the inherent difficulty of this scene, discussed in Sec. C.",
+      "page": 27,
+      "index": 23,
+      "width": 719,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-024.webp",
+      "caption": "Fig. 13: Qualitative results on SEAR dataset, where the trajectories were captured under different lighting conditions. Our method produces more accurate point clouds than the baselines. Although MINIMAROMA achieves competitive performance on house, it fails on the remaining scenes.",
+      "page": 27,
+      "index": 24,
+      "width": 689,
+      "height": 370
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-025.webp",
+      "caption": "Table 9: Qualitative comparison of 3D reconstruction on ThermalGaussian [20] if COLMAP on RGB is ground truth.",
+      "page": 24,
+      "index": 25,
+      "width": 719,
+      "height": 503
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-026.webp",
+      "caption": "Table 11: Per-scene metrics on the RF dataset. Our method achieves a superior registration rate and higher pose estimation accuracy than the competing methods. All methods obtain low scores on 01_Annexet_No_Radars_1 and 01_Annexet_No_Radars_2, likely due to the complex camera motion in these sequences. In addition, the translation scores on 01_Annexet_No_Radars_3 are low because the trajectory contains frames with very small translational changes near the end, so even a slight deviation in translation can lead to large angular errors.",
+      "page": 31,
+      "index": 26,
+      "width": 721,
+      "height": 482
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18774v1/fig-027.webp",
+      "caption": "Table 5: Summary of the SEAR dataset for well-lit scenes, where both trajectories are captured under the same bright illumination conditions. The figure includes RGB and thermal images, two camera trajectories obtained by running VGGT on the RGB images, the lengths of the two trajectories, and the minimum and maximum temperatures.",
+      "page": 20,
+      "index": 27,
+      "width": 642,
+      "height": 616
+    }
+  ]
+}

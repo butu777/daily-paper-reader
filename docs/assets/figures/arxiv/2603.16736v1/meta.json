@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-001.webp",
+      "caption": "Fig. 4: Single video 3D reconstruction. We generate videos with SEVA [91] (top), Gen3C [56] (mid), Wan [76] (bottom) and 3D reconstruct these frames. Inconsistencies in the generations lead to blurry textures for the baselines compared to the corresponding video, and to severe floating artifacts from novel views. In contrast, our method creates 3D consistent worlds with high fidelity beyond the generated perspectives.",
+      "page": 11,
+      "index": 1,
+      "width": 735,
+      "height": 683
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-002.webp",
+      "caption": "Fig. 3: Single video 3D reconstruction. We generate videos with HY-WorldPlay [71] (top), Genie3 [5] (mid), ViewCrafter [88] (bottom) and 3D reconstruct them. Our method optimizes consistent worlds from inconsistent generated frames. Compared to baselines, the renderings are of higher visual fidelity from both input and novel views.",
+      "page": 10,
+      "index": 2,
+      "width": 735,
+      "height": 683
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-003.webp",
+      "caption": "Fig. 7: Large-scale 3D reconstructions. We compare rendering quality on input poses and novel views for entire 360 degree explorable scenes. Our method creates 3D consistent worlds with a high rendering fidelity far beyond the training views. Please see the supplementary material for animated flythroughs.",
+      "page": 14,
+      "index": 3,
+      "width": 713,
+      "height": 472
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-004.webp",
+      "caption": "Fig. 6: Ablation. We compare our full method on rendering quality of input views (top) and novel views (mid), as well as on pointcloud reconstruction quality (bottom). The DA3 [42] prediction contains misalignments that cannot be resolved by only rigid alignment or without correspondences. Removing the color filtering and global optimization steps adversely impact texture quality. Removing our novel inverse deformation loss reduces sharpness. In contrast, our method obtains flat/sharp surfaces which better constrain the 3D reconstruction, yielding high quality rendering results.",
+      "page": 13,
+      "index": 4,
+      "width": 762,
+      "height": 404
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-005.webp",
+      "caption": "Fig. 5: Pointcloud reconstructions. We compare the quality of the reconstructed pointclouds that are used as initialization for Gaussian Splatting [33] optimization in the subsequent stages for each method. Our approach achieves the highest alignment and compelling textures for individual objects with no overlap of multiple surfaces.",
+      "page": 12,
+      "index": 5,
+      "width": 741,
+      "height": 310
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-006.webp",
+      "caption": "Table 2: Ablation study. 3D reconstruction from only rigid alignment, without correspondences, or without backward deformation (“no inv”) negatively impacts 3D consistency and image quality. No point filter or global optimization decrease image fidelity and consistency. Our full method achieves the highest consistency and fidelity.",
+      "page": 12,
+      "index": 6,
+      "width": 575,
+      "height": 218
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16736v1/fig-007.webp",
+      "caption": "Table 1: Quantitative comparison. We compare against baselines on the single video 3D reconstruction task and report averaged results across all source video models. Our method achieves the highest 3D and photometric consistency, which underlines its ability to reconstruct worlds from inconsistent frames. We also improve in terms of image fidelity, which signals our images are of higher sharpness and texture detail.",
+      "page": 9,
+      "index": 7,
+      "width": 650,
+      "height": 196
+    }
+  ]
+}

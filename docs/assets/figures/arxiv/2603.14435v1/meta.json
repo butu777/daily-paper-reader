@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.14435v1/fig-001.webp",
+      "caption": "Fig. 4: Efficiency vs. Performance on BEHAVE. THO achieves real-time inference (31.5 FPS), outperforming all baselines not only in inference speed but also yielding the best temporal smoothness (Acch,Acco) as shown in (a), and the highest reconstruction accuracy (CDc) as shown in (b).",
+      "page": 11,
+      "index": 1,
+      "width": 568,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14435v1/fig-002.webp",
+      "caption": "Fig. 7: Failure cases. We show reconstruction failures for two elongated objects (top and bottom rows). Each case compares our predicted meshes against the GT at two timestamps separated by 0.5s.",
+      "page": 22,
+      "index": 2,
+      "width": 614,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14435v1/fig-003.webp",
+      "caption": "Table 2: Ablation study of SCAT. We evaluate the progressive contributions of Occlusion-Aware Internal Refinement (OR) and Human-Guided Contact Injection (HI) to refining object geometry and enhancing contact precision.",
+      "page": 12,
+      "index": 3,
+      "width": 560,
+      "height": 258
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14435v1/fig-004.webp",
+      "caption": "Fig. 2: Overall pipeline of THO. From a monocular video, GVHMR extracts human priors and Interaction-Centric Crops (Icrop). The 3D Vertex Encoder generates unified embeddings (F J , FH , FO). Spatially, SCAT recovers occluded FO and injects FH via contact-aware cues. Fusing refined fO with joint and global contexts yields an aggregated motion token (f token). Temporally, TIAT processes this token sequence to model temporal dynamics (f̂ token), which MLPs decode into 4D HOI reconstruction.",
+      "page": 5,
+      "index": 4,
+      "width": 723,
+      "height": 296
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.21557v1/fig-001.webp",
+      "caption": "TABLE I: Evaluation on Part-based 3D Object Generation on the Objaverse [24], ShapeNet [25] and ABO [26] datasets.",
+      "page": 5,
+      "index": 1,
+      "width": 1060,
+      "height": 198
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21557v1/fig-002.webp",
+      "caption": "Fig. 4: Generalization across complicated 3D scene cases.",
+      "page": 5,
+      "index": 2,
+      "width": 521,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21557v1/fig-003.webp",
+      "caption": "Fig. 3: Generalization across diverse 3D object cases. Given an input RGB image (left), our approach reconstructs more complete and structurally coherent shapes with cleaner part boundaries and less part interpenetration.",
+      "page": 5,
+      "index": 3,
+      "width": 1060,
+      "height": 302
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21557v1/fig-004.webp",
+      "caption": "Fig. 2: Framework of our part-to-whole 3D generative world model. Given a single-view RGB image, our model builds a structured 3D world state with flexible-capacity part slots. An adaptive slot-gating head selects active slots, a prototype bank injects shared part priors, and a pretrained 3D DiT rectified-flow backbone denoises slot latents with canonical-masked supervision. Decoded part meshes are finally composed into the 3D object or scene for generation.",
+      "page": 3,
+      "index": 4,
+      "width": 1069,
+      "height": 518
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21557v1/fig-005.webp",
+      "caption": "Fig. 1: We rethink single-image 3D generation as learning a structured 3D world state with an adaptive part–whole hierarchy. Specifically, latent structural slots are dynamically gated per instance, and a class-agnostic prototype bank provides shared part-level priors for improved structural coherence and generalization.",
+      "page": 1,
+      "index": 5,
+      "width": 529,
+      "height": 348
+    }
+  ]
+}

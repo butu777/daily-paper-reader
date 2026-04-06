@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-001.webp",
+      "caption": "Figure 5: PBR Decomposition Results. Our method is capable of producing highly detailed textures and geometries even from a single view. It is also the only method capable of reproducing accurate spatially varying PBR parameters, which are essential for relighting.",
+      "page": 15,
+      "index": 1,
+      "width": 802,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-002.webp",
+      "caption": "Figure 11: Failure cases. Failure cases showing challenges with baked in lighting for objects with strong self shadowing (fin of shark) and basecolor prediction difficulties in dark scenes (Rhino). Comparison includes results from Hunyuan3D and our method.",
+      "page": 21,
+      "index": 2,
+      "width": 790,
+      "height": 498
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-003.webp",
+      "caption": "Figure 3: PBR & Relighting Results. We show that our spatially varying PBR prediction is faithful to the ground truth and therefore produces highly detailed and realistic relightings.",
+      "page": 7,
+      "index": 3,
+      "width": 826,
+      "height": 629
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-004.webp",
+      "caption": "Figure 10: Illumination Comparison. Comparison of illumination prediction results between DiffusionLight, SPAR3D, and our method (ReLi3D). Predicted environmens vary vastly while ours mimics the ground truth shape and color, DiffusionLight hallucinates a completely different environment, SPAR3D fails.",
+      "page": 18,
+      "index": 4,
+      "width": 829,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-005.webp",
+      "caption": "Figure 4: Illumination Comparison. (Left) Single view, illumination prediction results compared to ground truth and SPAR3D, which also predicts RENI++ latents, indicating our severely improved method. (Right) Influence of increasing numbers of views and background information. Notice how well we can predict the illumination in the top rows with background information locate light sources correctly, whereas the bottom row is more spread out as it is inferred from diffuse surface reflections only.",
+      "page": 8,
+      "index": 5,
+      "width": 826,
+      "height": 206
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-006.webp",
+      "caption": "Figure 2: ReLi3D Overview. Multi-view input images are fused by a shared cross-conditioning transformer into two parallel paths: a Geometry & Appearance Path (blue) using a Triplane Transformer to predict mesh geometry and PBR materials, and an Illumination Path (green) using a MultiView Illumination Transformer to estimate HDR environments. Both paths are unified through a differentiable Monte Carlo Multiple Importance Sampling rendering to learn to wproduce complete relightable 3D assets.",
+      "page": 4,
+      "index": 6,
+      "width": 826,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-007.webp",
+      "caption": "Figure 8: Real-world material prediction. Material maps (albedo, roughness, metallic, normal) for real-world objects from UCO3D dataset on very challenging settings, strong reflections and blur. Our method is still able to make a rough prediction and faithfully separates metallic and non-metallic materials.",
+      "page": 17,
+      "index": 7,
+      "width": 826,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-008.webp",
+      "caption": "Figure 9: Varying materials and complex objects. Results on the Blender Shiny dataset showing spatially varying PBR material prediction on complex multi-material objects. The figure shows predicted basecolor, roughness, metallic, and normal maps, along with relit renderings in novel environments.",
+      "page": 17,
+      "index": 8,
+      "width": 826,
+      "height": 420
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-009.webp",
+      "caption": "Table 3: Real-world Evaluation on Stanford ORB. Quantitative evaluation on Stanford ORB dataset showing 3D reconstruction, image quality, and basecolor material prediction performance. Our method outperforms baselines across all metrics and improves with more input views.",
+      "page": 9,
+      "index": 9,
+      "width": 830,
+      "height": 282
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-010.webp",
+      "caption": "Table 2: 3D and Image Metrics. ReLi3D clearly achieves SOTA in single and sparse multi-view reconstruction while also achieving great speeds. It is worth noting that that TripoSG and Hunyuan3D also produce signficantly higher vertex counts (100k+ vs 4.5k for ours).",
+      "page": 9,
+      "index": 10,
+      "width": 827,
+      "height": 207
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19753v1/fig-011.webp",
+      "caption": "Figure 6: Reconstruction Results (Synthetic). Our method performs well across synthetic data and shows accurate reconstructions from a single view. Other methods show collaps with bend or flat predictions.",
+      "page": 16,
+      "index": 11,
+      "width": 802,
+      "height": 263
+    }
+  ]
+}

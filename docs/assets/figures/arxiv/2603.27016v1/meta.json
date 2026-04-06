@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-001.webp",
+      "caption": "Fig. 5: Reconstruction results on incomplete point clouds. Despite incomplete point cloud scans as input, GG-Langevin recovers the missing structure with priorconsistent geometry. By comparison, previous work either struggles to complete the geometry or hallucinates implausible completions.",
+      "page": 11,
+      "index": 1,
+      "width": 725,
+      "height": 343
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-002.webp",
+      "caption": "Fig. 12: Adding class conditioning. Comparing GG-Langevin with and without class conditioning. The class-conditioned model has a clear advantage in the incomplete setting, where predicting the object category from the point cloud is more difficult. In the sparse setting, both models perform similarly. For all our main experiments, we use the unconditioned model, which does not require the class label as input.",
+      "page": 21,
+      "index": 2,
+      "width": 708,
+      "height": 216
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-003.webp",
+      "caption": "Fig. 13: Initializing baselines. For a fair comparison, we adapt existing methods DPS [11] and DAPS [54] to make use of the encoder initialization z0 = E(P). In both cases, our suggested initialization improves performance.",
+      "page": 21,
+      "index": 3,
+      "width": 708,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-004.webp",
+      "caption": "Fig. 1: GG-Langevin. We combine the prior learned by a diffusion model with gradients from a geometric loss at inference time. By guiding the trajectories of Langevin dynamics, we obtain shapes that are both measurement-consistent and prior-consistent.",
+      "page": 2,
+      "index": 4,
+      "width": 721,
+      "height": 307
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-005.webp",
+      "caption": "Table 1: Shape reconstruction. Comparison of different methods on ShapeNet categories for sparse and incomplete scans. Lower is better for both Chamfer Distance ×102 (CD) and Chamfer Angle (CA) in degrees. We highlight the best-performing method in each object category in bold and the second-best underlined.",
+      "page": 10,
+      "index": 5,
+      "width": 725,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-006.webp",
+      "caption": "Fig. 9: Autoencoder ablation. Reconstruction quality with varying bottleneck position (26 layers total). Using 10 decoder layers balances quality and inference speed.",
+      "page": 14,
+      "index": 6,
+      "width": 685,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-007.webp",
+      "caption": "Fig. 4: Reconstruction results on sparse point clouds. Provided sparse point cloud scans as input, GG-Langevin recovers the complete surface and fine structures, significantly improving the reconstruction accuracy in comparison to previous work.",
+      "page": 8,
+      "index": 7,
+      "width": 725,
+      "height": 426
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-008.webp",
+      "caption": "Fig. 10: Failure cases. While rare, failure cases largely fall into two categories: incomplete reconstructions, where part of the shape is missing from the reconstruction, and spurious geometry, where redundant geometry is hallucinated.",
+      "page": 19,
+      "index": 8,
+      "width": 710,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-009.webp",
+      "caption": "Fig. 6: Sampler ablation. Performance comparison of methods for sampling from the geometry-guided distribution shape p̃(z|P). We use the same latent space and loss function for all methods. The table on the right shows the Chamfer Distance (CD) and Chamfer Angle (CA) averaged across all object categories.",
+      "page": 12,
+      "index": 9,
+      "width": 708,
+      "height": 215
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27016v1/fig-010.webp",
+      "caption": "Fig. 2: Blue trajectories: Non-guided Langevin dynamics on the prior distribution p(z), initialized at an incomplete shape using the VAE encoder z0 = E(P). It generates plausible, complete shapes but quickly drifts from the measurements. Green trajectory: GG-Langevin generatively reconstructs the shape from the input point cloud. By incorporating gradients from a geometric loss L(z,P), it keeps the sampling trajectory close to the manifold of measurement-consistent shapes where L(z,P) = 0 (indicated by the dashed red line). On the right: A side-by-side comparison of sampling trajectories from Langevin dynamics and Geometry-Guided Langevin dynamics.",
+      "page": 5,
+      "index": 10,
+      "width": 604,
+      "height": 365
+    }
+  ]
+}

@@ -1,0 +1,944 @@
+Title: Robust Wildfire Forecasting under Partial Observability: From Reconstruction to Prediction
+
+URL Source: https://arxiv.org/pdf/2603.09042v1
+
+Published Time: Wed, 11 Mar 2026 00:20:10 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+> 1
+
+# Robust Wildfire Forecasting under Partial Observability: From Reconstruction to Prediction 
+
+Chen Yang, Mehdi Zafari, Graduate Student Member, IEEE, Ziheng Duan, and A. Lee Swindlehurst, Life Fellow, IEEE 
+
+Abstract —Satellite-derived fire observations are the primary input for learning-based wildfire spread prediction, yet they are inherently incomplete due to cloud cover, smoke obscuration, and sensor artifacts. This partial observability introduces a domain gap between the clean data used to train forecasting models and the degraded inputs encountered during deployment, often leading to unreliable predictions. To address this challenge, we formulate wildfire forecasting under partial observability using a two-stage probabilistic framework that decouples observation recovery from spatiotemporal prediction. Stage-I reconstructs plausible fire maps from corrupted observations via conditional inpainting, while Stage-II models wildfire dynamics on the recovered sequences using a spatiotemporal forecasting network. We consider four network architectures for the reconstruction module—a Residual U-Net (MaskUNet), a Conditional VAE (MaskCVAE), a cross-attention Vision Transformer (MaskViT), and a discrete diffusion model (MaskD3PM)—spanning CNN-based, latent-variable, attention-based, and diffusion-based ap-proaches. We evaluate the performance of the two-stage approach on the WildfireSpreadTS (WSTS) dataset under various settings including pixel-wise and block-wise masking, eight corruption levels (10%–80%), four fire scenarios, and leave-one-year-out cross-validation. Results show that all learning-based recovery models substantially outperform non-learning baselines, with MaskCVAE and MaskUNet achieving the strongest overall per-formance. Importantly, inserting the reconstruction stage before forecasting significantly mitigates the domain gap, restoring next-day prediction accuracy to near-clean-input levels even under severe information loss. 
+
+Index Terms —Wildfire Prediction, Partial Observability, Satel-lite Remote Sensing, Fire Map Inpainting, Conditional Image Reconstruction, Deep Learning, Spatiotemporal Forecasting 
+
+I. I NTRODUCTION 
+
+A. Background 
+
+# IN recent years, the escalating frequency and severity of nat-ural disasters have imposed staggering costs on economies, ecosystems, and human well-being worldwide. Among these hazards, wildfires stand out as one of the most destructive, inflicting damage that spans multiple dimensions of society. Economically, wildfires have caused tens of billions of dollars in annual economic damages globally in recent years [1], with wildfire smoke-attributable mortality imposing an additional cumulative cost of 160 billion USD over the period of 2006– 2020 [2]. From an ecological standpoint, the 2019–2020 Australian “Black Summer” burned over 30 million hectares 
+
+C. Yang, M. Zafari and A. Lee Swindlehurst are with the Department of Electrical Engineering and Computer Science, University of California, Irvine, CA 92697, USA (e-mail: {cyang27, mzafarid, swindle }@uci.edu). Z. Duan is with the Department of Computer Science, University of California, Irvine, CA 92697, USA (e-mail: zihend1@uci.edu). 
+
+of vegetation and killed or displaced an estimated 3 billion terrestrial vertebrates [3], devastating critical habitats includ-ing more than 80% of the World Heritage Blue Mountains National Park [4]. Wildfires also exact a severe toll on human life and public health. The January 2025 Los Angeles wildfire complex destroyed over 16,000 structures, claimed at least 31 lives directly, and contributed to an estimated 440 excess deaths from smoke exposure and healthcare disruption [5]. Wildfire detection and forecasting fundamentally rely on ob-servational infrastructure. Ground-based sensor networks (e.g., lookout towers, weather stations, and in situ fuel-moisture probes) provide high temporal resolution, physically grounded measurements of key variables such as temperature, humidity, wind speed, and fuel moisture content [6]. However, their spatial coverage is confined to instrumented sites, limiting their ability to monitor large-scale fires across heterogeneous terrain. To overcome these spatial limitations, airborne and spaceborne remote sensing platforms have become the back-bone of modern wildfire monitoring. Aircraft-mounted thermal sensors and, more prominently, satellite systems such as Moderate Resolution Imaging Spectroradiometer (MODIS) [7] and Visible Infrared Imaging Radiometer Suite (VIIRS) [8] provide global, multi-spectral observations at regular intervals, enabling the detection of active fire hotspots, estimation of fire radiative power, and mapping of burned areas at continental to global scales. The synoptic view and temporal consistency of satellite observations have made them indispensable for operational fire management agencies worldwide. More re-cently, Uncrewed Aerial Vehicles (UAVs) and ground-based robotic platforms have emerged as complementary tools for fine-grained, localized fire observation [9]. Equipped with thermal and multispectral cameras, these systems can provide centimeter-level spatial resolution and flexible deployment in specific areas of interest. However, their limited endurance, small coverage footprint, and dependence on line-of-sight communication constrain their utility primarily to tactical, short-duration monitoring of individual fire events rather than systematic, long-term surveillance. In the data-driven era of wildfire research, satellite re-mote sensing has become the dominant observational resource for fire monitoring, owing to several practical and physical advantages. First, polar-orbiting and geostationary platforms offer near-global coverage with regular revisit schedules, sub-daily for geostationary sensors and daily to multi-day for polar orbiters, supporting systematic, temporally consistent monitoring over extended periods [10], [11]. Second, multi-spectral observations provide complementary fire-relevant sig-
+
+> arXiv:2603.09042v1 [eess.IV] 10 Mar 2026 2
+
+nals: mid-/thermal-infrared (MIR/TIR) measurements enable thermal anomaly and active-fire detection, visible/near-infrared (VIS/NIR; VNIR) reflectance characterizes vegetation condi-tion, shortwave infrared (SWIR) bands are sensitive to vege-tation and fuel water content through liquid-water absorption features, and microwave (MW) observations provide additional information on moisture conditions, together capturing key controls on fire activity and spread [12]. Third, mature down-stream products, including VIIRS active-fire detections [8], MODIS burned-area maps [7], and gridded meteorological reanalysis fields [13], provide readily usable, spatiotemporally harmonized inputs that integrate naturally into modern ma-chine learning approaches. 
+
+B. Prior Art 
+
+Several satellite-derived datasets have been developed to support wildfire analysis. Huot et al. [14] introduced the Next Day Wildfire Spread (NDWS) dataset, which combines nearly a decade of VIIRS active fire detections across the contiguous United States with eleven inter-related environmen-tal variables, including topography, vegetation index, weather, and drought indicators, at daily temporal resolution, targeting single-day fire spread prediction. This was extended by Gerard et al. in [15] with WSTS, a multi-modal time-dataset that preserves temporal ordering across consecutive days, enabling the study of sequential fire dynamics over multiple days. More recently, Zhao et al. [16] proposed TS-SatFire, a multi-task dataset built from VIIRS image time-series that unifies active fire detection, burned area mapping, and fire progres-sion prediction within a single benchmark. Beyond VIIRS-centric resources, Sykas et al. [17] released EO4WildFires, which integrates Sentinel-2 multispectral imagery, Sentinel-1 Synthetic Aperture Radar (SAR) data, and meteorological variables across 45 countries for wildfire severity estima-tion, while Kondylatos et al. [18] oversaw collection of the Mesogeos dataset covering the Mediterranean basin using MODIS products and ERA5 reanalysis for wildfire prediction. Collectively, these efforts highlight the central role of satellite observations in enabling data-driven wildfire modeling. Enabled by the growing availability of these multi-modal satellite datasets, learning-based methods for wildfire spread prediction have attracted considerable research attention [19], [20]. Early efforts trained Convolutional Neural Networks (CNNs) on remote-sensing inputs to learn the complex nonlin-ear relationships among topography, vegetation, meteorology, and fire behavior, enabling next-day forecasts of active fire ex-tent [14], [21]. Subsequent work incorporated temporal model-ing: spatiotemporal architectures such as convolutional LSTM (ConvLSTM) [22] and U-net with Temporal Attention Encoder (U-TAE) [23], when trained on multi-day fire sequences, were shown to outperform single-snapshot baselines by capturing sequential spread dynamics [15]. More recently, Transformer-based models [24] and U-Net variants [25] have been applied to satellite-derived fire sequences, achieving state-of-the-art performance in burned-area mapping and fire progression forecasting [16], [19]. When provided with sufficiently rich and accurate training data, such models have demonstrated promising results, surpassing the predictive accuracy of con-ventional physics-based fire simulators [20]. 
+
+C. Contributions 
+
+Despite these advances, a critical yet under-explored chal-lenge persists: satellite-based fire observations are inherently only partially observed [26], [27]. Thermal anomaly detec-tions can be missed or corrupted by cloud cover, dense smoke plumes generated by the fire itself, unfavorable satellite viewing angles, and sensor artifacts, leading to an observed fire state that is rarely a faithful representation of the true underlying fire extent. However, the datasets surveyed above are predominantly derived from selectively filtered, high-quality acquisitions, and the models trained on them implicitly assume that complete and reliable fire maps are available at inference time [14], [15], [21]. This assumption introduces a fundamental gap: when deployed in operational settings where observations are inevitably degraded, the distributional shift between clean training data and corrupted test inputs can cause severe performance degradation, producing unreliable predictions when accurate forecasts are most needed. There-fore, addressing this partial observability represents a key open problem for robust, real-world wildfire forecasting. To address this challenge, we propose a two-stage frame-work that explicitly decouples the problems of reconstruction 
+
+and forecasting . Rather than expecting a single model to simul-taneously compensate for missing data and predict future fire evolution, we first recover a plausible complete observation sequence from the corrupted inputs (Stage-I: Morphological Reconstruction), and then apply a forecasting model to the recovered sequence (Stage-II: Spatiotemporal Prediction). This decomposition is grounded in a principled probabilistic factor-ization of the predictive distribution (detailed in Section II-A), and isolates the partial observability challenge into a dedicated generative module while allowing the forecaster to operate within its valid training domain. The main contributions of this work are as follows:  
+
+> •
+
+Unlike prior studies that rely on the unrealistic assump-tion of fully observable training data [14], [15], we explicitly confront the inherent partial observability in real-world wildfire records. To address this critical gap, we formulate wildfire forecasting as a two-stage problem, deriving a rigorous probabilistic justification for decou-pling historical reconstruction from future prediction.  
+
+> •
+
+We pioneer a comprehensive methodology for fire map reconstruction under partial observability. Rather than relying on a single architecture, we formulate four complementary paradigms for Stage-I: a Residual U-Net (MaskUNet) [28], [29], a Conditional Variational Autoencoder (MaskCVAE) [30], [31], a cross-attention Transformer (MaskViT) [32], [33], and a discrete diffu-sion model (MaskD3PM) [34], [35]. This investigation uncovers the core architectural trade-offs among CNN-based, latent-variable, attention-based, and diffusion-based strategies in modeling sparse binary dynamics.  
+
+> •
+
+We design a multi-dimensional benchmarking protocol on the WSTS dataset [15], built upon a dynamic spatial-focusing strategy. By dynamically cropping around active 3
+
+fire regions, we mitigate the severe class imbalance inherent in wildfire data (where fire pixels typically constitute less than 5% of each frame) and force the models to learn fine-grained propagation behaviors within actual burning zones. Under this data setup, our protocol evaluates the paradigms across 2 corruption mechanisms, pixel-wise and block-wise masking, 8 severity levels, 4 fire scenarios, and a leave-one-year-out cross-validation scheme spanning 4 years of data.  
+
+> •
+
+We show that our Stage-I recovery effectively neutralizes the catastrophic domain gap induced by missing data, restoring downstream forecasting capabilities to near-oracle parity, exhibiting resilience even under an extreme 80% information deficit. 
+
+D. Organization and Notation 
+
+The remainder of the paper is organized as follows. Sec-tion II details our proposed two-stage forecasting framework for handling partial observability, including the problem for-mulation, Stage-I morphological reconstruction module, and Stage-II spatiotemporal prediction framework. Section IV presents the experiments, encompassing multi-modal dataset preprocessing, benchmarking protocol, and a comprehensive evaluation of the recovery and prediction performance of dif-ferent models under various missing data scenarios. Section V concludes the paper and discusses future research directions. Regarding the mathematical notation used in this paper, we employ uppercase bold letters (e.g., Xt, Et, Ft) to represent high-dimensional tensors or matrices such as system states, environmental contexts, and fire characteristics. Calligraphic letters (e.g., Ht) are specifically used to denote the set of historical sequences over multiple time steps. To distinguish the observational status of the data, variables with a tilde (e.g., ˜X(η) 
+
+> τ
+
+) denote corrupted or partially observed data due to sensor limitations and other factors, while variables with a hat (e.g., ˆFt) represent the predicted results generated or reconstructed by the models. Additionally, the symbol ⊙ is used to denote the element-wise multiplication (Hadamard product) of matrices, and lowercase Greek letters (e.g., τ, η )are used to represent scalar parameters such as time steps and missing ratios. II. M ETHODOLOGY 
+
+We propose a two-stage framework for wildfire forecasting under partial observability, as illustrated in Fig. 1. The frame-work consists of (i) a Morphological Reconstruction stage that recovers corrupted fire observations, and (ii) a Spatiotemporal Prediction stage that models future fire dynamics based on the reconstructed history. Detailed architectural settings for the models presented in this section are provided in Appendix A. An open-source Python implementation of the entire frame-work, including all configurations, seed numbers, and datasets are available at [36]. 
+
+A. Problem Formulation 
+
+We formulate wildfire forecasting under partial observabil-ity as a spatiotemporal sequence prediction problem. The system state at day t is defined by Xt = [ Et; Ft], where 
+
+Et ∈ RCE ×H×W represents the multi-modal environmental context (e.g., meteorology, topography, vegetation) and Ft ∈{0, 1}H×W represents the binary active fire map ( 1 = fire present, 0 = fire absent). The dimension CE represents the number of different channels of environmental features, while 
+
+H and W denote the number of cells in the ground-level two-dimensional observation grid, respectively. Assuming an observation window over T days, the true state sequence is denoted by Ht−1 = {Xt−T , . . . , Xt−1}.In a real-world deployment, the fire channel is only par-tially observed due to various factors such as smoke/cloud occlusions or sensor limitations. For each timestep τ ∈{t − T, . . . , t − 1}, we define a binary corruption mask 
+
+M(η) 
+
+> τ
+
+∈ { 0, 1}H×W , where 0 indicates a cell with missing fire data. The variable η indicates the percentage of observation cells that are missing, which is assumed to be constant over the observation window. The partially observed fire map is then constructed as ˜F(η) 
+
+> τ
+
+= Fτ ⊙ M(η) 
+
+> τ
+
+, where ⊙ denotes the element-wise (Hadamard) product. The environmental state 
+
+Et is assumed to be known without error. Consequently, the corrupted system state is represented as ˜X(η) 
+
+> τ
+
+= [ Eτ ; ˜F(η) 
+
+> τ
+
+] ∈
+
+R(CE +1) ×H×W , and the state sequence available for analysis is defined as ˜Ht−1 = { ˜X(η) 
+
+> t−T
+
+, . . . , ˜X(η)
+
+> t−1
+
+}. The asymmetry in knowledge about Eτ and ˜F(η) 
+
+> τ
+
+forces the learned model to perform cross-modal reasoning and synthesize sparse fire evidence with complete environmental priors, thereby validat-ing its ability to infer missing dynamics based on physical constraints rather than spatial interpolation alone. The ultimate learning objective is to estimate the predictive distribution p(Ft | ˜Ht−1) from the partially observed history. Since the clean history Ht−1 is unobserved at inference time, we introduce a latent variable view and express the predictive distribution via marginalization over Ht−1:
+
+p(Ft | ˜Ht−1) = 
+
+Z
+
+p(Ft | H t−1) p(Ht−1 | ˜Ht−1) d Ht−1.
+
+(1) This decomposition naturally motivates a two-stage learning paradigm. The first term, p(Ht−1 | ˜Ht−1), corresponds to re-covering a plausible clean history from corrupted observations, while the second term, p(Ft | H t−1), models the forward wildfire dynamics conditioned on a complete sequence. To improve the computational tractability of the reconstruction phase, we introduce a conditional independence assumption across time. Specifically, we assume that the recovery of the true fire map Fτ at any given timestep τ depends exclusively on the concurrent corrupted observation ˜X(η) 
+
+> τ
+
+, and is condi-tionally independent of observations at other timesteps. Since the environmental context Eτ is fully observed and provides sufficient instantaneous spatial priors (e.g., topogra-phy and vegetation) to guide the inpainting process, the joint reconstruction distribution factorizes over time as: 
+
+p(Ht−1 | ˜Ht−1) = 
+
+> t−1
+
+Y 
+
+> τ=t−T
+
+p(Fτ | ˜X(η) 
+
+> τ
+
+), (2) which yields reconstructed fire maps ˆFt−T :t−1. The forecast-4time-varying features Wind speed ... VIIRS band M11 VIIRS band I2 VIIRS band I1 time-invariant features 
+
+> Slope Aspect Elevation ...
+
+t=0 t=1 t=2 t=3 t=4 condition encoder-I 
+
+observed fire t0 t1 t2 t3 t4recovered fire condition encoder-II stage-I morphological reconstruction backbone-agnostic reconstruction stage-II 
+
+> conv block
+
+stage-II spatiotemporal prediction output firemap conv 1x1 block-wise sum attention masks 
+
+CNN cVAE Transformer Diffusion t 1t2t3t4t0
+
+Fig. 1: Overview of the proposed two-stage framework for wildfire forecasting under partial observability. Given multi-modal environmental observations together with partially observed fire maps, Stage-I performs morphological reconstruction to recover a plausible complete fire history from corrupted inputs, explicitly addressing the domain gap introduced by missing satellite observations. The reconstruction module can be implemented with various different approaches, including CNN-based, latent generative, transformer, or discrete diffusion networks. The recovered sequence is then fed into Stage-II, a spatiotemporal prediction model that learns wildfire dynamics and produces the future fire map ˆFt. By decoupling observation recovery from temporal forecasting, the framework enables robust prediction under severe observation degradation. 
+
+ing stage then learns p(Ft | ˆXt−T :t−1), where ˆXτ = [ Eτ ; ˆFτ ].
+
+B. Stage-I: Fire Shape Reconstruction 
+
+Stage-I aims to reconstruct the latent fire morphology by approximating the conditional distribution p(Ht−1 | ˜Ht−1).Reconstruction is performed independently at each timestep 
+
+τ , where the model predicts a reconstructed fire map ˆFτ from the corrupted state ˜X(η) 
+
+> τ
+
+. To investigate the impact of different inductive biases, we study four representative approaches for finding the reconstruction mapping fθ (·), where θ denotes the set of learnable parameters optimized during the training of the respective neural network architectures.  
+
+> •
+
+MaskUNet (CNN-based): Reconstructs missing fire re-gions by looking primarily at nearby visible patterns and boundaries, and exploiting the resulting spatial lo-cality. Compared with the other methods, it produces a deterministic reconstruction with local factors, but does not explicitly model fire uncertainty or long-range global interactions. The MaskUNet reconstruction is formulated as a deterministic mapping: 
+
+ˆFτ = fθ ( ˜X(η) 
+
+> τ
+
+), (3) where fθ is a convolutional encoder-decoder network. The network fθ employs symmetric short cuts between layers (so-called “skip connections”) to combine low-level, high-resolution spatial features from the encoder directly with the semantically rich, upsampled represen-tations in the decoder [28], [29]. This multi-scale feature aggregation ensures the preservation of fine-grained spa-tial structure and fire shape details during the inpainting process.  
+
+> •
+
+MaskCVAE (Latent Generative): Captures the uncer-tainty inherent in stochastic fire boundaries by gener-ating multiple plausible reconstructions from a learned latent representation. To investigate this class of meth-ods, we employ a Conditional Variational Autoencoder (CVAE) [30], [31], which models the complex distribu-tion of possible underlying true fire maps by introducing a continuous latent variable Z. The network is trained by minimizing the negative conditional Evidence Lower Bound (ELBO), formulated as the loss objective: 
+
+LCVAE = − Eqϕ(Z|Fτ , ˜X(η) 
+
+> τ)
+
+h
+
+log pθ
+
+
+
+Fτ | Z, ˜X(η)
+
+> τ
+
+i 
+
++ βD KL 
+
+
+
+qϕ(Z | Fτ , ˜X(η) 
+
+> τ
+
+) ∥ pθ (Z | ˜X(η) 
+
+> τ
+
+)
+
+
+
+,
+
+(4) where ϕ and θ denote the learnable parameters of the recognition and generative models, respectively. Specif-ically, qϕ(Z | Fτ , ˜X(η) 
+
+> τ
+
+) acts as the probabilistic en-coder (approximate posterior) used during training, while 
+
+pθ (Fτ | Z, ˜X(η) 
+
+> τ
+
+) serves as the decoder generating re-constructed fire map. The term pθ (Z | ˜X(η) 
+
+> τ
+
+) represents the conditional prior network, which allows us to sample latent vectors directly from the corrupted observations during inference. The DKL operator denotes the Kullback-Leibler (KL) divergence, and β is a tunable hyperpa-rameter that balances reconstruction fidelity against the regularization of the latent space.  
+
+> •
+
+MaskViT (Transformer-based): Leverages global con-text and long-range spatial dependencies by dividing 5
+
+the 2D spatial grid into small non-overlapping patches, flattening each patch into a one-dimensional vector, and treating each vector as a token in a sequence [32], [33]. The reconstruction is modeled as: 
+
+ˆFτ = gθ ( ˜X(η) 
+
+> τ
+
+), (5) where gθ denotes the transformer-based reconstruction network. To dynamically guide the reconstruction of masked regions, gθ employs a cross-attention mechanism in which the corrupted fire observations query the fully observed environmental priors. The context-aware fire features are formulated as: Attention (Q ˜F , KE , VE ) = softmax 
+
+ Q ˜F K⊤
+
+> E
+
+√dk
+
+
+
+VE ,
+
+(6) where Q ˜F represents the query matrix from the tokenized corrupted fire map ˜F(η) 
+
+> τ
+
+, while KE and VE are the key and value matrices obtained from the multi-modal environmental information Eτ . The scalar dk denotes the dimensionality of the key vectors. By relating each fire patch to environmental information across the scene, this mechanism allows the model to draw on unmasked infor-mation such as terrain, weather, or vegetation conditions in order to better reconstruct the underlying fire pattern. Distinct from the other models, MaskViT reconstructs missing fire regions by allowing each spatial location to attend to all other locations jointly with the environmen-tal context, thereby enabling scene-wide reasoning over longer ranges.  
+
+> •
+
+MaskD3PM (Discrete Diffusion): Frames the fire shape reconstruction as an iterative denoising process operating directly within the discrete state space defined by the binary active/inactive fire pixels [34], [35]. The forward corruption process is modeled as a predefined discrete Markov transition matrix with an absorbing state (e.g., a [MASK] token). This mechanism explicitly represents the degradation due to partial observability by progres-sively transitioning known pixel states into the absorbing mask without cross-flipping the true binary classes. The reverse generative transition at diffusion step s is modeled as a categorical distribution parameterized by a neural network: 
+
+pθ (F(s−1) | F(s), ˜X(η) 
+
+> τ
+
+) = Categorical  F(s−1) ;
+
+Dθ (F(s), s, ˜X(η) 
+
+> τ
+
+), (7) where F(s) denotes the intermediate noisy fire map at the s-th diffusion step. The term Categorical( ·) denotes the distribution over the possible discrete pixel classes, applied independently across the H ×W spatial grid. The conditional denoising network Dθ takes the current noisy state F(s), the diffusion timestep s, and the corrupted observation ˜X(η) 
+
+> τ
+
+as inputs to predict the categorical tran-sition logits. By iteratively sampling from this reverse dis-tribution, the model progressively replaces the absorbing masks with inferred physical states to ultimately recover the clean reconstructed fire map, such that ˆFτ = F(0) .
+
+C. Stage-II: Spatiotemporal Prediction 
+
+Stage-II models the forward dynamics of wildfire spread by learning the predictive distribution p(Ft | ˆXt−T :t−1). The input sequence is defined as ˆXt−T :t−1 = { ˆXt−T , . . . , ˆXt−1},where each ˆXτ = [ Eτ ; ˆFτ ] ∈ R(CE +1) ×H×W integrates the environmental context with the reconstructed fire morphology from Stage-I. To capture the complex spatiotemporal depen-dencies, we employ a U-TAE framework [23]. The prediction process follows an encoder-decoder structure: 1) Spatiotemporal Encoding: The input sequence is pro-cessed through a U-Net architecture, in which a multi-scale CNN encoder is employed to jointly capture fine-grained local fire morphology and broader scene-level context, both of which are essential for accurately modeling wildfire spread over heterogeneous spatial landscapes. The multi-scale CNN encoder acts as a feature extractor that simultaneously processes the data using convolutional filters of different image resolutions. At each spatial resolution level l, corresponding to the progressively downsampled spatial grid Hl × Wl, the encoder generates a sequence of intermediate feature maps H(l) = [ h(l)1 , . . . , h(l) 
+
+> T
+
+]. Each h(l) 
+
+> k
+
+represents the spatial distribution of the intermediate feature at the k-th timestep. To efficiently fuse the temporal sequences while en-forcing consistency across spatial scales, a Lightweight Temporal Attention Encoder (L-TAE) [37] is computed only at the bottleneck level, denoted as L, correspond-ing to the deepest encoder stage with the lowest spa-tial resolution. This level provides the most compact representation of the global scene context. Instead of computing attention independently at every resolution, a single globally learnable master query Q interacts with the bottleneck keys K(L) 
+
+> k
+
+, derived from the bottleneck feature maps at timestep k, to compute a shared temporal attention mask: 
+
+αk = Softmax Q(K(L) 
+
+> k
+
+)⊤
+
+√dk
+
+!
+
+, (8) where K(L) 
+
+> k
+
+is the key embedding from the k-th bot-tleneck feature map h(L) 
+
+> k
+
+, and dk is a scaling factor. This bottleneck mask αk identifies the most informa-tive timesteps from a global semantic perspective. The temporal dimension at any given hierarchy level l is then collapsed into a single summary map z(l) by progressively upsampling and broadcasting this shared mask: 
+
+z(l) =
+
+> T
+
+X
+
+> k=1
+
+αk · h(l) 
+
+> k
+
+. (9) Notably, to maintain a computationally lightweight ar-chitecture, an explicit value projection matrix is omitted; instead, the original high-resolution feature map h(l)
+
+> k
+
+serves directly as the value ( V). By dictating the tempo-ral fusion from the bottleneck, this top-down mechanism ensures that fine-grained spatial details are extracted from the exact same critical moments (e.g., sudden wind 6Channel 17: Land Cover Channel 18: Fcst Total Precipitation       
+
+> Channel 19: Fcst Wind Speed Channel 20: Fcst Wind Direction Channel 21: Fcst Temperature Channel 22: Fcst Specific Humidity
+> Channel 23: Active Fire
+> Channel 1: Band M11
+> Channel 2: Band I2
+> Channel 3: Band I1
+> Channel 4: NDVI
+> Channel 5: EVI2
+> Channel 6: Total Precipitation
+> Channel 7: Wind Speed
+> Channel 8: Wind Direction Channel 9: Min Temperature
+> Channel 10: Max Temperature
+> Channel 11: Energy Release Channel 12: Specific Humidity
+> Channel 13: Slope Channel 14: Aspect
+> Channel 15: Elevation
+> Channel 16: Drought Index
+
+Fig. 2: Visualization of the 23-channel input features for a single daily observation of the Dolan Fire event in Monterey County, California, from Aug 14 to Aug 31, 2020. Grey regions indicate missing or undetected pixels (NaNs). Each subplot employs an independent color scale, identical colors across panels may represent different physical magnitudes. DT Aug 16, 2020 Aug 17, 2020 Aug 18, 2020 Aug 19, 2020 Aug 20, 2020 Aug 21, 2020 Aug 22, 2020 Aug 23, 2020 Aug 24, 2020 Aug 25, 2020 Aug 26, 2020 Aug 27, 2020 Aug 28, 2020 Aug 29, 2020 Aug 30, 2020 Aug 31, 2020 22 20 18 16 14 12 10 86
+
+Fig. 3: Daily active fire detections for the Dolan Fire (Aug 16–31, 2020), where colored pixels indicate detection time and black denotes missing or undetected (NaN). 
+
+shifts) as the global semantics, effectively filtering out residual reconstruction noise from Stage-I. 2) Decoding and Mapping: The summary maps z(l) from all levels are fused via skip-connections in a convolu-tional decoder. The decoder progressively upsamples the features to the original resolution H × W .3) Final Prediction: A sigmoid-activated 1×1 convolution head is applied to the decoder’s output to produce the final binary map ˆFt ∈ {0, 1}H×W , representing the binary active fire for the target day. This design ensures that the forecasting stage captures local reconstructed fire patterns, environmental constraints, and temporal information. III. D ATASET AND PREPROCESSING 
+
+We evaluate our framework on the WSTS benchmark dataset to validate its robustness in reconstructing fire mor-phology and improving forecasting accuracy under partial observability. 
+
+A. Dataset Description 
+
+The WSTS dataset [15] is a large-scale multi-modal bench-mark comprising 607 wildfire events across the Western United States (2018–2021). Each sample is a 23-channel spa-tiotemporal tensor at 375m resolution. As detailed in Table I, the features integrate: (i) Measurements (VIIRS [38], [39], Gridded Surface Meteorological (GRIDMET) [13], NASA Shuttle Radar Topography Mission (SRTM) [40]); (ii) Land Cover (MODIS [41], [42]); (iii) Forecasts (Global Forecast System (GFS) [43]); and (iv) Active Fire maps [8], [44]. Figs. 2 and 3 provide two complementary perspectives on the Dolan Fire in Monterey County, California. Fig. 2 displays 
+
+TABLE I: Data statistics for the original 23-channel input dataset WSTS. Statistics (Min/Max/Mean) are computed globally over all pixels and timesteps across 607 wildfire events from 2018–2021 .                                                                                                                                                    
+
+> Category Ch. Name Source Unit Min Max Mean Measurement
+> 1Band M11 VIIRS –-100.00 16000.00 1908.53 2Band I2 VIIRS –-100.00 15998.00 2944.98 3Band I1 VIIRS –-100.00 15997.00 1820.32 4NDVI VIIRS –-9966.00 9995.00 4323.21 5EVI2 VIIRS –-5172.00 9998.00 2221.04 6Total Precipitation GRIDMET mm 0.00 145.30 0.50 7Wind Speed GRIDMET m/s 0.30 16.20 3.49 8Wind Direction GRIDMET ◦0.00 360.00 222.40 9Min Temperature GRIDMET K242.00 311.80 283.06 10 Max Temperature GRIDMET K254.70 325.40 299.47 11 Energy Release Component GRIDMET –0.00 122.00 68.96 12 Specific Humidity GRIDMET kg/kg 0.00 0.02 0.01 13 Slope SRTM ◦0.00 67.07 7.21 14 Aspect SRTM ◦0.00 359.89 175.43 15 Elevation SRTM m-84.00 4350.00 1487.21 16 Palmer Drought Severity Index GRIDMET –-13.75 9.66 -2.02
+> Land Cover 17 Land Cover MODIS ID 1.00 17.00 –
+> Forecast
+> 18 Total Precipitation GFS mm 0.00 1144.81 9.09 19 Wind Speed GFS m/s 0.00 14.30 1.58 20 Wind Direction GFS ◦-89.99 89.99 6.15 21 Temperature GFS ◦C-17.04 39.51 18.58 22 Specific Humidity GFS kg/kg 0.00 0.01 0.01
+> Fire Map 23 Active Fire VIIRS HHMM 742.00 2218.00 –
+> Note: “–” denotes unitless or categorical variables. VIIRS active-fire time is in UTC. Measured temperatures are in Kelvin (K); forecasts are in Celsius ( ◦C). Data sources include VIIRS, GRIDMET, SRTM, MODIS, and GFS.
+
+all 23 input channels for a single daily observation. All channels are gridded at a uniform spatial resolution of 375 m. Fig. 3 complements this static snapshot by depicting the day-by-day progression of active fire detections from August 16– 31, 2020. Across the 16-day sequence, active fire pixels remain confined to a small fraction of the spatial window, illustrating the intrinsic sparsity of satellite-based fire observations and the severe class imbalance that any predictive model must address. 
+
+B. Preprocessing and Feature Engineering 
+
+To mitigate extreme class imbalance and strictly focus the learning process on the evolving fire front, we employ a content-adaptive cropping strategy. The variable-sized satellite imagery is converted into fixed-size spatiotemporal sequences, defined by a spatial window of 64 × 64 pixels and a tem-poral window of T = 5 days. To determine the optimal crop location, we implement a temporally-prioritized search mechanism for each training pair. We iterate backward through the historical window and compute the spatial centroid of the active fire pixels from the most recent day with valid fire detections. This centroid serves as the sequence center. If no active fire is present across the entire 5-day history, the crop defaults to the geometric center of the original image tile. Both 7
+
+TABLE II: Land cover channel class mapping (ID 1–17).                   
+
+> ID Land Cover Type
+> 1Evergreen Needleleaf Forests 2Evergreen Broadleaf Forests 3Deciduous Needleleaf Forests 4Deciduous Broadleaf Forests 5Mixed Forests 6Closed Shrublands 7Open Shrublands 8Woody Savannas 9Savannas 10 Grasslands 11 Permanent Wetlands 12 Croplands 13 Urban and Built-up Lands 14 Cropland/Natural Vegetation Mosaics 15 Permanent Snow and Ice 16 Barren 17 Water Bodies
+
+the input sequence and the target label are extracted using these identical coordinates to guarantee strict spatiotemporal alignment. The original 23 raw sensor channels are transformed into a 42-channel feature tensor through three explicit preprocessing steps, designed to convert heterogeneous physical variables into a unified model-ready representation. Starting from 23 raw channels, the final 42-channel tensor is obtained by expanding the two angular channels into four cyclical channels in total, converting the single land-cover channel into 17 one-hot channels, and retaining the remaining 21 channels as normalized continuous features. The resulting transformations are summarized as follows:  
+
+> •
+
+Cyclical Encoding: The two angular variables, Wind Direction and Aspect, are each transformed from a sin-gle scalar channel into a two-channel [sin( θ), cos( θ)] 
+
+representation to preserve periodic continuity and avoid artificial discontinuities at the angular wraparound.  
+
+> •
+
+Categorical Expansion: Land Cover (originally Channel 17) is converted from a single categorical channel into a 17-channel one-hot representation, so that each land-cover type is represented independently without introduc-ing spurious ordinal relationships.  
+
+> •
+
+Statistical Normalization: All remaining continuous channels retain their original dimensionality and are standardized using Z-score normalization based on the dataset statistics reported in Table I. Any NaN values are set to zero after normalization. 
+
+C. Evaluation Scenarios 
+
+Following the WSTS protocol, each sample is categorized into one of four fire-dynamics states to reflect different evolu-tion patterns: F IRE CONTINUES , F IRE EXTINGUISHED , N EW 
+
+FIRE WITH NO HISTORY , and N O FIRE . Specifically, F IRE 
+
+CONTINUES denotes sequences where active fire persists into the prediction day, while F IRE EXTINGUISHED corresponds to cases where a previously observed fire disappears. N EW FIRE WITH NO HISTORY captures ignition events absent from the FIRE CONT. NEW FIRE     
+
+> Day 1 Day 4 Day 2 Day 3 Day 5 Target NO FIRE
+> FIRE EXT.
+
+Fig. 4: Definition of the four evaluation scenarios in WSTS. Each row shows a binary 5-day historical fire sequence together with the prediction target, where white regions denote active fire pixels. 
+
+historical window, and N O FIRE represents background sam-ples with no fire activity. These scenario splits allow separate evaluation of reconstruction fidelity and over-prediction behav-ior under partial observability. A representative visualization of the four scenarios is shown in Fig. 4. 
+
+D. Partial Observability Simulation 
+
+We simulate sensor degradation by applying a corruption operator Cη that masks a fraction η ∈ { 0.1, 0.2, . . . , 0.8} of fire-channel pixels, where η denotes the ratio of masked fire pixels to total fire pixels. Two masking mechanisms are con-sidered. In pixel-wise masking , each fire pixel is independently assumed to be blocked with probability η, producing spatially uncorrelated gaps that simulate random sensor noise. In block-wise masking , contiguous rectangular patches of size s × s,where s is an integer in [4 , 16] , are iteratively removed from fire-active regions until the cumulative masked fraction reaches 
+
+η, simulating spatially coherent occlusions such as cloud cover or smoke obstruction. IV. E XPERIMENTAL RESULTS 
+
+A. Experiment Setup 
+
+Our experimental evaluation is divided into two stages: Stage-I for observation reconstruction and Stage-II for wild-fire spread prediction. We evaluate the performance under two distinct types of data corruption: pixel-wise and block-wise occlusions. Furthermore, we assess the robustness of the models across varying degradation levels, with a miss-ing data ratio η ranging from 10% to 80%. Our primary focus in the experiments is to demonstrate the substantial performance improvement achieved by predicting on data fully reconstructed by Stage-I, as opposed to directly forecasting from the corrupted observations. The complete configuration and training details can be found in the Appendix. A Pytorch implementation is available at [36]. For the observation reconstruction task, we evaluate atotal of six different models, comprising four learning-based methods and two non-learning baselines. As detailed previ-ously, the four learning-based models span diverse generative 8
+
+paradigms: a Residual U-Net (MaskUNet), a Conditional VAE (MaskCVAE), a Vision Transformer (MaskViT), and a discrete diffusion model (MaskD3PM). To benchmark these approaches, we introduce two non-learning baselines, which are implemented as follows:  
+
+> •
+
+Random : Masked pixels are filled with independent Bernoulli samples ( p=0 .5), representing a no-information lower bound.  
+
+> •
+
+Dilation : A morphological dilation operator is applied to the currently observed fire pixels using a kernel with a radius of 5, propagating the nearest visible signal into the occluded regions. We evaluate the reconstruction performance across four distinct fire evolution scenarios (Fig. 4), employing specific metrics tailored to the characteristics of each scenario. To prevent artificial inflation from uncorrupted pixels, all re-construction metrics are calculated exclusively within the occluded region O: 
+
+> •
+
+False Positive Rate (FPR) : For the N O FIRE and N EW 
+
+FIRE scenarios, there are no active fires in the historical sequence. Our primary concern is to strictly avoid gener-ating spurious fires from nothing. Therefore, we use FPR to quantify over-prediction, defined as: FPR = FP O
+
+FP O + TN O
+
+, (10) where FP O and TN O denote the number of false positives and true negatives, respectively, calculated strictly within the mask O. 
+
+> •
+
+Dice Coefficient : For the F IRE CONTINUES and F IRE 
+
+EXTINGUISHED scenarios, the historical observations contain a significant number of fire pixels. We use the Dice coefficient, which is a specialized metric for evalu-ating morphological overlap in highly imbalanced spatial data. It is defined as: Dice = 2 | ˆFO ∩ FO || ˆFO | + |FO | , (11) where ˆFO and FO denote the predicted and ground-truth fire pixels within O, respectively. In the prediction stage, we employ U-TAE as our forecasting backbone. Similarly, we test the prediction performance across the same four scenarios. However, the evaluation metrics are adapted based on the presence of fire on the final target day, as discussed below.  
+
+> •
+
+Average Precision (AP) : For the F IRE CONTINUES and NEW FIRE scenarios, active fires exist on the target day. We evaluate the models using AP, which computes the area under the Precision-Recall (PR) curve. We use AP instead of the Dice coefficient for Stage-II because the forecasting model outputs continuous probability maps rather than deterministic binary masks. While Dice evalu-ates the discrete quality of a single thresholded recovery, AP assesses the overall ranking and confidence distri-bution of the forecasting probabilities, providing a more comprehensive measure of the model’s overall predictive capability across different confidence levels.  
+
+> •
+
+FPR : For the N O FIRE and F IRE EXTINGUISHED sce-narios, since the target day contains zero fire pixels, we continue to use FPR in (10) to penalize any false alarms generated by the prediction model. Having established the experimental configuration and eval-uation metrics, we now present a comprehensive analysis of our proposed two-stage framework. The subsequent sec-tions systematically dissect the pipeline’s performance across varying models, physical scenarios, and degradation severi-ties. Specifically, in Section IV-B , we focus on the Stage-I observation recovery, comparing the structural reconstruction capabilities of the different generative networks against the non-learning baselines. This section details how different in-ductive biases handle localized (pixel-wise) versus contiguous (block-wise) missing data across the four distinct fire evolution scenarios. Following this, Section IV-C investigates the ulti-mate goal of our framework: Stage-II wildfire forecasting. We quantify the critical impact of the preceding recovery phase by explicitly comparing downstream predictive performance on raw corrupted inputs versus Stage-I reconstructed sequences. 
+
+B. Stage-1: Reconstruction Performance 
+
+We evaluate the Stage-I recovery models across four dis-tinct physical scenarios under both pixel-wise and block-wise masking mechanisms. It is crucial to note that for Stage-I historical recovery, both the F IRE CONTINUES and FIRE EXTINGUISHED scenarios evaluate the reconstruction of currently active fire pixels. They are partitioned based on their future role in assessing how well the models preserve the advancing fire fronts versus their decaying trailing edges. The quantitative results for these active regions are presented in Table III. Conversely, the N EW FIRE and N O FIRE scenarios are analyzed textually due to their near-zero error bounds among the learning-based approaches. Because the historical sequences in these scenarios are entirely devoid of active fires, the models observe zero fire in the unoccluded regions, regard-less of the masking severity. Consequently, the learning-based algorithms reliably infer a almost completely fire-free state without hallucinating non-existent fires, strictly suppressing false alarms in unburned backgrounds. 
+
+1) Reconstruction of Advancing Fire Fronts ( FIRE CON -
+
+> TINUES
+
+): The F IRE CONTINUES subset represents the ac-tive, propagating perimeters of the fire. Reconstructing these highly complex and fragmented morphological structures is inherently challenging. We analyze the performance in the following ways:  
+
+> •
+
+Analysis of Pixel-wise Masking: Localized context is paramount. Both MaskCVAE and MaskUNet demonstrate superiority. At a low masking ratio ( η = 10% ), they achieve Dice scores of 0.924 and 0.920 , respectively, vastly outperforming the deterministic Dilation baseline (0.410 ). As the image corruption scales to the extreme value η = 80% , MaskCVAE maintains a robust Dice of 
+
+0.747 , proving that its learned latent prior provides stable constraints for complex front morphology. Conversely, the discrete diffusion model MaskD3PM degrades signif-icantly to 0.376 , struggling to maintain spatial coherence under extreme sparsity. 9
+
+TABLE III: STAGE-1: RECONSTRUCTION 
+
+Performance under different fire scenarios (mean ± std) 
+
+(a) PIXEL-WISE MASKING FIRE CONTINUES [DICE] 
+
+Mask Random Dilation MaskCVAE MaskUNet MaskD3PM MaskViT 10% 0.055 ±0.071 0.410 ±0.327 0.924 ±0.126 0.920 ±0.130 0.744 ±0.251 0.865 ±0.184 
+
+20% 0.055 ±0.069 0.413 ±0.322 0.909 ±0.116 0.906 ±0.120 0.719 ±0.230 0.850 ±0.169 
+
+30% 0.055 ±0.069 0.415 ±0.321 0.894 ±0.115 0.890 ±0.122 0.682 ±0.234 0.835 ±0.163 
+
+40% 0.055 ±0.069 0.416 ±0.319 0.874 ±0.125 0.870 ±0.130 0.641 ±0.243 0.818 ±0.165 
+
+50% 0.055 ±0.069 0.419 ±0.318 0.853 ±0.135 0.849 ±0.142 0.591 ±0.260 0.799 ±0.170 
+
+60% 0.055 ±0.068 0.423 ±0.317 0.825 ±0.155 0.821 ±0.160 0.530 ±0.281 0.774 ±0.183 
+
+70% 0.055 ±0.068 0.429 ±0.315 0.793 ±0.179 0.789 ±0.184 0.460 ±0.306 0.742 ±0.202 
+
+80% 0.055 ±0.068 0.438 ±0.313 0.747 ±0.216 0.743 ±0.220 0.376 ±0.337 0.692 ±0.233 
+
+FIRE EXTINGUISHED [DICE] 
+
+Mask Random Dilation MaskCVAE MaskUNet MaskD3PM MaskViT 10% 0.014 ±0.035 0.614 ±0.425 0.959 ±0.131 0.957 ±0.134 0.877 ±0.248 0.912 ±0.210 
+
+20% 0.014 ±0.035 0.615 ±0.422 0.947 ±0.133 0.944 ±0.139 0.852 ±0.252 0.891 ±0.215 
+
+30% 0.014 ±0.034 0.616 ±0.420 0.934 ±0.138 0.932 ±0.143 0.825 ±0.271 0.880 ±0.212 
+
+40% 0.014 ±0.034 0.618 ±0.419 0.917 ±0.150 0.916 ±0.152 0.791 ±0.297 0.865 ±0.216 
+
+50% 0.014 ±0.034 0.618 ±0.418 0.897 ±0.174 0.895 ±0.178 0.754 ±0.326 0.848 ±0.229 
+
+60% 0.014 ±0.034 0.620 ±0.417 0.870 ±0.206 0.868 ±0.208 0.712 ±0.359 0.827 ±0.247 
+
+70% 0.014 ±0.034 0.621 ±0.416 0.836 ±0.241 0.837 ±0.242 0.667 ±0.393 0.799 ±0.274 
+
+80% 0.014 ±0.034 0.624 ±0.415 0.791 ±0.289 0.788 ±0.294 0.617 ±0.431 0.751 ±0.318 
+
+(b) BLOCK-WISE MASKING FIRE CONTINUES [DICE] 
+
+Mask Random Dilation MaskCVAE MaskUNet MaskD3PM MaskViT 10% 0.052 ±0.086 0.458 ±0.400 0.806 ±0.276 0.800 ±0.281 0.553 ±0.468 0.741 ±0.323 
+
+20% 0.054 ±0.077 0.421 ±0.362 0.751 ±0.280 0.745 ±0.284 0.425 ±0.457 0.673 ±0.319 
+
+30% 0.055 ±0.074 0.417 ±0.345 0.722 ±0.277 0.716 ±0.280 0.366 ±0.439 0.636 ±0.311 
+
+40% 0.055 ±0.072 0.420 ±0.337 0.698 ±0.279 0.692 ±0.281 0.331 ±0.423 0.608 ±0.307 
+
+50% 0.055 ±0.071 0.426 ±0.332 0.678 ±0.280 0.672 ±0.282 0.310 ±0.412 0.584 ±0.306 
+
+60% 0.055 ±0.070 0.432 ±0.329 0.656 ±0.283 0.649 ±0.286 0.290 ±0.402 0.559 ±0.305 
+
+70% 0.055 ±0.070 0.436 ±0.328 0.631 ±0.291 0.623 ±0.293 0.276 ±0.396 0.527 ±0.309 
+
+80% 0.055 ±0.069 0.439 ±0.330 0.598 ±0.301 0.590 ±0.303 0.262 ±0.392 0.488 ±0.315 
+
+FIRE EXTINGUISHED [DICE] 
+
+Mask Random Dilation MaskCVAE MaskUNet MaskD3PM MaskViT 10% 0.013 ±0.043 0.698 ±0.427 0.908 ±0.236 0.908 ±0.237 0.837 ±0.355 0.881 ±0.275 
+
+20% 0.014 ±0.039 0.635 ±0.438 0.856 ±0.284 0.856 ±0.284 0.756 ±0.412 0.814 ±0.329 
+
+30% 0.014 ±0.037 0.617 ±0.437 0.821 ±0.310 0.824 ±0.307 0.710 ±0.435 0.774 ±0.350 
+
+40% 0.014 ±0.036 0.613 ±0.434 0.787 ±0.331 0.788 ±0.331 0.667 ±0.451 0.730 ±0.369 
+
+50% 0.014 ±0.035 0.613 ±0.432 0.755 ±0.349 0.759 ±0.346 0.641 ±0.458 0.696 ±0.383 
+
+60% 0.014 ±0.035 0.615 ±0.429 0.725 ±0.364 0.728 ±0.362 0.619 ±0.464 0.661 ±0.396 
+
+70% 0.014 ±0.035 0.616 ±0.429 0.693 ±0.381 0.689 ±0.382 0.596 ±0.470 0.619 ±0.409 
+
+80% 0.014 ±0.034 0.615 ±0.432 0.650 ±0.399 0.648 ±0.400 0.580 ±0.474 0.578 ±0.421 
+
+• Analysis of Block-wise Masking: Large-scale occlusions severely penalize purely local models when the advancing front is entirely masked. While MaskCVAE ( 0.598 at 
+
+η = 80% ) remains the leading approach, MaskViT exhibits remarkable resilience. Despite beginning with worse performance at η = 10% masking, MaskViT yields a competitive Dice of 0.488 at 80% masking. This highlights the advantage of its cross-attention mechanism, which can attend to distant environmental cues to infer the missing front. 
+
+2) Reconstruction of Decaying Trailing Edges ( FIRE EX-
+
+TINGUISHED ): The F IRE EXTINGUISHED subset represents currently burning areas that will soon burn out, typically corresponding to the contiguous, internal smoldering cores of the fire. Because these regions are more spatially continuous than advancing fronts, they yield inherently higher Dice scores across all models. We analyze the performance in the follow-ing ways: 
+
+• Analysis of Pixel-wise Masking: The MaskCVAE and MaskUNet models achieve near-perfect recovery ( ∼ 0.95 
+
+Dice) at η = 10% . Even under severe η = 80% 
+
+occlusion, both models sustain high fidelity ( ∼ 0.79 
+
+Dice), indicating that dense, localized spatial context is highly effective at filling in missing internal fire pixels. 
+
+• Analysis of Block-wise Masking: The performance degradation is more graceful here than in the FIRE 
+
+CONTINUES scenario. MaskCVAE continues to outper-form the other methods ( 0.650 at η = 80% ), while MaskUNet, MaskViT, and MaskD3PM all cluster closely between 0.57 and 0.65 under extreme block occlusion. This suggests that, unlike the complex advancing fronts, reconstructing contiguous trailing edges is generally less sensitive to the specific architectural inductive biases of the models, whether it be the localized operations of CNNs or the global attention of Transformers. 
+
+3) Specificity and False Alarm Suppression ( NEW FIRE 
+
+& NO FIRE ): To optimize layout and focus on complex propagation dynamics, tabular results for the N EW FIRE and NO FIRE scenarios are omitted from the main text. These sce-narios predominantly consist of unburned background regions, strictly testing the models’ resistance to hallucination. Under both pixel-wise and block-wise masking, the random baseline yields an expected FPR of approximately 0.500 , while the Dilation baseline provides more reasonable performance. In contrast, all of the evaluated learning structures (MaskC-VAE, MaskUNet, MaskViT, MaskD3PM) demonstrate excep-tional specificity. Their FPRs remain strictly bounded near zero (consistently below 0.001 ) across all masking levels η. This confirms that our Stage-I recovery models robustly suppress false alarms and strictly avoid hallucinating non-existent fire pixels in unburned areas, ensuring that no “phantom fires” are passed to the Stage-II forecasting module. 
+
+4) Model Comparison: To ensure a rigorous evaluation of spatial reconstruction, we strictly isolate the analysis to samples containing active fire pixels. Calculating the Dice co-efficient on completely unburned images can lead to numerical instability and artificially skew the overall metric. By filtering out these empty samples, we guarantee that the reported Dice scores faithfully reflect the models’ ability to reconstruct the complex fire behavior. The overall reconstruction performance under this refined criterion across all learning networks is illustrated in Fig. 5. 
+
+C. Stage-2: The Impact of Recovery on Forecasting 
+
+Table IV provides a scenario-wise breakdown of down-stream forecasting performance under both pixel-wise and block-wise corruptions. To maintain the focus of our analy-sis, we exclusively tabulate the F IRE CONTINUES and F IRE 10 10 20 30 40 50 60 70 80 
+
+Masking Difficulty (%) 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> DICE
+> MaskCVAE
+> MaskUNet
+> MaskViT
+> MaskD3PM
+> Dilation
+> Random
+
+(a) PIXEL-WISE RECOVERY 10 20 30 40 50 60 70 80 
+
+Masking Difficulty (%)  
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> DICE
+> MaskCVAE
+> MaskUNet
+> MaskViT
+> MaskD3PM
+> Dilation
+> Random
+
+(b) BLOCK-WISE RECOVERY Fig. 5: Comparison of Stage-I recovery performance across varying masking difficulty levels ( η ∈ [10% , 80%] ). The performance is evaluated using the DICE coefficient , which is particularly effective for capturing the structural integrity of sparse flame patterns . In both (a) and (b), 
+
+Random and Dilation represent the baseline methods , whereas the other four curves denote different learning-based models . The results highlight the superior recovery performance of learning-based approaches under high-sparsity conditions. 
+
+TABLE IV: STAGE-2: FORECASTING 
+
+UTAE Performance under different fire scenarios (mean ± std).                                      
+
+> PIXEL-WISE MASKING BLOCK-WISE MASKING
+> Mask FIRE CONT. [AP] FIRE EXT. [FPR] FIRE CONT. [AP] FIRE EXT. [FPR] 0% 0.527 ±0.274 0.002 ±0.010 0.527 ±0.273 0.002 ±0.010
+> 10% 0.521 ±0.274 0.002 ±0.010 0.508 ±0.269 0.002 ±0.010
+> 20% 0.513 ±0.274 0.002 ±0.009 0.487 ±0.267 0.001 ±0.009
+> 30% 0.501 ±0.275 0.001 ±0.008 0.465 ±0.261 0.001 ±0.008
+> 40% 0.491 ±0.274 0.001 ±0.007 0.445 ±0.260 0.001 ±0.007
+> 50% 0.475 ±0.273 0.001 ±0.006 0.418 ±0.256 0.001 ±0.006
+> 60% 0.454 ±0.272 0.001 ±0.005 0.396 ±0.251 0.001 ±0.006
+> 70% 0.426 ±0.269 0.000 ±0.004 0.369 ±0.247 0.001 ±0.005
+> 80% 0.385 ±0.264 0.000 ±0.003 0.334 ±0.241 0.000 ±0.004
+
+EXTINGUISHED scenarios. The NEW FIRE and NO FIRE 
+
+scenarios are omitted since their historical input sequences contain entirely unburned regions; applying spatial masks to these empty historical inputs yields no data alteration, resulting in identical prediction performance across all masking sever-ity levels. Thus, Stage-I reconstruction provides no variable advantage when a historical fire is absent. For the N EW FIRE 
+
+scenario, the AP remains constant at 0.096 ±0.152 (pixel-wise) and 0.123 ±0.183 (block-wise), reflecting that predictions in these areas rely entirely on environmental ignition cues rather than reconstructed morphology. For the N O FIRE scenario, the model remains highly robust, maintaining a near-zero FPR consistently below 0.001 across all settings. Focusing on the tabulated scenarios containing active his-torical fire, the forecasting model exhibits distinct sensitivities to data corruption. For F IRE CONTINUES , the AP decreases monotonically as masking severity increases. It drops from an initial value of 0.527 without occlusion to 0.385 un-der 80% pixel-wise masking, and suffers a steeper decline to 0.334 under 80% block-wise masking. This substantial degradation highlights that accurate downstream forecasting is highly dependent on the morphological integrity of the advancing fire fronts. Conversely, in the F IRE EXTINGUISHED 
+
+scenario, the FPR remains near zero. This indicates that when burnout patterns dominate the historical sequence, the model is remarkably resilient to information loss and rarely hallucinates subsequent fire spread. Fig. 6 demonstrates the substantial improvement in next-day forecasting performance achieved by integrating the Stage-I reconstruction module across varying masking conditions. Compared to direct prediction on corrupted inputs, forecast-ing on recovered sequences yields significant and consistent performance gains, particularly under severe data loss. Specifi-cally, under extreme 80% pixel-wise masking, the forecasting AP on raw corrupted data plummets to 0.378. In contrast, predicting on the reconstructed sequences restores the AP to 0.482, representing a substantial relative improvement of 27.5%. Similarly, under 80% block-wise occlusion, where spatially contiguous data loss more severely disrupts image integrity, the unrecovered prediction AP drops to 0.328. Fol-lowing reconstruction, the forecasting performance recovers to 0.425, achieving a substantial relative increase of 29.6%. These quantitative gains confirm that restoring missing obser-vations prior to forecasting drastically mitigates the domain gap caused by partial observability. Fig. 7 illustrates the reconstruction capability of MaskUNet pipeline through two representative examples under pixel-wise and block-wise occlusion. In scenarios where the fire front is severely obscured, the recovered maps successfully capture the fire’s shape by synthesizing sparse detections with contextual information. By restoring the spatial connectivity of the fire front, these recovered features provide a highly robust initial state for downstream forecasting. Fig. 7 contrasts our pipeline’s results against predictions made using completely uncorrupted historical data, which serve as the performance upper bound for our forecasting module. As demonstrated in both examples, our learning-based recovery-and-prediction approach leads to superior alignment with the Ground Truth (GT). Compared to direct forecasting from missing data, which 11 0 10 20 30 40 50 60 70 80 
+
+Masking Difficulty (%)  
+
+> 0.30
+> 0.35
+> 0.40
+> 0.45
+> 0.50
+> 0.55
+> AP
+> Pixelwise (Masked)
+> Pixelwise (Recovered)
+> Blockwise (Masked)
+> Blockwise (Recovered)
+> Fig. 6: Forecasting performance under increasing masking difficulty. Average Precision (AP) is reported for direct forecasting on corrupted inputs (Masked) nd forecasting after Stage-I recovery (Recovered) un-der both pixel-wise and block-wise corruption. Recovery consistently reduces performance degradation, especially under severe structural occlusion.
+
+severely underestimates fire spread, our approach bridges the gap caused by information loss and successfully pushes the prediction performance closer to the performance upper bound. V. C ONCLUSION 
+
+This paper has addressed the critical but under-explored challenge of wildfire spread forecasting under partial observ-ability. To mitigate the domain gap caused by incomplete satellite observations, we proposed a two-stage framework that decouples observation recovery from spatiotemporal pre-diction. By systematically evaluating diverse generative algo-rithms for the Stage-I reconstruction, we demonstrated that learning-based inpainting models, particularly those leveraging strong local inductive biases and latent priors, can effectively restore complex fire features even under severe spatial occlu-sion. Notably, our Stage-II forecasting evaluations confirmed that integrating this dedicated recovery module significantly reduces the performance degradation inherent in corrupted in-puts, successfully pushing the downstream predictive accuracy back toward the upper performance bound achievable with uncorrupted data. While our decoupled approach significantly enhances op-erational forecasting reliability, several avenues remain for future exploration. Subsequent research should incorporate physically realistic image corruption models derived from actual cloud and smoke transport dynamics to better reflect real-world sensor obscuration. Additionally, transitioning from independent stage training to an end-to-end joint optimization could enable the recovery module to directly maximize down-stream forecasting accuracy rather than strictly pixel-level fidelity. Finally, extending this framework to accommodate higher-resolution satellite products and extended prediction horizons will further broaden its utility for real-time wildfire management systems. APPENDIX 
+
+This appendix specifies the exact architectural configu-rations and optimization details required to reproduce the experiments. High-level modeling principles are described in Section II. The code implementation can be found at [36]. 
+
+A. Common Architectural Settings 
+
+Unless otherwise stated, all convolutional layers use:  
+
+> •
+
+Kernel size 3 × 3 with padding 1  
+
+> •
+
+Group Normalization (8 groups)  
+
+> •
+
+SiLU activation  
+
+> •
+
+1 × 1 convolution for output logits All models operate on 64 ×64 spatial inputs with a 42 -channel tensor after preprocessing. 
+
+B. Stage-I Reconstruction Backbones 1) MaskUNet:  
+
+> •
+
+Input: 42 × 64 × 64  
+
+> •
+
+Encoder channels: [64 , 128 , 256 , 512]  
+
+> •
+
+Residual blocks per scale: 2  
+
+> •
+
+Downsampling: 64 → 32 → 16 → 8 → 4 
+
+> •
+
+Bottleneck resolution: 4 × 4 
+
+> •
+
+Multi-head self-attention at bottleneck  
+
+> •
+
+Decoder: symmetric upsampling with skip connections  
+
+> •
+
+Output: 1 × 64 × 64 logits 
+
+2) MaskCVAE:  
+
+> •
+
+Encoder channels: [64 , 128 , 256]  
+
+> •
+
+Spatial resolution: 64 → 32 → 16 → 8 
+
+> •
+
+Latent dimension: 128  
+
+> •
+
+Gaussian prior and posterior parameterization (μ, log σ) 
+
+> •
+
+Latent fusion via channel concatenation + residual block  
+
+> •
+
+Decoder: UNet-style upsampling  
+
+> •
+
+Bottleneck resolution: 8 × 8 
+
+> •
+
+KL weight: β = 0 .1
+
+3) MaskViT:  
+
+> •
+
+Patch size: 4 × 4 
+
+> •
+
+Token grid: 16 × 16 (256 tokens)  
+
+> •
+
+Embedding dimension: 256  
+
+> •
+
+Transformer depth: 6  
+
+> •
+
+Attention heads: 8  
+
+> •
+
+MLP expansion ratio: 4  
+
+> •
+
+Pre-LayerNorm configuration  
+
+> •
+
+Linear projection head + spatial reshape 
+
+4) MaskD3PM:  
+
+> •
+
+Diffusion steps: 100  
+
+> •
+
+State space: {0, 1, MASK } 
+
+> •
+
+Sinusoidal time embedding dimension: 256  
+
+> •
+
+Backbone: ResUNet with AdaGN conditioning  
+
+> •
+
+Bottleneck resolution: 8 × 8 
+
+> •
+
+Reverse transition modeled with categorical logits 12 Day 0           
+
+> GT 0%
+> 40% recovered 80% recovered 40% missing 80% missing GT 0% 40% recovered 80% recovered 40% missing 80% missing
+> 40% recovered 80% recovered 40% missing 80% missing
+> Day 1 Day 2 Day 3 Day 4 Prediction Day 0 Day 1 Day 2 Day 3 Day 4 Prediction Pixel-wise Masking Pixel-wise Masking Block-wise Masking Block-wise Masking
+> 40% recovered 80% recovered 40% missing 80% missing
+
+Fig. 7: Visualization of the MaskUNet recovery-and-prediction pipeline under different information loss (Pixel-wise vs. Block-wise). 
+
+The sequence illustrates the wildfire forecasting task for the next day based on historical observations from the preceding five days . To clarify the visual layout: orange borders denote the actual Ground Truth ( GT ) fire footprint on the target day, representing the real-world physical outcome. In contrast, the gray borders (labeled as 0% ) represent the model’s prediction when provided with completely uncorrupted historical observations. Furthermore, pink borders highlight the ( Missing ) input after masking, while blue borders indicate the fire shape details reconstructed by our model ( Recovered ) and the final output for the next-day state ( Prediction ). 
+
+C. Stage-II Spatiotemporal Predictor 
+
+The Stage-II forecasting model follows a U-TAE style encoder–decoder design.  
+
+> •
+
+Input sequence length: T = 5  
+
+> •
+
+Encoder channels: [64 , 128 , 128]  
+
+> •
+
+Downsampling: 64 → 32 → 16 → 8 
+
+> •
+
+Temporal attention heads: 4  
+
+> •
+
+Dropout: 0.1  
+
+> •
+
+Decoder: skip-connected upsampling  
+
+> •
+
+Output: sigmoid-activated 1 × 1 convolution 
+
+D. Optimization and Loss Functions 
+
+All models are trained using the same optimization protocol unless otherwise specified.  
+
+> •
+
+Optimizer: AdamW  
+
+> •
+
+Learning rate: 1 × 10 −4 
+
+> •
+
+Weight decay: 1 × 10 −2 
+
+> •
+
+Batch size: 16  
+
+> •
+
+Training epochs: 100  
+
+> •
+
+Early stopping patience: 10 epochs  
+
+> •
+
+Learning rate schedule: cosine decay  
+
+> •
+
+Mixed precision: enabled  
+
+> •
+
+Hardware: NVIDIA A100 GPU Loss functions are defined as follows:  
+
+> •
+
+MaskUNet / MaskViT: Focal loss  
+
+> •
+
+MaskCVAE: ELBO (Focal reconstruction + KL term)  
+
+> •
+
+MaskD3PM: Categorical cross-entropy  
+
+> •
+
+Stage-II forecasting: Focal loss 
+
+E. Corruption and Masking Implementation 
+
+For reconstruction robustness experiments, input corruption is applied before Stage-I training:  
+
+> •
+
+Masking ratios: η ∈ { 0.1, 0.2, . . . , 0.8} 
+
+> •
+
+Pixel-wise corruption: independent Bernoulli masking  
+
+> •
+
+Block-wise corruption: contiguous square regions sam-pled with weights  
+
+> •
+
+Corrupted values replaced with a dedicated [MASK] token 13 
+
+REFERENCES [1] A. Sullivan, E. Baker, T. Kurvits, A. Popescu, A. K. Paulson, A. C. Christianson, A. Tulloch, B. Bilbao, C. Mathison, C. Robinson et al. ,“Spreading like wildfire: The rising threat of extraordinary landscape fires,” United Nations Environment Programme, Report, 2022. [2] B. E. Law, J. T. Abatzoglou, C. R. Schwalm, D. Byrne, N. Fann, and N. J. Nassikas, “Anthropogenic climate change contributes to wildfire particulate matter and related mortality in the United States,” Commun. Earth Environ. , vol. 6, no. 1, 2025. [3] C. R. Dickman, “Ecological consequences of australia’s “black summer” bushfires: Managing for recovery,” Integr. Environ. Assess. Manag. ,vol. 17, no. 6, pp. 1162–1167, 2021. [4] V. Reiner, N. L. Pathirana, Y.-Y. Sun, M. Lenzen, and A. Malik, “Wish you were here? The economic impact of the tourism shutdown from Australia’s 2019–20 “Black Summer” bushfires,” Econ. Disaster Clim. Chang. , vol. 8, no. 1, pp. 107–127, Mar. 2024. [5] E. Paglino, R. V. Raquib, and A. C. Stokes, “Excess deaths attributable to the Los Angeles wildfires from Jan. 5 to Feb. 1, 2025,” JAMA , vol. 334, no. 11, pp. 1018–1019, 2025. [6] C.-C. Chan, S. A. Alvi, X. Zhou, S. Durrani, N. Wilson, and M. Yebra, “A survey on IoT ground sensing systems for early wildfire detection: Technologies, challenges, and opportunities,” IEEE Access , vol. 12, pp. 172 785–172 819, 2024. [7] C. O. Justice, L. Giglio, S. Korontzi, J. Owens, J. T. Morisette, D. Roy, J. Descloitres, S. Alleaume, F. Petitcolin, and Y. Kaufman, “The MODIS fire products,” Remote Sens. Environ. , vol. 83, no. 1–2, pp. 244–262, 2002. [8] W. Schroeder, P. Oliva, L. Giglio, and I. A. Csiszar, “The new VIIRS 375 m active fire detection data product: Algorithm description and initial assessment,” Remote Sens. Environ. , vol. 143, pp. 85–96, 2014. [9] A. Bouguettaya, H. Zarzour, A. M. Taberkit, and A. Kechida, “A review on early wildfire detection from unmanned aerial vehicles using deep learning-based computer vision algorithms,” Signal Process. , vol. 190, 2022. [10] A. Savtchenko, D. Ouzounov, S. Ahmad, J. Acker, G. Leptoukh, J. Koziana, and D. Nickless, “Terra and aqua MODIS products available from NASA GES DAAC,” Adv. Space Res. , 2004. [11] T. J. Schmit, P. Griffith, M. M. Gunshor, J. M. Daniels, S. J. Goodman, and W. J. Lebair, “A closer look at the ABI on the GOES-R series,” 
+
+Bull. Amer. Meteor. Soc. , vol. 98, no. 4, pp. 681–698, 2017. [12] E. Chuvieco, I. Aguado, J. Salas, M. Garc´ ıa, M. Yebra, and P. Oliva, “Satellite remote sensing contributions to wildland fire science and management,” Curr. Forestry Rep. , 2020. [13] J. T. Abatzoglou, “Development of gridded surface meteorological data for ecological applications and modelling,” Int. J. Climatol. , vol. 33, no. 1, pp. 121–131, 2013. [14] F. Huot, R. L. Hu, N. Goyal, T. Sankar, M. Ihme, and Y.-F. Chen, “Next day wildfire spread: A machine learning dataset to predict wildfire spreading from remote-sensing data,” IEEE Trans. Geosci. Remote Sens. ,vol. 60, pp. 1–13, 2022. [15] S. Gerard, Y. Zhao, and J. Sullivan, “WildfireSpreadTS: A dataset of multi-modal time series for wildfire spread prediction,” in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 36, 2023, pp. 74 515–74 529. [16] Y. Zhao, S. Gerard, and Y. Ban, “TS-SatFire: A multi-task satellite image time-series dataset for wildfire detection and prediction,” Sci. Data , p. 1817, 2025. [17] D. Sykas, D. Zografakis, K. Demestichas, C. Costopoulou, and P. Kos-midis, “EO4WildFires: An earth observation multi-sensor, time-series machine-learning-ready benchmark dataset for wildfire impact predic-tion,” in Proc. SPIE, 9th Int. Conf. Remote Sens. Geoinf. Environ. (RSCy 2023) . SPIE, 2023, p. 1278603. [18] S. Kondylatos, I. Prapas, G. Camps-Valls, and I. Papoutsis, “Meso-geos: A multi-purpose dataset for data-driven wildfire modeling in the Mediterranean,” in Adv. Neural Inf. Process. Syst. , vol. 36, 2023, pp. 50 661–50 676. [19] R. Ghali and M. A. Akhloufi, “Deep learning approaches for wildland fires using satellite remote sensing data: Detection, mapping, and pre-diction,” Fire , vol. 6, no. 5, 2023. [20] H. S. Andrianarivony and M. A. Akhloufi, “Machine learning and deep learning for wildfire spread prediction: A review,” Fire , vol. 7, no. 12, 2024. [21] D. Radke, A. Hessler, and D. Ellsworth, “FireCast: Leveraging deep learning to predict wildfire spread,” in Proc. Int. Joint Conf. Artif. Intell. (IJCAI) , 2019, pp. 4575–4581. [22] X. Shi, Z. Chen, H. Wang, D. Yeung, W. Wong, and W. Woo, “Convo-lutional LSTM network: A machine learning approach for precipitation nowcasting,” in Adv. Neural Inf. Process. Syst. , C. Cortes, N. D. Lawrence, D. D. Lee, M. Sugiyama, and R. Garnett, Eds., vol. 28, 2015, pp. 802–810. [23] V. S. F. Garnot and L. Landrieu, “Panoptic segmentation of satellite image time series with convolutional temporal attention networks,” in 
+
+Proc. IEEE/CVF Int’l Conf. on Computer Vision , 2021, pp. 4872–4881. [24] B. S. Li and R. Rad, “Wildfire spread prediction in North America using satellite imagery and Vision Transformer,” in Proc. 2024 IEEE Conf. on Artificial Intelligence (CAI) . IEEE, 2024, pp. 1536–1541. [25] F. Khennou and M. A. Akhloufi, “Improving wildland fire spread prediction using deep U-Nets,” Sci. Remote Sens. , p. 100101, 2023. [26] W. Schroeder, I. Csiszar, and J. Morisette, “Quantifying the impact of cloud obscuration on remote sensing of active fires in the Brazilian Amazon,” Remote Sensing of Environment , vol. 112, no. 2, pp. 456– 470, 2008. [27] L. Giglio, W. Schroeder, and C. O. Justice, “The collection 6 MODIS active fire detection algorithm and fire products,” Remote Sensing of Environment , vol. 178, pp. 31–41, 2016. [28] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional net-works for biomedical image segmentation,” in Med. Image Comput. Comput.-Assist. Intervent.—MICCAI 2015 , ser. Lect. Notes Comput. Sci., N. Navab, J. Hornegger, W. M. Wells, and A. F. Frangi, Eds., vol. 9351. Cham, Switzerland: Springer, 2015, pp. 234–241. [29] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,” in Proc. IEEE Conf. on Computer Vision and Pattern Recognition (CVPR) , Jun. 2016, pp. 770–778. [30] D. P. Kingma and M. Welling, “Auto-encoding variational bayes,” in 
+
+Proc. Int. Conf. Learn. Represent. (ICLR) , 2014. [31] K. Sohn, H. Lee, and X. Yan, “Learning structured output representation using deep conditional generative models,” in Adv. Neural Inf. Process. Syst. , vol. 28, 2015, pp. 3483–3491. [32] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” in Adv. Neural Inf. Process. Syst. , vol. 30, 2017, pp. 5998–6008. [33] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, and N. Houlsby, “An image is worth 16x16 words: Transformers for image recognition at scale,” in Proc. Int. Conf. Learn. Represent. (ICLR) , 2021. [34] J. Ho, A. Jain, and P. Abbeel, “Denoising diffusion probabilistic models,” in Adv. Neural Inf. Process. Syst. , vol. 33, 2020, pp. 6840–6851. [35] J. Austin, D. D. Johnson, J. Ho, D. Tarlow, and R. Van Den Berg, “Structured denoising diffusion models in discrete state-spaces,” in Adv. Neural Inf. Process. Syst. , vol. 34, 2021, pp. 17 981–17 993. [36] C. Yang, M. Zafari, and Z. Duan, “Robust-Wildfire-Forecasting,” GitHub repository, 2026, accessed: March 8, 2026. [Online]. Available: https://github.com/LS-Wireless/Robust-Wildfire-Forecasting [37] V. S. F. Garnot and L. Landrieu, “Lightweight temporal self-attention for classifying satellite images time series,” in Int. Workshop Adv. Anal. Learn. Temporal Data . Springer, 2020, pp. 171–181. [38] E. Vermote et al. , “VIIRS/NPP surface reflectance daily L2G global 1km and 500m SIN grid V001 [data set],” NASA Land Processes Distributed Active Archive Center (LP DAAC), 2016. [39] K. Didan and A. Barreto, “VIIRS/NPP vegetation indices 16-day L3 global 500 m SIN grid V001,” Dataset, NASA Land Processes Dis-tributed Active Archive Center (LP DAAC), 2018, accessed: Dec. 27, 2025. [40] NASA JPL, “NASA shuttle radar topography mission global 1 arc second [data set],” NASA Land Processes Distributed Active Archive Center (LP DAAC), 2013, accessed: Dec. 28, 2025. [41] D. Sulla-Menashe, J. M. Gray, S. P. Abercrombie, and M. A. Friedl, “Hierarchical mapping of annual global land cover 2001 to present: The MODIS Collection 6 Land Cover Product,” Remote Sens. Environ. , vol. 222, pp. 183–194, 2019. [42] M. Friedl and D. Sulla-Menashe, “MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid V061,” Dataset, NASA Land Processes Distributed Active Archive Center (LP DAAC), 2022, ac-cessed: 2026-01-01. [43] S. A. Clough, M. W. Shephard, E. J. Mlawer, J. S. Delamere, M. J. Iacono, K. Cady-Pereira, S. Boukabara, and P. D. Brown, “Atmospheric radiative transfer modeling: A summary of the AER codes,” J. Quant. Spectrosc. Radiat. Transfer , vol. 91, no. 2, pp. 233–244, 2005. [44] P. Oliva and W. Schroeder, “Assessment of VIIRS 375m active fire de-tection product for direct burned area mapping,” Remote Sens. Environ. ,vol. 160, pp. 144–155, 2015. 14 
+
+Chen Yang received the B.S. degree in Commu-nication Engineering from Beijing University of Posts and Telecommunications, Beijing, China, in 2017. He is currently pursuing the Ph.D. degree in Electrical Engineering and Computer Science with the University of California, Irvine, CA, USA. His current research focuses on data assimilation, Bayesian inference/estimation, generative models, and autonomous UAV sensing. 
+
+Mehdi Zafari (S’21) received the B.S. degree in Electrical Engineering from the University of Tehran, Tehran, Iran, in 2015, and the M.S. degree in Electrical and Computer Engineering from Rice Uni-versity, Houston, TX, USA, in 2024. He is currently pursuing the Ph.D. degree in Electrical Engineering and Computer Science at the University of Cali-fornia, Irvine, CA, USA. His research interests in-clude optimization, deep learning, and generative AI for next-generation wireless communications, with a focus on integrated sensing and communication (ISAC), cell-free/distributed MIMO technology, and resource allocation. 
+
+Ziheng Duan received the Ph.D. degree in Com-puter Science from the University of California, Irvine. His research interests include machine learn-ing and its applications to real-world problems. 
+
+A. Lee Swindlehurst (Life Fellow, IEEE) received the B.S. (1985) and M.S. (1986) degrees in Elec-trical Engineering from Brigham Young University (BYU), and the PhD (1991) degree in Electrical Engineering from Stanford University. He was with the Department of Electrical and Computer Engi-neering at BYU from 1990-2007, where he served as Department Chair from 2003-06. During 1996-97, he held a joint appointment as a visiting scholar at Uppsala University and the Royal Institute of Technology in Sweden. From 2006-07, he was on leave working as Vice President of Research for ArrayComm LLC in San Jose, California. Since 2007 he has been with the Electrical Engineering and Computer Science (EECS) Department at the University of California Irvine, where he is a Distinguished Professor and currently serving as Department Chair. Dr. Swindlehurst is a Fellow of the IEEE, during 2014-17 he was also a Hans Fischer Senior Fellow in the Institute for Advanced Studies at the Technical University of Munich, and in 2016, he was elected as a Foreign Member of the Royal Swedish Academy of Engineering Sciences (IVA). He received the 2000 IEEE W. R. G. Baker Prize Paper Award, the 2006 IEEE Communications Society Stephen O. Rice Prize in the Field of Communication Theory, the 2006, 2010 and 2021 IEEE Signal Processing Society’s Best Paper Awards, the 2017 IEEE Signal Processing Society Donald G. Fink Overview Paper Award, a Best Paper award at the 2020 and 2024 IEEE International Conferences on Communications, the 2022 Claude Shannon-Harry Nyquist Technical Achievement Award from the IEEE Signal Processing Society, and the 2024 Fred W. Ellersick Prize from the IEEE Communications Society. His research focuses on array signal processing for radar, wireless communications, and biomedical applications.

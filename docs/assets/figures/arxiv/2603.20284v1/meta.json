@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.20284v1/fig-001.webp",
+      "caption": "Figure 1. Runtime–memory scaling in streaming 3D reconstruction. Bars show per-frame runtime (ms) and lines show KV cache memory (GB, log scale) as the stream grows. Compared with Causal-VGGT, STAC reduces KV cache growth and stabilizes per-frame runtime as the stream length increases.",
+      "page": 1,
+      "index": 1,
+      "width": 492,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20284v1/fig-002.webp",
+      "caption": "Figure 4. Qualitative results on streaming inputs from the 7-scenes and NRGBD datasets.",
+      "page": 7,
+      "index": 2,
+      "width": 986,
+      "height": 234
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20284v1/fig-003.webp",
+      "caption": "Table 1. Quantitative results for point cloud reconstruction on the NRGBD and 7 Scenes datasets. Integrating STAC into STream3R and StreamVGGT substantially improves memory and runtime efficiency while preserving reconstruction quality. W8 denotes a sliding window size of 8. W22 and W26 indicate larger windows for fair total memory, though our method uses less memory at runtime. Mem: main values report total memory footprint for comparison; for STAC, this includes the spatial token cache storage, while parentheses show its runtime usage. FPS: end-to-end throughput measured over the full reconstruction pipeline, from image input to the final 3D outputs.",
+      "page": 7,
+      "index": 3,
+      "width": 1031,
+      "height": 394
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20284v1/fig-004.webp",
+      "caption": "Figure 2. Spatio-temporal attention sparsity. Representative attention patterns in the global causal attention map of CausalVGGT, retaining the top 1024 keys per query for visualization. (a) Spatial attention aligned with camera motion; (b) Persistent focus on first-frame tokens as global references; (c) Temporal anchoring via tokens from semantically stable landmark frames; (d) Longrange attention to camera tokens encoding global context.",
+      "page": 3,
+      "index": 4,
+      "width": 439,
+      "height": 431
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20284v1/fig-005.webp",
+      "caption": "Table 2. Quantitative camera pose estimation results on the Sintel, TUM Dynamics, and ScanNet datasets.",
+      "page": 8,
+      "index": 5,
+      "width": 975,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.20284v1/fig-006.webp",
+      "caption": "Figure 3. Overview of STAC. Our framework reconstructs 3D scenes online using spatio-temporal token caching and chunk-based causal inference. (a) The Causal-VGGT module processes ViT-tokenized frames in each chunk using causal attention over the working temporal cache Mtemp and spatial cache Mspat retrieved from a 3D voxel grid. (b) During inference, Working Temporal Token Caching updates token scores after each KV cache access, retaining high-scoring anchor tokens Manchor while preserving first-frame reference tokens Mrefer and sliding-window tokens Mwindow, and evicting the rest. (c) Long-term Spatial Token Caching routes evicted tokens with 3D coordinates from the Head Decoder to many-to-one aggregation in E or one-to-one merging into G. When G is full, re-merging frees a slot for the incoming merged token, and the updated representations are stored in a 3D voxel grid for future retrieval.",
+      "page": 5,
+      "index": 6,
+      "width": 1022,
+      "height": 545
+    }
+  ]
+}

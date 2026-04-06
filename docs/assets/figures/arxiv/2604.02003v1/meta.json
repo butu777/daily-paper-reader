@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-001.webp",
+      "caption": "Figure 4. Qualitative analysis of ProDiG(ours): Comparison of our method with existing baselines on aerial-to-ground reconstruction. Gaussian Splatting [16] struggles to render complete scenes due to the absence of ground-level viewpoints, while Diffix+[38] exhibits noisy artifacts and hallucinated structures. In contrast, ProDiG (ours) produces geometrically consistent and visually coherent reconstructions with fewer hallucinations. Notably, in the second row, the aerial inputs and reconstructed model include cars visible from above, whereas the ground-truth image - captured at a different time - does not.",
+      "page": 6,
+      "index": 1,
+      "width": 1036,
+      "height": 336
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-002.webp",
+      "caption": "Figure 3. Effectiveness of aeroFix: Comparison of aerial image refinement between Difix[38] and our aeroFix model. The noisy novel views are outlined in orange, the reference images in green, and the refined (fixed) novel images in pink. Difix tends to copy content from the reference view when the viewpoint difference is large, leading to inconsistencies and artifacts. In contrast, aeroFix effectively preserves structural fidelity and produces geometrically consistent, artifact-free refinements.",
+      "page": 6,
+      "index": 2,
+      "width": 1026,
+      "height": 353
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-003.webp",
+      "caption": "Figure 1. Overview of ProDiG. (a) Our framework reconstructs a complete 3D scene using only aerial images. A large distribution shift exists between the aerial training images and the ground-level query images. During evaluation, we render novel views at ground-level camera poses and compare them against ground-truth images. (b) In our Distance-Adaptive Gaussian Splatting module, each Gaussian is dynamically scaled and reweighted using a lightweight encoder that predicts adjustment factors from its learned scaling feature and its distance to the active camera. (c) We progressively render noisy novel views at successively lower altitudes, fix these views using our diffusion model, and iteratively retrain the Gaussian Splatting model using the fixed novel view.",
+      "page": 2,
+      "index": 3,
+      "width": 1019,
+      "height": 453
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-004.webp",
+      "caption": "Table 2. Comparison of our method with existing methods on the WRIVA dataset across two sites. Best values are in bold.(D: Dreamsim, P: PSNR, S: SSIM, L: LPIPS)",
+      "page": 7,
+      "index": 4,
+      "width": 487,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-005.webp",
+      "caption": "Figure 5. Generalization across Varying Altitudes. We evaluate our method on the Aerial MegaDepth[36] dataset, which contains sites captured at diverse altitude ranges.",
+      "page": 8,
+      "index": 5,
+      "width": 496,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-006.webp",
+      "caption": "Figure 6. Ablations. (top) Comparison of different progressive methods. (bottom) Effectiveness of Distance Adaptive Gaussian Module. 7k represents, evalution at 7k iteration, after initial training.",
+      "page": 8,
+      "index": 6,
+      "width": 496,
+      "height": 314
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02003v1/fig-007.webp",
+      "caption": "Figure 2. Overview of aeroFix: (left) Our diffusion model is fine-tuned on aerial imagery using LoRA. The noisy novel view is fixed using the reference view to fixed novel image. In the diffusion block, the relative camera pose difference is injected into the timestep embedding of the noisy image to encode geometric variation across viewpoints. We additionally include Plücker ray embeddings before the attention mixing layer to provide geometric cues. In the Causal Attention Mixing module, we enforce an epipolar constraint by masking the novel query - reference key attention map such that only tokens aligned with the corresponding epipolar lines retain attention (value 1), while all others are suppressed (value 0). The reference query - novel key block is fully masked, and the remaining attention blocks operate under standard full attention. (right) The figure illustrates epipolar correspondences for multiple query points on the noisy image and their corresponding lines on the reference view.",
+      "page": 4,
+      "index": 7,
+      "width": 1027,
+      "height": 408
+    }
+  ]
+}

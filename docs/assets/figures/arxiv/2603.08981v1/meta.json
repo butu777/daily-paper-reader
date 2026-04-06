@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-001.webp",
+      "caption": "FIGURE 2 Same configuration as Figure 1 , but during a different date.",
+      "page": 6,
+      "index": 1,
+      "width": 885,
+      "height": 877
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-002.webp",
+      "caption": "FIGURE 7 Variogram plots for the three variables at the same dates as Figures 1 and 2 . Historical values are shown as black dots, while the gray lines correspond to BMW-GAM simulations.",
+      "page": 11,
+      "index": 2,
+      "width": 911,
+      "height": 447
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-003.webp",
+      "caption": "FIGURE 3 Comparison of autocorrelation and partial autocorrelation functions for historical and predicted temperature.",
+      "page": 7,
+      "index": 3,
+      "width": 885,
+      "height": 1171
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-004.webp",
+      "caption": "FIGURE 6 Assessing model performance at a single location. First and second rows show the historical and simulated histograms, respectively. The third row shows the historical time series as the black line and simulated time series in lighter gray.",
+      "page": 10,
+      "index": 4,
+      "width": 873,
+      "height": 862
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-005.webp",
+      "caption": "FIGURE 4 Same configuration as Figure 3 , but for wind speed.",
+      "page": 8,
+      "index": 5,
+      "width": 885,
+      "height": 1171
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-006.webp",
+      "caption": "FIGURE 5 Same configuration as Figure 4 , but for global horizontal irradiance.",
+      "page": 9,
+      "index": 6,
+      "width": 885,
+      "height": 1171
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08981v1/fig-007.webp",
+      "caption": "FIGURE 1 First row: historical data. Second row: posterior mean of BMW-GAM simulations. Third row: posterior variance of BMW-GAM simulations.",
+      "page": 5,
+      "index": 7,
+      "width": 885,
+      "height": 876
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.18266v1/fig-001.webp",
+      "caption": "Figure 2: The digital representation of two traffic intersection. (a) is the SUMO representation of the intersection at West Univ Ave @ NW 17th Street in Gainesville, Florida. (b) is the same intersection with the middle lane of the east and west flowing traffic removed.",
+      "page": 7,
+      "index": 1,
+      "width": 452,
+      "height": 756
+    },
+    {
+      "url": "assets/figures/arxiv/2603.18266v1/fig-002.webp",
+      "caption": "Figure 1: Transformer-based architecture for learning multi-actor interactions and generating physically consistent trajectories. (a) The SUMO simulator initializes the traffic scene based on a set of control parameters. For each vehicle, neighboring actors are identified and their states are vectorized. (b) A state encoder maps the actor and its neighbors into embeddings, which are processed by a spatial attention module to produce interaction-aware spatial embeddings over the previous H timesteps. (c) The sequence of spatial embeddings for each actor is combined with a learned query embedding and passed through a temporal attention module to obtain a temporally informed representation, which is used to parameterize a Gaussian distribution over the actor’s next state. During inference, this distribution is sampled to generate the next state. (d) The newly generated actor state, together with updated neighbor states, is re-encoded and fed back into the model, enabling recursive trajectory unrolling in closed loop.",
+      "page": 5,
+      "index": 2,
+      "width": 920,
+      "height": 590
+    }
+  ]
+}

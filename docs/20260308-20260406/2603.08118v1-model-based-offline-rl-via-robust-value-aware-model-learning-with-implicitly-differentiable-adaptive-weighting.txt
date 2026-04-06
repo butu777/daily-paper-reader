@@ -1,0 +1,2761 @@
+Title: Model-based Offline RL via Robust Value-Aware Model Learning with Implicitly Differentiable Adaptive Weighting
+
+URL Source: https://arxiv.org/pdf/2603.08118v1
+
+Published Time: Tue, 10 Mar 2026 02:04:34 GMT
+
+Number of Pages: 33
+
+Markdown Content:
+Published as a conference paper at ICLR 2026 
+
+# MODEL -BASED OFFLINE RL VIA ROBUST VALUE -AWARE MODEL LEARNING WITH IMPLICITLY DIFFER -
+
+# ENTIABLE ADAPTIVE WEIGHTING 
+
+Zhongjian Qiao 1, Jiafei Lyu 2, Boxiang Lyu 3, Yao Shu 4, Siyang Gao 1, Shuang Qiu 1∗
+
+> 1
+
+CityUHK, 2Tencent, 3UChicago, 4HKUST(GZ) 
+
+zhongqiao2-c@my.cityu.edu.hk , shuanqiu@cityu.edu.hk 
+
+## ABSTRACT 
+
+Model-based offline reinforcement learning (RL) aims to enhance offline RL with a dynamics model that facilitates policy exploration. However, model exploitation 
+
+could occur due to inevitable model errors, degrading algorithm performance. Ad-versarial model learning offers a theoretical framework to mitigate model exploita-tion by solving a maximin formulation. Within such a paradigm, RAMBO (Rigter et al., 2022) has emerged as a representative and most popular method that pro-vides a practical implementation with model gradient. However, we empirically reveal that severe Q-value underestimation and gradient explosion can occur in RAMBO with only slight hyperparameter tuning, suggesting that it tends to be overly conservative and suffers from unstable model updates. To address these issues, we propose RO bust value-aware Model learning with Implicitly differ-entiable adaptive weighting (ROMI). Instead of updating the dynamics model with model gradient, ROMI introduces a novel robust value-aware model learn-ing approach. This approach requires the dynamics model to predict future states with values close to the minimum Q-value within a scale-adjustable state uncer-tainty set, enabling controllable conservatism and stable model updates. To fur-ther improve out-of-distribution (OOD) generalization during multi-step rollouts, we propose implicitly differentiable adaptive weighting, a bi-level optimization scheme that adaptively achieves dynamics- and value-aware model learning. Em-pirical results on D4RL and NeoRL datasets show that ROMI significantly out-performs RAMBO and achieves competitive or superior performance compared to other state-of-the-art methods on datasets where RAMBO typically underper-forms. Code is available at https://github.com/zq2r/ROMI.git .
+
+## 1 INTRODUCTION 
+
+Model-based offline RL (Yu et al., 2020; Kidambi et al., 2020; Rigter et al., 2022; Qiao et al., 2025; 2024) aims to enhance offline RL (Levine et al., 2020; Prudencio et al., 2023) by learning an environmental dynamics model in which the policy could explore. Compared with model-free offline RL (Kumar et al., 2020; Lyu et al., 2022; Jin et al., 2021; Fujimoto & Gu, 2021; Wu et al., 2019; Qiao et al., 2026), model-based offline RL exhibits higher data efficiency and could generalize better to states not present in the dataset. However, model-based offline RL suffers from model exploitation (Kidambi et al., 2020), that is, the policy might explore the regions where the model cannot accurately predict the dynamics. Utilizing transitions from these inaccurate regions could degrade the algorithm’s performance. Therefore, incorporating conservatism (a.k.a. pessimism ) is necessary for model-based offline RL to mitigate model exploitation. One mainstream approach is uncertainty estimation with various heuristics (Yu et al., 2020; Kidambi et al., 2020; Sun et al., 2023; Kim & Oh, 2023). However, uncertainty estimation could be unreli-able for neural networks (Rigter et al., 2022; Yu et al., 2021; Lu et al., 2021). Adversarial model learning (Uehara & Sun, 2021) offers another theoretical framework to mitigate model exploitation by solving a maximin formulation, without uncertainty estimation. Among its practical implemen-tations (Rigter et al., 2022; Bhardwaj et al., 2023; Yang et al., 2023), RAMBO (Rigter et al., 2022) 
+
+> ∗
+
+Corresponding Author 
+
+1
+
+> arXiv:2603.08118v1 [cs.LG] 9 Mar 2026
+
+Published as a conference paper at ICLR 2026 has emerged as a representative and widely adopted method, which (1) forces the dynamics model to reduce the value function in OOD regions by minimizing the adversarial loss with model gradient ,(2) introduces a tradeoff coefficient λ to the adversarial term to balance the adversarial training and maximum likelihood estimation (MLE). Although RAMBO provides a practical implementation for adversarial model learning, we observe that the tradeoff coefficient λ is set to an extremely small value (e.g., 3e-4) in its implementation, minimizing the effect of the adversarial term. In our further investigation, we empirically find that a slightly larger yet still small λ (e.g., 0.05, 0.1) could cause severe Q-value underestimation and even gradient explosion, resulting in training collapse. This indicates that RAMBO has difficulties in controlling the conservatism level and can be unstable during training. 
+
+To address these issues, we propose RO bust value-aware Model learning with Implicitly differ-entiable adaptive weighting (ROMI). In contrast to RAMBO, ROMI discards the model gradient method that could be overly conservative and unstable, and introduces a novel robust value-aware model learning (Farahmand et al., 2017; Voelcker et al., 2022) approach to incorporate conservatism. Specifically, we require the dynamics model to predict future states with values close to the minimum Q-value within a scale-adjustable state uncertainty set, and adjusting the scale of the uncertainty set is equivalent to controlling the degree of conservatism. This offers flexible and controllable conser-vatism adjustment and stabilizes model update. However, this value-aware learning scheme solely enforces value awareness and overlooks dynamics awareness that crucially benefits OOD general-ization. To close this gap, we further propose implicitly differentiable adaptive weighting, which achieves both dynamics and value awareness in a bi-level optimization framework. Concretely, the inner level incorporates an adaptive weighting network that re-weighs each training sample in an MLE loss, while the outer level updates the weighting network by minimizing the robust value-aware model loss with implicit differentiation. This hierarchical framework adaptively balances dynamics and value-aware model learning. Lastly, we empirically evaluate ROMI on various D4RL (Fu et al., 2020) and NeoRL (Qin et al., 2022) datasets. Our experimental results demonstrate that ROMI significantly surpasses RAMBO, matching or surpassing state-of-the-art (SOTA) methods such as MOBILE (Sun et al., 2023) and Count-MORL (Kim & Oh, 2023), especially on datasets where RAMBO typically underperforms. 
+
+## 2 BACKGROUND 
+
+RL. We consider a Markov Decision Process (MDP) (Puterman, 1990) that can be specified by a tu-ple ⟨S , A, T, r, ρ, γ ⟩, where S and A are the state space and action space, respectively, T : S × A → 
+
+∆( S) is the transition dynamics, and ∆( ·) is the probability simplex. r : S × A → R is the reward function, ρ is the initial state distribution, and γ ∈ [0 , 1) is the discount factor. The goal of RL is to obtain a policy πθ which maximizes the objective function: J(θ) = Eπθ [P∞ 
+
+> t=0
+
+γtr(st, a t)|s0 ∼ ρ].
+
+Model-based Offline RL. In offline RL, the agent only has access to a pre-collected offline dataset: 
+
+D = {(si, a i, r i, s i+1 )}Ni=1 . Model-based offline RL typically trains a dynamics model to augment the dataset. The policy could perform h-step rollouts within the dynamics model starting from states in D, and store the collected samples in Dmodel . However, the dynamics model could deviate from the true dynamics. Therefore, conservatism is necessary to prevent model exploitation. 
+
+Adversarial Model Learning for Model-based Offline RL. Uehara & Sun (2021) first proposes a theoretical framework that incorporates adversarial model learning into model-based offline RL to introduce conservatism. The offline RL problem is cast as a zero-sum game against an adversarial dynamics model within an uncertainty set, and thus the object is to find a policy π from the policy class Π by solving the maximin problem: 
+
+π = arg max  
+
+> π∈Π
+
+min  
+
+> bT∈M ξ
+
+V π
+
+> bT
+
+s.t. Mξ =  bT | E(s,a )∼D 
+
+Dis   bTMLE (·| s, a ), bT (·| s, a ) ≤ ξ ,
+
+(1) where Mξ is the dynamics uncertainty set and Dis (·, ·) is the distributional discrepancy measure, 
+
+bTMLE represents the dataset dynamics learned with maximum likelihood estimation (MLE), i.e, 
+
+bTMLE = arg max T E(s,a,s ′)∈D [log T (s′|s, a )] . While this offline RL framework offers strong theo-retical guarantees, its practical algorithm remains to be explored. A widely-adopted implementation 2Published as a conference paper at ICLR 2026 = 0 3e 4 5e 3 5e 2 1e 1        
+
+> -500
+> 0
+> 500
+> 1000 Q value
+> halfcheetah-medium-expert
+> 0100 200 300 Step 1e3
+> 0
+> 100
+> 200
+> 300 Gradient Norm
+> halfcheetah-medium-expert
+> = 0.1
+> 0100 200 300
+> Step 1e3
+> -2.5
+> -2.0
+> -1.5
+> -1.0
+> -0.5
+> 0.0
+> Q Value 1e6 halfcheetah-medium-expert
+> = 0.1
+
+Figure 1: Left: Q-value estimation for different values of λ. The slash-shaded bars indicate that the Q-value has diverged. Middle: Gradient norm of the adversarial loss recorded during training. 
+
+Right: Q-value estimation recorded during training. of this framework is RAMBO (Rigter et al., 2022), which optimizes the following objective: 
+
+π = arg max  
+
+> π∈Π
+
+min 
+
+> bT
+
+n
+
+λV π 
+
+> bT
+
+− E(s,a,s ′)∼D 
+
+ log bT (s′|s, a )o
+
+, (2) where the first term is the adversarial loss that corresponds to minimizing the value in OOD regions, optimized via model gradient, and the second term relates to minimizing the negative log-likelihood on the offline data, which is a standard MLE. Here λ is treated as a Lagrange multiplier but, for practicality, is hand-tuned and fixed per task. 
+
+## 3 MOTIVATION EXAMPLE : THE LIMITATIONS OF RAMBO 
+
+In this section, we empirically examine and identify key limitations of RAMBO: the conservatism degree is hard to control via λ, and training can be unstable. Our key observation is that the adversarial weighting coefficient λ is set to 3e-4 in the original paper, which is an exceedingly small value for the weighting coefficient. This implies that the effect of the adversarial term should be minimized. We would like to explore the effect of a larger λ on training. We vary λ across {0, 3e-4 , 5e-3 , 5e-2 , 1e-1 }, and run RAMBO on 9 D4RL datasets. We show the re-sults on halfcheetah-medium-expert-v2 dataset in Figure 1. We find that setting λ across 
+
+{0, 3e-4,5e-3 } does not show a clear difference in Q-value estimation as illustrated in Figure 1 Left ,indicating that the adversarial training has little effect on conservatism with a too small λ. However, when increasing λ to larger but still small values within {5e-2 , 1e-1 }, we observe that the Q-value diverges to a very negative value. This suggests that RAMBO is highly sensitive to the choices of 
+
+λ. When λ = 0 .1, we even observe the gradient of the adversarial loss explodes, and the Q-value drops sharply, leading to training collapse, as shown in Figure 1 Middle , Right . This phenomenon implies that RAMBO tends to be overly conservative and unstable. More details and results on all 9 datasets are presented in Appendix F.2. We take a deeper analysis of this phenomenon. On the one hand, λ is the Lagrange multiplier and should be optimized with gradient ascent (Equation (7) in Rigter et al. (2022)). It is hard to precisely control the degree of conservatism by simply tuning λ. On the other hand, model gradient would encourage the dynamics model to explore regions with a sharp decrease in value, which may lead to Q-value underestimation and gradient explosion. These factors force λ to remain extremely small to minimize the impact of the adversarial term, thereby limiting RAMBO’s potential. Therefore, a more practical implementation for Equation 1 that allows flexible adjustment of the conservatism level and enhances training stability is highly desirable. 
+
+## 4 METHODOLOGY 
+
+Section 3 highlights two major limitations of RAMBO: (1) difficulties in controlling the degree of conservatism , resulting in severe value underestimation, i.e., over-conservatism; (2) gradient explo-sion , leading to unstable training. To address these issues, we develop our method ROMI within the framework of Equation 1. Our central contribution is a novel treatment of adversarial model learn-ing, whose core components, robust value-aware model learning and implicitly differentiable adaptive weighting , are described in Section 4.1 and Section 4.2 respectively. 3Published as a conference paper at ICLR 2026 4.1 ROBUST VALUE -A WARE MODEL LEARNING 
+
+Recall that the adversarial model learning paradigm in Equation 1 seeks an adversarial dynam-ics model for any policy π via the inner constrained minimization problem min bT ∈M ξ V π 
+
+> bT
+
+with 
+
+Mξ = { bT | E(s,a )∼D [Dis ( bTMLE (·| s, a ), bT (·| s, a ))] ≤ ξ}. As stated previously in Equation 2, RAMBO explores an implementation of this inner constrained optimization by using a modified Lagrangian-multiplier approach, leading to min bT {λV π 
+
+> bT
+
+− E(s,a,s ′)∼D [log bT (s′|s, a )] } with a hand-tuned multiplier λ. This reformulation induces over-conservatism and unstable training, according to our analysis in Section 3. To tackle such a challenge, we propose an alternative implementation of Equation 1, a robust value-aware model learning framework that incorporates conservatism, from a perspective of explicitly characterizing the one-step value estimation error induced by adversarial model learning. Letting 
+
+bTm be the dynamics model to be learned, we reformulate Equation 1 as follows: 
+
+π = arg max  
+
+> π∈Π
+
+V π
+
+> bTm
+
+s.t. V π
+
+> bTm
+
+= min  
+
+> bT∈M ξ
+
+V π 
+
+> bT
+
+, (3) We next focus on the condition V π
+
+> bTm
+
+= min bT ∈M ξ V π 
+
+> bT
+
+in Equation 3, which motivates us to minimize a value-aware model error Eπ
+
+> bTm
+
+defined in terms of the value difference as follows: 
+
+Eπ
+
+> bTm
+
+:= Es∼ρD (·) V π
+
+> bTm
+
+(s) − min  
+
+> bT∈M ξ
+
+V π 
+
+> bT
+
+(s)
+
+= γ · Es∼ρD (·),a ∼π(·| s) Es′∼ bTm(·| s,a )V π
+
+> bTm
+
+(s′) − min  
+
+> bT∈M ξ
+
+Es′∼ bT (·| s,a )V π 
+
+> bT
+
+(s′) .
+
+(4) We consider only s ∼ ρD (·) here, since the rollout initial states are drawn from the dataset D. Given that Mξ is only defined on D and a ∼ π(·| s) contains OOD regions, directly minimizing Eπ
+
+> bTm
+
+could lead to arbitrarily low Q-value estimates in OOD regions. RAMBO’s over-conservatism arises for essentially the same reason. To resolve this issue, we propose to minimize bEπ
+
+> bTm
+
+as an alternative: 
+
+bEπ
+
+> bTm
+
+:= γ · Es∼ρD (·),a ∼μ(·| s) Es′∼ bTm(·| s,a ) bV π (s′) − min  
+
+> bT∈M ξ
+
+Es′∼ bT (·| s,a ) bV π (s′) .
+
+The blue parts highlight the difference between Eπ
+
+> bTm
+
+and bEπ
+
+> bTm
+
+, where μ(·| s) is the behavior policy generating D, and bV π (abbreviated as bV hereafter) represents the value function during training. Intuitively, we learn a mildly conservative value function in the in-distribution (ID) regions, and the conservatism in OOD regions relies on generalization, which we analyse in Proposition 4.2. The main challenge of minimizing bEπ
+
+> bTm
+
+lies in computing min bT ∈M ξ Es′∼ bT (·| s,a ) bV (s′), since we are not accessible to the dynamics uncertainty set Mξ , which is crucial for controlling the level of conservatism. To address this, we take the distance measure Dis to be the Wasserstein distance and define the Wasserstein dynamics uncertainty set in Definition 4.1, and exploit its dual form in Proposition 4.1, which provides new insights for handling this issue. 
+
+Definition 4.1 (Wasserstein Dynamics Uncertainty Set) . We define the dynamics uncertainty set via the Wasserstein distance as 
+
+Mξ =
+
+n bT ED
+
+h
+
+W
+
+ bTMLE (·| s, a ), bT (·| s, a )
+
+i 
+
+≤ ξ
+
+o
+
+,
+
+where W
+
+ bTMLE (·| s, a ), bT (·| s, a )
+
+
+
+= inf ζ∈Γ( bTMLE (·| s,a ), bT (·| s,a )) E(s′ 
+
+> 1,s ′
+> 2)∼ζ
+
+[d(s′
+
+> 1
+
+, s ′
+
+> 2
+
+)] is the Wasserstein distance between dynamics bTMLE and bT , Γ( ·, ·) is the set of joint distributions whose marginals are bTMLE and bT , and d(·, ·) can be chosen as the Euclidean distance. 
+
+Proposition 4.1 (Dual Reformulation) . Let Mξ be the Wasserstein dynamics uncertainty set defined in Definition 4.1. Then we have 
+
+min  
+
+> bT∈M ξ
+
+Es′∼ bT (·| s,a ) bV (s′) = Es′∼ bTMLE (·| s,a )
+
+
+
+min  
+
+> ˆs∈Uξ(s′)
+
+bV (ˆ s)
+
+
+
+,
+
+where Uξ (s′) = {ˆs | d(ˆ s, s ′) ≤ ξ} is the state uncertainty set. 
+
+4Published as a conference paper at ICLR 2026 Proposition 4.1 states that, under the Wasserstein distance, the dynamics uncertainty set could be transformed into the state uncertainty set. Based on this reformulation, we rewrite bEπ
+
+> bTm
+
+as 
+
+bEπ
+
+> bTm
+
+= γ · Es∼ρD (·),a ∼μ(·| s) Es′∼ bTm(·| s,a ) bV (s′) − Es′∼ bTMLE (·| s,a )
+
+h
+
+min  
+
+> ˆs∈Uξ(s′)
+
+bV (ˆ s)
+
+i
+
+. (5) To practically minimize bEπ
+
+> bTm
+
+, we further consider an empirical version of bEπ
+
+> bTm
+
+based on the sample from the offline data, i.e., (s, a, s ′) ∼ D , in place of s ∼ ρD (·), a ∼ μ(·| s), s ′ ∼ bTMLE (·| s, a ), since 
+
+D was collected through the same sampling process. Thus, given that s′ is present in D, we can simply construct Uξ (s′) by perturbing s′ with noise of scale ξ and performing random sampling. We further parameterize the dynamics model bTm by ψ, denoted by bTψ . Eventually, Equation 5 is reformulated as a Robust Value-aware model Learning (RVL) loss: 
+
+LRVL (ψ) := E(s,a,s ′)∈D 
+
+
+
+Eˆs′∼ bTψ (·| s,a ) bV (ˆ s′) − min  
+
+> {˜s′
+> i}Ni=1 ∈Uξ(s′)
+
+bV (˜ s′
+
+> i
+
+)
+
+2
+
+, (6) where bV is chosen as the target value network for training stability, {˜s′
+
+> i
+
+}Ni=1 are sampled from 
+
+Uξ (s′), and N is the sample size. We note that Equation 6 differs from the typical value-aware model loss (Farahmand et al., 2017; Voelcker et al., 2022). Our approach contributes to incorpo-rating conservatism via a state uncertainty set into the loss for offline RL. Specifically, Equation 6 requires the dynamics model to predict the future state whose value is close to the minimum value for states within the state uncertainty set. Moreover, the scale ξ of the uncertainty set precisely quantifies the level of conservatism according to Proposition 4.1. Thus, we could simply adjust the uncertainty set scale ξ to achieve controllable conservatism and enhance training stability. Note that Equation 6 only utilizes the dataset samples, and does not explicitly regularize the values for the OOD region that may be encountered during policy rollouts. To address this concern, we first analyze the impact of potential generalization errors on training. We define the maximum generalization error of Equation 6 during rollouts as 
+
+ϵ1 := max 
+
+> (s,a )∈D model
+
+Eˆs′∼ bTψ (·| s,a )
+
+h bV (ˆ s′)
+
+i
+
+− Es′∼ bTMLE (·| s,a )
+
+h
+
+min  
+
+> ˜s′∈Uξ(s′)
+
+bV (˜ s′)
+
+i
+
+,
+
+where Dmodel denotes the dataset consisting of synthetic transition trajectories generated via pol-icy rollouts, within which OOD data can reside. We also define the maximum value discrepancy between true next states and those within the state uncertainty set Uξ as 
+
+ϵ2 := max 
+
+> (s,a )∈D model
+
+Es′∼T (·| s,a )
+
+h bV (s′)
+
+i
+
+− Es′∼ bTMLE (·| s,a )
+
+h
+
+min  
+
+> ˜s′∈Uξ(s′)
+
+bV (˜ s′)
+
+i
+
+.
+
+Then the learned Q-function by minimizing Equation 6 maintains a bounded value during policy rollouts, as guaranteed by Proposition 4.2. 
+
+Proposition 4.2 (Bounded Q-value) . The learned Q-function bQ satisfies: 
+
+Qtrue (s, a ) − γ(ϵ1 + ϵ2)1 − γ ≤ bQ(s, a ) ≤ Qtrue (s, a ) + γϵ 1
+
+1 − γ , ∀(s, a ) ∈ D model , (7) 
+
+where Qtrue denotes the true Q-function. 
+
+Proposition 4.2 indicates that the learned Q-value would stay bounded if ϵ1 and ϵ2 are bounded. ϵ2
+
+is monotonically increasing w.r.t. ξ, indicating that we can bound ϵ2 by adjusting ξ. We demonstrate how we minimize the impact of ϵ1 in Section 4.2. 4.2 IMPLICITLY DIFFERENTIABLE ADAPTIVE WEIGHTING 
+
+We note that the generalization error ϵ1 could be large during multi-step rollouts, since LRVL only focuses on value awareness while ignoring dynamics awareness, which could be crucial for OOD generalization. To demonstrate this, let s0 be the rollout starting point, and a0 ∼ π(·| s0) be the policy output. The dynamics model needs to predict the next state s1. Since LRVL only regularizes the value of s1, the predicted s1 may deviate significantly from the true dynamics transition. In subsequent steps, the policy will be forced to explore OOD regions, and the dynamics model will 5Published as a conference paper at ICLR 2026 also need to predict transitions in these OOD regions. This may lead to compounding prediction errors and a large ϵ1. Therefore, how can we achieve value awareness to ensure conservatism while improving dynamics awareness for better generalization? 
+
+Inspired by previous works (Shu et al., 2019; Jiang et al., 2022; Yuan et al., 2023), we propose to optimize Equation 6 with implicitly differentiable adaptive weighting, which integrates dynamics-and value-aware model learning in a bi-level optimization framework. Specifically, we introduce an adaptive-weighting network wν (s, a, s ′) to assign an individual weight to each transition (s, a, s ′)
+
+and optimize the following objective: 
+
+min  
+
+> ν
+
+LRVL (ψ(ν)) ,s.t. ψ⋆(ν) = arg min 
+
+> ψ
+
+n
+
+LWSL (ψ, ν ) := E(s,a,s ′)∈D 
+
+h
+
+wν (s, a, s ′) log 
+
+ bTψ (s′|s, a )
+
+io 
+
+, (8) where LWSL denotes the Weighted Supervised Learning (WSL) loss, compared to the standard su-pervised learning loss LSL := E(s,a,s ′)∈D 
+
+ log   bTψ (s′|s, a ) . Specifically, we update the dynamics model through weighted supervised learning in the inner level to achieve dynamics awareness, and optimize wν in the outer level by minimizing LRVL with implicit differentiation to achieve value awareness. 
+
+Inner Level: Optimizing ψ to Improve Dynamics Awareness. In the inner level, we fix wν and update the dynamics model by minimizing LWSL with typical gradient descent: 
+
+ψ(t+1) ← ψ(t) − β1( t) · ∇ ψ LWSL (ψ(t), ν (t)), (9) where β1( t) represents the t-step learning rate of the dynamics model. 
+
+Outer Level: Optimizing ν to Achieve Value Awareness. The outer level objective is formalized in Equation 6. Since we have established the analytical relationship between ψ and ν through the inner level, we can implicitly calculate the gradient of LRVL (ψ(ν)) w.r.t. ν using the chain rule: 
+
+g(t)RVL = ∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ν ψ(t+1) (ν(t)) = h · ∇ ν wν(t) (s, a, s ′),
+
+where h = −β1( t) · ∇ ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+. The derivation is deferred in Appendix A. Then we can update ν using automatic differentiation in Pytorch (Paszke et al., 2019): 
+
+ν(t+1) ← ν(t) − β2( t) · g(t)RVL ,
+
+where β2( t) is the t-step learning rate of the weighting network. Through this bi-level optimiza-tion process, the weighting network learns to prioritize samples that contribute most to mini-mizing LRVL , and the dynamics model still learns to reconstruct the environmental dynamics, achieving both dynamics and value awareness. Assume (1) bV is LV -Lipschitz continuous, that is, 
+
+| bV (s1)− bV (s2)| ≤ LV ∥s1 −s2∥ holds for ∀s1, s 2 ∈ S ; (2) the dynamics model prediction error dur-ing rollouts is bounded by a constant ϵ: max (s,a )∈D model Eˆs′∼ bTψ (·| s,a ),s ′∼ bTMLE (·| s,a ) ∥ˆs′ − s′∥ ≤ ϵ,which could be satisfied through bi-level optimization and short-branch rollouts (Janner et al., 2019). Then the generalization error ϵ1 could be bounded according to Corollary 4.1. 
+
+Corollary 4.1 (Bounded ϵ1). Under the assumptions of Lipschitz continuity and bounded dynamics model prediction error, the generalization error ϵ1 could be bounded by 
+
+ϵ1 ≤ LV · (ϵ + ξ),
+
+where ξ is the uncertainty set scale. We also provide the convergence rate analysis for this bi-level optimization framework in Proposition 4.3. 
+
+Proposition 4.3 (Convergence Analysis) . Assume LRVL and LWSL are L-Lipschitz smooth, and the gradient of LRVL , LSL and LWSL are bounded by ρ. Let wν be twice differentiable, with its gradient and Hessian bounded by δ and B, respectively. Denote L′ = ρ2(Lδ 2 + B), and the total steps as K.For some c1, c 2 > 0, we assume the learning rate of the inner and outer loop β1 and β2 satisfies:  
+
+> c2√K
+
+≤ β1, β 2 ≤ min { c1 
+
+> K
+
+, 1 
+
+> L
+
+, 1 
+
+> L′
+
+}, where c2√K ≤ min { c1 
+
+> K
+
+, 1 
+
+> L
+
+, 1 
+
+> L′
+
+}, c2√K < 1, c1 
+
+> K
+
+< 1. Then the outer loss LRVL and inner loss LWSL can achieve a convergence rate of O( 1√K ), i.e., 
+
+min  
+
+> 0≤t≤K−1
+
+E ∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+≤ O 
+
+ 1
+
+√K
+
+
+
+,
+
+min  
+
+> 0≤t≤K−1
+
+E ∇ψ LWSL (ψ(t), ν (t)) 2
+
+≤ O 
+
+ 1
+
+√K
+
+
+
+.
+
+6Published as a conference paper at ICLR 2026 Table 1: Normalized score comparison between different offline RL algorithms and ROMI on 12 D4RL MuJoCo datasets. We abbreviate ”random” as ”r”, ”medium” as ”m”, ”medium-replay” as ”mr”, ”medium-expert” as ”me”. Each method is run with 1M steps. 
+
+Task Name CQL IQL MOPO RAMBO COUNT MOBILE 1 ROMI (Ours) 
+
+hopper-r 7.9 7.6 27.8 23.9 30.0 28.5 31.7 ± 0.3 
+
+halfcheetah-r 17.5 13.1 36.7 29.5 37.3 39.4 38.4 ±4.1 
+
+walker2d-r 5.1 5.4 0.0 0.0 19.9 23.6 22.4 ±2.6 
+
+hopper-m 53.0 66.2 72.2 95.2 100.2 77.6 105.0 ±3.3 
+
+halfcheetah-m 47.0 47.9 64.0 76.2 75.9 74.6 76.2 ±0.6 
+
+walker2d-m 73.4 67.2 82.1 83.9 88.4 90.7 93.6 ±1.3 
+
+hopper-mr 88.7 94.0 90.5 77.2 97.6 85.7 102.0 ±2.4 
+
+halfcheetah-mr 45.3 44.3 52.1 69.7 70.5 67.7 70.7 ±1.8 
+
+walker2d-mr 81.8 74.8 73.6 81.2 87.5 75.0 85.2 ±3.6 hopper-me 105.9 92.7 84.5 99.7 109.8 95.6 110.5 ±6.8 
+
+halfcheetah-me 75.6 86.3 92.3 93.9 100.0 96.1 104.5 ±2.2 
+
+walker2d-me 107.9 110.7 93.8 73.7 110.4 103.2 113.3 ±1.9 
+
+Total 709.1 710.2 769.6 804.1 927.5 857.7 953.5 ROMI Algorithm. Eventually, combining the dynamics model learning in Equation 8 and policy learning π = arg max π∈Π V π
+
+> bTψ
+
+yields the optimization problem for ROMI. The key distinction from RAMBO lies in the training strategy of the dynamics model, as described in Section 4.1 and Section 4.2. The policy is learned with SAC (Haarnoja et al., 2018) by using the data from D and 
+
+Dmodel . More implementation details of ROMI are presented in Appendix D.2. 
+
+## 5 EXPERIMENTS 
+
+In this section, we empirically evaluate ROMI. We compare the performance between ROMI and other baselines on standard benchmarks in Section 5.1. We conduct an ablation study to examine the effect of adaptive weighting in Section 5.2, and we verify that ROMI offers flexible conservatism control and avoids gradient explosion across a wide range of ξ in Section 5.3. 5.1 BENCHMARK RESULTS 
+
+D4RL. We compare ROMI with several offline RL algorithms, including model-free methods CQL (Kumar et al., 2020) and IQL (Kostrikov et al., 2021); and model-based methods: MOPO (Yu et al., 2020), RAMBO (Rigter et al., 2022), Count-MORL (Kim & Oh, 2023), and MOBILE (Sun et al., 2023). For the MuJoCo (Todorov et al., 2012) domain, we consider three tasks ( halfcheetah ,
+
+hopper , walker2d ) with four types of datasets ( random , medium , medium-replay ,
+
+medium-expert ) for each task. The datasets we use are of the “v2” version. Experiments are run with 5 seeds. More evaluations on Antmaze tasks are deferred to Appendix F.1 due to space limitations. In Table 1, we summarize the evaluation results of ROMI and the compared baselines. We can see that ROMI outperforms RAMBO on 11 out of 12 datasets, especially on datasets where RAMBO underperforms, such as hopper-medium-replay and walker2d-medium-expert . ROMI achieves a total score of 953.5 , which is 18.6% higher than that of RAMBO. Furthermore, even when compared to other algorithms, including MOBILE and Count-MORL, ROMI demonstrates superior performance, achieving (one of) the best results on 11 out of 12 datasets. On the remaining datasets, ROMI also delivers performance comparable to the best-performing methods. 
+
+> 13M steps are used in MOBILE paper, and we only report the results at 1M steps for a fair comparison.
+
+7Published as a conference paper at ICLR 2026 Table 2: Normalized score comparison between different offline RL algorithms and our method ROMI on NeoRL tasks. Each method is run with 1M steps over 5 seeds. 
+
+Task Name CQL IQL EDAC MOPO RAMBO MOBILE ROMI (Ours) 
+
+Hopper-L 16.8 14.3 12.2 12.0 15.1 18.1 22.4 ±0.5 
+
+HalfCheetah-L 35.0 34.1 31.3 34.2 30.1 38.9 35.8 ±3.9
+
+Walker2d-L 42.4 40.1 43.1 15.6 24.3 39.0 36.4 ±2.3
+
+Hopper-M 58.1 56.8 37.2 0.0 37.5 47.3 46.6 ± 6.8 HalfCheetah-M 50.0 52.0 54.6 53.1 51.2 55.6 57.7 ±1.4 
+
+Walker2d-M 52.5 51.2 53.9 35.7 36.2 51.4 54.9 ±2.0 
+
+Hopper-H 65.6 62.4 56.7 17.9 48.7 65.0 65.9 ±4.5 
+
+HalfCheetah-H 74.6 76.3 72.0 63.2 72.3 69.4 77.4 ±2.7 
+
+Walker2d-H 71.3 74.0 73.1 26.4 67.4 71.7 75.1 ±1.8 
+
+Total 466.3 461.2 434.1 258.1 382.8 456.4 472.2 1 5 10 Rollout Step          
+
+> 5
+> 10 Prediction Error
+> (a)
+> halfcheetah-medium-replay
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 20
+> 40
+> 60 Normalized Score
+> (b)
+> halfcheetah-medium-replay
+> 1510 Rollout Step
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0 Prediction Error
+> (c)
+> hopper-medium-replay
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 25
+> 50
+> 75
+> 100 Normalized Score
+> (d)
+> hopper-medium-replay w/ adaptive weighting w/o adaptive weighting
+
+Figure 2: Comparison of the prediction error and performance w/ and w/o adaptive weighting. 
+
+NeoRL. We also test our method on NeoRL (Qin et al., 2022) benchmark, which is often used to evaluate model-based offline RL (Sun et al., 2023; Lin et al., 2024). We consider nine datasets, which involves three tasks ( halfcheetah , hopper , walker2d ) and three types of data qualities ( low ,
+
+medium , high ). For each dataset, we select 1,000 trajectories uniformly for our experiments. We choose model-free methods (CQL, IQL, EDAC (An et al., 2021)) and model-based methods (MOPO, RAMBO, MOBILE) as compared baselines. We exclude Count-MORL since there are no reference hyperparameter settings available in the original paper or the NeoRL paper. We summarize the normalized score comparison results in Table 2. We observe that model-free methods outperform model-based baselines on most datasets, while ROMI surpasses all baselines on 
+
+6 out of 9 datasets, and also achieves the highest total score. Notably, ROMI outperforms RAMBO on all 9 datasets, verifying the effectiveness of ROMI. 5.2 STUDY ON THE EFFECT OF DYNAMICS AWARENESS 
+
+In this section, we conduct an ablation study to test the effect of dynamics awareness on the performance and OOD generalization. Specifically, we solely apply Equation 6 for model updates and drop the adaptive weighting component in Section 4.2 to examine its effect on the performance and prediction error during multi-step rollouts. We conduct experiments on 
+
+halfcheetah-medium-replay and hopper-medium-replay datasets. We present the experimental results in Figure 2, where panels (a) and (c) show the model predic-tion error under different rollout steps with and without adaptive weighting, while panels (b) and (d) display the corresponding learning curves. The results clearly demonstrate that adaptive weight-ing leads to improved performance and reduced prediction error across various rollout steps. This indicates that the dynamics awareness is crucial for OOD generalization and achieving strong per-formance. 8Published as a conference paper at ICLR 2026 0.0 0.5 1.0 Step 1e6             
+
+> 0
+> 250
+> 500
+> 750 Q Value
+> (a)
+> half-me
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 50
+> 100 Score
+> (b)
+> half-me
+> 0.0 0.5 1.0 Step 1e6
+> 0.05
+> 0.06
+> 0.07 Inner Gradient Norm
+> (c)
+> half-me
+> 0.0 0.5 1.0 Step 1e6
+> 0.00
+> 0.01
+> 0.02 Outer Gradient Norm
+> (d)
+> half-me
+> = 0.01 = 0.1 = 1 = 10
+
+Figure 3: Comparison for different ξ in terms of Q-value, normalized score, inner loss gradient norm, outer loss gradient norm. 5.3 STUDY ON THE EFFECT OF ξ
+
+In this section, we examine the effect of the key hyperparameter: the uncertainty set scale ξ, on training. Specifically, we conduct experiments on halfcheetah-medium-expert-v2 dataset and vary the value of ξ across a wide range of values: {0.01 , 0.1, 1.0, 10 }. A larger value of ξ cor-responds to a higher degree of conservatism. We record four metrics during training: the estimated Q-value, normalized score, gradient norm of the inner loss, and gradient norm of the outer loss. The experimental results are presented in Figure 3. Compared to the results of RAMBO in Section 3, we observe that: (1) neither severe Q-value underestimation nor training collapse occurs even for 
+
+ξ = 10 , and the gradient norm stays small throughout training; (2) the Q-values are clearly distin-guishable for different ξ, with a larger ξ corresponding to a lower Q-value. These verify that ROMI could provide a more controllable degree of conservatism while ensuring training stability. 
+
+## 6 RELATED WORK 
+
+Model-based Offline RL. The core issue of model-based offline RL is how to incorporate conser-vatism into model learning or policy update to prevent model exploitation. One line of work is to adopt uncertainty estimation. MOPO (Yu et al., 2020) and MoReL (Kidambi et al., 2020) use the uncertainty of model prediction to penalize the reward function to achieve a pessimistic value esti-mation; SUMO (Qiao et al., 2025) utilizes a KNN-based entropy estimator for uncertainty quantifi-cation; Count-MORL (Kim & Oh, 2023) utilizes the count estimates of state-action pairs to measure the uncertainty; MOBILE (Sun et al., 2023) proposes Model-Bellman inconsistency to improve the uncertainty quantification. COMBO (Yu et al., 2021) and RAMBO (Rigter et al., 2022) do not rely on uncertainty estimation and minimize the value estimation on model-generated samples. 
+
+Robust RL. Similar to RAMBO, ROMI is related to Robust RL. Robust RL optimizes the policy in a Robust MDP (Bagnell et al., 2001; Cohen & Hutter, 2020; Nilim & El Ghaoui, 2005; Wiesemann et al., 2013; Rigter et al., 2021), that is, finding the policy with the best worst-case performance over a set of possible MDPs. Typically, the uncertainty set of MDPs is specified a priori. In contrast, our problem setting differs in that the uncertainty set of MDPs is assumed to be unknown. We need to learn a dynamics model to simulate the worst-case MDP. 
+
+Bi-level Optimization in RL. Bi-level optimization is a classic framework for optimizing hierarchi-cal learning objectives. There are several studies leveraging bi-level optimization to solve different RL tasks. CAIL (Zhang et al., 2021) re-weights demonstrations with different optimality in imita-tion learning; Meta-Reward-Net (Liu et al., 2022) incorporates the performance of the Q function into reward learning for preference-based RL; VACO (Jiang et al., 2025) incorporates bi-level opti-mization in offline RL to balance policy improvement and behavior cloning; TEMPO (Yuan et al., 2023) is closest to our work, which leverages both task-specific and semantic information for effec-tive world model learning. But our method is different since we focus on offline RL and have to consider conservatism in the outer level. There are also recent studies (Li et al., 2024; Chen et al., 2025) incorporating bi-level optimization into Large Language Model (LLM)-oriented RL. 9Published as a conference paper at ICLR 2026 
+
+## 7 CONCLUSION 
+
+In this paper, we first identify the limitations of RAMBO. We empirically find that RAMBO tends to be overly conservative and incurs instability during training. To address these issues, we propose our method ROMI, which adopts a novel robust value-aware model learning scheme by requiring the dynamics model to predict future states with values close to the minimum value in the state uncertainty set. To further improve OOD generalization ability, we introduce a bi-level optimization framework called implicitly differentiable adaptive weighting, which achieves dynamics and value awareness. Compared to RAMBO, ROMI provides more controllable conservatism and stabilizes training. Empirical Results on D4RL and NeoRL datasets demonstrate the effectiveness of ROMI. 
+
+Limitations. One limitation of ROMI is that additional computational cost for bi-level optimiza-tion is required compared to the original RAMBO. Another limitation is that the conservatism de-gree governed by ξ has to be specified before training, unlike methods that support runtime adjust-ment (Ghosh et al., 2022; Hong et al., 2022; Swazinna et al., 2022; Wang et al., 2023). Addressing these limitations presents an interesting direction for future work. 
+
+## 8 ACKNOWLEDGEMENTS 
+
+This research was supported in part by the Hong Kong Research Grants Council (GRF 11217925, GRF 16209124) and the National Science Foundation of China (Grant 72371214). The authors would also like to thank the anonymous reviewers for their valuable comments on our manuscript. 
+
+## REFERENCES 
+
+Gaon An, Seungyong Moon, Jang-Hyun Kim, and Hyun Oh Song. Uncertainty-based offline re-inforcement learning with diversified q-ensemble. Advances in neural information processing systems , 34:7436–7447, 2021. J Andrew Bagnell, Andrew Y Ng, and Jeff G Schneider. Solving uncertain markov decision pro-cesses. 2001. Atilim Gunes Baydin, Robert Cornish, David Martinez Rubio, Mark Schmidt, and Frank Wood. Online learning rate adaptation with hypergradient descent. arXiv preprint arXiv:1703.04782 ,2017. Mohak Bhardwaj, Tengyang Xie, Byron Boots, Nan Jiang, and Ching-An Cheng. Adversarial model for offline reinforcement learning. Advances in Neural Information Processing Systems , 36:1245– 1269, 2023. J´ erˆ ome Bolte, Edouard Pauwels, and Samuel Vaiter. One-step differentiation of iterative algorithms. 
+
+Advances in Neural Information Processing Systems , 36:77089–77103, 2023. Greg Brockman, Vicki Cheung, Ludwig Pettersson, Jonas Schneider, John Schulman, Jie Tang, and Wojciech Zaremba. Openai gym. arXiv preprint arXiv:1606.01540 , 2016. Liang Chen, Xueting Han, Li Shen, Jing Bai, and Kam-Fai Wong. Beyond two-stage training: Cooperative sft and rl for llm reasoning. arXiv preprint arXiv:2509.06948 , 2025. Michael K Cohen and Marcus Hutter. Pessimism about unknown unknowns inspires conservatism. In Conference on learning theory , pp. 1344–1373. PMLR, 2020. Amir-massoud Farahmand, Andre Barreto, and Daniel Nikovski. Value-aware loss function for model-based reinforcement learning. In Artificial Intelligence and Statistics , pp. 1486–1494. PMLR, 2017. Justin Fu, Aviral Kumar, Ofir Nachum, George Tucker, and Sergey Levine. D4rl: Datasets for deep data-driven reinforcement learning. arXiv preprint arXiv:2004.07219 , 2020. Scott Fujimoto and Shixiang Shane Gu. A minimalist approach to offline reinforcement learning. 
+
+Advances in neural information processing systems , 34:20132–20145, 2021. 10 Published as a conference paper at ICLR 2026 Dibya Ghosh, Anurag Ajay, Pulkit Agrawal, and Sergey Levine. Offline rl policies should be trained to be adaptive. In International Conference on Machine Learning , pp. 7513–7530. PMLR, 2022. Tuomas Haarnoja, Aurick Zhou, Pieter Abbeel, and Sergey Levine. Soft actor-critic: Off-policy maximum entropy deep reinforcement learning with a stochastic actor. In International confer-ence on machine learning , pp. 1861–1870. Pmlr, 2018. Joey Hong, Aviral Kumar, and Sergey Levine. Confidence-conditioned value functions for offline reinforcement learning. arXiv preprint arXiv:2212.04607 , 2022. Michael Janner, Justin Fu, Marvin Zhang, and Sergey Levine. When to trust your model: Model-based policy optimization. Advances in neural information processing systems , 32, 2019. Xingyu Jiang, Hongkun Dou, Chengwei Fu, Bingquan Dai, Tianrun Xu, and Yue Deng. Boosting su-pervised dehazing methods via bi-level patch reweighting. In European Conference on Computer Vision , pp. 57–73. Springer, 2022. Xingyu Jiang, Ning Gao, Xiuhui Zhang, Hongkun Dou, and Yue Deng. Value-aligned behavior cloning for offline reinforcement learning via bi-level optimization. In The Thirteenth Interna-tional Conference on Learning Representations , 2025. Ying Jin, Zhuoran Yang, and Zhaoran Wang. Is pessimism provably efficient for offline rl? In 
+
+International conference on machine learning , pp. 5084–5096. PMLR, 2021. Rahul Kidambi, Aravind Rajeswaran, Praneeth Netrapalli, and Thorsten Joachims. Morel: Model-based offline reinforcement learning. Advances in neural information processing systems , 33: 21810–21823, 2020. Byeongchan Kim and Min-hwan Oh. Model-based offline reinforcement learning with count-based conservatism. In International Conference on Machine Learning , pp. 16728–16746. PMLR, 2023. Diederik P Kingma and Jimmy Ba. Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980 , 2014. Ilya Kostrikov, Ashvin Nair, and Sergey Levine. Offline reinforcement learning with implicit q-learning. arXiv preprint arXiv:2110.06169 , 2021. Aviral Kumar, Aurick Zhou, George Tucker, and Sergey Levine. Conservative q-learning for offline reinforcement learning. Advances in neural information processing systems , 33:1179–1191, 2020. Sergey Levine, Aviral Kumar, George Tucker, and Justin Fu. Offline reinforcement learning: Tuto-rial, review, and perspectives on open problems. arXiv preprint arXiv:2005.01643 , 2020. Jiaxiang Li, Siliang Zeng, Hoi-To Wai, Chenliang Li, Alfredo Garcia, and Mingyi Hong. Getting more juice out of the sft data: Reward learning from human demonstration improves sft for llm alignment. Advances in Neural Information Processing Systems , 37:124292–124318, 2024. Haoxin Lin, Yu-Yan Xu, Yihao Sun, Zhilong Zhang, Yi-Chen Li, Chengxing Jia, Junyin Ye, Jiaji Zhang, and Yang Yu. Any-step dynamics model improves future predictions for online and offline reinforcement learning. In The Thirteenth International Conference on Learning Representations .Haoxin Lin, Yu-Yan Xu, Yihao Sun, Zhilong Zhang, Yi-Chen Li, Chengxing Jia, Junyin Ye, Jiaji Zhang, and Yang Yu. Any-step dynamics model improves future predictions for online and offline reinforcement learning. arXiv preprint arXiv:2405.17031 , 2024. Risheng Liu, Pan Mu, Xiaoming Yuan, Shangzhi Zeng, and Jin Zhang. A generic first-order al-gorithmic framework for bi-level programming beyond lower-level singleton. In International conference on machine learning , pp. 6305–6315. PMLR, 2020. Runze Liu, Fengshuo Bai, Yali Du, and Yaodong Yang. Meta-reward-net: Implicitly differentiable reward learning for preference-based reinforcement learning. Advances in Neural Information Processing Systems , 35:22270–22284, 2022. 11 Published as a conference paper at ICLR 2026 Cong Lu, Philip J Ball, Jack Parker-Holder, Michael A Osborne, and Stephen J Roberts. Revisiting design choices in offline model-based reinforcement learning. arXiv preprint arXiv:2110.04135 ,2021. Jiafei Lyu, Xiaoteng Ma, Xiu Li, and Zongqing Lu. Mildly conservative q-learning for offline reinforcement learning. Advances in Neural Information Processing Systems , 35:1711–1724, 2022. Yurii Nesterov et al. Lectures on convex optimization , volume 137. Springer, 2018. Arnab Nilim and Laurent El Ghaoui. Robust control of markov decision processes with uncertain transition matrices. Operations Research , 53(5):780–798, 2005. Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, et al. Pytorch: An imperative style, high-performance deep learning library. Advances in neural information processing systems , 32, 2019. Rafael Figueiredo Prudencio, Marcos ROA Maximo, and Esther Luna Colombini. A survey on offline reinforcement learning: Taxonomy, review, and open problems. IEEE Transactions on Neural Networks and Learning Systems , 35(8):10237–10257, 2023. Martin L Puterman. Markov decision processes. Handbooks in operations research and management science , 2:331–434, 1990. Zhongjian Qiao, Jiafei Lyu, and Xiu Li. Mind the model, not the agent: The primacy bias in model-based rl. In ECAI 2024 , pp. 1824–1831. IOS Press, 2024. Zhongjian Qiao, Jiafei Lyu, Kechen Jiao, Qi Liu, and Xiu Li. Sumo: Search-based uncertainty es-timation for model-based offline reinforcement learning. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pp. 20033–20041, 2025. Zhongjian Qiao, Rui Yang, Jiafei Lyu, Xiu Li, Zhongxiang Dai, Zhuoran Yang, Siyang Gao, and Shuang Qiu. Dual-robust cross-domain offline reinforcement learning against dynamics shifts. In 
+
+The Fourteenth International Conference on Learning Representations , 2026. Rong-Jun Qin, Xingyuan Zhang, Songyi Gao, Xiong-Hui Chen, Zewen Li, Weinan Zhang, and Yang Yu. Neorl: A near real-world benchmark for offline reinforcement learning. Advances in Neural Information Processing Systems , 35:24753–24765, 2022. Marc Rigter, Bruno Lacerda, and Nick Hawes. Minimax regret optimisation for robust planning in uncertain markov decision processes. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 35, pp. 11930–11938, 2021. Marc Rigter, Bruno Lacerda, and Nick Hawes. Rambo-rl: Robust adversarial model-based offline reinforcement learning. Advances in neural information processing systems , 35:16082–16097, 2022. Jun Shu, Qi Xie, Lixuan Yi, Qian Zhao, Sanping Zhou, Zongben Xu, and Deyu Meng. Meta-weight-net: Learning an explicit mapping for sample weighting. Advances in neural information processing systems , 32, 2019. Yihao Sun, Jiaji Zhang, Chengxing Jia, Haoxin Lin, Junyin Ye, and Yang Yu. Model-bellman inconsistency for model-based offline reinforcement learning. In International Conference on Machine Learning , pp. 33177–33194. PMLR, 2023. Phillip Swazinna, Steffen Udluft, and Thomas Runkler. User-interactive offline reinforcement learn-ing. arXiv preprint arXiv:2205.10629 , 2022. Emanuel Todorov, Tom Erez, and Yuval Tassa. Mujoco: A physics engine for model-based control. In 2012 IEEE/RSJ international conference on intelligent robots and systems , pp. 5026–5033. IEEE, 2012. Masatoshi Uehara and Wen Sun. Pessimistic model-based offline reinforcement learning under partial coverage. arXiv preprint arXiv:2107.06226 , 2021. 12 Published as a conference paper at ICLR 2026 Claas Voelcker, Victor Liao, Animesh Garg, and Amir-massoud Farahmand. Value gradient weighted model-based reinforcement learning. arXiv preprint arXiv:2204.01464 , 2022. Shenzhi Wang, Qisen Yang, Jiawei Gao, Matthieu Lin, Hao Chen, Liwei Wu, Ning Jia, Shiji Song, and Gao Huang. Train once, get a family: State-adaptive balances for offline-to-online reinforce-ment learning. Advances in Neural Information Processing Systems , 36:47081–47104, 2023. Xinyi Wang, Hieu Pham, Paul Michel, Antonios Anastasopoulos, Jaime Carbonell, and Graham Neubig. Optimizing data usage via differentiable rewards. In International Conference on Ma-chine Learning , pp. 9983–9995. PMLR, 2020. Wolfram Wiesemann, Daniel Kuhn, and Berc ¸ Rustem. Robust markov decision processes. Mathe-matics of Operations Research , 38(1):153–183, 2013. Yifan Wu, George Tucker, and Ofir Nachum. Behavior regularized offline reinforcement learning. 
+
+arXiv preprint arXiv:1911.11361 , 2019. Junming Yang, Xingguo Chen, Shengyuan Wang, and Bolei Zhang. Model-based offline policy optimization with adversarial network. arXiv preprint arXiv:2309.02157 , 2023. Tianhe Yu, Garrett Thomas, Lantao Yu, Stefano Ermon, James Y Zou, Sergey Levine, Chelsea Finn, and Tengyu Ma. Mopo: Model-based offline policy optimization. Advances in Neural Information Processing Systems , 33:14129–14142, 2020. Tianhe Yu, Aviral Kumar, Rafael Rafailov, Aravind Rajeswaran, Sergey Levine, and Chelsea Finn. Combo: Conservative offline model-based policy optimization. Advances in neural information processing systems , 34:28954–28967, 2021. Huining Yuan, Hongkun Dou, Xingyu Jiang, and Yue Deng. Task-aware world model learning with meta weighting via bi-level optimization. Advances in Neural Information Processing Systems ,36:54167–54186, 2023. Songyuan Zhang, Zhangjie Cao, Dorsa Sadigh, and Yanan Sui. Confidence-aware imitation learn-ing from demonstrations with varying optimality. Advances in Neural Information Processing Systems , 34:12340–12350, 2021. 13 Published as a conference paper at ICLR 2026 
+
+## A DERIVATION OF THE OUTER LOSS GRADIENT 
+
+In Section 4.2, we calculate the gradient of the outer loss at step t by: 
+
+g(t)RVL = ∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ν ψ(t+1) (ν(t)) = h · ∇ ν wν(t) (s, a, s ′),
+
+where 
+
+h = −β1( t)∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+. (10) We provide the complete derivation in this part. We denote the initial value of ψ and ν as ψ(0) 
+
+and ν(0) , and make the following stipulations for the outer loop and inner loop updates: (1) at each update step t, the inner loop is updated first, followed by the outer loop; (2) at each update step t,only one step of gradient descent is performed. Under above conditions, at step t, the inner loop first takes ψ(t) and ν(t) as input and performs one-step update to obtain ψ(t+1) . Then the outer loop takes 
+
+ψ(t+1) as input, which is a function of ν(t), and performs implicit update to obtain ν(t+1) . Then we can derive the gradient as follows: 
+
+g(t)RVL = ∇ν LRVL (ψ(t+1) (ν(t))) = ∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ν ψ(t+1) (ν(t))= ∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ν
+
+
+
+ψ(t(ν(t)) − β1( t)∇ψ LWSL (ψ(t), ν (t))
+
+
+
+= −β1( t)∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ν
+
+
+
+∇ψ LWSL (ψ(t), ν (t))
+
+
+
+= −β1( t)∇ψ LRVL (ψ(t+1) (ν(t))) T · ∇ ψ log 
+
+ bTψ(t) (s′|s, a )
+
+| {z }
+
+> h
+
+·∇ ν wν(t) (s, a, s ′).
+
+The fourth equality holds under the Markov assumption, under which ∇ν ψ(t)(ν(t)) = 0 since ψ(t)
+
+is determined by ν(t−1) and the effect of ν(t) is ignored. This technique is widely used in the field of bi-level optimization (Bolte et al., 2023; Liu et al., 2020) and meta-learning (Baydin et al., 2017; Wang et al., 2020). Then we finish our derivation. 
+
+## B MISSING PROOFS 
+
+In this section, we provide detailed proofs for our theoretical results in the main text. B.1 PROOF OF PROPOSITION 4.1 We first introduce the following lemma in preparation for proving Proposition 4.1. 
+
+Lemma B.1. Let S be a measure space and P be a probability measure on S. In addition, let 
+
+f : S → R be any measure function and c : S × S → R≥0 be a cost function. Then for any scalar 
+
+λ ≥ 0, the following equality holds: 
+
+inf  
+
+> ˆP∼P (S)
+
+
+
+Eˆs∼ ˆP [f (ˆ s)] + λW( ˆP , P )
+
+
+
+= Es∼P
+
+
+
+inf  
+
+> ˆs∼S
+
+(f (ˆ s) + λc (s, ˆs)) 
+
+
+
+,
+
+where P(S) represents all probability measures on S, and W is the Wasserstein distance w.r.t. the cost function c.Proof. We prove this lemma by performing a series of transformations on the left-hand side (LHS) and proving its equivalence to the right-hand side (RHS). According to the definition of Wasserstein distance, the LHS can be written as 
+
+LHS = inf  
+
+> ˆP∈P (S)
+
+Eˆs∼ ˆP [f (ˆ s)] + λ inf   
+
+> γ∈Γ( P, ˆP)
+
+E(s, ˆs)∼γ [c(s, ˆs)] 
+
+!
+
+.
+
+14 Published as a conference paper at ICLR 2026 The optimization of ˆP and the inner optimization over γ ∈ Γ( P, ˆP ) could be combined into a single optimization over all couplings γ whose first marginal is P , and the second marginal, ˆP , could be arbitrary in P(S). Then we have 
+
+LHS = inf   
+
+> γ∈Γ( P, ˆP)
+
+ Eˆs∼ ˆP [f (ˆ s)] + λE(s, ˆs)∼γ [c(s, ˆs)] 
+
+= inf   
+
+> γ∈Γ( P, ˆP)
+
+E(s, ˆs)∼γ [f (ˆ s) + λc (s, ˆs)] , (11) where the second equality holds by the linearity of expectation. By the disintegration theorem for measures, any coupling γ ∈ Γ( P, ˆP ) could be represented as the product of its first marginal P and a stochastic kernel K(dˆs|s) : S → P (S):
+
+γ(ds, d ˆs) = K(dˆs|s)P (ds ). (12) This implies that optimizing over all couplings γ ∈ Γ( P, ˆP ) is equivalent to optimizing over all possible stochastic kernels K. We substitute Equation 12 into Equation 11: 
+
+LHS = inf 
+
+> K
+
+Z
+
+> S
+
+Z
+
+> S
+
+[f (ˆ s) + λc (s, ˆs)] K(dˆs|s)P (ds )= inf  
+
+> K
+
+Es∼P
+
+Eˆs∼K(·| s) [f (ˆ s) + λc (s, ˆs)]  .
+
+We change the position of the infimum operator and the inner expectation: 
+
+LHS = Es∼P
+
+
+
+inf  
+
+> K(·| s)∈P (S)
+
+Eˆs∼K(·| s) [f (ˆ s) + γc (s, ˆs)] 
+
+
+
+. (13) We then solve the inner minimization problem for a fixed s ∈ S :
+
+inf  
+
+> K(·| s)∈P (S)
+
+Eˆs∼K(·| s) [f (ˆ s) + γc (s, ˆs)] .
+
+Let gs(ˆ s) ≜ f (ˆ s) + γc (s, ˆs). The problem is to find a probability measure K(·| s) that minimizes the expectation of gs(ˆ s). It is obvious that this minimum is achieved by concentrating the entire probability mass on point ˆs where gs(ˆ s) attains its infimum. Let ˆs⋆ = arg inf ˆs∈S gs(ˆ s). The optimal measure is a Dirac measure δˆs⋆ centered on ˆs⋆. Therefore, 
+
+inf  
+
+> K(·| s)∈P (S)
+
+Eˆs∼K(·| s) [f (ˆ s) + γc (s, ˆs)] = Eˆs∼δˆs⋆ [gs(ˆ s)] = f (ˆ s⋆) + γc (s, ˆs⋆)= inf  
+
+> ˆs∈S
+
+[f (ˆ s) + γc (s, ˆs)] .
+
+(14) Finally, substituting Equation 14 back into Equation 13, we obtain the RHS of the lemma as 
+
+LHS = Es∼P
+
+
+
+inf  
+
+> ˆs∈S
+
+(f (ˆ s) + γc (s, ˆs)) 
+
+
+
+= RHS .
+
+This concludes the proof. Now we are ready to give our formal proof for Proposition 4.1. We restate it as follows. 
+
+Proposition B.1 (Proposition 4.1) . Let Mξ be the Wasserstein dynamics uncertainty set. Then we have 
+
+min  
+
+> bT∈M ξ
+
+Es′∼ bT (·| s,a ) bV (s′) = Es′∼ bTMLE (·| s,a )
+
+
+
+min  
+
+> ˆs∈Uξ(s′)
+
+bV (ˆ s)
+
+
+
+. (15) 
+
+Proof. We start with the LHS and prove its equivalence to the RHS. The LHS is a constrained optimization problem that can be solved using the Lagrange multiplier method. We define the Lagrange function as 
+
+L( bT , λ ) = Eˆs′∼ bT (·| s,a ) bV (ˆ s′) + λ
+
+
+
+W( bT , bTMLE ) − ξ
+
+
+
+.
+
+15 Published as a conference paper at ICLR 2026 The LHS is equivalent to solving the dual problem as 
+
+LHS = sup 
+
+> λ≥0
+
+inf 
+
+> bT
+
+L( bT , λ ). (16) For a fixed λ, we solve the inner minimization problem inf bT L( bT , λ ) as 
+
+inf 
+
+> bT
+
+L( bT , λ ) = inf 
+
+> bT
+
+
+
+Eˆs′∼ bT (·| s,a ) bV (ˆ s′) + λW( bT , bTMLE )
+
+
+
+− λξ. (17) According to Lemma B.1, we have 
+
+inf 
+
+> bT
+
+
+
+Eˆs′∼ bT (·| s,a ) bV (ˆ s′) + λW( bT , bTMLE )
+
+
+
+= Es′∼ bTMLE (·| s,a )
+
+
+
+inf 
+
+> ˆs′
+
+ bV (ˆ s′) + λc (s′, ˆs′)
+
+
+
+. (18) Substituting Equation 18 into Equation 17 and Equation 16, we obtain the dual reformulation of LHS as 
+
+LHS = sup 
+
+> λ≥0
+
+
+
+Es′∼ bTMLE (·| s,a )
+
+
+
+inf 
+
+> ˆs′
+
+ bV (ˆ s′) + λc (s′, ˆs′)
+
+
+
+− λξ 
+
+
+
+. (19) The RHS in Equation 19 is exactly the Lagrange dual reformulation of the RHS in Equation 15. This implies Equation 15 holds, which concludes the proof. B.2 PROOF OF PROPOSITION 4.2 
+
+Proof. The standard Bellman operator is defined as 
+
+T Q(s, a ) = r + γEs′∼ bTMLE (·| s,a ),a ′∼π(·| s′)Q(s′, a ′).
+
+For Bellman updates using Dmodel , the Bellman operator could be expressed as 
+
+Tmodel Q(s, a ) = r + γEs′∼ bTψ (·| s,a ),a ′∼π(·| s′)Q(s′, a ′).
+
+For any (s, a ) ∈ D model , we have 
+
+Es′∼ bTψ (·| s,a ),a ′∼π(·| s′)Q(s′, a ′) ≤ Es′∼ bTMLE (·| s,a )
+
+
+
+min   
+
+> ˜s′∈Uξ(s′),a ′∼π(·| ˜s′)
+
+Q(˜ s′, a ′)
+
+
+
++ ϵ1
+
+≤ Es′∼ bTMLE (·| s,a ),a ′∼π(·| s′)Q(s′, a ′) + ϵ1.
+
+Therefore, we have 
+
+Tmodel Q(s, a ) ≤ T Q(s, a ) + γϵ 1, ∀(s, a ) ∈ D model .
+
+Let bQk denote the Q-value at iteration k by applying Tmodel , and Qk denote the k-iteration Q-value by applying T . Q0 represents the initial Q-value. After one iteration, we have 
+
+bQ1(s, a ) ≤ Q1(s, a ) + 1 − γ
+
+1 − γ · γϵ 1.
+
+Suppose at iteration k, we have 
+
+bQk(s, a ) ≤ Qk(s, a ) + 1 − γk
+
+1 − γ γϵ 1, ∀k ∈ Z+. (20) Then for iteration k + 1 , we have 
+
+bQk+1 (s, a ) = Tmodel bQk(s, a ) ≤ T bQk(s, a ) + γϵ 1.
+
+In the meantime, we have 
+
+T bQk(s, a ) ≤ T 
+
+
+
+Qk(s, a ) + 1 − γk
+
+1 − γ γϵ 1
+
+
+
+= r + γEs′∼ bTMLE (·| s,a )
+
+
+
+Qk(s, a ) + 1 − γk
+
+1 − γ γϵ 1
+
+
+
+= Qk+1 + 1 − γk
+
+1 − γ γ2ϵ1.
+
+16 Published as a conference paper at ICLR 2026 Therefore, we have 
+
+bQk+1 (s, a ) ≤ Qk+1 + 1 − γk+1 
+
+1 − γ γϵ 1.
+
+Therefore, Equation 20 also holds for iteration k + 1 , and thus holds for all k ∈ Z+. If we set 
+
+k → ∞ , then bQ and Q would converge to the fixed points, and we have 
+
+bQ(s, a ) ≤ Qtrue (s, a ) + γϵ 1
+
+1 − γ (21) In the meantime, we also have 
+
+Es′∼ bTψ (·| s,a ),a ′∼π(·| s′)Q(s′, a ′) ≥ Es′∼ bTMLE (·| s,a )
+
+
+
+min   
+
+> ˜s′∈Uξ(s′),a ′∼π(·| ˜s′)
+
+Q(˜ s′, a ′)
+
+
+
+− ϵ1
+
+≥ Es′∼ bTMLE (·| s,a ),a ′∼π(·| s′)Q(s′, a ′) − (ϵ1 + ϵ2).
+
+Following a similar derivation process as above, we obtain 
+
+bQ(s, a ) ≥ Qtrue (s, a ) − γ(ϵ1 + ϵ2)1 − γ . (22) Combining the results of Equation 21 and Equation 22, we conclude the proof. B.3 PROOF OF COROLLARY 4.1 
+
+Proof. The proof is straightforward. 
+
+ϵ1 = max 
+
+> (s,a )∈D model
+
+Eˆs′∼ bTψ (·| s,a ),s ′∼ bTMLE (·| s,a )
+
+h bV (ˆ s′) − min  
+
+> ˜s′∈Uξ(s′)
+
+bV (˜ s′)
+
+i
+
+= max 
+
+> (s,a )∈D model
+
+Eˆs′∼ bTψ (·| s,a ),s ′∼ bTMLE (·| s,a )
+
+h bV (ˆ s′) − bV (s′) + bV (s′) − min  
+
+> ˜s′∈Uξ(s′)
+
+bV (˜ s′)
+
+i
+
+≤ max 
+
+> (s,a )∈D model
+
+Eˆs′∼ bTψ (·| s,a ),s ′∼ bTMLE (·| s,a )
+
+bV (ˆ s′) − bV (s′) + bV (s′) − min  
+
+> ˜s′∈Uξ(s′)
+
+bV (˜ s′)
+
+
+
+≤ LV · (ϵ + ξ).
+
+This concludes the proof. B.4 PROOF OF PROPOSITION 4.3 
+
+Definition B.1 (Lipschitz Smoothness) . A function f (x) : Rn → R is L-Lipschitz smooth if the following inequality holds 
+
+∥∇ f (x1) − ∇ f (x2)∥ ≤ L ∥x1 − x2∥ , ∀x1, x 2 ∈ Rn. (23) We then have the following Lemmas: 
+
+Lemma B.2 (Nesterov et al. (2018)) . If function f (x) : Rn → R is L-Lipschitz smooth, then we have 
+
+f (x2) − f (x1) − ∇ f (x1)T(x2 − x1) ≤ L
+
+2 ∥x2 − x1∥2 , ∀x1, x 2 ∈ Rn. (24) 
+
+Lemma B.3. Assume the outer loss LRVL is L-Lipschitz smooth, and the gradient of LRVL , LSL 
+
+are bounded by ρ. Let wν be twice differentiable, with its gradient and Hessian bounded by δ and 
+
+B, respectively. Then LRVL is ρ2(Lδ 2 + B)-Lipschitz smooth w.r.t. ν.Proof. Recall that the gradient of the outer loss LRVL (ψ(ν)) w.r.t. ν is 
+
+∇ν LRVL (ψ(t+1) (ν(t))) = ∇ψ LRVL (ψ(t+1) (ν(t))) · ∇ ν ψ(t+1) (ν(t))= h · ∇ ν wν(t) (s, a, s ′), (25) where h is defined in Equation 10. Taking the gradient of ν in both sides of Equation 25, we have 
+
+∇2 
+
+> ν
+
+LRVL (ψ(t+1) (ν(t))) = ∇ν h · ∇ ν(t) wν (s, a, s ′)
+
+| {z }
+
+> I1
+
++ h · ∇ 2 
+
+> ν
+
+wν(t) (s, a, s ′)
+
+| {z }
+
+> I2
+
+.
+
+17 Published as a conference paper at ICLR 2026 The norm of the first term I1 could be bounded as follows: 
+
+∥I1∥
+
+= ∥∇ ν h · ∇ ν wν(t) (s, a, s ′)∥≤ β1( t)δ ∇ψ
+
+
+
+∇ν LRVL (ψ(t+1) (ν(t))) 
+
+T
+
+∇ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+= β21( t)δ ∇ψ
+
+
+
+∇ψ LRVL (ψ(t+1) )∇ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+∇ν wν(t) (s, a, s ′)
+
+T
+
+∇ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+= β21( t)δ
+
+
+
+∇2 
+
+> ψ
+
+LRVL (ψ(t+1) )∇ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+∇ν wν(t) (s, a, s ′)
+
+T
+
+∇ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+≤ β21( t)Lρ 2δ2.
+
+The norm of the second term I2 could be bounded as below: 
+
+∥I2∥ = h · ∇ 2 
+
+> ν
+
+wν(t) (s, a, s ′)
+
+= β1( t) ∇ψ LRVL (ψ(t+1) )T∇ψ log 
+
+ bTψ(t) (s′|s, a )
+
+
+
+∇2 
+
+> ν
+
+wν(t) (s, a, s ′)
+
+≤ β1( t)Bρ2.
+
+Combining the above results of ∥I1∥ and ∥I2∥, we could bound the norm of ∇2 
+
+> ν
+
+LRVL (ψ(t+1) (ν(t))) 
+
+as follows: 
+
+∇2 
+
+> ν
+
+LRVL (ψ(t+1) (ν(t))) = ∥I1 + I2∥≤ ∥ I1∥ + ∥I2∥≤ β1( t)ρ2(β1( t)Lδ 2 + B)
+
+≤ ρ2(Lδ 2 + B).
+
+According to Lagrange mean value theorem, for ∀ν1, ν 2, we have 
+
+∥∇ ν LRVL (ψ(ν1)) − ∇ ν LRVL (ψ(ν2)) ∥ ≤ L′ ∥ν1 − ν2∥ ,
+
+where L′ = ρ2(Lδ 2 + B). This concludes the proof. Then we prove our proposition 4.3. We restate it as follows. 
+
+Proposition B.2 (Proposition 4.3) . Assume LRVL and LWSL are L-Lipschitz smooth, and the gra-dient of LRVL , LSL and LWSL are bounded by ρ. Let wν be twice differentiable, with its gradient and Hessian bounded by δ and B, respectively. Denote L′ = ρ2(Lδ 2 + B), and the total steps as K.For some c1, c 2 > 0, we assume the learning rate of the inner and outer loop β1 and β2 satisfies:  
+
+> c2√K
+
+≤ β1, β 2 ≤ min { c1 
+
+> K
+
+, 1 
+
+> L
+
+, 1 
+
+> L′
+
+}, where c2√K ≤ min { c1 
+
+> K
+
+, 1 
+
+> L
+
+, 1 
+
+> L′
+
+}, c2√K < 1, c1 
+
+> K
+
+< 1. Then the outer loss LRVL and inner loss LWSL can achieve a convergence rate of O
+
+ 1√K
+
+
+
+:
+
+min  
+
+> 0≤t≤K−1
+
+E
+
+
+
+∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+≤ O 
+
+ 1
+
+√K
+
+
+
+, (26) 
+
+min  
+
+> 0≤t≤K−1
+
+E
+
+
+
+∇ψ LWSL (ψ(t)(ν(t))) 2
+
+≤ O 
+
+ 1
+
+√K
+
+
+
+. (27) 
+
+Proof. We first prove Equation 26. Consider the difference in the outer loss between the t-th and the t + 1 -th iteration: 
+
+LRVL (ψ(t+2) (ν(t+1) )) − L RVL (ψ(t+1) (ν(t))) = LRVL (ψ(t+2) (ν(t+1) )) − L RVL (ψ(t+1) (ν(t+1) )) 
+
+| {z }
+
+> I1
+
++ LRVL (ψ(t+1) (ν(t+1) )) − L RVL (ψ(t+1) (ν(t))) 
+
+| {z }
+
+> I2
+
+.
+
+18 Published as a conference paper at ICLR 2026 According to Lemma B.2 and the assumption that LRVL is Lipschitz smooth, we could bound the first term I1 by 
+
+I1 ≤ ∇ ψ LRVL (ψ(t+1) (ν(t+1) )) T(ψ(t+2) (ν(t+1) ) − ψ(t+1) (νt+1 )) 
+
+| {z }
+
+> I3
+
++ L
+
+2 ψ(t+2) (ν(t+1) ) − ψ(t+1) (ν(t+1) ) 2
+
+| {z }
+
+> I4
+
+.
+
+For term I3, since ψ(t+2) (ν(t+1) ) and ψ(t+1) (ν(t+1) ) have the relation of 
+
+ψ(t+2) (ν(t+1) ) = ψ(t+1) (ν(t+1) ) − β1( t+1) ∇ψ LWSL (ψ(t+1) ),
+
+we could bound I3 by 
+
+I3 ≤ ∇ψ LRVL (ψ(t+1) (ν(t+1) )) · ψ(t+2) (ν(t+1) ) − ψ(t+1) (ν(t+1) )
+
+≤ ρ · β1( t+1) ∇ψ LWSL (ψ(t+1) )
+
+≤ β1( t+1) ρ2.
+
+Similarly, I4 is bounded by 
+
+I4 = L
+
+2 β1( t+1) ∇ψ LWSL (ψ(t+1) ) 2
+
+≤ L
+
+2 β21( t+1) ρ2.
+
+Therefore, we have 
+
+I1 ≤ I3 + I4 ≤ β1( t+1) ρ2 + L
+
+2 β21( t+1) ρ2. (28) For term I2, we regard LRVL (ψ(ν)) as a function w.r.t. ν. By using Lemma B.2 and Lemma B.3, we have 
+
+I2 ≤ ∇ ν LRVL (ψ(t+1) (ν(t))) T(ν(t+1) − ν(t)) + L′
+
+2 ν(t+1) − ν(t) 2
+
+= −β2( t)∇ν LRVL (ψ(t+1) (ν(t))) T∇ν LRVL (ψ(t+1) (ν(t))) + L′β22( t)
+
+2 ∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+= − β2( t) − L′β22( t)
+
+2
+
+!
+
+∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+.
+
+(29) The first equality holds due to 
+
+ν(t+1) = ν(t) − β2( t) · ∇ ν LRVL (ψ(t+1) (ν(t))) .
+
+Combining the results of Equation 28 and Equation 29, we have 
+
+LRVL (ψ(t+2) (ν(t+1) )) − L RVL (ψ(t+1) (ν(t))) 
+
+≤ β1( t+1) ρ2 + L
+
+2 β21( t+1) ρ2 − β2( t) − L′β22( t)
+
+2
+
+!
+
+∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+.
+
+Adjusting the order of the inequality and summing both sides from t = 0 to K − 1, we have 
+
+> K−1
+
+X
+
+> t=0
+
+β2( t) − L′β22( t)
+
+2
+
+!
+
+∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+≤ L RVL (ψ(1) (ν(0) )) − L RVL (ψ(K+1) (ν(K))) + 
+
+> K−1
+
+X
+
+> t=0
+
+β1( t+1) ρ2 + Lβ 21( t+1) ρ2
+
+2
+
+!
+
+≤ L RVL (ψ(1) (ν(0) )) + 
+
+> K−1
+
+X
+
+> t=0
+
+β1( t+1) ρ2 + Lβ 21( t+1) ρ2
+
+2
+
+!
+
+.
+
+19 Published as a conference paper at ICLR 2026 Therefore, we have 
+
+min  
+
+> 0≤t≤K−1
+
+E
+
+h
+
+∇ν LRVL (ψ(t+1) (ν(t))) 
+
+i
+
+≤
+
+PK−1 
+
+> t=0
+
+(β2( t) − L′β22( t) 
+
+> 2
+
+) ∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+PK−1 
+
+> t=0
+
+(β2( t) − L′β22( t) 
+
+> 2
+
+)
+
+≤ 2LRVL (ψ(1) (ν(0) )) + PK−1 
+
+> t=0
+
+(2 β1( t+1) ρ2 + Lβ 21( t+1) ρ2)
+
+PK−1 
+
+> t=0
+
+(2 β2( t) − L′β22( t))
+
+≤ 1
+
+PK−1 
+
+> t=0
+
+β2( t)
+
+"
+
+2LRVL (ψ(1) (ν(0) )) + 
+
+> K−1
+
+X
+
+> t=0
+
+β1( t+1) ρ2(2 + Lβ 1( t+1) )
+
+#
+
+≤ 1
+
+K min 0≤t≤K−1 β2( t)
+
+
+
+2LRVL (ψ(1) (ν(0) )) + K max  
+
+> 0≤t≤K−1
+
+β1( t+1) ρ2(2 + L)
+
+
+
+= 2LRVL (ψ(1) (ν(0) )) 
+
+K min 0≤t≤K−1 β2( t)
+
++ max 0≤t≤K−1 β1( t+1) ρ2(2 + L)min 0≤t≤K−1 β2( t)
+
+≤ 2LRVL (ψ(1) (ν(0) )) 
+
+c2
+
+√K + c1ρ2(2 + L)
+
+c2
+
+√K
+
+= O
+
+ 1
+
+√K
+
+
+
+.
+
+The third inequality holds from PK−1 
+
+> t=0
+
+β2( t) ≤ PK−1 
+
+> t=0
+
+(2 β2( t) − L′β22( t)) given β2( t) ≤ 1 
+
+> L′
+
+.The proof of Equation 27 is similar to Equation 26. For completeness, we also present the proof procedure. Consider the difference in the inner loss between the t-th and t + 1 -th iterations: 
+
+LWSL (ψ(t+1) , ν (t+1) ) − L WSL (ψ(t), ν (t))= LWSL (ψ(t+1) , ν (t+1) ) − L WSL (ψ(t+1) , ν (t))
+
+| {z }
+
+> I1
+
++ LWSL (ψ(t+1) , ν (t)) − L WSL (ψ(t), ν (t))
+
+| {z }
+
+> I2
+
+.
+
+For term I1, according to Lemma B.2, we have 
+
+I1 ≤ ∇ ν LWSL (ψ(t+1) , ν (t))T(ν(t+1) − ν(t)) + L
+
+2 ν(t+1) − ν(t) 2
+
+= −β2( t)∇ν LWSL (ψ(t+1) , ν (t))T∇ν LRVL (ψ(t+1) (ν(t))) + Lβ 22( t)
+
+2 ∇ν LRVL (ψ(t+1) (ν(t))) 2
+
+≤ β2( t)ρ2 + L
+
+2 β22( t)ρ2.
+
+For term I2, we have 
+
+I2 ≤ ∇ ψ LWSL (ψ(t), ν (t))T(ψ(t+1) − ψ(t)) + L
+
+2 ψ(t+1) − ψ(t) 2
+
+= −β1( t)∇ψ LWSL (ψ(t), ν (t))T∇ψ LWSL (ψ(t), ν (t)) + Lβ 21( t)
+
+2 ∇ψ LSL (ψ(t), ν (t)) 2
+
+= −(β1( t) − Lβ 21( t)
+
+2 ) ∇ψ LWSL (ψ(t), ν (t)) 2
+
+.
+
+Therefore, we have 
+
+LWSL (ψ(t+1) , ν (t+1) ) − L WSL (ψ(t), ν (t))
+
+≤ β2( t)ρ2 + L
+
+2 β22( t)ρ2 − β1( t) − Lβ 21( t)
+
+2
+
+!
+
+∇ψ LWSL (ψ(t), ν (t)) 2
+
+.
+
+20 Published as a conference paper at ICLR 2026 Rearranging the inequality and summing both sides from t = 0 to K − 1, we have 
+
+> K−1
+
+X
+
+> t=0
+
+β1( t) − Lβ 21( t)
+
+2
+
+!
+
+∇ψ LWSL (ψ(t), ν (t)) 2
+
+≤ L WSL (ψ(0) , ν (0) ) − L WSL (ψ(K), ν (K)) + 
+
+> K−1
+
+X
+
+> t=0
+
+β2( t)ρ2 + L
+
+2 β22( t)ρ2
+
+≤ L WSL (ψ(0) , ν (0) ) + 
+
+> K−1
+
+X
+
+> t=0
+
+β2( t)ρ2 + L
+
+2 β22( t)ρ2.
+
+Therefore, we have 
+
+min   
+
+> 0≤t≤T−1
+
+E
+
+
+
+∇ψ LWSL (ψ(t), ν (t)) 2
+
+≤
+
+PK−1
+
+> t=0
+
+
+
+β1( t) − Lβ 21( t)
+
+> 2
+
+
+
+∇ψ LWSL (ψ(t), ν (t)) 2
+
+PK−1
+
+> t=0
+
+
+
+β1( t) − Lβ 21( t)
+
+> 2
+
+
+
+≤ 2LWSL (ψ(0) , ν (0) ) + PK−1 
+
+> t=0
+
+2β2( t)ρ2 + Lβ 22( t)ρ2
+
+PK−1
+
+> t=0
+
+
+
+2β1( t) − Lβ 21( t)
+
+
+
+≤ 2LWSL (ψ(0) , α (0) ) + PK−1 
+
+> t=0
+
+2β2( t)ρ2 + Lβ 22( t)ρ2
+
+PK−1 
+
+> t=0
+
+β1( t)
+
+≤ 1
+
+K min 0≤t≤K−1 β1( t)
+
+
+
+2LWSL (ψ(0) , ν (0) ) + K max  
+
+> 0≤t≤K−1
+
+β2( t)ρ2(2 + L)
+
+
+
+≤ 2LWSL (ψ(0) , ν (0) )
+
+c2
+
+√K + c1ρ2(2 + L)
+
+c2
+
+√K
+
+= O( 1
+
+√K ),
+
+where the third inequality holds since PK−1 
+
+> t=0
+
+β1( t) ≤ PK−1 
+
+> t=0
+
+(2 β1( t) − Lβ 21( t)) given β1( t) ≤ 1 
+
+> L
+
+.This concludes the proof. 
+
+## C BENCHMARK SETTINGS 
+
+In this part, we provide details of the benchmarks and datasets we use for evaluating our method in our paper. The offline datasets are taken from the D4RL (Fu et al., 2020) and NeoRL (Qin et al., 2022) benchmarks, two popular benchmarks designed for evaluating offline RL algorithms. C.1 D4RL For the D4RL benchmark, we mainly evaluate our method on two kinds of datasets: MuJoCo datasets and Antmaze datasets. We first introduce the two datasets. MuJoCo datasets are collected through interactions with continuous control tasks in Gym (Brock-man et al., 2016) simulated by MuJoCo (Todorov et al., 2012). The tasks we use are 
+
+halfcheetah, hopper and walker2d , as illustrated in Figure 4. For each task, we use the four types of datasets: (1) Random : data collected with a random policy. (2) Medium : 1M samples collected by an early-stopped SAC policy. (3) Medium-Replay : 1M samples from the replay buffer of the agent trained up to the performance of a medium-level agent. (4) Medium-Expert : 50-50 split of medium-level data and expert-level data. The MuJoCo dataset version we use in our work is “-v2”. The metric we use for evaluating the agent’s performance on MuJoCo 21 Published as a conference paper at ICLR 2026 
+
+Figure 4: D4RL MuJoCo tasks. Left: halfcheetah, Middle: hopper, Right: walker2d. 
+
+Figure 5: D4RL Antmaze tasks. Left: umaze, Middle: medium, Right: large. tasks is Normalized Score (NS). NS is computed as follows. 
+
+NS = Jπ − Jrandom 
+
+Jexpert − Jrandom 
+
+× 100% (30) where Jπ is the performance of the evaluated policy, Jrandom is the performance of the random policy, Jexpert is the performance of the expert policy. Antmaze datasets are collected in Antmaze tasks. In Antmaze tasks, an 8-DOF “Ant” quadraped robot is required to reach a goal location. Antmaze tasks are more challenging than MuJoCo tasks for offline RL algorithms due to their sparse reward setting. There are three maze layouts contained in Antmaze tasks: umaze, medium, large , as shown in Figure 5. The datasets are collected in three flavors: (i) the robot needs to reach a specified goal from a fixed start point (antmaze-umaze-v0 ). (ii) the robot is required to reach a random goal from a random start point (the diverse datasets). (iii) the robot is commanded to reach specific locations from a different set of specific start locations (the play datasets). In our work, we use the six Antmaze datasets: 
+
+antmaze-umaze, antmaze-umaze-diverse, antmaze-medium-diverse, antmaze-medium-play, antmaze-large-diverse, antmaze-large-play .The dataset version we use is “-v0”. The metric we use for evaluating the policy performance on Antmaze tasks is the success rate of task completion. C.2 NEO RL NeoRL is a benchmark that aims to simulate real-world scenarios by collecting datasets with a more conservative policy, which more aligns with the real-world data-collection strategy. NeoRL datasets contain narrow and limited data, making it challenging for offline RL methods. There are several tasks on the NeoRL benchmark. Following previous studies (Sun et al., 2023; Lin et al.), we focus on three tasks ( HalfCheetah-v3 , Hopper-v3 , Walker2d-v3 ). For each task, we use three types of datasets collected with policies of different qualities ( low , medium , high ). NeoRL provides different numbers of trajectories (100, 1000, 10000) as training data for each task. We select 1000 trajectories for our experiments. The evaluation metric is the Normalized Score, the same metric used for MuJoCo tasks in D4RL. 22 Published as a conference paper at ICLR 2026 
+
+## D IMPLEMENTATION DETAILS 
+
+In this part, we present the details of baseline implementations, ROMI implementations, and hyper-parameter setup. D.1 BASELINE IMPLEMENTATION 
+
+We elaborate on the baseline implementation details on D4RL and NeoRL benchmarks, respectively. For D4RL datasets, our baselines include CQL (Kumar et al., 2020), IQL (Kostrikov et al., 2021), MOPO (Yu et al., 2020), RAMBO (Rigter et al., 2022), Count-MORL (Kim & Oh, 2023), MO-BILE (Sun et al., 2023). For Count-MORL, we retrain the algorithm using the official codebase 2
+
+provided in the original paper. We note that there are three count estimation methods ( LC , AVG ,
+
+UC ) chosen for Count-MORL, and we choose UC since the original paper reports that UC exhibits the best average performance. For other baselines including CQL, IQL, MOPO, RAMBO, and MO-BILE, we run the code in the codebase OfflineRL-Kit 3, which provides reliable implementations for different model-free and model-based offline RL algorithms. For NeoRL datasets, our baselines include CQL, IQL, EDAC (An et al., 2021), MOPO, RAMBO, and MOBILE. Since the codebase OfflineRL-Kit has provided the implementations for these base-lines, we directly use it as our baseline codebase. For Antmaze tasks, we run RAMBO according to the hyperparameter setting in the original pa-per, since MOPO, COMBO, and MOBILE do not provide the detailed hyperparameter setting for Antmaze tasks, we directly copy the evaluation results of these algorithms as reported in (Lin et al., 2024). It is worth noting that the default training steps in OfflineRL-Kit are 3M. To be consistent with the general training settings and ensure a fair comparison, we uniformly set the training steps for all algorithms to 1M. D.2 IMPLEMENTATION OF ROMI We then provide the implementation details of ROMI from the following aspects: 
+
+Codebase. Since ROMI is an improved version of RAMBO, we choose OfflineRL-Kit as our code-base, and implement ROMI on top of the implementation of RAMBO. 
+
+Dynamics Model Training. Following previous works (Rigter et al., 2022; Sun et al., 2023; Kim & Oh, 2023), we represent the dynamics model as an ensemble of neural networks that output a Gaussian distribution over the next state given the current state and action: 
+
+bTψ (s′|s, a ) = N (μψ (s, a ), Σψ (s, a )) (31) Note that we do not predict the reward r, since we assume the reward function r is known as in (Sun et al., 2023), although r can be considered as part of the model if unknown. Similar to RAMBO, we perform an initial maximum likelihood model training. The difference lies in that we fix the training epochs to 50 , rather than stopping the training based on the held-out loss, since we find this could be quite time-consuming. After the initial training, ROMI updates all the ensemble members in a bi-level optimization framework. For each model rollout, we randomly select an ensemble member to simulate the rollout. 
+
+Adaptive-weighting Network Training. We represent the adaptive-weighting network as a sim-ple Multi-Layer Perceptron (MLP) with 2 hidden layers. The input vector is a concatenation of 
+
+(s, a, s ′), and the output is a scalar representing the allocated weight for each training sample. To map the network’s output to the interval [a, b ], we apply the tanh function and then perform an affine transformation (scaling and shifting) to regulate the final range: 
+
+weight = tanh(output) × b − a
+
+2 + a + b
+
+2 (32) 
+
+> 2https://github.com/oh-lab/Count-MORL.git
+> 3https://github.com/yihaosun1124/OfflineRL-Kit.git
+
+23 Published as a conference paper at ICLR 2026 In our experiment, we choose a = 0 .5 and b = 2 , that is, the assigned weight is constrained in the range [0 .5, 2] . Since the performance of ROMI is already satisfactory, we do not further tune the values of a and b.
+
+Policy Optimization. The policy optimization method we adopt is SAC, and most hyperparameters follow its standard implementations. For each training step, we sample a batch of 256 samples where 
+
+50% of them are from the offline dataset D, and another 50% are from the model buffer Dmodel . We use automatic entropy tuning, where the entropy target is set to the standard heuristic −dim( A).We present the base hyperparameter configurations for ROMI in Table 3 and the pseudo-code for ROMI in Algorithm 1. The key difference between ROMI and RAMBO lies in the training strategy for the dynamics model, as highlighted by the blue parts in the pseudo-code. 
+
+Algorithm 1 ROMI  
+
+> 1:
+
+Require: Offline dataset D, number of epochs N , maximum rollout length H, dynamics model pretraining steps Tmodel , policy pretraining steps Tpolicy , learning rate λ, real data ratio f 
+
+> 2:
+
+Initialization: model data buffer Dmodel ← ∅, ensemble dynamics model bTψ = { bTψi }Mi=1 ,weighting network wν , initial policy πθ , other components of SAC (Haarnoja et al., 2018) algo-rithm  
+
+> 3:
+
+// Pre-train the dynamics model  
+
+> 4:
+
+for step in 1 to Tmodel do  
+
+> 5:
+
+Compute loss: LSL = −E(s,a,s ′)∈D 
+
+h
+
+log bTψ (s′|s, a )
+
+i 
+
+> 6:
+
+Perform gradient descent: ψ ← ψ − λ∇ψ LSL (ψ) 
+
+> 7:
+
+end for  
+
+> 8:
+
+// (Optional) Pre-train the policy  
+
+> 9:
+
+for step in 1 to Tpolicy do  
+
+> 10:
+
+Compute loss: LBC = −E(s,a )∈D [log πθ (s|a)]  
+
+> 11:
+
+Perform gradient descent: θ ← θ − λ∇θ LBC (θ) 
+
+> 12:
+
+end for  
+
+> 13:
+
+for epoch from 1 to N do  
+
+> 14:
+
+Sample an initial state s0 from D 
+
+> 15:
+
+for h in 0 to H − 1 do  
+
+> 16:
+
+Take an action ah ∼ πθ (·| sh) 
+
+> 17:
+
+Randomly pick an ensemble member bT from { bTψi }Mi=1 and sample next state sh+1 =
+
+bT (·| sh, a h) 
+
+> 18:
+
+Add the model generated transition (sh, a h, r h, s h+1 ) into Dmodel  
+
+> 19:
+
+Sample a batch of transitions from D ∪ D model with ratio f 
+
+> 20:
+
+optimize πθ with SAC: θ ← θ − λ∇θ LSAC (θ) 
+
+> 21:
+
+end for  
+
+> 22:
+
+// Inner level update  
+
+> 23:
+
+Compute loss LWSL (ψ, ν ) = −E(s,a,s ′)∈D 
+
+h
+
+wν (s, a, s ′) log 
+
+ bTψ (s′|s, a )
+
+i  
+
+> 24:
+
+Perform gradient descent: ψ ← ψ − λ∇ψ LWSL (ψ, ν ) 
+
+> 25:
+
+// Outer level update  
+
+> 26:
+
+Compute h according to Equation 10  
+
+> 27:
+
+Compute gradient gRVL = h · ∇ ν wν (s, a, s ′) 
+
+> 28:
+
+Perform gradient descent: ν ← ν − λ · gRVL  
+
+> 29:
+
+end for 
+
+D.3 HYPERPARAMETER TUNING OF ROMI There are three main hyperparameters for ROMI: the uncertainty set scale ξ, the uncertainty set sampling number N , and the rollout length H. We show how we tune those hyperparameters below. 
+
+Uncertainty set scale ξ. For D4RL and NeoRL tasks, we search ξ in the range of {0.01 , 0.1, 1.0, 10 }
+
+and choose the value with the best performance. 24 Published as a conference paper at ICLR 2026 Table 3: Base hyperparameter setup for ROMI shared across all runs. 
+
+Hyperparameter Value 
+
+Dynamics Model Ensemble size 7Architecture (input, 200, 200, 200, 200, output) Real data ratio (f ) 0.5 Model learning batch size 256 Model learning rate 3 × 10 −4
+
+Model pretraining epochs 50 Weighting network Architecture (input, 256, 256, 256, 1) Output range [0.5, 2] learning rate 1 × 10 −4
+
+Batch size 256 Policy optimization Require pretraining False Critic learning rate 3 × 10 −4
+
+Actor learning rate 1 × 10 −4
+
+Optimizer Adam (Kingma & Ba, 2014) Discount factor 0.99 Soft update parameter 5 × 10 −3
+
+Target entropy -dim( A)Batch size 256 
+
+Sampling number N . N controls the approximation error between the sampled minimum Q-value and the true minimum Q-value within the uncertainty set. A larger N generally leads to a smaller error but incurs higher computational costs. Furthermore, a larger ξ often necessitates a larger N . In our experiments, we select N from the set {10 , 20 , 30 } for all the tasks. To conserve computational resources, if the performance difference between two candidate values of N is not significant, we choose the smaller one. 
+
+Rollout length H. We perform short-horizon rollouts similar to previous works (Sun et al., 2023; Rigter et al., 2022), and tune H across {2, 5} for Gym and NeoRL tasks. For Antmaze tasks, we vary the parameters on H ∈ { 1, 3}.The selected hyperparameters for each task are listed in Table 4. 
+
+## E COMPUTATIONAL COST 
+
+E.1 COMPUTE INFRASTRUCTURE 
+
+We list our hardware specifications as follows: • GPU: NVIDIA RTX A6000 ( ×4) • CPU: AMD Ryzen Threadripper PRO 5975WX We also list our software specifications as follows: • Python: 3.8.18 • Pytorch: 1.11.0+cu113 • Tensorflow: 2.9.1 • Numpy: 1.24.4 • Gym: 0.22.0 • MuJoCo: 2.0 • D4RL: 1.1 25 Published as a conference paper at ICLR 2026 Table 4: Hyperparameters of ROMI. 
+
+Domain Name Task Name ξ N H
+
+halfcheetah-random 0.01 10 5hopper-random 0.1 10 5walker2d-random 0.01 10 5halfcheetah-medium 0.1 10 2hopper-medium 1.0 10 2D4RL MuJoCo walker2d-medium 0.01 10 5halfcheetah-medium-replay 0.1 10 5hopper-medium-replay 1.0 10 5walker2d-medium-replay 0.01 10 5halfcheetah-medium-expert 1.0 10 2hopper-medium-expert 1.0 10 2walker2d-medium-expert 0.01 10 5antmaze-umaze 0.1 10 1antmaze-umaze-diverse 1.0 10 1D4RL Antmaze antmaze-medium-play 0.1 10 3antmaze-medium-diverse 1.0 10 1antmaze-large-play 1.0 10 1antmaze-large-diverse 1.0 10 1HalfCheetah-L 0.1 10 2Hopper-L 0.1 10 2Walker2d-L 1.0 10 2NeoRL HalfCheetah-M 0.01 10 5Hopper-M 0.1 10 2Walker2d-M 0.01 10 2HalfCheetah-H 1.0 10 2Hopper-H 0.1 10 2Walker2d-H 0.01 10 526 Published as a conference paper at ICLR 2026 E.2 COMPUTING RESOURCE CONSUMPTION 
+
+We compare the computational resource consumption of ROMI and RAMBO, including model pa-rameter size, GPU memory usage during training, and runtime, as shown in Table 5. The results indicate that while ROMI and RAMBO show no significant difference in model parameter size or GPU memory usage, ROMI requires more runtime. This is primarily due to the additional training overhead of the weighting network. Table 5: Comparison of ROMI and RAMBO on computing resource consumption 
+
+Task Name Size of Parameters (MB) GPU Memory (GB) Runtime (s/epoch) ROMI RAMBO ROMI RAMBO ROMI RAMBO 
+
+hopper-random 7.93 7.66 3.30 3.28 28.20 23.76 halfcheetah-random 8.19 7.91 3.33 3.32 29.41 22.24 walker2d-random 8.19 7.91 3.33 3.32 30.06 23.89 hopper-medium 7.93 7.66 3.30 3.28 28.43 23.31 halfcheetah-medium 8.19 7.91 3.33 3.32 29.91 22.63 walker2d-medium 8.19 7.91 3.33 3.32 29.67 23.15 hopper-medium-replay 7.93 7.66 3.30 3.28 28.46 22.27 halfcheetah-medium-replay 8.19 7.91 3.33 3.32 29.13 23.52 walker2d-medium-replay 8.19 7.91 3.33 3.32 29.64 23.11 hopper-medium-expert 7.93 7.66 3.30 3.28 28.33 22.93 halfcheetah-medium-expert 8.19 7.91 3.33 3.32 29.21 23.47 walker2d-medium-expert 8.19 7.91 3.33 3.32 30.02 23.09 
+
+## F MORE EXPERIMENTAL RESULTS 
+
+In this part, we provide more experimental results missing from the main text. F.1 D4RL A NTMAZE RESULTS 
+
+We compare ROMI with several model-based offline RL methods on the challenging D4RL Antmaze tasks; results are presented in Table 6. Performance varies substantially across methods: MOPO fails to achieve meaningful performance on all six tasks; COMBO performs well on umaze and 
+
+umaze-diverse but fails on others; RAMBO achieves nonzero scores on four of the six tasks, but its total score remains low. MOBILE performs strongly overall, achieving nonzero scores on all tasks with a total of 173.4. In contrast, ROMI achieves a total score of 186.5 – higher than MO-BILE and the highest among all compared methods. Notably, ROMI clearly outperforms MOBILE on umaze-diverse and medium-diverse , and exceeds RAMBO on five of the six tasks. The only exception is large-play , where both methods score zero. These results demonstrate ROMI’s effectiveness in addressing challenging Antmaze domains. Table 6: Successful Success rate comparison on Antmaze tasks. Results are averaged over 5 seeds. The top two scores for each task are bold .
+
+Task Name MOPO COMBO RAMBO MOBILE ROMI (Ours) 
+
+antmaze-umaze 0.0 80.3 42.6 ± 11.9 77.0 70.3 ± 11.4 antmaze-umaze-diverse 0.0 57.3 12.9 ±5.6 20.4 32.8 ± 13.0 antmaze-medium-play 0.0 0.0 18.7 ± 9.2 64.6 51.3 ± 19.7 antmaze-medium-diverse 0.0 0.0 20.4 ± 3.7 1.6 30.1 ± 10.0 antmaze-large-play 0.0 0.0 0.0 ± 0.0 2.6 0.0 ± 0.0 antmaze-large-diverse 0.0 0.0 0.0 ± 0.0 7.2 6.4 ± 4.2 Total 0.0 137.6 94.6 173.4 186.5 
+
+27 Published as a conference paper at ICLR 2026 0.0 0.5 1.0 Step 1e6                            
+
+> 0
+> 50
+> 100
+> 150 Gradient Norm
+> halfcheetah-medium
+> 0.0 0.5 1.0 Step 1e6
+> 0.002
+> 0.003
+> 0.004
+> 0.005 Gradient Norm
+> halfcheetah-medium-replay
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 100
+> 200
+> 300 Gradient Norm
+> halfcheetah-medium-expert
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 50
+> 100
+> 150
+> 200
+> 250 Gradient Norm
+> hopper-medium
+> 0.0 2.5 5.0 7.5 Step 1e5
+> 0
+> 25
+> 50
+> 75
+> 100
+> 125 Gradient Norm
+> hopper-medium-replay
+> 0246Step 1e5
+> 0
+> 50
+> 100
+> 150 Gradient Norm
+> hopper-medium-expert
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 50
+> 100
+> 150
+> 200
+> 250 Gradient Norm
+> walker2d-medium
+> 0.0 0.5 1.0 Step 1e6
+> 0.005
+> 0.010
+> 0.015
+> 0.020 Gradient Norm
+> walker2d-medium-replay
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 500
+> 1000 Gradient Norm
+> walker2d-medium-expert =0.05 =0.1
+
+Figure 6: Gradient norm curves on 9 D4RL datasets for RAMBO when λ = 0 .05 and λ = 0 .1
+
+F.2 MORE RESULTS ON MOTIVATION EXAMPLE 
+
+We conduct experiments on nine D4RL datasets to examine the limitations of RAMBO. In Sec-tion 3, we presented results on the halfcheetah-medium-expert-v2 dataset due to space constraints. Here, we provide results across all nine datasets, including gradient norms, normalized scores, and Q-value estimates. Figure 6 shows the gradient norm of the adversarial loss during RAMBO training for λ = 0 .05 
+
+and λ = 0.1. We omit curves for smaller λ such as λ = 3 × 10 −4 since we find the gra-dient norm stays small for those λ. as the gradient norm remains consistently small in those cases. As shown, gradient explosion occurs on two tasks ( hopper-medium-replay-v2 and 
+
+hopper-medium-expert-v2 ) with λ = 0 .05 . For λ = 0 .1, this issue becomes more fre-quent, occurring in 7 out of 9 tasks. These results demonstrate that RAMBO suffers from training instability unless λ is set to an extremely small value. Figure 7 and Figure 8 present the normalized score and Q-value estimation on 9 D4RL datasets for RAMBO across different λ. A clear trend can be observed: setting λ to very small values within 
+
+{0, 3e − 4, 5e − 3} has almost no impact on performance and Q-value estimation. In contrast, a larger value of λ such as 0.05 and 0.1 leads to diverged Q-value and performance collapse, indicating that RAMBO is highly sensitive to λ and prone to excessive conservatism. 28 Published as a conference paper at ICLR 2026 0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+halfcheetah-medium 
+
+0
+
+20 
+
+40 
+
+60 Normalized Score 
+
+halfcheetah-medium-replay 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+halfcheetah-medium-expert 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+hopper-medium-replay 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium-expert 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+walker2d-medium 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+walker2d-medium-replay 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+walker2d-medium-expert 
+
+= 0 = 3e 4 = 5e 3 = 5e 2 = 1e 1
+
+Figure 7: Normalized score comparison on 9 D4RL datasets across different λ for RAMBO. 29 Published as a conference paper at ICLR 2026 -500 
+
+0
+
+500 Q Value 
+
+halfcheetah-medium 
+
+-500 
+
+-250 
+
+0
+
+250 
+
+500 Q Value 
+
+halfcheetah-medium-replay 
+
+-500 
+
+0
+
+500 
+
+1000 Q Value 
+
+halfcheetah-medium-expert 
+
+-400 
+
+-200 
+
+0
+
+200 Q Value 
+
+hopper-medium 
+
+-400 
+
+-200 
+
+0
+
+200 Q Value 
+
+hopper-medium-replay 
+
+-400 
+
+-200 
+
+0
+
+200 Q Value 
+
+hopper-medium-expert 
+
+-400 
+
+-200 
+
+0
+
+200 Q Value 
+
+walker2d-medium 
+
+-400 
+
+-200 
+
+0
+
+200 Q Value 
+
+walker2d-medium-replay 
+
+-400 
+
+-200 
+
+0
+
+200 
+
+400 Q Value 
+
+walker2d-medium-expert 
+
+= 0 = 3e 4 = 5e 3 = 5e 2 = 1e 1
+
+Figure 8: Q-value estimation on 9 D4RL datasets across different λ for RAMBO. 30 Published as a conference paper at ICLR 2026 0.0 0.5 1.0 Step 1e6 
+
+> 0
+> 100
+> 200
+> 300
+> 400 Q Value
+
+(a)    
+
+> walker2d-me
+> 0.0 0.5 1.0 Step 1e6
+> 0
+> 50
+> 100 Score
+
+(b)    
+
+> walker2d-me
+> 0.0 0.5 1.0 Step 1e6
+> 0.05
+> 0.06
+> 0.07
+> 0.08 Inner Gradient Norm
+
+(c)    
+
+> walker2d-me
+> 0.0 0.5 1.0 Step 1e6
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20 Outer Gradient Norm
+
+(d)    
+
+> walker2d-me
+> = 0.01 = 0.1 = 1 = 10
+
+Figure 9: Comparison for different ξ in terms of Q-value, normalized score, inner loss gradient norm, outer loss gradient norm. Table 7: Performance comparison for different N on 6 D4RL datasets. Datasets N = 10 N = 20 N = 30 
+
+half-mr 70.7 ±4.8 71.8 ±4.2 72.2 ±5.1 hopper-mr 102 ±2.4 100.0 ±1.5 103.3 ±2.8 walker2d-mr 85.2 ±2.6 87.4 ± 4.6 81.5 ± 3.8 half-me 108.5 ±4.2 110.4 ±5.3 111.0 ±3.4 hopper-me 111.5 ±3.8 110.0 ±1.4 113.9 ± 4.7 walker2d-me 113.3 ±1.9 115.6 ±2.8 111.7 ±0.5 Average 98.5 99.2 99.1 F.3 MORE PARAMETER STUDY 
+
+In this section, we further study the sensitivity of ROMI to the choices of the uncertainty set scale ξ
+
+and sampling number N .We present the parameter study results of ξ on the halfcheetah-medium-expert-v2 dataset in Section 5.3. Here we present more results on walker2d-medium-expert-v2 dataset. We vary ξ across {0.01 , 0.1, 1.0, 10 } and compare the normalized score, Q-value estimate and the gra-dient norm of the inner and outer loss. The results are shown in Figure 9. We can see that no severe Q-value underestimation or gradient explosion occurs across different ξ, verifying the superiority of ROMI over RAMBO. We also study the sensitivity of N . We sweep N across {10 , 20 , 30 } for each task, and present the results on 6 D4RL datasets in Table 7. We find that setting N to 20 and 30 does not show clear performance improvement compared to N = 10 . For the consideration of computational cost, we fix N = 10 for all the experiments without further tuning. F.4 LEARNING CURVES 
+
+We provide the learning curves of RAMBO, MOBILE, and ROMI on 12 D4RL datasets in Figure 10 and Figure 11. The training steps are 1M for all the methods. 
+
+## G LLM U SAGE STATEMENT 
+
+In this work, we use the large language model (LLM) to polish the grammar of our manuscript. However, we confirm that no LLMs are involved in the key steps of this work, including the con-ceptualization of the idea, the development of methodology, and theoretical proofs. 31 Published as a conference paper at ICLR 2026 0.0 0.5 1.0 Step 1e6 
+
+0
+
+10 
+
+20 
+
+30 
+
+40 Normalized Score 
+
+halfcheetah-random 
+
+0.0 0.5 1.0 Step 1e6 
+
+10 
+
+20 
+
+30 Normalized Score 
+
+hopper-random 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+10 
+
+20 Normalized Score 
+
+walker2d-random 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+halfcheetah-medium 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+walker2d-medium 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+20 
+
+40 
+
+60 Normalized Score 
+
+halfcheetah-medium-replay 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium-replay 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+walker2d-medium-replay 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+50 
+
+100 Normalized Score 
+
+halfcheetah-medium-expert 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+50 
+
+100 Normalized Score 
+
+hopper-medium-expert 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+50 
+
+100 Normalized Score 
+
+walker2d-medium-expert RAMBO ROMI 
+
+Figure 10: Learning curves of RAMBO and ROMI on 12 D4RL datasets. Averaged over 5 seeds. 32 Published as a conference paper at ICLR 2026 0.0 0.5 1.0 Step 1e6 
+
+10 
+
+20 
+
+30 
+
+40 Normalized Score 
+
+halfcheetah-random 
+
+0.0 0.5 1.0 Step 1e6 
+
+10 
+
+20 
+
+30 Normalized Score 
+
+hopper-random 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+10 
+
+20 Normalized Score 
+
+walker2d-random 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+20 
+
+40 
+
+60 
+
+80 Normalized Score 
+
+halfcheetah-medium 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+walker2d-medium 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+20 
+
+40 
+
+60 Normalized Score 
+
+halfcheetah-medium-replay 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium-replay 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+walker2d-medium-replay 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+halfcheetah-medium-expert 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+hopper-medium-expert 
+
+0.0 0.5 1.0 Step 1e6 
+
+0
+
+25 
+
+50 
+
+75 
+
+100 Normalized Score 
+
+walker2d-medium-expert MOBILE 
+
+Figure 11: Learning curves of MOBILE on 12 D4RL datasets. Averaged over 5 seeds. 33

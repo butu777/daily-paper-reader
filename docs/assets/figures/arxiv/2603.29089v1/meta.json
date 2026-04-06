@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-001.webp",
+      "caption": "Figure 4. Qualitative comparison on outdoor scene generation with WorldFlow3D and baseline methods trained on the Waymo [37] dataset. We showcase scenes generated at moderate scales, and closer-up views of specific details including buildings and vehicles. We obtain high-quality, realistic geometry and smooth surfaces with a good amount of detail, as viewed from coherent building structure, smooth road surfaces, and distinct vehicle geometry.",
+      "page": 6,
+      "index": 1,
+      "width": 1029,
+      "height": 237
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-002.webp",
+      "caption": "Figure 5. Qualitative comparison on indoor scene generation with WorldFlow3D and baseline methods trained on the 3DFRONT [12] dataset. We showcase generations of regions including (potentially multiple) rooms with various objects. Our generations are high-fidelity and contain smooth surfaces and realistic geometry.",
+      "page": 6,
+      "index": 2,
+      "width": 496,
+      "height": 340
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-003.webp",
+      "caption": "Table 3. Quantitative Evaluation for Indoor 3D Scene Generation on the synthetic 3D-FRONT [12] dataset. The best results for each metric are in bold; second-best are underlined. We report metrics on small-scale scenes [24, 42] of 2m× 2m.",
+      "page": 7,
+      "index": 3,
+      "width": 1036,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-004.webp",
+      "caption": "Table 2. Quantitative Evaluation for Outdoor 3D Scene Generation on the Waymo Open Dataset [37] for WorldFlow3D and existing approaches. We show results for unconditional generation in the first section and conditional in the second. The best results for each metric are in bold; second-best are underlined. We evaluate distribution coverage and alignment (COV, JSD), generation fidelity (MMD and 1-NNA), and feature-based distributional distance (FDC). We report metrics on large-scale scene sizes of 96m× 96m.",
+      "page": 7,
+      "index": 4,
+      "width": 1036,
+      "height": 265
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-005.webp",
+      "caption": "Table 4. Ablation Study over the core contributions of our method, comparing distribution coverage (COV), geometric fidelity (MMD and 1-NNA), visual texture quality (FDC), and training efficiency (GPU-hrs). We compare against traditional latent diffusion and latent flow approaches, followed by an ablation of our flow matching through distributions objective, and finally of our flow sequence hierarchy. We conduct our evaluation on the Waymo Open Dataset [37], and the best results are bolded.",
+      "page": 8,
+      "index": 5,
+      "width": 1036,
+      "height": 228
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-006.webp",
+      "caption": "Figure 2. WorldFlow3D decomposes generation into a sequence of independent flows over progressively richer representations — transporting from noise, through coarse geometry into fine geometry, and visual appearance (Sec. 3.1) . All flows operate directly in raw volumetric space (Sec. 3.2), enabling a latent-free, hierarchical scene generation procedure. Generation is controlled by a vectorized geometric layout and discrete scene attributes, giving consistent structural and semantic control at every level (Sec. 3.4).",
+      "page": 4,
+      "index": 6,
+      "width": 1034,
+      "height": 332
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29089v1/fig-007.webp",
+      "caption": "Figure 7. Visual Texture and Controllability. We report large-scale outdoor scenes with texture control via text attributes and geometry control via vector maps, yielding results conditioned on the same geometry to produce distinct environments.",
+      "page": 9,
+      "index": 7,
+      "width": 1036,
+      "height": 287
+    }
+  ]
+}

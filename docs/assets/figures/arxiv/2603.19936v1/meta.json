@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-001.webp",
+      "caption": "TABLE I QUANTITATIVE EVALUATION OF LIORNET UNDER DIFFERENT CONFIGURATIONS. POSTPROCESS WAS APPLIED WITH THE THEORETICAL SNOW SENSING LIMIT OF 71.23M. (UW: UNCERTAINTY-BASED WEIGHTING, PP: POSTPROCESSING, DS: DEEP SUPERVISION)",
+      "page": 7,
+      "index": 1,
+      "width": 1068,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-002.webp",
+      "caption": "TABLE II QUANTITATIVE EVALUATION ON THE WADS DATASET. POSTPROCESS WAS APPLIED USING THE OPTIMAL RANGE OF 20M.",
+      "page": 10,
+      "index": 2,
+      "width": 1072,
+      "height": 240
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-003.webp",
+      "caption": "Fig. 1. Categorization by approach [8]. LIORNet shown at the center is the first attempt to unify all three strategies.",
+      "page": 3,
+      "index": 3,
+      "width": 686,
+      "height": 650
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-004.webp",
+      "caption": "Fig. 4. False-positive snow data before and after applying the rule-based postprocessing (considering LiDAR height and the theoretical snow-sensing distance).",
+      "page": 8,
+      "index": 4,
+      "width": 1022,
+      "height": 440
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-005.webp",
+      "caption": "Fig. 2. Overall LIORNet framework: (a) data processing pipeline, (b) network architecture, and backbone configurations using (c) U-Net and (d) U-Net++.",
+      "page": 4,
+      "index": 5,
+      "width": 1076,
+      "height": 823
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-006.webp",
+      "caption": "Fig. 6. Performance evaluation on real-world data (a) Raw, (b) DROR, (c) LIOR, (d) D-LIOR, (e) LiSnowNet, (f) LIORNet.",
+      "page": 12,
+      "index": 6,
+      "width": 1076,
+      "height": 663
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-007.webp",
+      "caption": "Fig. 5. Comparison of performance on the (A) WADS and (B) CADC datasets. (a) Raw, (b) DROR, (c) LIOR, (d) D-LIOR, (e) LiSnowNet, (f) LIORNet.",
+      "page": 9,
+      "index": 7,
+      "width": 1060,
+      "height": 1352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19936v1/fig-008.webp",
+      "caption": "Fig. 3. Visualization of conditional pseudo-label point updates. Candidate snow points are sequentially refined through intensity (Cond1), reflectivity (Cond2), edge (Cond3), and sparsity (Cond4) conditions resulting in the final pseudo-labeled snow points.",
+      "page": 5,
+      "index": 8,
+      "width": 1022,
+      "height": 650
+    }
+  ]
+}

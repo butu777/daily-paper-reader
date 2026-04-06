@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-001.webp",
+      "caption": "Fig. 3: Overview of SceneExpander. (1) A feed-forward reconstructor fθ predicts an initial 3D scene from captured views. (2) To accommodate a promptgenerated inserted view Ig that may be 3D-misaligned, we adapt fθ at test time using two distillation losses: anchor distillation on captured views and insertedview self-distillation on Ig. (3) The adapted model produces an expanded 3D scene consistent with the captured region while incorporating the inserted content.",
+      "page": 6,
+      "index": 1,
+      "width": 721,
+      "height": 487
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-002.webp",
+      "caption": "Fig. 7: More cases of SceneExpander. Left of the dashed line: input images, where the purple dashed box indicates the generated inserted view and the remaining images are captured views (the 2nd and 3rd cases show a representative subset of captured views for brevity). Right of the dashed line: novel views and corresponding depth maps rendered by camera navigation in the expanded scene.",
+      "page": 14,
+      "index": 2,
+      "width": 648,
+      "height": 297
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-003.webp",
+      "caption": "Fig. 2: Challenges in 3D scene expansion via free-form view insertion. (1) A 3D-misaligned inserted view can corrupt reconstruction quality in the captured region. (2) Newly introduced content must remain consistent under novel viewpoints. Red boxes highlight ghosting artifacts caused by conflicting 3D constraints from the inserted view.",
+      "page": 3,
+      "index": 3,
+      "width": 720,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-004.webp",
+      "caption": "Fig. 4: Geometry-perturbation augmentation. We show four augmentation modes: identity (original), global affine warp, blockwise piecewise-affine warp (grid 3×3), and their combination (global+block), designed to mimic pose drift and local geometric inconsistencies.",
+      "page": 8,
+      "index": 4,
+      "width": 616,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-005.webp",
+      "caption": "Fig. 8: User study interface. Participants rank videos A–E by insertion satisfaction (H-IS) based on consistency with the edit goal, with the edited region highlighted in red. Options A–E include our method and four baselines, shown in a randomized order. The H-RQ interface follows the same format.",
+      "page": 19,
+      "index": 5,
+      "width": 725,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-006.webp",
+      "caption": "Fig. 9: Prompt for VLM-based evaluation on insertion satisfaction.",
+      "page": 20,
+      "index": 6,
+      "width": 725,
+      "height": 361
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27084v2/fig-007.webp",
+      "caption": "Fig. 10: Prompt for VLM-based evaluation on rendering quality.",
+      "page": 20,
+      "index": 7,
+      "width": 725,
+      "height": 473
+    }
+  ]
+}

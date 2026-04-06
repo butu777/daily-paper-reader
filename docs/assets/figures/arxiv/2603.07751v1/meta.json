@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-001.webp",
+      "caption": "Table 1. Main results on OrthoMind-3D. We report accuracy (%) for block counting and object reasoning, covering both cardinality queries and attribute-conditioned (attr.) queries, as defined in Section 4.2. “–” denotes entries where the model cannot produce outputs in the required format for evaluation.",
+      "page": 6,
+      "index": 1,
+      "width": 1008,
+      "height": 471
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-002.webp",
+      "caption": "Figure 11. In-Context Learning Experiment Instruction and Teaching Demonstration for Object Reasoning.",
+      "page": 21,
+      "index": 2,
+      "width": 1017,
+      "height": 942
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-003.webp",
+      "caption": "Figure 1. Motivation for explicit three-view reasoning. Providing explicit orthographic three-view descriptions (front/left/top) improves block-counting performance under occlusion, highlighting the role of view-consistent spatial representations.",
+      "page": 2,
+      "index": 3,
+      "width": 711,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-004.webp",
+      "caption": "Figure 4. In-context learning (ICL) and explicit orthographic threeview description study on OrthoMind-3D (in-domain). ICL yields limited improvements only for the strongest proprietary models, while explicit three-view descriptions substantially improve performance for most models, supporting the need for a view-consistent intermediate representation.",
+      "page": 7,
+      "index": 4,
+      "width": 463,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-005.webp",
+      "caption": "Figure 12. Qualitative examples of model responses on block counting under occlusion. Compared to the base model, 3ViewSense produces more concise and structured reasoning, improving robustness and accuracy.",
+      "page": 22,
+      "index": 5,
+      "width": 993,
+      "height": 518
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-006.webp",
+      "caption": "Figure 13. Cumulative reward curves during GRPO-based RL refinement. We report the training dynamics under two reward settings: strict reward (exact match) and slack reward (partial credit) as defined in Section 3.3.",
+      "page": 22,
+      "index": 6,
+      "width": 567,
+      "height": 511
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-007.webp",
+      "caption": "Table 10. Effect of explicit orthographic three-view descriptions on OrthoMind-3D. We report accuracy (%) for Cardinality Block Counting and Object Reasoning (Overall). Colored numbers indicate the relative change compared to the single-view baseline (green: improvement; red: drop).",
+      "page": 14,
+      "index": 7,
+      "width": 704,
+      "height": 290
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-008.webp",
+      "caption": "Figure 8. Prompt design for image generation using generative AI models.",
+      "page": 18,
+      "index": 8,
+      "width": 1017,
+      "height": 818
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-009.webp",
+      "caption": "Figure 5. RL ablation on initialization. We compare GRPO reward trajectories when starting RL from the Stage I OMS-SFT model versus from the Stage II VGR-SFT model.",
+      "page": 8,
+      "index": 9,
+      "width": 433,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-010.webp",
+      "caption": "Table 2. OOD generalization on OrthoMind-3D and comparison on public benchmarks. We report accuracy (%) under the same evaluation protocol as Section 4.2. ↑ indicates relative improvement over the base model; ↓ indicates relative drop.",
+      "page": 8,
+      "index": 10,
+      "width": 1008,
+      "height": 254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-011.webp",
+      "caption": "Figure 2. The construction pipeline of our OrthoMind-3D dataset. To bridge the gap between visual perception and mental spatial reasoning, we curate data from two distinct domains. For In-Domain data, we utilize programmatic synthesis with strict geometric constraints to train the model’s orthographic projection capabilities. For Out-of-Domain data, we employ sandbox game engines and generative AI techniques to evaluate the model’s robustness and generalization in unstructured environments.",
+      "page": 4,
+      "index": 11,
+      "width": 992,
+      "height": 303
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-012.webp",
+      "caption": "Figure 9. Detailed prompt for LLM-based three-view to natural language reasoning conversion.",
+      "page": 19,
+      "index": 12,
+      "width": 1017,
+      "height": 979
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-013.webp",
+      "caption": "Figure 7. Example of the orthographic three-view description and the Stage-I (OMS) instruction used for training.",
+      "page": 17,
+      "index": 13,
+      "width": 958,
+      "height": 683
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-014.webp",
+      "caption": "Table 5. Training hyperparameters for SFT and RL (GRPO, Stage II refinement).",
+      "page": 12,
+      "index": 14,
+      "width": 864,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-015.webp",
+      "caption": "Figure 10. In-Context Learning Experiment Instruction and Teaching Demonstration for Block Counting Task.",
+      "page": 20,
+      "index": 15,
+      "width": 1017,
+      "height": 670
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-016.webp",
+      "caption": "Figure 3. The training framework of 3ViewSense. Stage I learns to induce canonical front, left, and top orthographic views from an egocentric input. Stage II performs view-grounded reasoning by integrating the inferred views to generate reasoning traces and final answers, with reinforcement learning for refinement.",
+      "page": 5,
+      "index": 16,
+      "width": 987,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07751v1/fig-017.webp",
+      "caption": "Figure 6. Sample visualization of the OrthoMind-3D dataset. We show examples from the in-domain and out-of-domain subsets for two task families: block counting (top) and object reasoning (bottom). In-domain data are generated with strict geometric constraints, while out-of-domain data are photorealistic and less structured to evaluate generalization.",
+      "page": 16,
+      "index": 17,
+      "width": 813,
+      "height": 974
+    }
+  ]
+}

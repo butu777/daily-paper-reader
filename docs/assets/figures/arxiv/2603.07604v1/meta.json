@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-001.webp",
+      "caption": "Fig. 4: Qualitative comparison with generative methods. Despite accurate lip-sync, generative models produce exaggerated movements that reduce realism.",
+      "page": 11,
+      "index": 1,
+      "width": 646,
+      "height": 324
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-002.webp",
+      "caption": "Fig. 3: Qualitative comparison with recent 3DGS-based works. EmbedTalk reconstructs narrow mouth openings more faithfully than other methods.",
+      "page": 11,
+      "index": 2,
+      "width": 642,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-003.webp",
+      "caption": "Table 4: Results for Ablations and Experimental Variations to validate the design choices for EmbedTalk. Due to negligible differences and multiple ties, we do not indicate the top three values in the PSNR, SSIM, and LPIPS columns.",
+      "page": 14,
+      "index": 3,
+      "width": 711,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-004.webp",
+      "caption": "Fig. 6: Results of the user study showcasing how often EmbedTalk wins/loses against, or is tied with another method in a paired setup. Assessment criteria include (a) Video Realness, (b) Lip Synchronisation, and (c) Image Quality.",
+      "page": 13,
+      "index": 4,
+      "width": 613,
+      "height": 942
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-005.webp",
+      "caption": "Table 1: Results for the self-driven setting, with the top three results in red (first), orange (second) and yellow (third). EmbedTalk achieves the best rendering quality, (personalised) lip-sync and motion consistency, along with a high inference speed.",
+      "page": 8,
+      "index": 5,
+      "width": 713,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-006.webp",
+      "caption": "Fig. 2: EmbedTalk begins with a talking portrait video. The video frames enable a dense reconstruction of the head that initialises the 3D Gaussians. Each Gaussian is also associated with a learnable embedding zg. For each frame, the corresponding speech signal a and upper-face movements e are fed into the deformation MLP, along with a positional encoding of zg to predict the Gaussian deformations (∆µ,∆α). The deformed Gaussians are passed to the rasteriser, along with the viewing direction (camera), to render the head onto the combined torso and scene background.",
+      "page": 4,
+      "index": 6,
+      "width": 696,
+      "height": 332
+    },
+    {
+      "url": "assets/figures/arxiv/2603.07604v1/fig-007.webp",
+      "caption": "Table 2: Results for the cross-driven setting, with the top three results in red (first), orange (second) and yellow (third). Generative methods dominate due to exaggerated mouth movements. EmbedTalk has the best overall score among Gaussian methods.",
+      "page": 9,
+      "index": 7,
+      "width": 709,
+      "height": 314
+    }
+  ]
+}

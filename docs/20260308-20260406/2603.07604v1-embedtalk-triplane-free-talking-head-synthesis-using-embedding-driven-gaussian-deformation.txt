@@ -1,0 +1,525 @@
+Title: EmbedTalk: Triplane-Free Talking Head Synthesis using Embedding-Driven Gaussian Deformation
+
+URL Source: https://arxiv.org/pdf/2603.07604v1
+
+Published Time: Tue, 10 Mar 2026 01:16:15 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+# EmbedTalk: Triplane-Free Talking Head Synthesis using Embedding-Driven Gaussian Deformation 
+
+Arpita Saggar 1 , Jonathan C. Darling 2 , Duygu Sarikaya 1 , and David C. Hogg 1 
+
+> 1
+
+School of Computer Science, University of Leeds  
+
+> 2
+
+Leeds Institute of Medical Education, School of Medicine, University of Leeds GaussianTalker  TalkingGaussian  DEGSTalk  EmbedTalk  Ground Truth 
+
+> WITH TABLES
+> Tri -plane
+> 19.51 MB
+> 33 FPS
+> Tri -plane
+> 27.08 MB
+> 38 FPS
+> Tri -plane, Embeddings
+> 58.69 MB
+> 37 FPS
+> Embeddings
+> 10.20 MB
+> 61 FPS
+
+Fig. 1: Nearly all prior work on 3DGS-based talking head synthesis uses tri-planes, where approximation errors can hamper audio-visual alignment. EmbedTalk replaces tri-planes with learnable per-Gaussian embeddings, resulting in more accurate mouth movements and reduced computational overhead. 
+
+Abstract. Real-time talking head synthesis increasingly relies on de-formable 3D Gaussian Splatting (3DGS) due to its low latency. Tri-planes are the standard choice for encoding Gaussians prior to deformation, since they provide a continuous domain with explicit spatial relation-ships. However, tri-plane representations are limited by grid resolution and approximation errors introduced by projecting 3D volumetric fields onto 2D subspaces. Recent work has shown the superiority of learnt em-beddings for driving temporal deformations in 4D scene reconstruction. We introduce EmbedTalk , which shows how such embeddings can be leveraged for modelling speech deformations in talking head synthesis. Through comprehensive experiments, we show that EmbedTalk outper-forms existing 3DGS-based methods in rendering quality, lip synchroni-sation, and motion consistency, while remaining competitive with state-of-the-art generative models. Moreover, replacing the tri-plane encoding with learnt embeddings enables significantly more compact models that achieve over 60 FPS on a mobile GPU (RTX 2060 6 GB). Our code will be placed in the public domain on acceptance. 
+
+Keywords: Talking Head Synthesis · 3D Gaussian Splatting  
+
+> arXiv:2603.07604v1 [cs.CV] 8 Mar 2026 2A. Saggar et al.
+
+## 1 Introduction 
+
+Synthesising audio-driven talking heads in real-time is an important task in com-puter vision, with applicability in film production, teleconferencing, and virtual assistants. The standard pipeline involves the deformation of a canonical iden-tity representation based on an arbitrary speech sample. Other control signals, such as emotion, gaze direction, or distance to camera may also be used for de-formation. The canonical identity is typically represented in either two or three dimensional space. In recent years, methods for synthesising talking heads have been dominated by image-based generative models [2,20,29,44,45] and radiance fields [12,15,24,25,34]. Whilst generative models produce high resolution results, they typically do not provide pose control, are slow to render, and can generate uncharacteristic movements which reduce realism and applicability. Within radi-ance fields, 3D Gaussian Splatting [19] has emerged as the preferred choice due to its fast rendering speed and low memory requirements, compared to neural radiance fields (NeRFs) [30]. Generating talking heads with 3D Gaussian Splatting involves deforming a canonical Gaussian representation using the speech signal. To encode spatial continuity among the otherwise discrete Gaussians, each Gaussian is projected onto 2D subspaces through a tri-plane encoder prior to deformation. [10, 12, 16, 23, 24, 33]. However, tri-plane representations suffer from mirroring artefacts caused by feature entanglement between subspaces [22]. Furthermore, using 2D planes to deform a 3D volumetric field introduces approximation errors which subsequently affect audio-visual alignment, as shown in Figure 1. Finally, many previous methods rely on imprecise facial tracking for inferring camera pose, which leads to wobbling around the boundary of the face [1]. Prior work has demonstrated the superiority of learnable embeddings for modelling Gaussian deformations in 4D (3D + time) scene reconstruction [3]. In this work, we extend the embedding-driven deformation paradigm to talk-ing head synthesis. We introduce EmbedTalk , which leverages per-Gaussian embeddings to generate stable talking heads with high audio-visual alignment. To accurately reconstruct high-frequency displacements in the mouth region, we apply positional encodings to the Gaussian embeddings. Spatial coherence is enforced through a local smoothness constraint that encourages similar embed-dings for neighbouring Gaussians. Furthermore, we address the head wobbling issue by initialising Gaussians with a stable, dense reconstruction obtained via COLMAP [37]. Experimental results establish EmbedTalk’s superiority in fa-cial fidelity, lip-synchronisation, and motion consistency compared to previous 3DGS-based works. Furthermore, by generating mouth movements consistent with an identity’s style, our method achieves higher realism than state-of-the-art generative models that often exaggerate motion. Our key contributions are: 
+
+– A method to leverage learnt Gaussian embeddings for modelling speech de-formations in audio-driven talking head synthesis 
+
+– A comprehensive comparative evaluation with recent 3DGS-based and gen-erative methods, covering quantitative assessment, visual comparisons and a user study EmbedTalk 3
+
+– Ablations and experimental variations validating the efficacy of our design choices 
+
+## 2 Related Work 
+
+2.1 Audio-Driven Talking Head Synthesis 
+
+Various approaches have been proposed to generate videos of talking heads con-ditioned on arbitrary speech samples. Generative models are a popular choice for accomplishing this task since they do not require identity-specific training. Earlier work made use of generative adversarial networks (GANs) to predict de-formations in the two-dimensional image space [2,35]. More recent works replace GANs with diffusion [9, 27, 29, 44, 45] and flow-based models [20, 39]. Some ap-proaches like EDTalk [39] and EchoMimic [9] allow explicit pose control through a separate driving video. However, most generative methods are unable to faith-fully recreate the identity’s speaking style and often produce uncharacteristic motions, leading to reduced realism [23]. In contrast, approaches based on radiance fields train a separate model for each new identity, enabling generation of personalised talking heads. Many such methods make use of neural radiance fields [30], with deformations generally driven via a tri-plane representation [7]. Earlier methods like AD-NeRF [15] di-rectly conditioned NeRF training on speech input, resulting in slow training and rendering. RAD-NeRF [40] introduced grid-based NeRFs for quicker inference, but its rendering quality was limited by hash collisions. ER-NeRF [25] allevi-ated this issue through the use of tri-plane encoders, which have since emerged as the de-facto choice for intermediate representations [34, 48]. However, most NeRF-based methods are still unsuitable for real-time rendering due to the ray marching step, which requires evaluating the MLP at every sampled point in 3D space. Recently, 3D Gaussian Splatting has emerged as as popular alter-native to NeRFs due its fast training and low latency. Similar to NeRF-based approaches, methods that use 3DGS also employ tri-planes to encode Gaussians prior to deformation [10, 12, 16, 23, 24, 33]. Methods like TalkingGaussian [23], InsTaG [24], and DEGSTalk [12] further decompose Gaussian fields into sepa-rate face and mouth branches to learn movements with different frequencies. But despite their improved lip-synchronisation and real-time rendering speeds, these methods are still prone to approximation errors introduced by tri-planes, which propagate to the deformation stage. Our work improves on current baselines by modelling speech deformations through learnt per-Gaussian embeddings instead of tri-plane representations. 
+
+2.2 Deformable 3DGS 
+
+General methods for deforming 3D Gaussians are typically aimed at 4D scene reconstruction. Here, the deformation signal is modelled as a temporal embed-ding conditioned on frame order. Both Deformable 3D Gaussians [47] and Dy-namic 3D Gaussians [28] directly deform the Gaussian attributes without using 4 A. Saggar et al. 
+
+any intermediate representations. 4DGS [46] combines conditional 3D Gaussians with a marginal 1D Gaussian for time-dependent view synthesis. 4D-GS [43] decomposes Gaussian centres into a multi-resolution HexPlane [6] (an exten-sion of the tri-plane with an additional time axis) before deformation. Free-TimeGS [42] endows each Gaussian with a motion function to predict deforma-tions. E-D3DGS [3] defines learnable embeddings for each Gaussian to model time-based deformations. However, temporal embeddings do not encode any acoustic information, and are therefore unsuitable for synthesising motions that arise from speech. In this work, we show how the Gaussian embedding-driven deformation setup can be adapted to talking head synthesis. 
+
+## 3 Method Initialisation  
+
+> Per -Gaussian Embeddings
+> Speech Signal
+> Audio
+> Encoder
+> Δμ ,Δα
+> 3DGS Rasteriser
+
++          
+
+> Dense
+> Reconstruction
+> e(blink, brow raise)
+> Canonical 3D Gaussians
+> (μ, s, r, α, f)
+> aCamera
+> Rendered Frames Input Video
+> (Monocular)
+> Operation Flow
+> Gradient Flow
+> Deformation
+> MLP
+> …zg1zg2…zg|G|
+> Facial Movement Analysis
+
+Fig. 2: EmbedTalk begins with a talking portrait video. The video frames enable a dense reconstruction of the head that initialises the 3D Gaussians. Each Gaussian is also associated with a learnable embedding zg . For each frame, the corresponding speech signal a and upper-face movements e are fed into the deformation MLP, along with a positional encoding of zg to predict the Gaussian deformations ( ∆μ, ∆α ). The deformed Gaussians are passed to the rasteriser, along with the viewing direction (camera), to render the head onto the combined torso and scene background. 
+
+As illustrated in Figure 2, EmbedTalk deforms learnable Gaussian embed-dings to synthesise an identity-specific talking head from a monocular video and corresponding speech audio. We begin with a brief overview of 3D Gaussian Splatting (Section 3.1). Next, we formalise our problem and describe the way in which we use the embedding-driven approach to synthesise a talking head from audio (Section 3.2). Finally, Section 3.3 provides details of the training process. EmbedTalk 5
+
+3.1 Preliminary: 3D Gaussian Splatting 
+
+3DGS [19] optimises a set of anisotropic 3D Gaussians using differentiable tile rasterisation to learn a static 3D scene representation. Each Gaussian is defined using a centre mean μ ∈ R3 and covariance matrix Σ ∈ R3×3 as shown below: 
+
+G(x) = e −12 (x−μ)T Σ−1(x−μ) (1) for a 3D point x ∈ R3. The covariance matrix Σ is decomposed into a scaling matrix S and a rotation matrix R, given by the scaling factor s ∈ R3 and the rotation quaternion q ∈ R4:
+
+Σ = RSS T RT (2) Each Gaussian also has an opacity value α ∈ R, and a colour feature, f ∈
+
+R3( d+1)( d+1) , described using a set of spherical harmonics with degree d. To ren-der images, the 3D Gaussians are projected to 2D by calculating the covariance matrix Σ′ in the camera space using the viewing transformation W :
+
+Σ′ = JW ΣW T JT (3) where J is the Jacobian of the affine approximation of the projective transfor-mation. The colour of each pixel is computed by blending all N depth-ordered Gaussians that overlap the pixel: 
+
+C =
+
+> N
+
+X
+
+> i=1
+
+ciα′
+
+> ii−1
+
+Y
+
+> j=1
+
+(1 − α′ 
+
+> j
+
+) (4) where ci is the colour of each point determined using the colour feature fi with the viewing direction, and α′ is the product of the Gaussian opacity α with the camera space covariance matrix Σ′. Cameras calibrated with Structure-from-Motion (SfM) [37, 38] serve as input, and the Gaussians are initialised using the sparse point cloud created during SfM. 
+
+3.2 3DGS for Talking Head Synthesis 
+
+Generating talking heads with 3DGS requires a talking portrait video V = {vn}
+
+consisting of |V | frames, along with corresponding speech signals A = {an} and optional facial control signals E = {en}. The goal is to construct a canonical 3D representation of the head ( Gcanonical ), and learn a module to predict deforma-tions to Gcanonical for each frame based on an and en, where 1 ≤ n ≤ | V |. This involves projecting one or more Gaussian primitives to a set of continuous, lower dimensional subspaces. This lower dimensional representation is then combined with the audio embedding, and other control signals (if applicable), and repro-jected back into the Gaussian space to produce an attribute-wise deformation 6 A. Saggar et al. 
+
+with respect to the canonical representation. The reprojection is achieved using a decoder multi-layer perceptron (MLP) as shown below: 
+
+Gcanonical = {μ, r, s, f ,α} (5) 
+
+{∆μ n, ∆r n, ∆s n, ∆f n, ∆α n} = M LP (H(Gcanonical ) ⊕ an ⊕ en) (6) 
+
+Gndef orm = {μ + ∆μ n, r + ∆r n, s + ∆s n, f + ∆f n, α + ∆α n} (7) where H is typically a multi-resolution tri-plane encoder [10, 23–25, 34] and ⊕
+
+denotes concatenation. But despite their popularity in radiance field-based talking head generation, tri-plane representations are limited by grid resolution and approximation errors. We therefore do not use tri-planes to drive the Gaussian deformations for our method. Instead, we start with the embedding-driven deformation paradigm introduced in E-D3DGS [3], where each Gaussian has a learnable embedding zg ∈
+
+R32 , in addition to the canonical attributes. E-D3DGS uses temporal embeddings (approximated from frame numbers) to deform Gaussian embeddings for 4D scene reconstruction. To allow deformations to be driven by acoustic features such as phonemes, pitch, and amplitude of the audio signal, we replace the temporal embeddings in E-D3DGS with audio embeddings derived from the speech signal. Furthermore, 4D scene reconstruction is dominated by large and (relatively) low-frequency movements, in contrast to portrait lip-synchronisation, where small (relative to the face) and high-frequency mouth movements are the primary source of deformation. To capture these high-frequency details, we apply alternating sine and cosine functions of varying frequencies to the per-Gaussian embeddings on input to the MLP, typically referred to as positional encodings (γ) [30]. However, our motivation for applying a positional encoding is not to provide a notion of sequence [41]. For EmbedTalk, this mapping into a higher dimensional space enables the embeddings to disentangle motion discontinuous from smooth deformations (for instance, Gaussians at the lips moving apart due to speech, while also shifting together laterally due to a head tilt). Additionally, we note the presence of facial movements that are uncorrelated with the speech signal (eye blink, brow raise). We provide this information to the deformation module through a positional encoding of the feature set E, comprising of six facial action units [13]. Our Gaussian embedding-based deformation is given by: 
+
+Gcanonical = {μ, r, s, f ,α, z } (8) 
+
+{∆μ n, ∆α n} = M LP (γ(z) ⊕ an ⊕ γ(en)) (9) 
+
+Gndef orm = {μ + ∆μ n, r, s, f, α + ∆α n} (10) The deformation module for EmbedTalk is a shallow MLP with a separate prediction head for each deformed attribute ( μ and α). Unlike contemporary methods that deform all Gaussian attributes [3, 10], or attributes related to Gaussian size and orientation [12, 23, 24], we choose to deform only position and opacity. This selection is grounded in the fact that facial animation primarily involves changes in motion (head movements, mouth opening and closing) and EmbedTalk 7
+
+visibility (teeth/tongue appearing or disappearing). The facial structure and characteristics (size of nose, distance between eyes) remain unchanged. We vali-date our selection through experimental variations presented in Section 4.3. 
+
+3.3 Training Initialisation: Prior work infers camera poses for 3DGS by fitting a 3D Mor-phable Model (3DMM) [32] to the input frames [10,12,23,24]. The Gaussians are then initialised with a random point cloud [12,23,24], or using the coordinates of mesh vertices obtained from the 3DMM fitting [10]. However, 3DMM fitting is imprecise and often leads to wobbling around the facial region [1]. Additionally, SfM points-based initialisation provides better reconstruction than random ini-tialisation [19]. Consequently, we initialise the Gaussians for EmbedTalk using a dense reconstruction obtained from COLMAP, downsampled to ≤ 100K points (to prevent out of memory errors). During training, the number of Gaussians is controlled through adaptive densification and pruning strategies [19]. 
+
+Rendering: By default, 3DGS renders Gaussians on a single colour back-ground image, which is not ideal for our approach. Following previous radiance field-based talking head synthesis [15, 25], we render the deformed head onto a combined image containing the torso and scene background using a modified rasteriser [10]. This prevents artefacts around the contours of the face. 
+
+Optimisation: We jointly optimise the canonical Gaussian attributes, the per-Gaussian embeddings, and the deformation module to minimise the render-ing loss L1. We also utilise a perceptual loss, LLP IP S [49], to capture finer details for the full image as well as the localised mouth region (obtained through facial landmark detection [5]). Furthermore, we note that nearby Gaussians tend to share similar canonical attributes. Since our deformation is embedding-driven, it follows that nearby Gaussians should also have similar embeddings to promote motion consistency. Motivated by prior work [3,28], we apply a local smoothness constraint to encourage similar embeddings for nearby Gaussians, given by: 
+
+Lemb _reg = 1
+
+k|G|
+
+X
+
+> i∈G
+
+X
+
+> j∈KNN i;k
+
+(wi,j ∥zgi − zgj ∥2) (11) where k = 20 is the number of neighbouring Gaussians, wi,j = e(−λw ∥μj −μi∥22)
+
+is the weighting factor, and λw is set to 2000 [28]. To reduce the computational overhead, the k nearest neighbours are computed only post densification. Finally, we minimise the mean of the Gaussian opacities to mitigate floaters. The total loss for our setup is given by: 
+
+Ltotal = L1(vn, ˆvn) + λf ace LLP IP S (vn, ˆvn) + λmouth LLP IP S (vmn , ˆvmn )+Lemb _reg + λopa Lopacity 
+
+(12) where vn ∈ V represents the ground truth frame, ˆvn is the predicted frame, 
+
+vmn denotes the ground truth frame cropped to the mouth region, and ˆvmn is the prediction cropped to the mouth region. 8 A. Saggar et al. 
+
+## 4 Experiments 
+
+Dataset and Comparisons: We source five high-definition audio-visual clips from open-source video datasets previously used in similar works [23, 48, 50]. The clips have an average length of around 6300 frames and are sampled at 25 frames per second (FPS). They comprise three male identities (Macron, Paul, Obama) and two female identities (May, Stabenow). Each clip is cropped (to centre the portrait) and resized to size 512x512, except the Obama clip, which has size 450x450. We compare our approach with recent 3DGS-based methods: TalkingGaussian [23], GaussianTalker [10] and DEGSTalk [12]. To contextu-alise our work beyond 3DGS-based synthesis, we also compare EmbedTalk with state-of-the-art image-based generative methods: AniTalker [27], FLOAT [20], KDTalker [45] and Sonic [18]. 
+
+Implementation Details: All 3DGS-based methods, including ours, require identity-specific training. To ensure fair comparison, we use the same train-test split (10:1 ratio) and audio encoder (a pretrained HuBERT model [17]) for each of these methods. In contrast, generative methods are not tailored to any spe-cific identity, and we report their performance using the pretrained weights. Our method is implemented using PyTorch [31]. For each identity, we train Em-bedTalk for 50,000 iterations using the Adam optimiser [21]. All other Gaussian-based methods are trained using their default experimental configurations. The action units for the expression set E are extracted using OpenFace [4]. For the loss function, we set λf ace = 0 .01 , λmouth = 0 .002 , and λopa = 0 .0001 . All ex-periments are conducted on a single NVIDIA L40S 48 GB GPU. The training takes around 1 hour for each identity (Table 3). 
+
+Table 1: Results for the self-driven setting, with the top three results in red (first), orange (second) and yellow (third). EmbedTalk achieves the best rendering quality, (personalised) lip-sync and motion consistency, along with a high inference speed.                                                                                  
+
+> Method Framework PSNR ↑SSIM ↑LPIPS ↓LMD ↓Sync-C ↑FPS (L40S) ↑FVMD ↓
+> Ground Truth -∞1007.822 -0GaussianTalker [10] 3DGS 31.563 0.923 0.041 2.756 6.379 128 358.023 TalkingGaussian [23] 3DGS 31.674 0.923 0.034 2.461 6.024 303 347.990 DEGSTalk [12] 3DGS 32.511 0.930 0.035 2.545 6.028 296 406.064 KDTalker [45] Diffusion 15.542 0.678 0.387 7.049 6.641 28 2974.676 Sonic [18] Diffusion 18.901 0.740 0.216 5.042 8.094 <22313.824 AniTalker [27] Diffusion 17.115 0.723 0.299 5.433 6.019 30 2445.557 FLOAT [20] Flow Matching 17.999 0.718 0.256 5.192 7.101 32 2515.666
+> EmbedTalk (Ours) 3DGS 35.186 0.961 0.021 2.444 6.520 294 147.384
+
+4.1 Quantitive Evaluation 
+
+We employ PSNR (Peak signal-to-noise ratio), SSIM (structural similarity index measure) and LPIPS (Learned Perceptual Image Patch Similarity) to assess EmbedTalk 9
+
+Table 2: Results for the cross-driven setting, with the top three results in red (first), orange (second) and yellow (third). Generative methods dominate due to exaggerated mouth movements. EmbedTalk has the best overall score among Gaussian methods.                                     
+
+> Method Framework Sync-C ↑
+> Cross-Gender Cross-Lingual Overall
+> GaussianTalker [10] 3DGS 6.226 2.380 5.511 TalkingGaussian [23] 3DGS 5.258 3.559 4.831 DEGSTalk [12] 3DGS 2.335 1.469 2.292 KDTalker [45] Diffusion 7.208 7.348 7.067 Sonic [18] Diffusion 8.142 9.336 8.302 AniTalker [27] Diffusion 6.719 7.482 6.600 FLOAT [20] Flow Matching 6.444 6.882 6.643
+> EmbedTalk (Ours) 3DGS 6.023 4.280 6.009
+
+rendering quality. To measure audio-visual alignment, we use Landmark Distance (LMD) [8], which measures the distance between mouth landmarks for the real and predicted frames, and the confidence scores (Sync-C) from the SyncNet model [11]. Furthermore, we leverage Fréchet Video Motion Distance (FVMD) [26] to measure the motion consistency of the generated talking portrait videos. FVMD computes the Fréchet distance between motion features of generated and ground-truth videos, derived using key point velocities and accelerations. We also report inference speed by measuring FPS (frames per second) on an enterprise GPU that can accommodate all models. Videos are rendered under two different settings. The first is the self-driven 
+
+setting, where videos generated for a given identity are driven by unseen speech sourced from the same identity (the 10:1 train-test split). The second is the 
+
+cross-driven setting, where videos are generated using: (1) speech from other identities, and (2) synthetic speech samples created using a text-to-speech (TTS) model. For this, we source real (human) speech from the HDTF (High-Definition Talking Face) dataset [50], and generate AI samples using the voices Adaline, Autumn, Hale, Iron Rose, Jamie and Michael from ElevenLabs [14]. The text for the TTS model is taken from the works of William Shakespeare. Table 1 reports performance for all methods under the self-driven setting. EmbedTalk performs best on all rendering metrics and achieves the most consis-tent motion. We attribute this to the stable dense initialisation (which mitigates wobbling effects), and positional encodings that capture fine-grained informa-tion. Our method also performs best for identity-specific lip synchronisation (LMD) and has the highest Sync-C score among all 3DGS-based methods. Gen-erative methods fare poorly on rendering metrics due to lack of pose information, and are limited by inference speed. However, they achieve high Sync-C scores due to the production of exaggerated mouth movements, with Sonic’s score being 10 A. Saggar et al. 
+
+even higher than the ground truth. For the cross-driven setting, we only report Sync-C due to lack of ground truth data. We further partition the cross-driven results by gender (model trained on male/female identity, driven by female/male speech) and language (model trained on one language, driven by speech from an-other language). Whilst partitioned results are presented for all methods, it is worth noting that cross-gender and cross-lingual settings only apply to identity-specific training regimes (3DGS). Within the cross-driven setting, generative methods again dominate the Sync-C scores, but our method has the highest overall Sync-C amongst the Gaussian methods. Interestingly, cross-lingual and cross-gender scores tend to be higher than the overall scores in many instances. For the Gaussian methods, we additionally report training times, model size and FPS with a mobile (laptop) GPU in Table 3. Since EmbedTalk does not require a tri-plane encoder, our models are around 2x to 6x smaller than methods which use tri-planes. The inference speed-up provided through this elimination is best realised on a mobile GPU (RTX 2060 6GB), with EmbedTalk being nearly twice as fast as other methods. However, our training takes longer since we begin with a dense point cloud and focus on pruning Gaussians during training, as opposed to growing Gaussians from randomly initialised point clouds. 
+
+Table 3: Computational costs for each of the 3DGS-based methods. By eliminating tri-planes, EmbedTalk yields compact models that achieve 60 + FPS on a mobile GPU.                        
+
+> Method Deformation Field Training Time ↓FPS (RTX 2060) ↑Model Size ↓
+> GaussianTalker [10] Tri-plane 03:06:19 33 19.51 MB TalkingGaussian [23] Tri-plane 00:27:50 38 27.08 MB DEGSTalk [12] Tri-plane + Embedddings 00:37:26 37 58.69 MB
+> EmbedTalk (Ours) Embedddings 1:01:49 61 10.20 MB
+
+4.2 Qualitative Evaluation 
+
+To qualitatively assess the rendering quality and audio-visual alignment, we present rendered and ground truth frames from the self-driven setting. A video file showing comparisons among renderings is also included in the supplemen-tary materials. Figures 1 and 3 provide comparisons with 3DGS-based works and Figure 4 shows comparisons with generative methods. Among Gaussian Splatting-based approaches, EmbedTalk generates the most faithful lip move-ments, even when the mouth opening is narrow, while other methods often de-fault to a closed-mouth state. For generative models, the mouth movements are accurate but tend to be uncharacteristically large, especially for FLOAT and Sonic, leading to reduced realism. KDTalker and FLOAT also tend to produce frames where the speaker’s gaze is directed away from the camera, which may reduce applicability in interactive settings. We also illustrate the wobbling ef-fect, mentioned earlier, in 3DGS-based works through accumulated differences EmbedTalk 11 Gaussia nTalker  Talk ingGaussian  DEGSTalk  EmbedTalk  Ground Truth 
+
+Fig. 3: Qualitative comparison with recent 3DGS-based works. EmbedTalk recon-structs narrow mouth openings more faithfully than other methods. AniTalker  FLOAT  KDTalker  Sonic  EmbedTalk  Ground Truth 
+
+Fig. 4: Qualitative comparison with generative methods. Despite accurate lip-sync, generative models produce exaggerated movements that reduce realism. GaussianTalker  TalkingGaussian  DEGSTalk  EmbedTalk  Ground Truth 
+
+Fig. 5: Differences between consecutive frames accumulated over a 20 frame interval. The white pixels in the upper head region indicate the presence of temporal flickering. 12 A. Saggar et al. 
+
+between consecutive frames (over a 20 frame interval). The white lines in the up-per region of the heads in Figure 5 indicate temporal flickering in the renderings for GaussianTalker, TalkingGaussian and DEGSTalk. In contrast, EmbedTalk produces stable, wobble-free renderings that align closely with the ground truth. Beyond visual comparisons, we also conducted a user study to assess the generated videos on three aspects: Image Quality, Lip-Synchronisation, and Video Realness. Three videos for each of the five identities (one self-driven and two cross-driven) were paired with corresponding videos generated using the seven comparative baselines. We recruited 20 assessors through the Prolific plat-form [36]. The participants were shown the paired videos and asked to select which video was better in terms of the evaluation aspect, the choices being ‘left’, ‘right’ or ‘both are the same’. Participants were blinded to the methods used to generate the videos for any given pair. They were asked to focus on sharpness of video frames and preservation of fine details for image quality, and audio-visual alignment for lip synchronisation. For video realness, the objective was to select the video that seemed less like it had been AI-generated. The protocol for eval-uation was reviewed and approved by the Faculty Research Ethics Committee (FREC) for Engineering and Physical Sciences at the University of Leeds (EPS FREC - 2025 3516-5033). Participants were compensated for their time using the national living wage as the rate, scaled pro rata for the time involved. Figure 6 shows the results of the user study for each aspect, ordered by the win rate (where a win indicates a preference for our method). EmbedTalk scores high on realism and image quality, whilst being marginally worse than generative methods for lip-sync, owing to their highly pronounced lip movements. We also note frequent ties in paired comparisons with other 3DGS methods, which is expected, given the similarity of approach. 
+
+4.3 Ablations and Experiment Variations 
+
+To validate the efficacy of our design choices, we conduct ablations and experi-mental variations under the self-driven setting. For ablations, we report perfor-mance in the absence of (a) positional encodings and (b) the local smoothness constraint ( Lemb _reg ). For experimental variations, we present metrics for differ-ent embedding sizes ( dim (zg ) = 16 , 64 ) and by varying the Gaussian attributes deformed. Table 4 presents the results of these additional experiments. Across all ablations and variations, there are negligible differences and multiple ties in the rendering metrics (consequently, we chose not indicate the top three in the PSNR, SSIM and LPIPS columns). Our design choices are most beneficial in promoting audio-visual alignment and motion consistency, as evidenced through the LMD, Sync-C, and FVMD values. The local smoothness constraint and our choice to focus on deforming Gaussian position and visibility are especially use-ful for encouraging smooth motion and high lip-synchronisation. We find the deformation of opacity and the colour feature ( ∆α, ∆f setting) to be the most promising alternative to our setup, albeit with additional predictive overhead. EmbedTalk 13 TalkingGaussian 
+
+(3DGS) 
+
+Sonic 
+
+(Diffusion) 
+
+AniTalker 
+
+(Diffusion) 
+
+KDTalker 
+
+(Diffusion) 
+
+DEGSTalk 
+
+(3DGS) 
+
+GaussianTalker 
+
+(3DGS) 
+
+FLOAT 
+
+(Flow Matching) 
+
+42.00% 
+
+45.00% 
+
+46.67% 
+
+47.00% 
+
+47.67% 
+
+52.33% 
+
+54.67% 
+
+37.00% 
+
+18.33% 
+
+25.00% 
+
+24.33% 
+
+36.00% 
+
+26.67% 
+
+13.33% 
+
+21.00% 
+
+36.67% 
+
+28.33% 
+
+28.67% 
+
+16.33% 
+
+21.00% 
+
+32.00% 
+
+(a) Video Realness Sonic 
+
+(Diffusion) 
+
+KDTalker 
+
+(Diffusion) 
+
+FLOAT 
+
+(Flow Matching) 
+
+GaussianTalker 
+
+(3DGS) 
+
+TalkingGaussian 
+
+(3DGS) 
+
+DEGSTalk 
+
+(3DGS) 
+
+AniTalker 
+
+(Diffusion) 
+
+38.00% 
+
+38.33% 
+
+38.67% 
+
+40.67% 
+
+43.00% 
+
+45.33% 
+
+48.67% 
+
+15.33% 
+
+22.33% 
+
+16.33% 
+
+34.00% 
+
+40.00% 
+
+36.67% 
+
+21.33% 
+
+46.67% 
+
+39.33% 
+
+45.00% 
+
+25.33% 
+
+17.00% 
+
+18.00% 
+
+30.00% 
+
+(b) Lip Synchronisation TalkingGaussian 
+
+(3DGS) 
+
+GaussianTalker 
+
+(3DGS) 
+
+Sonic 
+
+(Diffusion) 
+
+DEGSTalk 
+
+(3DGS) 
+
+FLOAT 
+
+(Flow Matching) 
+
+KDTalker 
+
+(Diffusion) 
+
+AniTalker 
+
+(Diffusion) 
+
+38.67% 
+
+40.33% 
+
+40.67% 
+
+42.33% 
+
+52.67% 
+
+55.33% 
+
+79.67% 
+
+34.00% 
+
+26.67% 
+
+18.33% 
+
+31.33% 
+
+12.67% 
+
+24.67% 
+
+7.33% 
+
+27.33% 
+
+33.00% 
+
+41.00% 
+
+26.33% 
+
+34.67% 
+
+20.00% 
+
+13.00% 
+
+(c) Image Quality Win Tie Loss 
+
+Fig. 6: Results of the user study showcasing how often EmbedTalk wins/loses against, or is tied with another method in a paired setup. Assessment criteria include (a) Video Realness, (b) Lip Synchronisation, and (c) Image Quality. 14 A. Saggar et al. 
+
+Table 4: Results for Ablations and Experimental Variations to validate the design choices for EmbedTalk. Due to negligible differences and multiple ties, we do not indi-cate the top three values in the PSNR, SSIM, and LPIPS columns.                                                                 
+
+> Experiment Configuration PSNR ↑SSIM ↑LPIPS ↓LMD ↓Sync-C ↑FVMD ↓
+> Ablations w/o pos. enc. 35.216 0.962 0.020 2.584 5.572 156.995 w/o emb. reg. 35.107 0.958 0.022 2.513 5.903 229.727
+> zgdimension 16 35.037 0.959 0.021 2.634 5.085 231.203 64 34.664 0.961 0.220 2.728 5.759 158.467 Deformed Attributes
+> (∆μ, )
+> ∆α, ∆f 34.960 0.961 0.022 2.533 6.384 146.852
+> ∆r, ∆s 34.507 0.960 0.022 3.097 2.977 260.672
+> ∆r, ∆s, ∆f 34.657 0.959 0.023 2.859 3.026 251.760
+> ∆r, ∆s, ∆α, ∆f 34.940 0.960 0.022 2.704 5.453 146.638
+> Ours ( zg= 32 , ∆μ, ∆α )35.186 0.961 0.021 2.444 6.520 147.384
+
+## 5 Conclusion 
+
+We present EmbedTalk , a new method that shows how learnt embeddings can be leveraged to deform 3D Gaussians for talking head synthesis. Results across quantitive and qualitative setups demonstrate that our approach produces high quality talking heads with accurate and realistic lip-synchronisation. Further-more, we show that replacing tri-planes significantly reduces memory usage while improving inference speed on mobile GPUs. We note some limitations of our work. Although EmbedTalk improves on current baselines, its reconstructions are not perfect (bottom row of Figure 3). Future work may explore alternative intermediate representations beyond tri-planes and embeddings. Our generated videos are also limited to neutral vocal tone and expressions due to the nature of our training data. While we anticipate that EmbedTalk would generalise to new videos with diverse emotions and ex-pressions, this remains to be experimentally validated. Additionally, our method is restricted to facial animation and could be integrated with full-body motion modelling techniques to support fully interactive avatars. We hope that our work will support research and development in creative industries. However, our method carries potential for misuse through generation of deepfakes for identity theft or misinformation. We advocate for the use of explicit labelling and watermarking techniques to help distinguish real videos from AI-generated videos. Furthermore, we will release our source code to aid the community in developing novel methods for detecting synthetic content. 
+
+## Acknowledgements 
+
+AS is supported by a PhD studentship that is funded by UK Research and Innovation (CDT Grant Reference: EP/S024336/1). This work was undertaken on the Aire HPC system at the University of Leeds, UK. EmbedTalk 15 
+
+## References 
+
+1. Agarwal, M., Zhang, M., Sevilla-Lara, L., McDonagh, S.: Gaussianheadtalk: Wobble-free 3d talking heads with audio driven gaussian splatting. In: IEEE/CVF Winter Conference on Applications of Computer Vision 2026 (2026). https: //doi.org/10.48550/arXiv.2512.10939 
+
+2. Alghamdi, M.M., Wang, H., Bulpitt, A.J., Hogg, D.C.: Talking Head from Speech Audio using a Pre-trained Image Generator. In: Proceedings of the 30th ACM International Conference on Multimedia. Association for Computing Machinery (2022). https://doi.org/10.1145/3503161.3548101 
+
+3. Bae, J., Kim, S., Yun, Y., Lee, H., Bang, G., Uh, Y.: Per-gaussian embedding-based deformation for deformable 3d gaussian splatting. In: European Conference on Computer Vision (2024) 4. Baltrušaitis, T., Robinson, P., Morency, L.P.: Openface: an open source facial be-havior analysis toolkit. In: IEEE Winter Conference on Applications of Computer Vision (2016) 5. Bulat, A., Tzimiropoulos, G.: How far are we from solving the 2d & 3d face align-ment problem? (and a dataset of 230,000 3d facial landmarks). In: International Conference on Computer Vision (2017) 6. Cao, A., Johnson, J.: Hexplane: A fast representation for dynamic scenes. CVPR (2023) 7. Chan, E.R., Lin, C.Z., Chan, M.A., Nagano, K., Pan, B., Mello, S.D., Gallo, O., Guibas, L., Tremblay, J., Khamis, S., Karras, T., Wetzstein, G.: Efficient geometry-aware 3D generative adversarial networks. In: CVPR (2022) 8. Chen, L., Li, Z., Maddox, R.K., Duan, Z., Xu, C.: Lip movements generation at a glance. In: European Conference on Computer Vision (2018), https://api. semanticscholar.org/CorpusID:4435268 
+
+9. Chen, Z., Cao, J., Chen, Z., Li, Y., Ma, C.: Echomimic: Lifelike audio-driven por-trait animations through editable landmark conditions. Proceedings of the AAAI Conference on Artificial Intelligence (2025). https://doi.org/10.1609/aaai. v39i3.32241 
+
+10. Cho, K., Lee, J., Yoon, H., Hong, Y., Ko, J., Ahn, S., Kim, S.: Gaussiantalker: Real-time talking head synthesis with 3d gaussian splatting. In: Proceedings of the 32nd ACM International Conference on Multimedia (2024) 11. Chung, J.S., Zisserman, A.: Out of time: automated lip sync in the wild. In: Work-shop on Multi-view Lip-reading, ACCV (2016) 12. Deng, K., Zheng, D., Xie, J., Wang, J., Xie, W., Shen, L., Song, S.: DEGSTalk: De-composed Per-Embedding Gaussian Fields for Hair-Preserving Talking Face Syn-thesis. In: IEEE International Conference on Acoustics, Speech and Signal Pro-cessing (2025). https://doi.org/10.1109/ICASSP49660.2025.10890278 
+
+13. Ekman, P., Friesen, W.V.: Facial Action Coding System. Consulting Psychologists Press (1978) 14. ElevenLabs: Free Text To Speech Online with Lifelike AI Voices, https:// elevenlabs.io/text-to-speech 
+
+15. Guo, Y., Chen, K., Liang, S., Liu, Y., Bao, H., Zhang, J.: Ad-nerf: Audio driven neural radiance fields for talking head synthesis. In: IEEE/CVF International Con-ference on Computer Vision (2021) 16. Guo, Y., Deng, K., Song, S., Xie, J., Ma, W., Shen, L.: D3-talker: Dual-branch decoupled deformation fields for few-shot 3d talking head synthesis. In: Proceedings of the 28th European Conference on Artificial Intelligence (2025). https://doi. org/10.3233/FAIA251143 16 A. Saggar et al. 17. Hsu, W.N., Bolte, B., Tsai, Y.H.H., Lakhotia, K., Salakhutdinov, R., Mohamed, A.: Hubert: Self-supervised speech representation learning by masked prediction of hidden units. IEEE/ACM transactions on audio, speech, and language processing (2021) 18. Ji, X., Hu, X., Xu, Z., Zhu, J., Lin, C., He, Q., Zhang, J., Luo, D., Chen, Y., Lin, Q., et al.: Sonic: Shifting focus to global audio perception in portrait animation. In: Proceedings of the Computer Vision and Pattern Recognition Conference (2025) 19. Kerbl, B., Kopanas, G., Leimkühler, T., Drettakis, G.: 3d gaussian splatting for real-time radiance field rendering. ACM Transactions on Graphics (2023), https: //repo-sam.inria.fr/fungraph/3d-gaussian-splatting/ 
+
+20. Ki, T., Min, D., Chae, G.: Float: Generative motion latent flow matching for audio-driven talking portrait. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (2025) 21. Kingma, D., Ba, J.: Adam: A method for stochastic optimization. International Conference on Learning Representations (2014) 22. Li, H., Liu, K., Qiu, L., Zuo, Q., Zheng, K., Dong, Z., Han, X.: Hyplanehead: Rethinking tri-plane-like representations in full-head image synthesis. In: The Thirty-ninth Annual Conference on Neural Information Processing Systems (2025), 
+
+https://openreview.net/forum?id=BH9niRIiy2 
+
+23. Li, J., Zhang, J., Bai, X., Zheng, J., Ning, X., Zhou, J., Gu, L.: Talkinggaussian: Structure-persistent 3d talking head synthesis via gaussian splatting. In: European Conference on Computer Vision (2024) 24. Li, J., Zhang, J., Bai, X., Zheng, J., Zhou, J., Gu, L.: Instag: Learning person-alized 3d talking head from few-second video. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (2025) 25. Li, J., Zhang, J., Bai, X., Zhou, J., Gu, L.: Efficient region-aware neural radiance fields for high-fidelity talking portrait synthesis. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (2023) 26. Liu, J., Qu, Y., Yan, Q., Zeng, X., Wang, L., Liao, R.: Fréchet video motion distance: A metric for evaluating motion consistency in videos. In: First Workshop on Controllable Video Generation @ ICML’24 (2024), https://openreview.net/ forum?id=tTZ2eAhK9D 
+
+27. Liu, T., Chen, F., Fan, S., Du, C., Chen, Q., Chen, X., Yu, K.: Anitalker: Animate vivid and diverse talking faces through identity-decoupled facial motion encoding. In: Proceedings of the 32nd ACM International Conference on Multimedia. As-sociation for Computing Machinery (2024). https://doi.org/10.1145/3664647. 3681198 
+
+28. Luiten, J., Kopanas, G., Leibe, B., Ramanan, D.: Dynamic 3d gaussians: Tracking by persistent dynamic view synthesis. In: 2024 International Conference on 3D Vision (3DV) (2024). https://doi.org/10.1109/3DV62453.2024.00044 
+
+29. Meng, R., Zhang, X., Li, Y., Ma, C.: Echomimicv2: Towards striking, simplified, and semi-body human animation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 5489–5498 (June 2025) 30. Mildenhall, B., Srinivasan, P.P., Tancik, M., Barron, J.T., Ramamoorthi, R., Ng, R.: Nerf: Representing scenes as neural radiance fields for view synthesis. In: ECCV (2020) 31. Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., Killeen, T., Lin, Z., Gimelshein, N., Antiga, L., et al.: Pytorch: An imperative style, high-performance deep learning library. Advances in neural information processing sys-tems (2019) EmbedTalk 17 32. Paysan, P., Knothe, R., Amberg, B., Romdhani, S., Vetter, T.: A 3d face model for pose and illumination invariant face recognition. In: Proceedings of the 2009 Sixth IEEE International Conference on Advanced Video and Signal Based Surveillance (2009). https://doi.org/10.1109/AVSS.2009.58 
+
+33. Peng, Z., Hu, W., Ma, J., Zhu, X., Zhang, X., Zhao, H., Tian, H., He, J., Liu, H., Fan, Z.: Synctalk++: High-fidelity and efficient synchronized talking heads synthesis using gaussian splatting. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025). https://doi.org/10.1109/TPAMI.2025.3630057 
+
+34. Peng, Z., Hu, W., Shi, Y., Zhu, X., Zhang, X., Zhao, H., He, J., Liu, H., Fan, Z.: SyncTalk: The Devil is in the Synchronization for Talking Head Synthesis. In: CVPR (2024), https://openaccess.thecvf.com/content/CVPR2024/html/ Peng_SyncTalk_The_Devil_is_in_the_Synchronization_for_Talking_Head_ CVPR_2024_paper.html 
+
+35. Prajwal, K.R., Mukhopadhyay, R., Namboodiri, V.P., Jawahar, C.: A lip sync expert is all you need for speech to lip generation in the wild. In: Proceedings of the 28th ACM International Conference on Multimedia. Association for Computing Machinery (2020). https://doi.org/10.1145/3394171.3413532 
+
+36. Prolific: Prolific | Easily collect high-quality data from real people, https://www. prolific.com 
+
+37. Schonberger, J.L., Frahm, J.M.: Structure-from-motion revisited. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (June 2016) 38. Snavely, N., Seitz, S.M., Szeliski, R.: Photo tourism: exploring photo collections in 3d. ACM Transactions on Graphics p. 835–846 (Jul 2006). https://doi.org/10. 1145/1141911.1141964 
+
+39. Tan, S., Ji, B., Bi, M., Pan, Y.: Edtalk: Efficient disentanglement for emotional talking head synthesis. In: European Conference on Computer Vision. pp. 398–416. Springer (2024) 40. Tang, J., Wang, K., Zhou, H., Chen, X., He, D., Hu, T., Liu, J., Liu, Z., Zeng, G., Wang, J.: Real-time neural radiance talking portrait synthesis via audio-spatial decomposition. Int. J. Comput. Vision p. 6362–6373 (Jun 2025). https://doi.org/ 10.1007/s11263-025-02481-9 , https://doi.org/10.1007/s11263-025-02481-9 
+
+41. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L.u., Polosukhin, I.: Attention is all you need. In: Advances in Neural Information Processing Systems. vol. 30 (2017), https://proceedings.neurips.cc/paper_ files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf 
+
+42. Wang, Y., Yang, P., Xu, Z., Sun, J., Zhang, Z., Chen, Y., Bao, H., Peng, S., Zhou, X.: Freetimegs: Free gaussian primitives at anytime anywhere for dynamic scene reconstruction. In: CVPR (2025), https://zju3dv.github.io/freetimegs 
+
+43. Wu, G., Yi, T., Fang, J., Xie, L., Zhang, X., Wei, W., Liu, W., Tian, Q., Wang, X.: 4d gaussian splatting for real-time dynamic scene rendering. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 20310–20320 (June 2024) 44. Xu, S., Chen, G., Guo, Y.X., Yang, J., Li, C., Zang, Z., Zhang, Y., Tong, X., Guo, B.: VASA-1: Lifelike audio-driven talking faces generated in real time. In: The Thirty-eighth Annual Conference on Neural Information Processing Systems (2024), https://openreview.net/forum?id=5zSCSE0k41 
+
+45. Yang, C., Yao, K., Yan, Y., Jiang, C., Zhao, W., Sun, J., Cheng, G., Zhang, Y., Dong, B., Huang, K.: Unlock pose diversity: Accurate and efficient implicit 18 A. Saggar et al. keypoint-based spatiotemporal diffusion for audio-driven talking portrait. Interna-tional Journal of Computer Vision (2026). https://doi.org/10.1007/s11263-025-02695-x 
+
+46. Yang, Z., Yang, H., Pan, Z., Zhang, L.: Real-time photorealistic dynamic scene rep-resentation and rendering with 4d gaussian splatting. In: International Conference on Learning Representations (ICLR) (2024) 47. Yang, Z., Gao, X., Zhou, W., Jiao, S., Zhang, Y., Jin, X.: Deformable 3D Gaussians for High-Fidelity Monocular Dynamic Scene Reconstruction. In: 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2024). https: //doi.org/10.1109/CVPR52733.2024.01922 
+
+48. Ye, Z., Jiang, Z., Ren, Y., Liu, J., He, J., Zhao, Z.: Geneface: Generalized and high-fidelity audio-driven 3d talking face synthesis. In: The Eleventh International Conference on Learning Representations (2023), https://openreview.net/forum? id=YfwMIDhPccD 
+
+49. Zhang, R., Isola, P., Efros, A.A., Shechtman, E., Wang, O.: The unreason-able effectiveness of deep features as a perceptual metric. In: 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 586–595 (2018). 
+
+https://doi.org/10.1109/CVPR.2018.00068 
+
+50. Zhang, Z., Li, L., Ding, Y., Fan, C.: Flow-guided One-shot Talking Face Generation with a High-resolution Audio-visual Dataset. In: 2021 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2021). https://doi.org/10. 1109/CVPR46437.2021.00366

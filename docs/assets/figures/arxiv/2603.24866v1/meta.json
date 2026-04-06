@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-001.webp",
+      "caption": "Figure 3. Structural Validation Suite. 10 tests across four pillars. IRC Compliance (left): load path, span limits, completeness, stability score. Structure Physics (center-left): L/360 deflection, cantilever ratio, point load bearing. Geometric Integrity (center-right): dual-end restraint, gap detection, roof coverage. LoD 350 (right): fabrication-grade member geometry.",
+      "page": 6,
+      "index": 1,
+      "width": 898,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-002.webp",
+      "caption": "Figure 6. Iterative Refinement with Visual Feedback (Section 4.2, qualitative example BN-01-0273 (barn style). Starting from a structurally valid Planner-Atomic output, each model receives up to 10 rounds of side-by-side visual feedback (current render vs. target) and iteratively revises its structure while maintaining structural validity; steps 9–10 are omitted as changes from step 8 are negligible. Claude demonstrates meaningful visual self-correction: it produces a plausible roof (called: gambrel style) by step 2 but with an incorrect ridge orientation, then progressively corrects across subsequent steps, converging to the almost right form by step 8. GPT-5 commits to an incorrect orientation from step 1 and fails to recover, instead collapsing into a hybrid that blends both orientations without resolving either. Gemini makes minimal modifications across all 10 attempts, suggesting it does not meaningfully incorporate the visual feedback signal. This example illustrates the key behavioral divergence in this experiment: models differ not only in final score, but in whether they engage with feedback at all.",
+      "page": 11,
+      "index": 2,
+      "width": 898,
+      "height": 611
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-003.webp",
+      "caption": "Figure 7. Structural failure analysis across pipelines and models. (a) Per-structure failure rate for each of the 10 structural validation tests, shown for the Planner-Atomic and Planner-Managedprotocols across all three models (N = 1,200 per model for Planner-Atomic; N ≈ 1,160–1,197 for Planner-Managed, excluding Phase-0 failures). Each cell reports the percentage of structures for which that test failed at least once across all retry attempts. Values are independent marginal failure rates per test and do not sum to 100% per row, as a single structure can fail multiple tests simultaneously. Bold column headers indicate the five dominant failure tests. (b) Co-failure pattern distribution: each structure is assigned to the exact set of tests it failed, ranked by frequency. Orange bars show Planner-Atomic(N = 3,551); blue bars show Planner-Managed(N = 3,484), each normalized to their respective totals. The top four Planner-Atomicpatterns share a Span + Deflection core, reflecting near-universal geometry violations. Planner-Managedfailures are dominated by Load + Stability errors, indicating structural connectivity issues rather than geometric ones.",
+      "page": 15,
+      "index": 3,
+      "width": 898,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-004.webp",
+      "caption": "Figure 12. Iterative Refinement with Visual Feedback trajectories for Claude 4.5 opus on four similar barn-style structures. Each pair of rows shows the target (leftmost, lighter color) followed by successive iterations (left to right, darker). Dashed horizontal lines separate groups of structurally distinct targets. Within each group, targets share the same architectural style and similar proportions, yet Claude consistently pursues different refinement strategies across instances: some trajectories make large structural revisions between iterations (roof skeleton replaced); others converge quickly and make only minor adjustments; others oscillate without monotonic improvement. This variability within a homogeneous style group reveals that Claude’s behavior is not driven by a stable visual error signal, it does not reliably identify the same class of discrepancy across similar targets and apply a consistent corrective action. Rather, each iteration represents an independent re-interpretation of the feedback, which can move the output toward or away from the target depending on which aspect of the render the model attends to. This is consistent with O1 and O3: visual similarity and structural validity are orthogonal, and the ability to see a structural error in a rendered image does not imply the ability to correct it in the next generation.",
+      "page": 21,
+      "index": 4,
+      "width": 806,
+      "height": 782
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-005.webp",
+      "caption": "Figure 4. Task formalization example Planner-Managed. Top (agent loop): Evaluation is formalized as a recurrent agentic process. At each turn t, the agent A (VLM) receives observation ot = (I0, ft−1), the original multi-view task image I0 and structured validation feedback ft−1 from the previous turn, and generates a Blender Python action at. The executor E applies at to transition the scene graph st−1 → st, and the validator V produces feedback ft reporting pertest pass/fail and violation counts. This feedback becomes the input observation for the next turn, closing the loop. On failure (e.g., f2, red), the agent retries from the same scene state s2 without resetting context. A, E , and V are omitted from the diagram for visual clarity; see Section 3.2 for full formalization. Bottom (task instantiation): The task input I0 consists of five rendered views of the target structure paired with building context and rules. The agent reasons over these to produce and iteratively revise construction code; the environment executes the code in Blender and the validator returns structured diagnostic feedback driving the next revision.",
+      "page": 7,
+      "index": 5,
+      "width": 898,
+      "height": 609
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-006.webp",
+      "caption": "Figure 13. The 13 architectural style archetypes visualized in Blender, shown as wireframe meshes in the 3D viewport. Each archetype defines the canonical massing, roof type, section layout, and story count for one style category in the DreamHouse dataset. The procedural generation pipeline instantiates each archetype across a range of lot sizes, proportions, and complexity levels to produce the 26,000+ structure dataset. Structures are rendered headless via the Blender Python API (bpy); the console output visible at the bottom shows a representative member placement call during procedural construction.",
+      "page": 22,
+      "index": 6,
+      "width": 806,
+      "height": 429
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-007.webp",
+      "caption": "Table 1. Consolidated Performance Metrics for GPT-5, Claude Opus 4.5, and Gemini 3 Flash. Frame = bare timber",
+      "page": 10,
+      "index": 7,
+      "width": 898,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-008.webp",
+      "caption": "Table 3. Mapping of LoD 350 constructibility requirements to the DreamHouse validation tests.",
+      "page": 18,
+      "index": 8,
+      "width": 776,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-009.webp",
+      "caption": "Table 5. Stepwise (Planner-Managed) without per-step visual feedback vs. with in Frame (timber framing as input). Joint pass rate is the primary metric: structures that are both structurally valid and visually similar (S ≥ 0.6).",
+      "page": 23,
+      "index": 9,
+      "width": 721,
+      "height": 240
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-010.webp",
+      "caption": "Table 6. API hyperparameters per model and protocol. τretry: visual similarity threshold below which the pipeline retries the current step or full generation. N/A: parameter not supported by the API. —: not applicable for this protocol.",
+      "page": 28,
+      "index": 10,
+      "width": 818,
+      "height": 400
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-011.webp",
+      "caption": "Figure 5. Planner-Managed qualitative example AF-01-0060 (A-frame style). All three models begin from scratch and receive stepwise visual feedback toward the same target structure. Despite reaching a valid result at step 6, Gemini and Claude employ markedly different construction strategies. Gemini pursues a top-down, shape-first approach: it approximates the overall silhouette early and refines toward it. Claude reasons bottom-up: it first establishes a structurally sound interior frame, then lays the roof rafters over it in the final step – a sequence closer to how a builder would physically construct an A-frame. GPT-5 fails to recognize the defining constraint of A-frame geometry, that the roof planes double as load-bearing walls, and from step 6 onward enters a false loop of adding conventional wall studs along the perimeter. Unable to escape this structural misconception, it exhausts all attempts without producing a valid result. This example highlights that identical visual feedback can elicit fundamentally different reasoning strategies, and that success depends not just on visual matching ability but on implicit architectural knowledge.",
+      "page": 8,
+      "index": 11,
+      "width": 898,
+      "height": 332
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24866v1/fig-012.webp",
+      "caption": "Figure 2. DreamHouse Dataset Overview. (Top) Dataset statistics showing member count distributions (box plots, left axis) and style proportions (dashed line, right axis) across all 13 architectural styles, ordered by decreasing structural complexity. Member counts range from 133 to 1,548 (mean 673). (Bottom) Representative Cycles-rendered timber frame structures for each style: Courtyard, Cruciform, Colonial, Split-Level, Barn, Ranch, Townhouse, Z-Plan, Carriage, Farmhouse, Saltbox, Shotgun, A-Frame, spanning complex multi-wing configurations to compact single-story forms.",
+      "page": 5,
+      "index": 12,
+      "width": 898,
+      "height": 588
+    }
+  ]
+}

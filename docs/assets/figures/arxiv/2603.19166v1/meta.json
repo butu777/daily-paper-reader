@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-001.webp",
+      "caption": "Fig. 1: When a human specifies an open world metricsemantic query, referring to a location in the world, MAPG decomposes the query into subparts as learned probability distributions and composes them for grounding.",
+      "page": 1,
+      "index": 1,
+      "width": 512,
+      "height": 314
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-002.webp",
+      "caption": "TABLE I: Comparison of MAPG and base model performance on MAPG-Bench. Proprietary generalist models were benchmarked; they exhibit inconsistent performance and do not reliably produce actionable 3D goals across tasks, so we omitted them for space (available on our website). ∗ represents best overall model (highlighted among Methods). Metrics with ↑ are higher-is-better; ↓ are lower-is-better. d Err. (O-O/O-W) measures goal localization precision relative to the anchor and in the global frame, while yaw/pitch errors measure directional consistency of the predicted offset (e.g., left/right/front/behind). Obj. Sel. evaluates whether the predicted target satisfies the query (i.e., the agent selects a goal consistent with the intended spatial relation), Anchor Pick SR measures anchor instance disambiguation under partial observability. TSR captures end-to-end reliability of completing the instruction, and Avg. Traj. Len measures behavioral efficiency.",
+      "page": 6,
+      "index": 2,
+      "width": 1054,
+      "height": 234
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-003.webp",
+      "caption": "TABLE II: EQA question-answering accuracy comparison. + indicates our implementation of the particular baseline. While MAPG achieves higher TSR, we also have longer Trajectory length, consistent with our system, which carries out more explorations before deciding on the target object.",
+      "page": 6,
+      "index": 3,
+      "width": 523,
+      "height": 328
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-004.webp",
+      "caption": "Fig. 6: Real-world MAPG grounding example. Using observations collected from a Robotis AI Worker robot, we construct an offline scene graph of a physical indoor environment. Three of those image frames are demonstrated here, with the query “Where is 1 meter to the right of the trash can close to the bicycle?” MAPG infers a spatial probability distribution over candidate goal locations (right). The anchor object (red) and predicted goal location (green) illustrate metrically consistent semantic grounding beyond simulation. The grounded area was 1 meter to the right of the blue trash can, which is also the general region of the bicycle.",
+      "page": 7,
+      "index": 4,
+      "width": 1052,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-005.webp",
+      "caption": "Fig. 2: MAPG overview. (a) The agent observes a 3D environment and receives a natural-language spatial query. (b) Agentic spatial reasoning layer: The Orchestrator decomposes the query into anchor, relation, and metric components and grounds the anchor instance using multi-view evidence and the 3D scene graph. (c) MAPG composes probabilistic kernels, producing a continuous target-location PDF in the global frame that can be used as an actionable navigation or object selection goal.",
+      "page": 3,
+      "index": 5,
+      "width": 1044,
+      "height": 339
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-006.webp",
+      "caption": "Fig. 3: MAPG system overview. Egocentric observations ot are fused into a 3D scene graph Γt of labeled objects with poses and bounding boxes. The Orchestrator parses a language query q into composable symbolic predicates (or, r, d). The Grounding Agent resolves the referent or against Γt, Spatial Agent constructs analytic kernels κ = κs ·κm ·κd and composes them into a goal distribution P (x) over free space. The Verifier checks coherence and triggers corrective retries when needed. Finally, the Planner selects a navigation action at, closing the loop as new observations update Γt. Our contributions:*",
+      "page": 3,
+      "index": 6,
+      "width": 1044,
+      "height": 216
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19166v1/fig-007.webp",
+      "caption": "Fig. 4: MAPG grounding for the query “Where is 2m to the right of the fridge?” Semantic grounding identifies the fridge, the metric kernel models the 2m offset, and the directional spatial kernel captures the predicate “right of.” Their analytical composition yields a planner-ready goal distribution over feasible target locations.",
+      "page": 4,
+      "index": 7,
+      "width": 504,
+      "height": 431
+    }
+  ]
+}

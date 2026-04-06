@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.15386v1/fig-001.webp",
+      "caption": "Fig. 2: Reasoning component of the spatial agent framework, containing the different types of tools, and general agent architecture following the MCP.",
+      "page": 6,
+      "index": 1,
+      "width": 709,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15386v1/fig-002.webp",
+      "caption": "Table 3: Score vs. reasoning complexity by question type for Qwen2.5-VL-7B on VSI-Bench. Relative direction questions require a 5-tool pipeline (sg search → loc get position → loc orientation → loc build frame → loc project), while simpler types need only 1–2 tools. Qwen2.5-VL-7B frequently fails to complete the full pipeline, resulting in lower accuracy.",
+      "page": 11,
+      "index": 2,
+      "width": 760,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15386v1/fig-003.webp",
+      "caption": "Table 1: Example of the scene graph context provided to the agent that is integrated into the system prompt. This scene context is going to be dependent on the actual scene, as each will contain different contents and structure.",
+      "page": 7,
+      "index": 3,
+      "width": 579,
+      "height": 388
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15386v1/fig-004.webp",
+      "caption": "Table 2: Comparison of performance on VSI-Bench between base VLMs (without tools), and their LLM counterpart as an agent with our tool framework. Improvements are shown in parentheses next to the Agent + Tools scores.",
+      "page": 10,
+      "index": 4,
+      "width": 543,
+      "height": 251
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15386v1/fig-005.webp",
+      "caption": "Fig. 3: Exemplifying the different types of explicit grounding through a relative direction question. For any question posed to the agent, it will need to disambiguate the actual entity, and this grounds its reasoning. For this question, it then needs to obtain positions, orientations, and create the specific egocentric frame with its own axis convention. It can then perform the projection of the desired object into this new egocentric frame. All these tools and processes ground the reasoning sequence of the agent, and force it to stay focused on these basic geometric objects.",
+      "page": 8,
+      "index": 5,
+      "width": 709,
+      "height": 446
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15386v1/fig-006.webp",
+      "caption": "Table 4: Evaluation on the static questions of VSI-Bench, the comparison includes proprietary, open-source, and fine-tuned models. Our agentic framework achieves state-of-the-art performance across all subtasks, where bold text denotes best performance, and underline denotes second best. These results should still be understood as an upper-bound on spatial understanding performance.",
+      "page": 12,
+      "index": 6,
+      "width": 733,
+      "height": 571
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-001.webp",
+      "caption": "Table 3: Results on VSI-SUPER-Recall (VSR) and VSI-SUPER-Count (VSC) (Yang et al., 2025c). We report the average score on the 10-120 minute subset of VSR and the 10–120 minute subset of VSC. For all subsets, videos are sampled at 1 fps. Qwen3-VL-2B and Cambrian-S-7B run out of memory (OOM) on an 80GB-GPU for videos longer than 120 minutes; therefore, their scores are reported as 0.",
+      "page": 10,
+      "index": 1,
+      "width": 818,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-002.webp",
+      "caption": "Fig. 4: QA Example Visualization on VSI-SUPER-RECALL",
+      "page": 18,
+      "index": 2,
+      "width": 731,
+      "height": 570
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-003.webp",
+      "caption": "Fig. 3: QA Example Visualization on VSI-Bench",
+      "page": 18,
+      "index": 3,
+      "width": 744,
+      "height": 566
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-004.webp",
+      "caption": "Fig. 2: Overview of Spatial-TTT. The model employs a hybrid architecture that interleaves TTT layers with self-attention anchor layers at a 3:1 ratio to preserve pretrained knowledge while enabling efficient long spatial-context compression. Within each TTT layer, sliding window attention (SWA) and TTT branch operate in parallel with shared Q/K/V projections, where the TTT branch applies spatial predictive mechanism with depthwise spatiotemporal convolution to capture geometric structure and temporal continuity.",
+      "page": 4,
+      "index": 4,
+      "width": 826,
+      "height": 368
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-005.webp",
+      "caption": "Fig. 5: QA Example Visualization on VSI-SUPER-COUNT",
+      "page": 19,
+      "index": 5,
+      "width": 731,
+      "height": 556
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-006.webp",
+      "caption": "Fig. 6: QA Example Visualization on MindCube",
+      "page": 19,
+      "index": 6,
+      "width": 744,
+      "height": 556
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-007.webp",
+      "caption": "Table 7: Full ablation results on VSI-Bench (Yang et al., 2025a). “w/o SP-Mehcanism” denotes replacing spatial-predictive 3D conv with identity projections. “w/o Dense Data” denotes training without dense scene data. “w/o Hybrid” denotes pure TTT architecture.",
+      "page": 17,
+      "index": 7,
+      "width": 831,
+      "height": 400
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12255v1/fig-008.webp",
+      "caption": "Table 2: Evaluation results on MindCubeTiny (Yin et al., 2025). Avg. is micro average across",
+      "page": 9,
+      "index": 8,
+      "width": 455,
+      "height": 705
+    }
+  ]
+}

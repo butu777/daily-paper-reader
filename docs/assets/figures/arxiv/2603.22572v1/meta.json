@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-001.webp",
+      "caption": "Fig. 7: Fisheye reconstruction – Our method reliably removes human distractors and reconstructs high-quality 3D scenes. The table reports PSNR, where our method outperforms both robust and non-robust radiance-field baselines. OLRF renderings are mapped to fisheye frames for qualitative comparison only.",
+      "page": 11,
+      "index": 1,
+      "width": 725,
+      "height": 327
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-002.webp",
+      "caption": "Fig. 12: Ricoh360 dataset – Quantitative comparison on the Ricoh360 dataset [5] together with qualitative results of our method. Our approach achieves higher PSNR ↑ in all scenes and reliably removes the static camera holder. Regions underneath the holder remain empty in the reconstruction, since they are unobserved in the input, rather than producing visible artifacts.",
+      "page": 21,
+      "index": 2,
+      "width": 725,
+      "height": 267
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-003.webp",
+      "caption": "Fig. 1: Teaser – With 360◦ cameras we can recover 3D scenes far more effectively than with traditional perspective cameras, resulting in substantial gains in novel view synthesis (left: perspective vs. 360◦). However, casual 360◦ captures unavoidably include the camera operator, which degrades reconstruction quality if left unaddressed (e.g. 3DGRT [35]). Our FullCircle method overcomes this challenge, enabling fast, high-quality scene capture using 360◦ cameras.",
+      "page": 2,
+      "index": 3,
+      "width": 666,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-004.webp",
+      "caption": "Fig. 6: Effect of undistortion – Using fisheye frames with FullCircle yields higherquality reconstructions, both qualitatively and quantitatively, compared to perspective baselines—robust and non-robust—that operate on preprocessed, undistorted images.",
+      "page": 10,
+      "index": 4,
+      "width": 725,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-005.webp",
+      "caption": "Fig. 8: Camera operator segmentation – We compare our masking approach for removing the camera operator with OmniSAM, a recent segmentation method for omnidirectional images, both qualitatively and quantitatively.",
+      "page": 13,
+      "index": 5,
+      "width": 725,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-006.webp",
+      "caption": "Fig. 9: Synthetic fisheye – Without re-centering the fisheye images synthetically, SAMv2 [37] misses the capturer in some frames, resulting in a noisy reconstruction.",
+      "page": 13,
+      "index": 6,
+      "width": 616,
+      "height": 344
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-007.webp",
+      "caption": "Fig. 5: Dual-fisheye vs. perspective capture – Using dual-fisheye images for both",
+      "page": 9,
+      "index": 7,
+      "width": 725,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2603.22572v1/fig-008.webp",
+      "caption": "Fig. 11: Camera operator segmentation – Additional qualitative comparison between OmniSAM and our method for camera operator segmentation.",
+      "page": 20,
+      "index": 8,
+      "width": 725,
+      "height": 347
+    }
+  ]
+}

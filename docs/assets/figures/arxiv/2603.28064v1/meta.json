@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28064v1/fig-001.webp",
+      "caption": "Figure 1. Left: Using only a sparse set of input videos. Right: Our approach sets a new state-of-the-art benchmark in surface reconstruction for dynamic scenes on the CMU Panoptic dataset [13], compared with recent dynamic surface reconstruction methods (Neural SDF-Flow [26], Sparse2DGS [46], GauSTAR [56], D2DGS [55], and ST-2DGS [42]).",
+      "page": 1,
+      "index": 1,
+      "width": 496,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28064v1/fig-002.webp",
+      "caption": "Table 1. CMU Panoptic [13] comparisons. We evaluate performance with Chamfer Distance (unit: mm). The top three results for each",
+      "page": 6,
+      "index": 2,
+      "width": 990,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28064v1/fig-003.webp",
+      "caption": "Table 2. Hi4D [54] comparisons. We evaluate performance using Chamfer Distance (unit: cm). The top three results for each metric are",
+      "page": 6,
+      "index": 3,
+      "width": 1042,
+      "height": 207
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28064v1/fig-004.webp",
+      "caption": "Figure 4. Qualitative results on CMU Panoptic [13]. We compare our methods with three baselines (Dynamic-2DGS [55], Sparse2DGS [46], FreeTimeGS [43]) at two timesteps of the Band1 and Ian3 scene. Bounding boxes highlight major differences.",
+      "page": 7,
+      "index": 4,
+      "width": 900,
+      "height": 379
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28064v1/fig-005.webp",
+      "caption": "Figure 5. Qualitative results on Hi4D [54]. We compare our methods with three baselines (Dynamic-2DGS [55], Sparse2DGS [46], FreeTimeGS [43]) at two timesteps of the Basketball13 and Fight17 scene. Bounding boxes highlight major differences.",
+      "page": 7,
+      "index": 5,
+      "width": 838,
+      "height": 495
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28064v1/fig-006.webp",
+      "caption": "Figure 2. Overview: (a) Overall Training Pipeline. We first divide the sequence into N segments, each containing K+1 timesteps with",
+      "page": 3,
+      "index": 6,
+      "width": 984,
+      "height": 388
+    }
+  ]
+}

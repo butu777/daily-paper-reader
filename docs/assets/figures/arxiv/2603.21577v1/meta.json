@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.21577v1/fig-001.webp",
+      "caption": "Table 2. Evaluation results on the Video2Mental benchmark (Part 2). We further explore the upper-bound mental navigation capabilities of MLLMs when explicitly provided with the ground-truth cognitive map as the reasoning context.",
+      "page": 6,
+      "index": 1,
+      "width": 1048,
+      "height": 429
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21577v1/fig-002.webp",
+      "caption": "Figure 1. Illustration of the Mental Navigation Task for MLLMs. We define mental navigation as a task requiring MLLMs to comprehend long egocentric videos (over 5 minutes) and perform a two-stage reasoning process. First, the model abstracts a scene cognitive map from the video and outputs it as a structured representation (e.g., JSON). It then infers a landmark-grounded route plan connecting the specified origin and destination. The generated plans are further evaluated in a simulator using downstream navigation expert models across multiple metrics.",
+      "page": 2,
+      "index": 2,
+      "width": 979,
+      "height": 356
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21577v1/fig-003.webp",
+      "caption": "Figure 4. Performance analysis and downstream integration of NavMind. (A) Comparison of NavMind’s performance across different training stages. (B) Mental navigation performance in unseen scenes, demonstrating the model’s generalization capability. (C, D) Comparison of recent VLN models using direct human instructions versus those incorporating NavMind’s fine-grained planning, which achieves significant improvements in navigation success rate and efficiency as quantitative in (E).",
+      "page": 8,
+      "index": 3,
+      "width": 1017,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21577v1/fig-004.webp",
+      "caption": "Figure 3. Qualitative comparison. We visualize the model-generated Navigation Plan (left) and and its Habitat-Sim verification (right). Blue flags denote the start point; red and green boxes indicate failed and successful endpoints. Yellow boxes and arrows mark landmarkgrounded waypoints and predicted spatial relations. As illustrated, frontier MLLMs like GPT-5.1 exhibit spatial hallucinations and inaccurate reasoning, causing large plan deviations. In contrast, NavMind produces structured plans grounded in robust spatial representations, enabling efficient and successful execution.",
+      "page": 8,
+      "index": 4,
+      "width": 1026,
+      "height": 557
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21577v1/fig-005.webp",
+      "caption": "Figure 2. Data generation pipeline and benchmark analysis. Video2Mental Benchmark Construction and Statistics. We collect simulator-based semantic annotations and egocentric exploration videos, synthesize hierarchical cognitive maps via rule-based landmark selection, and extract landmark-grounded path planning sequences. The resulting dataset contains over 24k mental navigation tasks with average path lengths exceeding 9 meters and more than 80% of videos longer than 4 minutes. Preliminary evaluations show that existing MLLMs struggle to demonstrate genuine mental navigation capability.",
+      "page": 4,
+      "index": 5,
+      "width": 865,
+      "height": 800
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21577v1/fig-006.webp",
+      "caption": "Table 1. Evaluation results on the Video2Mental benchmark (Part 1). All MLLMs are required to first generate scene cognitive maps from egocentric videos and then infer landmark-grounded route plans to accomplish mental navigation task. We report both the text-based static evaluation metrics (NE / SRt) and the simulator-based interactive validation metrics (SRp / SPL).",
+      "page": 5,
+      "index": 6,
+      "width": 1052,
+      "height": 458
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25042v1/fig-001.webp",
+      "caption": "Table 1. Quantitative comparison on the N3DV dataset. For each scene, all metrics are averaged over 300 frames. Storage and training time both include the initial frame size and time. Red and orange highlight the best and second-best results in each category, respectively.",
+      "page": 6,
+      "index": 1,
+      "width": 786,
+      "height": 284
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25042v1/fig-002.webp",
+      "caption": "Figure 4. Qualitative Results. A visualization of various scenes in N3DV and Meet Room dataset. We include additional video results in the supplementary material.",
+      "page": 7,
+      "index": 2,
+      "width": 979,
+      "height": 419
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25042v1/fig-003.webp",
+      "caption": "Figure 5. Gaussian Motion Visualization. We observe that motion updates are confined to genuinely dynamic regions, and the recovered per-Gaussian motion closely follows the true scene dynamics.",
+      "page": 7,
+      "index": 3,
+      "width": 981,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25042v1/fig-004.webp",
+      "caption": "Figure 6. Temporal Consistency Comparison. A visualization of spatiotemporal images from a fixed vertical scanline over time.",
+      "page": 8,
+      "index": 4,
+      "width": 484,
+      "height": 249
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25042v1/fig-005.webp",
+      "caption": "Figure 2. Illustration of the MoRGS framework. (a) We incrementally update Gaussian attributes at each time step while jointly modeling per-Gaussian motion between frames. (b) Per-Gaussian motion is guided by sparse motion cues and refined by a per-Gaussian motion offset field to compensate for discrepancies in the sparse motion cues. (c) To identify dynamic Gaussians, we obtain motion masks by thresholding the motion cues and then apply a segmentation model for view consistency. The per-Gaussian motion confidence is learned from these masks to suppress redundant background motion, improve temporal consistency, and concentrate learning on large motions.",
+      "page": 4,
+      "index": 5,
+      "width": 983,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25042v1/fig-006.webp",
+      "caption": "Figure 3. Per-Gaussian Motion Visualization. We visualize per-Gaussian motion under (a) no flow guidance, (b) sparse flow guidance only, (c) sparse flow guidance with motion offset, and (d) sparse flow guidance with both motion offset and motion confidence, while (e) and (f) show the learned motion confidence map and motion offset map, respectively.",
+      "page": 5,
+      "index": 6,
+      "width": 490,
+      "height": 276
+    }
+  ]
+}

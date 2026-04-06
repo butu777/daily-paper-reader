@@ -1,0 +1,400 @@
+Title: RESBev: Making BEV Perception More Robust
+
+URL Source: https://arxiv.org/pdf/2603.09529v1
+
+Published Time: Wed, 11 Mar 2026 01:06:43 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# RESBev: Making BEV Perception More Robust 
+
+Lifeng Zhuo 1, Kefan Jin 1, Zhe Liu 1, Hesheng Wang 1
+
+Shanghai Jiao Tong University 
+
+Abstract. Bird’s-eye-view (BEV) perception has emerged as a corner-stone of autonomous driving systems, providing a structured, ego-centric representation critical for downstream planning and control. However, real-world deployment faces challenges from sensor degradation and ad-versarial attacks, which can cause severe perceptual anomalies and ulti-mately compromise the safety of autonomous driving systems. To address this, we propose a resilient and plug-and-play BEV perception method (RESBev), which can be easily applied to existing BEV perception meth-ods to enhance their robustness to diverse disturbances. Specifically, we reframe perception robustness as a latent semantic prediction problem. A latent world model is constructed to extract spatiotemporal correla-tions across sequential BEV observations, thereby learning the underly-ing BEV state transitions to predict clean BEV features for reconstruct-ing corrupted observations. The proposed framework operates at the se-mantic feature level of the Lift-Splat-Shoot pipeline, enabling recovery that generalizes across both natural disturbances and adversarial attacks without modifying the underlying backbone. Extensive experiments on the nuScenes dataset demonstrate that with few-shot fine-tuning, RES-Bev significantly improves the robustness of existing BEV perception models against various external disturbances and adversarial attacks. 
+
+Keywords: BEV Perception · Robust Perception · Latent World Model 
+
+## 1 Introduction 
+
+The bird’s-eye-view (BEV) representation has become a foundation of modern autonomous driving perception systems. By transforming multi-camera inputs into a unified top-down representation, it resolves projective ambiguities and provides geometrically consistent scene understanding essential for downstream tasks. Lift-Splat-Shoot (LSS) [15] introduces a foundational framework for this transformation, pioneering camera-centric 3D perception. Building upon this paradigm, numerous BEV perception models have been proposed. For instance, BEVFusion [11] integrates camera features with LiDAR signals to improve geo-metric fidelity and robustness. Meanwhile, BEVFormer [10] leverages temporal self-attention to aggregate BEV features from historical frames, enabling the model to maintain persistent object tracks and handle ego-motion across frames. However, despite impressive performance on benchmarks like nuScenes [1], BEV models, particularly camera-only variants which assume ideal conditions, remain vulnerable. They are highly susceptible to real-world anomalies such       
+
+> arXiv:2603.09529v1 [cs.CV] 10 Mar 2026 (a) Overview of our RESBev framework (b) Performance comparison
+> Fig. 1: (a) By leveraging a latent world model, our method generates a predictive prior from past clean frames and fuses it with current corrupted observations to produce the final reconstructed BEV representation. (b) Performance comparison demonstrates that RESBev significantly enhances the baseline LSS model’s resilience against diverse natural disturbances and adversarial attacks.
+
+as fog, dark, and snow, which can cause failures in semantic understanding. Furthermore, these models are vulnerable to various adversarial attacks, rang-ing from single-step gradient-based perturbations like FGSM [3] to more com-plex, iterative optimization attacks such as PGD [13] and C&W [2]. These attacks introduce minimal input perturbations but lead to significant perfor-mance drops. Benchmarks like RoboBEV [22] have systematically quantified this fragility across various BEV models. While existing robustness strategies provide some solutions, they entail trade-offs. For instance, multi-modal fusion is effective but relies on expensive LiDAR sensors. Similarly, methods like ad-versarial training can only address specific corruptions and fail to generalize to diverse, unpredictable real-world anomalies. The field currently lacks a lightweight and generalizable solution for improv-ing the robustness of existing BEV models. We address this challenge from a new perspective by formulating perception robustness as a temporal prediction problem grounded in latent scene dynamics. Instead of relying solely on in-dividual sensor observations that are easily corrupted, our approach adopts a world-modeling perspective: we model the driving scene as a structured evo-lution of latent states, which provides a stable foundation even when sensor inputs are corrupted. Based on this insight, we introduce RESBev which in-corporates latent world model to learn the causal evolution of BEV states over time (see Fig. 1a). By modeling how BEV states evolve over time, RESBev can reconstruct corrupted features through generative modeling rather than simple temporal aggregation. Extensive experiments demonstrate that RESBev can en-hance the robustness of existing BEV models when facing various corruptions (see Fig. 1b). Our contributions are summarized below: 1. We conduct a systematic analysis of robustness in LSS-based BEV percep-tion pipelines, revealing that effective recovery requires modeling in the BEV semantic space, preserving high-dimensional features before task compres-sion, and leveraging generative temporal prediction. 2. Based on these insights, we propose a plug-and-play model that introduces a latent world model to capture structured temporal dynamics in BEV se-mantic space and generate predictive semantic prior in complex traffic envi-ronments. 3. Extensive experiments demonstrate that the proposed method can effectively enhance the robustness of existing BEV perception methods against various disturbances and improve their generalization to unseen types of perception anomalies. 
+
+## 2 Related Work 
+
+2.1 BEV Perception 
+
+In autonomous driving, bird’s-eye-view (BEV) representation provides a unified environmental understanding necessary for downstream tasks. Lift-Splat-Shoot (LSS) [15] establishes BEV representation by projecting multi-view 2D image features into a common BEV grid through explicit depth modeling. Building upon this paradigm, numerous BEV perception models have been proposed. For instance, GaussianLSS [17] refines depth estimation by incorporating Gaussian distributions to model uncertainty, while BEVFusion [11] integrates multi-modal sensor data to produce richer BEV representations. FIERY [5] extends the BEV framework to support multiple downstream tasks and leverages multi-frame tem-poral information within a unified architecture. Another line of work adopts Transformer-based architectures. For Example, BEVFormer [10] introduces spa-tiotemporal transformers to aggregate features from historical frames and multi-ple camera views. Despite achieving strong performance on benchmarks such as nuScenes [1], these methods remain vulnerable to various real-world anomalies. 
+
+2.2 Perception Anomalies 
+
+Deep-learning-based perception systems for autonomous driving are highly vul-nerable to various anomalies, including adversarial attacks and natural corrup-tions. Adversarial attacks involve crafting imperceptible perturbations to in-put data that induce incorrect predictions. While classic digital attacks such as FGSM [3], PGD [13], and C&W [2] were initially developed for 2D classifica-tion, recent studies demonstrate their degradation effect on BEV models [24,27]. Beyond these, recent works have introduced targeted attacks for BEV percep-tion, such as semantic perturbations through object swapping [20] and multi-view adversarial attacks like “Fool the Hydra” [19], which exploits vulnerabilities in cross-camera feature alignment. In addition, 3D adversarial examples using techniques like NeRF ( e.g ., Adv3D [8]) create physically plausible perturbations. These attacks lead to perception failures such as missed detections or false posi-tives. Beyond targeted attacks, real-world scenarios present diverse natural cor-ruptions, including adverse weather ( e.g ., fog, dark, snow) and sensor failures (e.g ., camera crash, frame loss). 2.3 Robust Perception 
+
+Ensuring the robustness of perception systems against real-world corruptions such as adverse weather and sensor anomalies, is a critical challenge in au-tonomous driving. As a dominant perception paradigm, bird’s-eye-view (BEV) models inherit these vulnerabilities. To address this, early research [24, 27] fo-cused on analyzing these models to find weak points, revealing that components like view transformers are particularly vulnerable. To standardize the evalu-ation of this problem, benchmarks like RoboBEV [22, 23] were introduced to test models against various anomalies. Consequently, various defense strategies have emerged. These include leveraging complementary data through multi-sensor fusion, where models learn to trust more reliable sensor data in adverse conditions [16] or infer occluded objects from multiple viewpoints [7]. Other approaches ensure temporal consistency by aggregating information from past frames via transformers to maintain stability against sensor failures [10]. Graph-based reasoning methods such as GraphBEV [18] further enhance robustness by modeling structural relationships among BEV entities, enabling the system to propagate contextual information and maintain consistent scene understand-ing even when local observations are corrupted. Despite these advancements, existing defense mechanisms still exhibit significant limitations. For instance, multi-sensor fusion relies on the assumption that complementary sensors remain reliable, which may not hold under severe disturbances. In addition, tempo-ral aggregation often introduces considerable computational overhead and may struggle to handle persistent corruptions. More importantly, most current meth-ods are tailored to handle specific types of corruptions or are tightly coupled to particular architectures. In contrast, our work tackles the fundamental vulner-ability within the transformation process itself, and it can be easily integrated into various LSS-based models as a plug-and-play module, universally enhancing their robustness against a wide range of unpredictable real-world corruptions. 
+
+2.4 World Models in Autonomous Driving 
+
+World model has emerged as a powerful paradigm for capturing complex driv-ing dynamics, categorized into image-based, occupancy-based, and latent-based models. General world models like GAIA-1 [6] and Drive-WM [21] generate fu-ture video sequences for simulation and planning. In the 3D domain, Drive-OccWorld [26] and DriveWorld [14] model 4D occupancy evolution or spatiotem-poral features to enhance safety and detection performance. To balance structure with efficiency, recent works operate in compact latent spaces. LAW [9] integrates a latent dynamics model to refine features for the planning policy, while BEV-World [25] utilizes discrete BEV latents for multimodal scene simulation. Unlike these methods which primarily leverage world models for planning, pre-training or simulation, we utilize the world model as a semantic predictor to enhance the robustness of Autonomous Driving Perception. (a) Cross-frame stability. BEV features (Splat) maintain high structural stability un-der persistent corruptions, while image features (Lift) degrade significantly.          
+
+> (b) Feature brittleness. Adversarial attacks cause negligible feature noise (low MSE) yet catastrophic performance drops, proving simple filtering or aggregating is insufficient.
+
+Fig. 2: Analysis driving architectural choices. We justify operating in the BEV space and employing a generative mechanism. (a) demonstrates the spatiotemporal stability of BEV features compared to image features under environmental noise. (b) reveals that standard backbones are brittle to imperceptible attacks, necessitating a generative prior for restoration rather than simple filtering or aggregating. 
+
+## 3 Analysis 
+
+Robust perception remains a critical challenge in autonomous driving systems, as perception models often fail under real-world anomalies such as adverse weather or sensor failures. To find an effective and resilient solution, we first investigate an important architectural question: At which stage of the Lift-Splat-Shoot (LSS) pipeline should we intervene, and what mechanism is required to reconstruct corrupted features? Our analysis reveals key insights that motivate the design of our framework. 
+
+3.1 Spatial Choice: Image Space vs. BEV Space 
+
+The standard LSS pipeline processes data through three distinct semantic spaces: the 2D perspective image space (Lift), the 2D BEV feature space (Splat), and the low-dimensional task space (Shoot). A critical design choice is whether to predict future states in the image space or the BEV space. As shown in Fig. 2a, features extracted during the Lift stage exhibit severe temporal instability when exposed to continuous environmental noise. Further-more, the perspective view suffers from significant scale and viewpoint shifts during ego-motion, making spatiotemporal dynamics difficult to model. In con-trast, the BEV space (output of the Splat stage) provides a unified, top-down spatial representation. This structure inherently filters out high-frequency 2D vi-sual noise and allows the model to explicitly utilize the ego-vehicle’s kinematics (translation and rotation) to accurately compensate for ego-motion. As a result, the BEV feature sequences maintain high temporal consistency, proving to be an optimal spatial foundation for the latent world model. Table 1: Ablation of latent world model integration stages. We integrate the latent world model at different stages of the baseline pipeline. Intervening at the splat stage optimally balances rich information capacity (feature dimension) with recovery per-formance, measured by the restored IoU (Intersection over Union), under frame-loss corruption. Specifically, IoU quantifies spatial accuracy by measuring the ratio of the overlapping area between the predicted representation and the ground truth to their total combined area.                            
+
+> Integration Stage Space Feature Dimension Restored IoU
+> Lift Stage Perspective (2D) High ( C×Himg ×Wimg )16.4 Shoot Stage BEV Task (2D) Low ( Classes ×X×Y)18.7
+> Splat Stage BEV Semantic (3D →2D) High ( C×X×Y)31.6
+
+3.2 Depth Choice: Semantic Features vs. Task Outputs 
+
+While BEV space is the correct spatial representation, we must further determine whether to intervene after the BEV projection (Splat) or after the task-specific heads (Shoot). We refer to this as the depth choice, driven by the inherent information loss during semantic compression. The Shoot stage compresses high-dimensional, rich semantic BEV features into low-dimensional, task-specific probability distribu-tions ( e.g ., class probabilities for semantic segmentation). As detailed in Tab. 1, attempting to use a latent world model to operate at the Shoot stage results in catastrophic failure during reconstruction. The probabilistic outputs discard essential geometric and visual cues. Once a corruption causes a false prediction at the Shoot stage, the error is irreversible due to the loss of high-dimensional context. Conversely, the Splat stage maintains an uncompressed semantic rep-resentation, providing the necessary spatial and semantic fidelity for the next fusion stage. 
+
+Table 2: Ablation study on temporal modeling strategies. We compare a single cor-rupted frame baseline, a temporal attention model, and our latent dynamics world model (LDWM). Method Temporal Modeling Generative Prior IoU Single Corrupted Frame Baseline ✗ ✗ 15.53 Temporal Attention ✓ ✗ 20.17 LDWM (Ours) ✓ ✓ 30.11 
+
+3.3 Mechanism Choice: Generative Prior vs. Temporal Aggregation 
+
+We further analyze whether robustness arises from temporal aggregation or from the generative nature of our model. To this end, we compare three variants: a single corrupted frame baseline, a temporal transformer that aggregates features across current corrupted frame and past clean frame, and our latent dynamics world model (LDWM). Results in Tab. 2 show that temporal attention improves performance over the single corrupted frame baseline, indicating that exploit-ing temporal context is beneficial. However, LDWM significantly outperforms the temporal transformer, suggesting that robustness does not primarily stem from aggregating multiple observations but from predicting a temporally con-sistent prior. The limitation of simple feature aggregation becomes apparent when examining the nature of the corruptions. As illustrated in Fig. 2b, ad-versarial perturbations typically introduce only minor feature-level deviations, despite causing severe performance degradation. Because these subtly corrupted features remain numerically close to clean ones, attention mechanisms struggle to filter out the noise. When temporal aggregation fuses the current frame with past observations, the resulting representation inevitably remains polluted by current corrupted frame. In contrast, LDWM predicts the current BEV state directly from historical context, effectively bypassing the corrupted observation to recover a clean, temporally consistent scene representation.  
+
+> Fig. 3: The overall architecture of our proposed temporal fusion model. The model consists of two core components: Semantic Prior Predictor that predicts the current BEV state from the past, and Anomaly Reconstructor that fuses this prediction with current fused BEV features.
+
+## 4 Method 
+
+4.1 Overall Framework 
+
+Based on the systematic analysis in Sec. 3, we propose RESBev, a framework that treats robust BEV perception as a latent-space temporal prediction and fusion problem. As illustrated in Fig. 3, The core philosophy is to leverage the underlying temporal structure of driving scenes: we construct a Semantic Prior Predictor that models the temporal evolution of the BEV state, learning to pre-dict the current clean BEV features from historical clean frames and ego-motion cues. The predicted state serves as a temporally-grounded prior that is indepen-dent of current sensor corruption. Rather than directly using this prediction, we introduce an Anomaly Reconstructor module that fuses this clean prior with the current fused observation through a query-driven cross-attention mechanism, where the predicted features probe the fused input to selectively extract new valid information while suppressing anomalies. A learnable gating factor adap-tively balances the contributions between the predicted prior and the current observation, enabling the reconstructed output to maintain temporal coherence while remaining responsive to scene changes. 
+
+Semantic Prior Predictor. This module is trained to predict the potential fu-ture state. Given the previous reconstructed feature ( f rec t−1) and the ego-vehicle’s motion, a multi-modal encoder is constructed to extract the semantic informa-tion and capture the dynamic physical law of the traffic scenario. Subsequently, a latent world model is introduced to learn the state transition of the autonomous driving process, which predicts the future BEV prior ( f pred t ) for the anomaly recovery and robust perception. 
+
+Anomaly Reconstructor. This module is trained to recover BEV perception features f rec t that have been corrupted or contain anomalous information. Based on f pred t predicted by the Semantic Prior Predictor, the Anomaly Reconstruc-tor operates at the semantic level to discern the valid information within the current corrupted BEV feature f corrupt t that remains contextually consistent. It further excludes anomalous data where the discrepancy between the predicted and current representations is excessively large. Meanwhile, by leveraging histori-cal information, the module identifies plausible inferences within the predictions. Finally, it integrates these plausible inferences with the portions of the current data that exhibit consistency, thereby recovering the corrupted anomalous infor-mation to achieve robust BEV perception against diverse anomaly conditions. 
+
+4.2 Semantic Prior Predictor 
+
+To restore corrupted observations, we introduce the Semantic Prior Predictor. As illustrated in our pipeline, this module leverages historical information to predict the current clean BEV representations, serving as a clean prior for the subsequent fusion. Rather than computing transitions in the high-dimensional dense feature space, we project the inputs into a compact latent space. Specif-ically, given the reconstructed BEV features f rec t−1 from the previous time step and the corresponding ego-vehicle motion vector at−1 (comprising translation and rotation), we employ a visual encoder Evis and an action encoder Eact to extract discrete visual and action latents. These latents are concatenated to form an action-aware visual latent state. A Transformer-based latent dynamic world model (LDWM) then models the spatiotemporal transition dynamics to predict the future latent state at time t. Finally, a decoder D maps this predicted latent back to the dense BEV feature space to obtain the predicted clean prior f pred t .The entire generation process of this clean prior can be formulated as: 
+
+f pred t = D
+
+
+
+LDWM  Concat (Evis (f rec t−1), E act (at−1)) 
+
+. (1) This predicted feature f pred t subsequently serves as the clean Query ( Q) in the Temporal Cross Attention module to selectively extract valid information from the current corrupted features (used as Key and Value). 
+
+4.3 Anomaly Reconstructor 
+
+While the latent world model provides a clean historical prior, it cannot predict sudden stochastic events, such as a car unexpectedly driving into the scenario. To ground this prediction in real-time reality without absorbing current noise, we introduce a temporal cross attention module. Specifically, given the current multi-view images at time t, which may suffer from various anomalies, we process them through a standard 2D backbone and a view transformer ( e.g ., LSS [15]) to obtain the current corrupted BEV representation, denoted as f corrupt t .To enhance temporal stability and provide a reliable reference for recon-struction, we formulate this process as a query-driven extraction that leverages both current observations and past reconstructed states. Specifically, we concate-nate the previous reconstructed feature f rec t−1 with the current corrupted feature 
+
+f corrupt t to form a comprehensive spatio-temporal representation. The predicted clean feature f pred t acts as the query ( Q) to probe it, which serves as both the Key (K) and Value ( V ). This allows the model to selectively retrieve valid perceptual details from the noisy input while referencing the previous confirmed state to maintain consistency. To integrate this new information without destabilizing the clean prior, we employ a dynamically gated residual connection: 
+
+f rec t = f pred t + α · CrossAttn( f pred t , Concat (f rec t−1, f corrupt t )) , (2) where α ∈ [0 , 1] is a learned dynamic gating factor. This gate adaptively controls the information flow, forcing the model to rely more on the historical prior or the previous reconstruction when the current observation is heavily corrupted, while attending to f corrupt t when it introduces valuable new context. 
+
+4.4 Training Objective 
+
+The Semantic Prior Predictor and the anomaly reconstructor are jointly trained to enable the latent world model to learn the physical laws governing traffic scenes and the state transitions of autonomous navigation tasks. The overall training framework is formulated using a probabilistic graphical model (PGM) to derive the final training objective, as shown in Fig. 4. Specifically, given the action sequence a1: τ , we aim to maximize the log marginal likelihood of the observed data (noisy observations o1: τ and ground-truth labels s1: τ ), i.e., 
+
+log p(o1: τ , s 1: τ | a1: τ ).
+
+Fig. 4: The probabilistic graphical model of our training framework. 
+
+Directly optimizing log p(o1: τ , s 1: τ | a1: τ ) requires integrating over all latent variables f1: τ and f ′1 : τ , which is typically intractable. To address this issue, two variational distributions q(f rec  
+
+> 1: τ
+
+| f pred  
+
+> 1: τ
+
+, o 1: τ ), q(f pred  
+
+> 1: τ
+
+| f rec  
+
+> 1: τ−1
+
+, a 1: τ −1) are introduced to approximate the true posterior. 
+
+log p(o1: τ , s 1: τ | a1: τ )= log 
+
+Z Z 
+
+p(o1: τ , s 1: τ , f rec  
+
+> 1: τ
+
+, f pred  
+
+> 1: τ
+
+| a1: τ ) df rec  
+
+> 1: τ
+
+df pred 
+
+> 1: τ
+
+= log 
+
+Z Z 
+
+q(f rec  
+
+> 1: τ
+
+| f pred  
+
+> 1: τ
+
+, o 1: τ )q(f pred  
+
+> 1: τ
+
+| f rec  
+
+> 1: τ−1
+
+, a 1: τ −1)
+
+p(o1: τ , s 1: τ , f rec  
+
+> 1: τ
+
+, f pred  
+
+> 1: τ
+
+| a1: τ )
+
+q(f rec  
+
+> 1: τ
+
+| f pred  
+
+> 1: τ
+
+, o 1: τ )q(f pred  
+
+> 1: τ
+
+| f rec  
+
+> 1: τ−1
+
+, a 1: τ −1) df rec  
+
+> 1: τ
+
+df pred 
+
+> 1: τ
+
+= log E(f rec    
+
+> 1: τ,f pred
+> 1: τ)∼q
+
+"
+
+p(o1: τ , s 1: τ , f rec  
+
+> 1: τ
+
+, f pred  
+
+> 1: τ
+
+| a1: τ )
+
+q(f rec  
+
+> 1: τ
+
+| f pred  
+
+> 1: τ
+
+, o 1: τ )q(f pred  
+
+> 1: τ
+
+| f rec  
+
+> 1: τ−1
+
+, a 1: τ −1)
+
+#
+
+≥ Eq
+
+h
+
+log p(o1: τ , s 1: τ , f rec  
+
+> 1: τ
+
+, f pred  
+
+> 1: τ
+
+| a1: τ ) − log q(f rec  
+
+> 1: τ
+
+| f pred  
+
+> 1: τ
+
+, o 1: τ )
+
+− log q(f pred  
+
+> 1: τ
+
+| f rec  
+
+> 1: τ−1
+
+, a 1: τ −1)
+
+i
+
+(3) Subsequently, the first term in the equation is jointly decomposed: 
+
+Eq
+
+h
+
+log p(o1: τ , s 1: τ , f rec  
+
+> 1: τ
+
+, f pred  
+
+> 1: τ
+
+| a1: τ )
+
+i
+
+=
+
+> τ
+
+Y
+
+> t=1
+
+h
+
+p(ot | f pred t ) · p(st | f rec t ) · p(f rec t | f rec t−1, f pred t ) · p(f pred t | at−1)
+
+i (4) Considering that q(f rec t | ot, f rec t−1, f pred t ) and q(f pred t | f rec t−1, a t−1) are mod-eled by Semantic Prior Predictor and Anomaly Reconstructor respectively, the evidence lower bound (ELBO) of the training objective is formulated as: 
+
+ELBO = Eq
+
+" τX
+
+> t=1
+
+
+
+log p(ot | f pred t ) + log p(st | f rec t )
+
+−DKL 
+
+ q(f rec t | ot, f rec t−1, f pred t ) ∥ p(f rec t | f rec t−1, f pred t )
+
+−DKL 
+
+ q(f pred τ | f rec τ −1, a 1: τ −1) ∥ p(f pred τ | aτ −1) 
+
+(5) 
+
+## 5 Experiments 
+
+This section validates our RESBev model’s effectiveness at enhancing the ro-bustness of LSS-based models. We first measure performance on benchmark cor-ruptions, then assess generalization to unseen corruptions. We follow this with an ablation study analyzing component contributions and performance on con-secutive corruptions. Finally, we provide visualizations of different types of BEV features. 
+
+5.1 Experimental Setup Dataset and Baseline Models. Our experiments are conducted on the widely used nuScenes dataset [1]. We evaluate our method on the task of bird’s-eye-view (BEV) semantic segmentation. To validate the performance of our RESBev model, we integrate it into four LSS-based models: LSS [15], SimpleBEV [4], GaussianLSS [17], and FIERY [5]. To further benchmark our method against state-of-the-art robust perception frameworks, we also compare it with Graph-BEV [18]. 
+
+Robustness Evaluation Protocol. We adopt the evaluation protocol from RoboBEV [22], testing our models against ten types of corruptions at three severity levels. The severity levels are carefully determined to avoid excessive performance drops that could undermine the reliability of our conclusions. Due to space limitations, detailed specifications for each corruption severity level are provided in the supplementary material. These corruptions are categorized as follows: 
+
+– Natural Corruptions: We simulate diverse environmental conditions and sen-sor failures, including fog, snow, bright, dark, camera crash, frame loss, and noise. 
+
+– Adversarial Attacks: To measure resilience against malicious inputs, we em-ploy three attacks designed for BEV models: Fast Gradient Sign Method (FGSM) [3], Projected Gradient Descent (PGD) [13], and Carlini & Wagner (C&W) [2]. Table 3: Average performance under seen corruptions across three severity levels. We compare four LSS-based models with and without RESBev, also including GraphBEV as an additional baseline. The ↑ symbol indicates the relative performance improvement brought by RESBev over the vanilla models                                                                                                         
+
+> Corruption LSS [15] SimpleBEV [4] GaussianLSS [17] FIERY [5] GraphBEV [18]
+> Vanilla +RESBev Change Vanilla +RESBev Change Vanilla +RESBev Change Vanilla +RESBev Change Vanilla
+> Clean 33.03 --55.70 --42.80 --57.60 --61.47
+> FGSM 10.28 28.42 ↑18.14 13.23 31.09 ↑17.86 9.91 31.43 ↑21.52 11.89 32.46 ↑20.57 22.64
+> PGD 9.17 31.47 ↑22.30 11.89 31.65 ↑19.76 7.72 31.09 ↑23.37 8.03 32.44 ↑24.41 19.88
+> Fog 9.93 28.39 ↑18.46 17.18 33.76 ↑16.58 24.26 31.95 ↑7.69 12.98 31.79 ↑18.81 25.76
+> Bright 9.78 28.38 ↑18.60 17.63 33.79 ↑16.16 24.03 31.87 ↑7.85 11.87 31.58 ↑19.71 24.91
+> Frame Lost 10.65 28.33 ↑17.68 17.74 33.73 ↑15.99 14.70 31.61 ↑16.90 15.62 31.62 ↑16.00 26.84
+> Overall Avg. 9.96 29.02 ↑19.06 15.53 32.80 ↑17.27 16.12 31.59 ↑15.47 12.08 31.98 ↑19.90 24.00
+
+Table 4: Average performance under unseen corruptions. We compare four LSS-based models with and without RESBev, also including GraphBEV as an additional baseline. The ↑ symbol indicates the relative performance improvement brought by RESBev over the vanilla models.                                                                                                         
+
+> Corruption LSS [15] SimpleBEV [4] GaussianLSS [17] FIERY [5] GraphBEV [18]
+> Vanilla +RESBev Change Vanilla +RESBev Change Vanilla +RESBev Change Vanilla +RESBev Change Vanilla
+> Clean 33.03 --55.70 --42.80 --57.60 --61.47
+> C&W Attack 8.78 30.80 ↑22.02 11.43 30.61 ↑19.18 5.97 31.24 ↑25.27 12.61 31.31 ↑18.70 17.38
+> Snow 10.26 28.35 ↑18.09 17.40 33.71 ↑16.31 16.08 32.10 ↑16.02 9.44 31.53 ↑22.10 27.14
+> Camera Crash 10.08 28.34 ↑18.27 17.34 33.74 ↑16.40 13.41 31.56 ↑18.15 14.88 31.56 ↑16.69 28.00
+> Noise 8.64 28.27 ↑19.63 17.60 33.76 ↑16.16 16.67 31.43 ↑14.76 13.91 31.68 ↑17.77 21.88
+> Dark 8.11 28.36 ↑20.25 16.29 33.75 ↑17.46 17.68 31.96 ↑14.28 16.91 31.64 ↑14.72 27.01
+> Overall Avg. 9.17 28.82 ↑19.65 16.01 33.11 ↑17.10 13.96 31.66 ↑17.70 13.55 31.54 ↑18.00 24.28
+
+Implementation Details and Metrics. We quantify model performance us-ing IoU for the BEV semantic segmentation task. Our method is implemented using the PyTorch deep learning framework. All models are trained on a single NVIDIA A100-SXM4-80GB GPU with a batch size of 16. 
+
+5.2 Performance on Benchmark Corruptions 
+
+We first evaluate the performance of four LSS-based baseline models with and without our RESBev across five benchmark corruptions, while including Graph-BEV as an additional baseline. Due to space limitations, we report the average performance across all three severity levels of each corruption in the main text; detailed results for each specific severity are provided in the supplementary ma-terial. As shown in Tab. 3, both the vanilla LSS-based models and the Graph-BEV baseline suffer significant performance degradation. In contrast, models augmented with our RESBev consistently maintain a much higher IoU, demon-strating a strong capability to mitigate the performance degradation caused by these anomalies and showing superior robustness compared to GraphBEV. 5.3 Generalization to Unseen Corruptions 
+
+A critical measure of robustness is the ability to generalize to unseen anoma-lies not encountered during training. We train our RESBev models using five corruptions and evaluate their performance on another five unseen ones to test the robustness of our method. As shown in Tab. 4, both the vanilla LSS-based models and the GraphBEV baseline suffer severe performance drops under these unseen corruptions. Notably, while GraphBEV achieves the highest performance on clean data, its overall average drops significantly to 24.28. In contrast, models augmented with RESBev not only provide substantial IoU improvements over their vanilla counterparts but also outperform the GraphBEV baseline. This in-dicates that RESBev effectively captures the underlying temporal consistency and scene dynamics, rather than simply overfitting to the training corruptions.                    
+
+> Table 5: Ablation study of two RESBev components. SBEV denotes SimpleBEV and GLSS denotes GaussianLSS. For Predictor + Reconstructor, we report the mean IoU over five seen corruptions. For Predictor-only, results are obtained on the nuScenes validation dataset. The ↑symbol denotes the relative performance increase (%), com-pared to the Predictor-only baseline.
+> Config. LSS SBEV GLSS FIERY
+> Predictor-only 26.67 30.11 29.16 29.79 Predictor + Reconstructor 29.00 32.80 31.59 31.98
+> Gain ↑8.7% ↑8.9% ↑8.3% ↑7.4%
+
+5.4 Ablation Study 
+
+To evaluate the contributions of the Semantic Prior Predictor and Anomaly Re-constructor, we conduct an ablation study with results shown in Tab. 5. Using the Semantic Prior Predictor’s prediction directly establishes a strong perfor-mance baseline, confirming the value of a clean temporal prior. However, the model which incorporates the Anomaly Reconstructor consistently achieves a higher IoU across all baselines. This gain highlights the importance of the fu-sion process. While the Semantic Prior Predictor provides the primary anchor for robustness, the query-driven reconstruction is essential for integrating new information from the current observation. 
+
+5.5 Robustness to Consecutive Corruptions 
+
+Beyond transient anomalies, real-world perception systems often encounter per-sistent disturbances or continuous sensor failures. To evaluate robustness in such scenarios, we introduce an n-step recursive reconstruction task. Starting from clean historical frames, the model sequentially reconstructs the next n corrupted Table 6: Robustness against consecutive corruptions over a 10-step horizon. We report the IoU at the first (One-Step), fourth (Four-Step), seventh (Seven-Step), and tenth (Ten-Step) consecutively corrupted frames. The Change column denotes the relative difference (%) between the initial One-Step and the final Ten-Step predictions ( ↑ indi-cates a performance increase, while ↓ indicates a performance decrease).                                                        
+
+> Corruption One-Step Four-Step Seven-Step Ten-Step Change (%)
+> FGSM 28.42 28.60 28.56 28.58 ↑0.56% PGD 31.47 31.21 30.97 30.93 ↓1.72% C&W 30.80 30.50 30.23 30.26 ↓1.75% Fog 28.39 28.14 28.12 28.03 ↓1.27% Snow 28.35 28.15 27.90 27.86 ↓1.73% Bright 28.38 28.18 27.85 27.91 ↓1.66% Dark 28.36 28.19 28.08 27.93 ↓1.38% Camera Crash 28.34 28.25 28.10 28.00 ↓1.20% Frame Lost 28.33 28.43 28.50 28.48 ↑0.53% Noise 28.27 28.21 28.00 27.98 ↓1.00%
+
+Fig. 5: t-SNE visualization of BEV features. The visualization of ten corrupted and clean features exhibits a radial corruption geometry where severity and semantic dis-placement are tightly coupled. 
+
+frames, where the reconstructed feature f rec t is reused as the clean input for the Semantic Prior Predictor at the next step. We adopt a 10-step long-horizon setting ( n = 10 ), where the first frame is clean and the following frames are corrupted by noise. The model recursively reconstructs each frame using the previously reconstructed features as the tem-poral anchor. Due to space constraints, we report results at steps 4, 7, and 10 in the main text, with full step-wise results provided in the supplementary material. As shown in Tab. 6, our method maintains high IoU even at the 10th cor-rupted step, demonstrating strong long-horizon stability. This suggests that the Semantic Prior Predictor preserves scene structure over time and mitigates error accumulation during recursive prediction. 5.6 Feature Space Visualization 
+
+To better understand the latent semantic structure of BEV perception under diverse conditions, we project 11 categories of BEV features into a shared 2D space via t-SNE [12], encompassing the pseudo ground-truth clean features and features from the 10 corruption types in our benchmark. As shown in Fig. 5, corrupted features distribute radially outward from the clean cluster, and the magnitude of this displacement correlates with perfor-mance degradation. Adversarial perturbations ( e.g ., C&W, PGD) occupy the most distant regions, while natural corruptions ( e.g ., fog) remain proximal to the clean anchor. This radial structure confirms that corruptions induce seman-tically meaningful deviations in the BEV semantic space rather than random scatter. 
+
+## 6 Conclusion 
+
+To enhance the robustness of LSS-based BEV perception models against vari-ous anomalies, we present RESBev, a novel robust perception framework pow-ered by a latent world model. Unlike traditional methods that rely on simple temporal aggregation, RESBev treats robustness as a predictive reconstruction problem. It incorporates Semantic Prior Predictor to generate a clean temporal prior based on historical context and ego-motion, and Anomaly Reconstructor to selectively integrate this prior with current noisy observations via a query-driven mechanism. Extensive experiments on the nuScenes dataset demonstrate that RESBev significantly enhances the performance of various LSS-based mod-els under diverse corruptions, generalizes effectively to unseen anomalies, and maintains stability during consecutive corruptions. Our work provides a more robust perception foundation, paving the way for reliable navigation in real-world autonomous driving. 
+
+## References 
+
+> 1. Caesar, H., Bankiti, V., Lang, A.H., Vora, S., Liong, V.E., Xu, Q., Krishnan, A., Pan, Y., Baldan, G., Beijbom, O.: nuscenes: A multimodal dataset for autonomous driving. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 11621–11631 (2020) 2. Carlini, N., Wagner, D.: Towards evaluating the robustness of neural networks. In: 2017 ieee symposium on security and privacy (sp). pp. 39–57. Ieee (2017) 3. Goodfellow, I.J., Shlens, J., Szegedy, C.: Explaining and harnessing adversarial examples. arXiv preprint arXiv:1412.6572 (2014) 4. Harley, A.W., Fang, Z., Li, J., Ambrus, R., Fragkiadaki, K.: Simple-bev: What really matters for multi-sensor bev perception? arXiv preprint arXiv:2206.07959 (2022) 5. Hu, A., Murez, Z., Mohan, N., Dudas, S., Hawke, J., Badrinarayanan, V., Cipolla, R., Kendall, A.: Fiery: Future instance prediction in bird’s-eye view from surround monocular cameras. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 15273–15282 (2021)
+
+6. Hu, A., Russell, L., Yeo, H., Murez, Z., Fedoseev, G., Kendall, A., Shotton, J., Corrado, G.: Gaia-1: A generative world model for autonomous driving. arXiv preprint arXiv:2309.17080 (2023) 7. Kumar, S., Truong, H., Sharma, S., Sistu, G., Scanlan, T., Grua, E., Eising, C.: Minimizing occlusion effect on multi-view camera perception in bev with multi-sensor fusion. arXiv preprint arXiv:2501.05997 (2025) 8. Li, L., Lian, Q., Chen, Y.C.: Adv3d: Generating 3d adversarial examples for 3d object detection in driving scenarios with nerf. In: 2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). pp. 10813–10820. IEEE (2024) 9. Li, Y., Fan, L., He, J., Wang, Y., Chen, Y., Zhang, Z., Tan, T.: Enhancing end-to-end autonomous driving with latent world model. arXiv preprint arXiv:2406.08481 (2024) 10. Li, Z., Wang, W., Li, H., Xie, E., Sima, C., Lu, T., Yu, Q., Dai, J.: Bevformer: Learning bird’s-eye-view representation from multi-camera images via spatiotem-poral transformers.(2022). URL https://arxiv. org/abs/2203.17270 (2022) 11. Liu, Z., Tang, H., Amini, A., Yang, X., Mao, H., Rus, D., Han, S.: Bevfusion: Multi-task multi-sensor fusion with unified bird’s-eye view representation. arXiv preprint arXiv:2205.13542 (2022) 12. Van der Maaten, L., Hinton, G.: Visualizing data using t-sne. Journal of machine learning research 9(11) (2008) 13. Madry, A., Makelov, A., Schmidt, L., Tsipras, D., Vladu, A.: Towards deep learning models resistant to adversarial attacks. arXiv preprint arXiv:1706.06083 (2017) 14. Min, C., Zhao, D., Xiao, L., Zhao, J., Xu, X., Zhu, Z., Jin, L., Li, J., Guo, Y., Xing, J., et al.: Driveworld: 4d pre-trained scene understanding via world models for autonomous driving. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 15522–15533 (2024) 15. Philion, J., Fidler, S.: Lift, splat, shoot: Encoding images from arbitrary camera rigs by implicitly unprojecting to 3d. In: European conference on computer vision. pp. 194–210. Springer (2020) 16. Sadeghian, R., Hooshyaripour, N., Joslin, C., Lee, W.: Reliability-driven lidar-camera fusion for robust 3d object detection. arXiv preprint arXiv:2502.01856 (2025) 17. Sonarghare, S., Deshpande, P., Hogan, C., Kaliappan-Mahalingam, D.R., Sistu, G.: Fisheyegaussianlift: Bev feature lifting for surround-view fisheye camera per-ception. arXiv preprint arXiv:2511.17210 (2025) 18. Song, Z., Yang, L., Xu, S., Liu, L., Xu, D., Jia, C., Jia, F., Wang, L.: Graphbev: Towards robust bev feature alignment for multi-modal 3d object detection. In: European conference on computer vision. pp. 347–366. Springer (2024) 19. Tarchoun, B., Alam, Q.M., Abu-Ghazaleh, N., Alouani, I.: Fool the hydra: Ad-versarial attacks against multi-view object detection systems. arXiv preprint arXiv:2312.00173 (2023) 20. Wang, F., Zhang, Y., Yin, X., Cheng, G., Fu, Z., Huang, X., Ruan, W.: A black-box evaluation framework for semantic robustness in bird’s eye view detection. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 39, pp. 7637– 7645 (2025) 21. Wang, Y., He, J., Fan, L., Li, H., Chen, Y., Zhang, Z.: Driving into the future: Mul-tiview visual forecasting and planning with world model for autonomous driving. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 14749–14759 (2024) 22. Xie, S., Kong, L., Zhang, W., Ren, J., Pan, L., Chen, K., Liu, Z.: Robobev: Towards robust bird’s eye view perception under corruptions. arXiv preprint arXiv:2304.06719 (2023) 23. Xie, S., Kong, L., Zhang, W., Ren, J., Pan, L., Chen, K., Liu, Z.: Benchmarking and improving bird’s eye view perception robustness in autonomous driving. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025) 24. Xie, S., Li, Z., Wang, Z., Xie, C.: On the adversarial robustness of camera-based 3d object detection. arXiv preprint arXiv:2301.10766 (2023) 25. Zhang, Y., Gong, S., Xiong, K., Ye, X., Li, X., Tan, X., Wang, F., Huang, J., Wu, H., Wang, H.: Bevworld: A multimodal world simulator for autonomous driving via scene-level bev latents. arXiv preprint arXiv:2407.05679 (2024) 26. Zheng, W., Chen, W., Huang, Y., Zhang, B., Duan, Y., Lu, J.: Occworld: Learning a 3d occupancy world model for autonomous driving. In: European conference on computer vision. pp. 55–72. Springer (2024) 27. Zhu, Z., Zhang, Y., Chen, H., Dong, Y., Zhao, S., Ding, W., Zhong, J., Zheng, S.: Understanding the robustness of 3d object detection with bird’s-eye-view repre-sentations in autonomous driving. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 21600–21610 (2023)

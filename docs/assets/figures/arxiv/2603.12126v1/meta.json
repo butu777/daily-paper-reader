@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-001.webp",
+      "caption": "Figure 11. More qualitative comparison. Our method consistently produces high quality results with correct contact and details.",
+      "page": 21,
+      "index": 1,
+      "width": 1034,
+      "height": 1302
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-002.webp",
+      "caption": "Figure 4. Qualitative comparison for text to 3D generation. InterFusion [10] is based on Score Distillation Sampling and hence is slow and produces low-quality 3D due to the well-known Janus problem. TRELLIS [55] is a learning based native 3D generation method, hence it can produce better 3D but is not interaction-aware. Our method faithfully follows the text prompts, especially the detailed body contact specifications. Our contacts are highlighted with spheres coloured based on contacting body parts.",
+      "page": 7,
+      "index": 2,
+      "width": 1036,
+      "height": 819
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-003.webp",
+      "caption": "Figure 12. More examples from our annotated data. Our annotation pipeline generates detailed descriptions about human, object, interaction action and contacts.",
+      "page": 22,
+      "index": 3,
+      "width": 1036,
+      "height": 1171
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-004.webp",
+      "caption": "Figure 8. User study instruction and example questions. We guide participants to evaluate the quality or consistency to input text prompt. We randomly select 20 examples for each aspect and users are asked to choose the best one from three options.",
+      "page": 18,
+      "index": 4,
+      "width": 1036,
+      "height": 654
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-005.webp",
+      "caption": "Figure 2. HOI3D framework overview. Top: We first leverage the existing multimodal foundation model InternVL [9] to perform decomposed annotation of human, object, and human-object-interaction of samples from the ProciGen [59] dataset. We then use LLaMa [17] to create a final detailed caption for the sample. Bottom: We leverage our data consisting of high-quality and diverse human-objectinteractions to fine-tune an existing text-to-image model. Subsequently, we establish a pipeline to reconstruct high-fidelity textured 3D meshes. The output of our final text-to-3D inference pipeline consists of segmented meshes for the human and object, as well as an animatable SMPL model.",
+      "page": 4,
+      "index": 5,
+      "width": 1036,
+      "height": 598
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-006.webp",
+      "caption": "Figure 9. Controllable interaction generation via text. We can control the contact, object, action or human description in our text prompt with minimum changes to the other parts. This makes it possible to use our model as a data generator.",
+      "page": 19,
+      "index": 6,
+      "width": 1036,
+      "height": 934
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-007.webp",
+      "caption": "Figure 6. Advantage of view conditioned sampling. Given same interaction prompt, our method generates three views that all correctly follow the contacts. Yet Hunyuan3D stuggle to reason the compositional shape under occlusion such as the leg occluded by the table in front view. By sampling side views as input to Hunyuan3D, we are able to generate at least one plausible 3D humanobject interaction for each text prompt.",
+      "page": 17,
+      "index": 7,
+      "width": 496,
+      "height": 467
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-008.webp",
+      "caption": "Figure 7. Prompts used for calculating GPT scores. We instruct GPT-4V to evaluate the text alignment and quality for generated 3D models (rendered as video) or 2D images.",
+      "page": 17,
+      "index": 8,
+      "width": 480,
+      "height": 613
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-009.webp",
+      "caption": "Figure 10. OOD generalization. Fine tuned only on interaction data with 100 humans and 15 object categories, our method generalizes well to different objects, human descriptions and new actions.",
+      "page": 20,
+      "index": 9,
+      "width": 1036,
+      "height": 1112
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-010.webp",
+      "caption": "Figure 3. Analysis of the CLIP score. While our model clearly generates images that follow input interaction descriptions more precisely than SANA [56], the CLIP score indicates the opposite, rendering it unusable as a metric for our task.",
+      "page": 5,
+      "index": 10,
+      "width": 490,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2603.12126v1/fig-011.webp",
+      "caption": "Figure 5. Animation results. Our fitted SMPL and segmented objects allow reanimation of the generated human object interaction mesh",
+      "page": 16,
+      "index": 11,
+      "width": 1036,
+      "height": 1437
+    }
+  ]
+}

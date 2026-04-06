@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-001.webp",
+      "caption": "Table 3. Ablation study on key components. The table shows the performance of our method (SVGS) with and without the visual hull and regularization components. Results highlight that both components contribute to improved LPIPS, PSNR, and SSIM scores, with the full method outperforming the ablated versions.",
+      "page": 15,
+      "index": 1,
+      "width": 895,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-002.webp",
+      "caption": "Fig. 2. The Framework of SVGS. 1) Initially, a single-view image is modified using a correlation editing strategy based on IP2P. 2) Following the editing process, a multi-view diffusion model is employed to generate multi-view images consistent with the modifications. 3) For sparse reconstruction using 3DGS, a visual hull is constructed from camera parameters and masked images to initialize the 3D Gaussians, which are subsequently refined using the loss function L𝑔𝑠 . 4) Within the depth regularization module, depth maps are rendered for the input views, and the loss is computed against pre-generated monocular depth maps. The resulting Gaussian field facilitates efficient, high-quality novel-view synthesis.",
+      "page": 7,
+      "index": 2,
+      "width": 895,
+      "height": 509
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-003.webp",
+      "caption": "Fig. 4. Consistency Experiments. The top row presents six images sourced from the original dataset, whereas the middle row illustrates the outcomes of independently editing each view utilizing the IP2P method. The results of these edits exhibit significant inconsistency and do not correspond effectively with the provided textual instructions. In contrast, our proposed method produces consistent and well-edited multi-view images, as demonstrated in the bottom row.",
+      "page": 10,
+      "index": 3,
+      "width": 895,
+      "height": 482
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-004.webp",
+      "caption": "Fig. 5. Qualitative comparison of text-driven 3D object editing. The visual results are organized by methods (columns) and editing tasks (rows). The first column displays the original reference image, while the remaining columns present multi-view renderings from Instruct-N2N [10], GaussianEditor [40], ViCA-NeRF [6], and our proposed SVGS. The seven rows correspond to distinct objects and editing instructions: (Row 1) color modification; (Row 2) accessory addition; (Row 3) style transfer; (Row 4) structural deformation (elongating rabbit ears); (Row 5) material transfer (wood to glossy marble); (Row 6) texture pattern addition (gold leaf); and (Row 7) localized part recoloring. Two views are rendered for each method to illustrate the appearance across different viewpoints.",
+      "page": 14,
+      "index": 4,
+      "width": 895,
+      "height": 967
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-005.webp",
+      "caption": "Fig. 1. Results of 3D Object Editing with SVGS. This study demonstrates that text-driven 3D object editing can be accomplished through the modification of a single image, allowing for the generation of consistent multi-view images based on the edited outcomes. Notably, our algorithm facilitates precise alterations, such as changing a light blue hue to a dark blue hue, without impacting other regions of the object. Furthermore, the edited model can be exported as a high-quality mesh.",
+      "page": 3,
+      "index": 5,
+      "width": 895,
+      "height": 546
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-006.webp",
+      "caption": "Fig. 3. Visualization of the Relevance-Aware Editing Mechanism.We visualize the intermediate steps of our algorithm. The Noise Difference Heatmap (b), derived from Eq. (7), effectively acts as a semantic attention mechanism. It highlights the target region (e.g., the eyes for “put glasses on”) where the text instruction exerts significant influence, while suppressing the background. This is thresholded into a binary mask (c) to ensure the final output strictly preserves the unedited content.",
+      "page": 8,
+      "index": 6,
+      "width": 895,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-007.webp",
+      "caption": "Fig. 8. Illustration of mutli-view diffusion model limitations. For complex objects, particularly those composed of multiple components, the processing by UNet often results in multi-view images that struggle to maintain the original object’s structure. This inconsistency in the generated structure can lead to a reconstructed model that fails to achieve the desired editing outcomes, leaving users dissatisfied.",
+      "page": 17,
+      "index": 7,
+      "width": 895,
+      "height": 357
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-008.webp",
+      "caption": "Table 1. Hyperparameter settings for SVGS. Detailed parameters are listed to facilitate reproducibility.",
+      "page": 12,
+      "index": 8,
+      "width": 895,
+      "height": 307
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-009.webp",
+      "caption": "Fig. 6. Ablation Study of Relevance Editing. Comparison of our image editing results with those of IP2P. For both models, 𝑆𝑇 and 𝑆𝐼 were set to 7.5 and 1.5, respectively. IP2P fails to isolate the specified region and tends to over-edit the input content. In contrast, our model accurately predicts the editing scope and confines the edits to the designated area.",
+      "page": 16,
+      "index": 9,
+      "width": 895,
+      "height": 440
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28126v1/fig-010.webp",
+      "caption": "Fig. 7. Ablation Study on Various Components. The term “VH” refers to the visual hull. It is evident that the inclusion of the visual hull enhances the completeness of the reconstructed object’s structure. Moreover, the integration of depth regularization contributes to a richer and more refined representation of the object’s details.",
+      "page": 16,
+      "index": 10,
+      "width": 895,
+      "height": 281
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-001.webp",
+      "caption": "Fig. 3: Architecture of Fus3D: The geometry transformer G (beige) processes tokenized input images, yielding a list of 2D intermediate features {zb2D}Bb=1 extracted from different stages. The extraction transformer E (orange) leverages 2D-to-3D cross attention (green) to absorb the 3D information into features of the learned canonical embedding z3D, and distributes this information via 3D self-attention (blue) throughout the volumetric latent. The head H3D decodes the resulting structured latent ẑ3D into a dense SDF grid.",
+      "page": 6,
+      "index": 1,
+      "width": 723,
+      "height": 341
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-002.webp",
+      "caption": "Fig. 4: Qualitative results on DTU. Beige boxes indicate input views. Numbers in brackets correspond to image indices of “favorable” (23, 24, 33) and “unfavorable” (1, 16, 36) view combinations. (Following the baselines’ evaluation protocols, only visible geometry is evaluated.)",
+      "page": 11,
+      "index": 2,
+      "width": 723,
+      "height": 199
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-003.webp",
+      "caption": "Fig. 18: Further qualitative results on Objaverse, supplementing Main Fig. 1.",
+      "page": 26,
+      "index": 3,
+      "width": 717,
+      "height": 362
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-004.webp",
+      "caption": "Fig. 17: Left: isosurface extracted from our prediction. Center: slices of our predicted SDF and the corresponding error map. Right: slices of the TSDF reconstructed from VGGTft predictions and the corresponding error map.",
+      "page": 26,
+      "index": 4,
+      "width": 723,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-005.webp",
+      "caption": "Fig. 22: Further qualitative results. Spurious sign flips in mesh-derived SDFs can lead to broken isosurfaces (see, e.g., the legs).",
+      "page": 29,
+      "index": 5,
+      "width": 717,
+      "height": 362
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-006.webp",
+      "caption": "Fig. 21: Additional qualitative results on Objaverse.",
+      "page": 29,
+      "index": 6,
+      "width": 697,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-007.webp",
+      "caption": "Table 3: Quantitative results in offline vs online scenarios, and favorable vs unfavorable view combinations, separated by pose-estimation type. Values are Chamfer distances (↓CD). GT indicates Dtu dataset poses, Offline refers to COLMAP estimation, and Online to feed-forward methods using VGGT or ours.",
+      "page": 23,
+      "index": 7,
+      "width": 740,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-008.webp",
+      "caption": "Fig. 20: Additional variants of the scene shown in Main Fig. 7. Top: surface extracted at isovalue 0. Bottom: surface extracted at isovalue +0.5ϵ (Poisson reconstruction is omitted here, as it only reconstructs the zero level set).",
+      "page": 28,
+      "index": 8,
+      "width": 717,
+      "height": 731
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-009.webp",
+      "caption": "Fig. 8: Left: Visualization of the eikonal term for the center slice of the x-axis. Right: Plot of the F0.5ϵ-score for surfaces extracted at isovalue +0.5ϵ.",
+      "page": 13,
+      "index": 9,
+      "width": 719,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-010.webp",
+      "caption": "Fig. 19: Additional qualitative results on Objaverse, supplementing Main Fig. 6.",
+      "page": 27,
+      "index": 10,
+      "width": 717,
+      "height": 731
+    },
+    {
+      "url": "assets/figures/arxiv/2603.25827v1/fig-011.webp",
+      "caption": "Fig. 2: Juxtaposition of geometric extraction metholodogies. Common pipelines like VGGT [46] (top) route transformer features through per-view 2D decoder heads, discarding the joint multi-view representation before 3D assembly. We instead extract dense 3D features directly from the transformer’s intermediate feature space, preserving the full multi-view information.",
+      "page": 5,
+      "index": 11,
+      "width": 723,
+      "height": 287
+    }
+  ]
+}

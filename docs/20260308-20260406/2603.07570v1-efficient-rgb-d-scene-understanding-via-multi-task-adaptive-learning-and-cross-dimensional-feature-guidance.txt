@@ -1,0 +1,546 @@
+Title: Efficient RGB-D Scene Understanding via Multi-task Adaptive Learning and Cross-dimensional Feature Guidance
+
+URL Source: https://arxiv.org/pdf/2603.07570v1
+
+Published Time: Tue, 10 Mar 2026 01:17:44 GMT
+
+Number of Pages: 23
+
+Markdown Content:
+# Efficient RGB-D Scene Understanding via Multi-task Adaptive Learning and Cross-dimensional Feature Guidance 
+
+## Guodong Sun a,e , Junjie Liu a,b,e , Gaoyang Zhang a,e , Bo Wu d and Yang Zhang a,b,c,e ,∗
+
+> a
+
+School of Mechanical Engineering, Hubei University of Technology, Wuhan, 430068, China 
+
+> b
+
+Vehicle Measurement, Control and Safety Key Laboratory of Sichuan Province, Xihua University, Chengdu, 610039, China 
+
+> c
+
+National Key Laboratory for Novel Software Technology, Nanjing University, Nanjing, 210023, China 
+
+> d
+
+Shanghai Advanced Research Institute, Chinese Academy of Sciences, Shanghai, 201210, China 
+
+> e
+
+Hubei Key Laboratory of Modern Manufacturing Quality Engineering, Hubei University of Technology, Wuhan, 430068, China 
+
+A R T I C L E I N F O 
+
+Keywords :Multi-task adaptive learning Cross-dimensional feature guidance Panoptic segmentation Scene understanding 
+
+A B S T R A C T 
+
+Scene understanding plays a critical role in enabling intelligence and autonomy in robotic sys-tems. Traditional approaches often face challenges, including occlusions, ambiguous boundaries, and the inability to adapt attention based on task-specific requirements and sample variations. To address these limitations, this paper presents an efficient RGB-D scene understanding model that performs a range of tasks, including semantic segmentation, instance segmentation, orientation estimation, panoptic segmentation, and scene classification. The proposed model incorporates an enhanced fusion encoder, which effectively leverages redundant information from both RGB and depth inputs. For semantic segmentation, we introduce normalized focus channel layers and a context feature interaction layer, designed to mitigate issues such as shallow feature misguidance and insufficient local-global feature representation. The instance segmentation task benefits from a non-bottleneck 1D structure, which achieves superior contour representation with fewer parameters. Additionally, we propose a multi-task adaptive loss function that dynamically adjusts the learning strategy for different tasks based on scene variations. Extensive experiments on the NYUv2, SUN RGB-D, and Cityscapes datasets demonstrate that our approach outperforms existing methods in both segmentation accuracy and processing speed. 
+
+## 1. Introduction 
+
+Scene understanding empowers robots to accurately perceive their surroundings, identify objects, and classify scenes, ultimately enhancing their decision-making capabilities. Traditional scene understanding methods typically focus on a single task, limiting robots’ holistic comprehension of their environments [1]. In contrast, multi-task learning enables mutual reinforcement and synergistic optimization across multiple tasks by sharing information and learning mechanisms [2]. This research explores a multi-task adaptive learning approach for scene understanding, aiming to design an optimal network architecture and learning strategy, thereby providing robots with more comprehensive decision support in practical applications. Models for scene understanding typically leverage both RGB and depth information as inputs. RGB data provides essential color and texture features for object and region identification, while depth information offers precise spatial details regarding object locations and distances. Seichter et al. [3] employed a dual-encoder structure to separately extract features from RGB and depth inputs. However, this approach does not adequately integrate these complementary data sources, thereby missing the potential synergistic benefits they could offer. Fischedick et al. [4] utilized a single Swin Transformer v2 [5] to jointly extract RGB and depth information. Although this method enhances integration, it involves extensive matrix computations and memory access, which can be limiting in resource-constrained environments and lead to slower processing speeds. Consequently, there is a need for an efficient encoder architecture that can effectively extract complementary information while maintaining a balance between processing speed and accuracy. As a dense prediction task, panoptic segmentation integrates both semantic and instance segmentation. Park et al. [6] employed a bottleneck feature extraction module, which is structurally simple and requires fewer parameters. 
+
+> ∗
+
+Corresponding author: Yang Zhang 
+
+sunguodong@hbut.edu.cn ( Guodong Sun); 102210139@hbut.edu.cn ( Junjie Liu); zhanggaoyang@hbut.edu.cn (Gaoyang Zhang); wubo@sari.ac.cn ( Bo Wu); yzhangcst@hbut.edu.cn ( Yang Zhang) 
+
+> ORCID
+
+(s): 
+
+: Preprint submitted to Elsevier Page 1 of 23  
+
+> arXiv:2603.07570v1 [cs.CV] 8 Mar 2026 Figure 1: Multi-task outputs of the network. Semantic segmentation provides foreground masks for instance segmentation, and pixel-level instances are generated by combining instance centers with instance offsets. Panoptic segmentation is achieved by integrating semantic and instance segmentation.
+
+However, this approach reduces feature diversity due to dimensionality reduction, thereby limiting the network’s non-linear capacity. In contrast, the non-bottleneck 1D module [7] enhances the network’s non-linearity by decomposing convolution operations, achieving a better balance between parameter efficiency and perceptual capability. The multi-layer perceptron (MLP) mechanism [8] is also commonly used in segmentation tasks due to its robust representation abilities. However, the performance of the MLP decoder is heavily dependent on the quality of features extracted by the encoder. If the encoder fails to adequately capture critical information and details, the MLP decoder struggles to deliver accurate segmentation results [9]. Given these considerations, effectively guiding and integrating multi-dimensional features remains a key challenge in complex scene segmentation tasks. Multi-task learning integrates various tasks by sharing information and jointly optimizing to achieve comprehensive scene perception. However, due to the complexity and diversity of scenes, the learning difficulties, data distributions, and the relative importance of different tasks vary significantly. The fixed learning strategy often fails to adapt to these variations. Lin et al. [10] addressed this issue by employing random loss and stochastic gradient weighting during training, thereby avoiding human bias in weight assignment. However, the random nature of weight assignment introduces variability in model performance and can lead to instability. Liu et al. [11] mitigated this by calculating task weights based on training losses, which improves stability to some extent. Nevertheless, this approach adjusts weights only based on the first data batch in each iteration, lacking real-time adaptability. Therefore, a critical challenge in multi-task scene understanding is the development of a mechanism capable of adaptively adjusting weights in real time, in accordance with task characteristics and the current state of the model’s training. To address these challenges, we introduce a novel multi-task adaptive scene understanding network. The multi-task outputs of our method are illustrated in Fig. 1. Our approach employs an efficient fusion encoder that simultaneously extracts complementary cues from both RGB and depth data, enabling faster processing speeds. Building on the MLP decoder [8], we incorporate normalized focus channel layers and a context feature interaction layer to effectively integrate spatial relationships and local information across dimensions. Furthermore, we propose a multi-task adaptive loss function to meet the varying demands of semantic segmentation, instance segmentation, orientation estimation, and scene classification tasks. This function alleviates the limitations of fixed learning strategies by dynamically adjusting learning weights based on data variations, thereby significantly improving the model’s generalization performance. The main innovations and contributions of this work include: 
+
+∙ Exploring a faster and more efficient feature extraction method that fully leverages complementary cues from both RGB and depth information.   
+
+> :Preprint submitted to Elsevier Page 2 of 23
+
+∙ Introducing the normalized focus channel layer and context feature interaction layer to integrate local key information and spatial structure across dimensions. 
+
+∙ Designing a multi-task adaptive loss function that dynamically adjusts the learning strategy in real time based on data variations, facilitating more efficient joint training and performance optimization. 
+
+∙ Proposing a multi-task adaptive learning network for RGB-D scene understanding, enhanced with cross-dimensional feature guidance. Experiments on the NYUv2, SUN RGB-D, and Cityscapes datasets demonstrate the model’s superior scene perception capabilities. The remainder of the paper is organized as follows: Section II reviews related work in scene understanding. Section III provides a detailed description of the proposed method. Section IV presents the experiments and discussion. Finally, Section V concludes the paper. 
+
+## 2. Related work 
+
+2.1. Semantic segmentation 
+
+Semantic segmentation aims to partition image pixels based on the objects or regions they represent, playing a critical role in various fields such as robotic perception, autonomous driving, and medical imaging. Zhao et al. [12] improved context aggregation through the pyramid pooling module, enabling better capture of global scene priors. However, their approach relies solely on RGB images, which provide surface-level features like color and texture but lack direct distance information. Additionally, RGB images are sensitive to changes in lighting and shadows, which can degrade performance. To enhance segmentation robustness and accuracy, there has been a growing trend toward utilizing RGB-D datasets, which combine RGB images with depth information. The NYUv2 dataset [13] is widely used for indoor scene segmentation and includes RGB images, dense depth maps, and pixel-level annotations. Similarly, SUN RGB-D [14] covers indoor scenes, offering a diverse set of object categories. The Cityscapes dataset [15] specializes in urban street scenes with high-quality annotations, while ScanNet [16] provides large-scale 3D reconstructions of indoor environments. The KITTI dataset [17], primarily focused on autonomous driving, is extensively used for evaluating semantic segmentation and depth estimation in outdoor environments. Building upon these datasets, significant progress has been made in semantic segmentation methods. Qi et al. [18] integrated RGB and depth data to improve the precision of spatial information. Wang et al. [19] introduced depth-aware convolution and average pooling to incorporate geometric details by considering depth similarity between pixels. Wu et al. [20] employed an interactive attention mechanism to fuse input information from dual encoders, enhancing object representation. However, while dual-encoder fusion shows promise, it introduces higher computational demands. Zhang et al. [21] optimized model efficiency by utilizing depth-separable convolutions, which reduce the number of parameters and computations. Nonetheless, its higher memory access-to-computation ratio compared to standard convolutions can impact processing speed. To achieve richer semantic representations, Wei et al. [22] designed an edge-aware distillation approach to guide the network to focus on boundary-adjacent samples by balancing sample contributions and classification uncertainty. Valada et al. [23] proposed a multimodal semantic segmentation network that dynamically fuses modality features in a self-supervised manner, enabling the network to better perceive scene context, spatial positions, and object categories. Xue et al. [24] applied a knowledge distillation framework, allowing a single-modality network to perform effectively even with unlabeled multimodal data. This method effectively mitigates the high annotation cost of multimodal datasets but fails to fully leverage the complementary information across different modalities. Although these methods have advanced the field, the persistent issue of redundant modality information continues to limit model performance. Our work therefore focuses on developing a more efficient modality fusion and extraction mechanism. 
+
+2.2. Panoptic segmentation 
+
+In contrast to semantic segmentation, panoptic segmentation assigns pixels to semantic categories while also distinguishing individual instances within the image, providing richer information for scene understanding. Cheng et al. [25] pioneered this approach with a dual-decoder and atrous spatial pyramid pooling architecture, introducing the first single-step, pixel-classification-prioritized panoptic segmentation method and laying the foundation for subsequent research. However, under dynamic conditions, challenges such as motion blur and varying object sizes arise. Kachole et al. [26] addressed these issues by utilizing dynamic vision sensors and a collaborative context structure to integrate multiple adjacent events, thereby generating parallel representations. To incorporate more information during the upsampling process, Fischedick et al. [4] expanded the model’s width and employed random masking of RGB or   
+
+> :Preprint submitted to Elsevier Page 3 of 23
+
+grayscale images during pre-training, which mitigated the reliance on a single data source. In pursuit of more robust scene understanding and cross-domain information integration, He et al. [27] explored the correlation between depth estimation and panoptic segmentation. This approach enables cross-modal guided learning, allowing features from different modalities to mutually enhance one another. Additionally, to reduce the computational costs associated with dense operations, Cavagnero et al. [28] proposed a cross-attention algorithm that leverages visual feature redundancy to constrain computational costs without compromising model performance. The intensive pixel labeling required in panoptic segmentation increases its learning cost. To mitigate this, Li et al. [29] introduced a single-point supervision method, where each object is annotated with a single random point, and relatively precise pseudo-masks are generated based on category and instance differences between objects. These methods have achieved significant results in integrating diverse information sources and improving compu-tational efficiency. However, due to the diversity of scenes, ensuring stable cross-domain learning and generalization capability remains challenging. Our approach further explores more effective feature guidance to extract multi-dimensional information for addressing these issues. 
+
+2.3. Multi-task learning 
+
+Traditionally, tasks in scene understanding have often been treated as independent, neglecting their potential intrinsic connections and interdependencies [30]. With advancements in research, multi-task learning (MTL) has emerged as an effective strategy that leverages shared information and complementary characteristics across tasks, thereby enhancing overall learning efficiency. In this context, He et al. [31] addressed the ambiguity in depth estimation by integrating semantic information with geometric cues and scene parsing, simultaneously improving semantic segmentation accuracy. Xu et al. [32] employed intermediate auxiliary tasks for supervision and provided inputs for the final tasks. Moreover, Gao et al. [33] enabled features of different tasks to guide each other by adopting a consistent learning strategy. Lopes et al. [34] introduced a novel bidirectional cross-task attention mechanism, combining guided cross-task attention with self-attention to strengthen the representation of task-specific features. Despite these advancements, finding the optimal balance between task-specific and shared features remains a challenging problem in MTL. Lyu et al. [35] addressed this by aggregating multi-scale, multi-level information to provide rich cues for determining which information should be shared. Liu et al. [36] learned task-specific features from a shared network with global feature pooling to enable end-to-end training. Han et al. [37] modeled attribute correlations and heterogeneity within a single network to facilitate shared feature learning across all attributes. Previous multi-task image segmentation methods required separate training for each task to achieve optimal performance. Jain et al. [38] overcame this limitation by proposing a joint training strategy that learns the ground truth labels of multiple tasks in a single training process, adjusting the model using task tokens. These approaches underscore the potential of MTL to share knowledge and leverage complementary characteristics across tasks. To further adaptively adjust the learning priorities of tasks in real time, Shen et al. [39] designed an adaptive group risk minimization strategy to explicitly optimize task learning. Agiza et al. [40] introduced low-rank adaptation modules to decouple the parameter space during MTL fine-tuning. Additionally, to address the issue of conflicting gradient directions in MTL, Liu et al. [41] proposed a conflict-free inverse gradient method, ensuring that all loss terms are optimized at a consistent rate. The aforementioned methods have achieved model adaptability, but the complexity of scene data is continuously changing, and the model’s response speed remains limited. Our research aims to design a batch-level, real-time adaptive learning mechanism that dynamically adjusts the priority of task learning. This mechanism not only balances the sharing and differentiation of task features but also focuses on improving the model’s response speed and adaptability in complex environments, thereby effectively overcoming the limitations of traditional methods in delayed responses under dynamic scenarios. 
+
+## 3. Method 
+
+This section presents the architecture of the proposed model, beginning with an overview of its overall structure. Subsequently, we elaborate on the efficient feature fusion methodology and the cross-dimensional feature guidance mechanism. Finally, we introduce the multi-task adaptive learning strategy. 
+
+3.1. Overall framework 
+
+To achieve local and spatial perception in complex scenes and enhance generalization performance, we design a novel multi-task scene understanding network, as depicted in Fig. 2. This network incorporates an improved feature    
+
+> :Preprint submitted to Elsevier Page 4 of 23 Figure 2: Multi-task scene understanding network structure. This network features an improved feature fusion encoder that handles redundant information from RGB and depth to enhance feature extraction. The semantic decoder includes NFCL and CFIL to enrich scene representations from various dimensions. The instance decoder employs the non-bottleneck 1D architecture to generate instance centers, instance offsets, and raw orientations. The integration of instance segmentation with semantic segmentation enables panoptic segmentation. Scene classification is performed by a task head with a fully connected layer. In addition, the multi-task adaptive loss function optimizes the training strategy based on data variations.
+
+fusion encoder that efficiently leverages redundant features from both RGB and depth information. The extracted features are then fed into three components: a scene classification head, a semantic decoder, and an instance decoder. The scene classification task is implemented using a simple fully connected layer, while the semantic decoder is based on a lightweight multi-layer perceptron (MLP) structure. To capture key information and spatial structures, we introduce the normalized focus channel layer (NFCL) and context feature interaction layer (CFIL), which enrich scene representations across dimensions. The instance decoder employs a lightweight non-bottleneck 1D architecture, generating instance centers, pixel offsets relative to instance centers, and raw orientations through its task head. Pyramid supervision is applied to each layer’s output in the instance decoder. Semantic segmentation provides foreground masks for instance segmentation. By combining instance centers and pixel offsets, object pixels are grouped into instance results. The combination of semantic segmentation and instance segmentation enables panoptic segmentation. The instance decoder also predicts the orientations of object instances in the scene, represented as angles around the axis perpendicular to the ground. During training, we introduce a multi-task adaptive loss function that dynamically adjusts the training strategy based on data variations. 
+
+3.2. Efficient fusion encoder 
+
+RGB images provide rich color information but fall short of representing geometric structures. Conversely, depth images offer accurate distance information but lack boundary details. By employing a single fusion encoder to process both RGB and depth data, we can leverage their complementary characteristics to obtain a more comprehensive scene description. Typically, scene understanding encoders are pretrained on the ImageNet [42] dataset to improve model    
+
+> :Preprint submitted to Elsevier Page 5 of 23 Figure 3: Fusion encoder. This encoder adopts merging layers for channel expansion and downsampling. Given the similarity between channel features, the fusion blocks extract redundant channel features to optimize computational efficiency.
+
+accuracy. However, ImageNet contains only RGB information and lacks depth data. To address this, we sum the RGB three-channel weights as the depth weights, defined as 𝐷 = ( 𝑅 + 𝐺 + 𝐵 )∕2 , avoiding the need for additional resources. To create a more lightweight network, previous work applied depthwise separable convolution to the backbone [43]. Depthwise convolution operates independently on each channel, while pointwise convolution fuses information across channels. This technique reduces the number of parameters and FLOPs. However, frequent memory accesses by these operators can impact computational speed. Given the similarity among different channel features, effectively leveraging redundant features among channels is crucial for optimizing feature extraction [44]. We employ an improved fusion encoder illustrated in Fig. 3. This encoder has 4 stages and processes input with RGBD channels. Each stage utilizes a 4 × 4 convolution with a normalization layer for channel expansion and downsampling, followed by several lightweight fusion blocks for feature extraction. As the image size decreases, memory access reduces, allowing us to increase the number of fusion blocks in the latter stages. Specifically, stages 1 through 4 contain 3, 4, 18, and 3 fusion blocks, respectively. In the fusion block, given an input feature 𝐼 ∈ ℝ𝐶 ×𝐻 ×𝑊 ,where 𝐶 is the number of channels. Due to the high similarity of features across different channels, in order to fully exploit this redundancy, we select 1∕4 of the channels from 𝐼 as 𝐼 1∈ℝ𝐶 ′×𝐻 ×𝑊 , and denote the remaining channels as 
+
+𝐼 2. Feature extraction is then performed on the partial channel feature 𝐼 1, and then concatenates it with the remaining channels 𝐼 2:
+
+𝐹 = Cat((Conv2d( 𝐼 1), 𝐼 2), dim = 1) . (1) The FLOPs of the partial convolution: 
+
+FLOPs = 𝐻 ×𝑊 ×𝑘 2×𝐶 ′2 , (2) where 𝑘 is the convolution kernel size. Since 𝐶 ′ = 1∕4 𝐶 , partial convolution’s FLOPs are reduced to 1∕16 of the regular convolution operation. Further, two pointwise convolutions are used to extract channel relationships. To enhance the representation of detailed scene features, the number of channels is initially expanded through pointwise convolution and then restored to its original count. Lastly, a residual connection is utilized to superimpose the original features. Due to the reduced memory access requirement, the encoder demonstrates a significant improvement in inference speed.    
+
+> :Preprint submitted to Elsevier Page 6 of 23 Figure 4: Normalized focus channel layer. This layer learns the variance adjustment parameters via batch normalization. It then computes channel weights that quantify the importance of each channel. The input features are rearranged, weighted according to these channel weights, and subsequently processed through an activation function.
+
+3.3. Cross-dimensional feature guidance 
+
+3.3.1. Normalized focus channel layer 
+
+In the semantic branch, the MLP-based decoder features a simpler structure compared to the traditional decoder with numerous convolutional and upsampling layers. This lightweight design enhances the model’s efficiency during training and inference while reducing the risk of overfitting. However, the drawback is that erroneous information from the shallow features of the encoder can mislead the MLP, impacting the representation of local details [9]. To address this, we design a normalized focus channel layer (NFCL) to enhance shallow information in the channel dimension. As depicted in Fig. 4, the channel operation begins with feature extraction using a 1 × 1 convolution to obtain feature 
+
+𝑋 ∈ ℝ𝐵 ×𝐶 ×𝐻 ×𝑊 , where 𝐵 is the batch size, 𝐶 is the number of channels, and 𝐻 , 𝑊 are the height and width of the feature map. Then, we perform the batch normalization operation: 
+
+BN( 𝑋 ) = 𝛾 ( 𝑋 − 𝜇 𝐵 
+
+√
+
+𝜎 2 
+
+> 𝐵
+
++ 𝜖 
+
+) + 𝛽, (3) where 𝜇 𝐵 and 𝜎 2 
+
+> 𝐵
+
+are the mean and variance over the batch. 𝜖 is a constant used to avoid division by zero and numerical instability. 𝛾 and 𝛽 are learnable parameters used to scale and shift the normalized output. The scaling factor 𝛾 corresponds to the variance in BN. A larger 𝛾 indicates greater variation in the channel, suggesting it contains more important information [45]. Subsequently, we obtain the channel weight vector W𝑖 by taking the absolute value of the scaling factor 𝛾 and normalizing it: 
+
+W𝑖 = |𝛾 𝑖 |∑𝐶 𝑗 =1 |𝛾 𝑗 | , (4) where 𝑖 denotes the channel index. The input feature 𝑋 ∈ ℝ𝐵 ×𝐶 ×𝐻 ×𝑊 is then rearranged to ̂ 𝑋 ∈ ℝ𝐵 ×𝐻 ×𝑊 ×𝐶 to align with the weight W. Subsequently, the channel features at each pixel position are multiplied by their corresponding weights: ̃ 𝑋 = W ⋅̂ 𝑋 . Finally, we apply a sigmoid activation function to the weighted features, then perform a pixel-wise multiplication with the original inputs to generate the enhanced features. 
+
+3.3.2. Context feature interaction layer 
+
+While the MLP-based semantic decoder excels at nonlinear feature mapping, it primarily focuses on the integration of global features [8]. We design a context feature interaction layer (CFIL) to compensate for the deficiencies of the semantic decoder in fusing local and global information. The CFIL captures context information through multi-scale pooling operations. This approach allows the model to integrate features from different resolutions, improving its ability to discern and segment intricate structures and boundaries. In Fig. 5, the CFIL concatenates and fuses the features from the NFCL and the convolutional layer to obtain feature 𝑋 ∈ ℝ𝐵 ×𝐶 ×𝐻 ×𝑊 . It then applies adaptive average pooling with predefined scales (1 × 1 and 5 × 5) to extract features at different scales. Each position (𝑖, 𝑗 ) of the output feature is        
+
+> :Preprint submitted to Elsevier Page 7 of 23 Figure 5: Context feature interaction layer. This layer addresses the limitation of the semantic decoder in integrating local and global information by employing a multi-scale pooling operation and efficient channel compression.
+> (a) Inputs (b) EMSAFormer (c) CFIL (d) CFIL+NFCL
+> Figure 6: Semantic segmentation heat maps. Combining the feature guidance of CFIL and NFCL enables better handling of objects with similar colors and low-light scenes.
+
+computed as follows: 
+
+𝑌 (𝑖, 𝑗 ) = 1
+
+𝑘 ℎ ⋅ 𝑘 𝑤 𝑘 ℎ−1 
+
+∑
+
+> 𝑚 =0
+> 𝑘 𝑤 −1
+
+∑
+
+> 𝑛 =0
+
+𝑋 (𝑠 ℎ ⋅ 𝑖 + 𝑚, 𝑠 𝑤 ⋅ 𝑗 + 𝑛 ). (5) The 𝑘 ℎ and 𝑘 𝑤 denote the predefined scales of the pooling kernel in the height and width dimensions. The strides are set as 𝑠 ℎ = 𝑘 ℎ and 𝑠 𝑤 = 𝑘 𝑤 . After obtaining the pooled features 𝑌 1 ∈ ℝ𝐵 ×𝐶 ×1×1 and 𝑌 2 ∈ ℝ𝐵 ×𝐶 ×5×5 through the above operation, a convolutional layer is applied to perform channel compression to reduce the dimensionality from 
+
+𝐶 to 𝐶 ∕2 . Bilinear interpolation upsampling is employed to unify the features from different scales into a consistent spatial resolution (𝐻 × 𝑊 ). Then, the upsampled features are concatenated with the original input 𝑋 to obtain the combined features ̂ 𝑌 ∈ ℝ𝐵 ×( 𝐶 +𝐶 ∕2+ 𝐶 ∕2)× 𝐻 ×𝑊 . Finally, ̂ 𝑌 is adjusted to the original channel dimension 𝐶 through a convolutional layer, producing the refined output features. This design not only effectively captures and integrates multi-scale context information but also improves computational efficiency and feature expressiveness through a flexible upsampling approach and channel compression. To showcase the effectiveness of this method, we visualize the heat maps of the semantic segmentation branch in Fig. 6. By leveraging the guidance of CFIL and NFCL, the model more effectively handles objects with similar colors and in low-light environments. This is demonstrated by its improved segmentation of paintings with colors similar to the wall and the black television in dim lighting.    
+
+> :Preprint submitted to Elsevier Page 8 of 23 Figure 7: Non-bottleneck 1D module. This module decomposes 2D convolution into 1D convolutions combined with a non-linear activation function. This decomposition reduces model redundancy and enhances the non-linear decision-making capability.
+
+3.3.3. Non-bottleneck 1D instance decoder 
+
+In the instance segmentation task, the complexity of simultaneously achieving instance segmentation and orienta-tion estimation requires us to adopt a deeper decoder to obtain high-quality scene representation. To address this, we utilize a three-layer structured instance decoder. Each layer performs feature extraction through 3 × 3 convolution and combines three non-bottleneck 1D modules with an upsampling operation for refined feature extraction and resolution recovery. Inspired by Romera et al. [7], who proposed decomposing 2D convolution into two 1D convolutions with a non-linear activation function between them, we enhance learning capability while reducing the number of parameters. For a 2D convolution with the weight 𝑊 2𝐷 ∈ ℝ𝐶 ×𝑘 ×𝑘 ×𝐹 , 𝐶 and 𝐹 represent the input and output channels, respectively, while 𝑘 denotes the kernel size. We decompose it into two 1D convolutions 𝑊 1𝐷 ∈ ℝ𝐶 ×𝑘 ×𝐹 , reducing the parameter count to 2 × ( 𝐶 × 𝑘 × 𝐹 ). Specifically, when the kernel size is 3, this approach reduces the parameters by 30 % compared to a 2D convolution. As illustrated in Fig. 7, the non-bottleneck 1D module replaces each 3 × 3 convolution with a combination of 3 × 1 and 1 × 3 convolutions: 
+
+Conv2D (3 ,3) = Conv1D (1 ,3) 
+
+(Activation (Conv1D (3 ,1) (𝑋, 𝑊 1, 𝑏 1)) , 𝑊 2
+
+) . (6) The 𝑊 and 𝑏 denote the weights and biases of the convolutional layers, respectively, and the activation function is ReLU. This combination of 1D convolutions minimizes model redundancy, resulting in fewer parameters and increased computational efficiency. 
+
+3.4. Multi-task adaptive learning 
+
+Multi-task learning seeks to optimize multiple related tasks concurrently by exploiting shared representations and cross-task knowledge transfer, thereby enhancing the model’s overall performance. Nevertheless, inherent variations in task complexity often result in imbalanced learning, where certain tasks dominate the training process while others receive insufficient attention [46]. This challenge is further compounded by significant disparities in sample size and data quality. Moreover, the inter-task relationships exhibit dynamic characteristics that evolve throughout the training process as the model’s learning state progresses. Conventional approaches employing static loss weights frequently fail to accommodate these temporal variations, thereby constraining the model’s capacity to leverage evolving task correlations. To address this challenge, we propose a multi-task adaptive learning method that dynamically adjusts loss weights based on each task’s historical performance. This methodology facilitates the balancing of cross-task influences, promoting more stable optimization dynamics and enhancing the model’s responsiveness throughout the learning process. The specific flow is outlined in Algorithm 1. At the end of each training batch, we evaluate the performance of the model across multiple tasks, including semantic segmentation, instance center prediction, instance offset prediction, orientation estimation, and scene classification, by calculating the respective loss values. To balance the impact of each task on the overall learning process, we first compute the relative loss 𝑅𝐿 𝑘 for each task 𝑘 with respect to the total loss, defined as: 
+
+𝑅𝐿 𝑘 = 𝐿 𝑘 
+
+∑𝑡 𝐿 𝑡 
+
+, (7)   
+
+> :Preprint submitted to Elsevier Page 9 of 23
+
+Algorithm 1: Multi-task adaptive learning 
+
+Tasks: Semantic segmentation, Instance center, Instance offset, Orientation estimation, Scene classification; 
+
+Losses : 𝐿 𝑠𝑒 , 𝐿 𝑐𝑒 , 𝐿 𝑜𝑓 , 𝐿 𝑜𝑟 , 𝐿 𝑠𝑐 ;Initialize the weights 𝑊 ;Sum the losses; 
+
+foreach 𝑘 ∈ Tasks do 
+
+Calculate the relative loss of Task 𝑘 ;Update the relative loss history of Task 𝑘 ;Get the historical average relative loss Avg 𝑅𝐿 𝑘 ;Update weight 𝑊 𝑘 through the Avg 𝑅𝐿 𝑘 and adjustment factor 𝛼 .
+
+end 
+
+Weight the losses with 𝑊 .
+
+Output : The sum of the weighted losses. where 𝐿 𝑘 denotes the loss for task 𝑘 and ∑𝑡 𝐿 𝑡 is the sum of losses across all tasks. For each task 𝑘 , we obtain an average of its historical relative losses to capture the task’s performance trend: 
+
+Avg 𝑅𝐿 𝑘 =
+
+∑𝑖 𝑅𝐿 (𝑖 )
+
+> 𝑘
+
+𝑛 𝑘 
+
+. (8) The 𝑛 𝑘 represents the number of historical relative losses recorded for task 𝑘 . Based on the average relative loss, we adjust the loss weight for each task using an adjustment factor 𝛼 , with the updated weight 𝑊 𝑘 computed as follows: 
+
+𝑊 𝑘 = max 
+
+(
+
+𝑊 𝑘 × (Avg 𝑅𝐿 𝑘 )𝛼 , 𝑊 𝑚𝑖𝑛 
+
+)
+
+. (9) The 𝑊 𝑘 is the initial weight for task 𝑘 , 𝛼 is set to 0.01 to control the sensitivity of weight adjustment, and 𝑊 𝑚𝑖𝑛 is a minimum threshold weight set to 0.1 to prevent a task from being neglected due to excessively low weight resulting from outlier losses. Once the weights are updated, we use them to recalculate the weighted losses for each task. The final total loss is then obtained by summing these weighted losses: 
+
+𝐿 = ∑
+
+> 𝑘
+
+𝑊 𝑘 × 𝐿 𝑘 . (10) This dynamic adjustment mechanism ensures that the model balances the contributions of each task more effectively, adapting to variations in task performance. The loss functions for each task are detailed as follows: 
+
+Semantic segmentation: This task is typically framed as a pixel-wise classification problem, where the goal is to assign each pixel in an image to a predefined semantic category. The adopted loss function for this task is the cross-entropy loss [47], which quantifies the discrepancy between the predicted probability distribution and the ground truth labels: 
+
+𝐿 𝑠𝑒 = − 
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+> 𝐾
+
+∑
+
+> 𝑐 =1
+
+𝑦 𝑖𝑐 log (ℎ𝜃 (𝑥 𝑖 )𝑐 
+
+) . (11) Here, 𝑁 is the number of samples, 𝐾 is the number of classes, 𝑥 𝑖 represents the 𝑖 − 𝑡ℎ sample, ℎ𝜃 (𝑥 𝑖 )𝑐 is the predicted probability of sample 𝑥 𝑖 belonging to class 𝑐 , and 𝑦 𝑖𝑐 denotes the ground truth label for sample 𝑥 𝑖 .
+
+Instance segmentation: This task uses foreground masks from semantic segmentation and requires the compu-tation of instance centers and pixel offsets relative to the instance centers. The instance center loss 𝐿 𝑐𝑒 adopts mean   
+
+> :Preprint submitted to Elsevier Page 10 of 23
+
+squared error (MSE) [48]: 
+
+𝐿 𝑐𝑒 = 1
+
+𝑁 
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+
+(𝑦 𝑖 −̂𝑦 𝑖 )2, (12) where ̂𝑦 𝑖 is the predicted center for the 𝑖 − 𝑡ℎ sample and 𝑦 𝑖 is the corresponding ground truth. The MSE penalizes large errors in instance center prediction, encouraging the model to refine its accuracy. The instance offset loss 𝐿 𝑜𝑓 
+
+uses mean absolute error (MAE) [49]: 
+
+𝐿 𝑜𝑓 = 1
+
+𝑁 
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+
+|𝑦 𝑖 −̂𝑦 𝑖 |. (13) The MAE provides more stable gradients, which helps the model maintain consistent performance, especially in complex scenes with extreme values. 
+
+Orientation estimation: Orientation estimation calculates the angle of objects in the scene relative to the axis perpendicular to the ground. Considering that angles are continuous and periodic, a probability distribution model [50] based on the cosine and sine vector 𝑓 = (cos 𝜑, sin 𝜑 ) is employed to represent the angle 𝜑 . This model is a continuous probability distribution model on the circle, which can avoid discontinuities in the loss. The orientation loss 𝐿 𝑜𝑟 is defined as: 
+
+𝐿 𝑜𝑟 = 1 − 𝑒 𝜅 (𝑓 ⋅𝑡 −1) , (14) where 𝑡 is the target value, and 𝜅 serves as a hyperparameter that controls the penalty for large deviations between predicted and target values. 
+
+Scene classification: Scene classification aims to predict the scene category of the entire input image. For this task, we employ the cross-entropy loss 𝐿 𝑠𝑐 specifically designed for supervised classification tasks [51]. The loss is defined as: 
+
+𝐿 𝑠𝑐 = − 1
+
+𝑁 
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+
+log 
+
+(
+
+𝑒 𝑧 𝑖,𝑦 𝑖 
+
+∑𝐶 𝑗 =1 𝑒 𝑧 𝑖,𝑗 
+
+)
+
+, (15) where 𝑁 is the number of samples, 𝐶 is the number of classes, 𝑦 𝑖 is the true class label for the 𝑖 − 𝑡ℎ sample, and 𝑧 𝑖,𝑗 
+
+represents the model’s score for the 𝑗 − 𝑡ℎ class of the 𝑖 − 𝑡ℎ sample. For panoptic segmentation, which combines semantic and instance segmentation, no additional loss functions are computed during training. Instead, segmentation quality is assessed during the validation phase. By employing these loss functions and dynamically adjusting weights based on historical performance, the model achieves more flexible and effective multi-task learning. 
+
+## 4. Experiment 
+
+4.1. Experimental detail 
+
+4.1.1. Parameter setting 
+
+The experiments are conducted using the NYUv2 [13], SUN RGB-D [14], and Cityscapes [15] datasets. Training is performed on a single RTX 3090 Ti GPU. The software environment consists of PyTorch 2.0.1, Torchvision 0.15.2, CUDA 12.1, and Python 3.8.18. The model is optimized using the SGD optimizer, with a learning rate of 0.03, weight decay of 1 × 10 −4 , and momentum of 0.9. For the NYUv2 dataset, the input resolution is set to 640 × 480 , with a training and validation batch size of 8. The input resolution and training batch size for SUN RGB-D are identical to those of NYUv2, while the validation batch size is increased to 16. For the Cityscapes dataset, the input resolution is 
+
+1024 × 512 , and both the training and validation batch sizes are set to 6. The results for EMSAFormer [4] are obtained through experimental replication. The backbone of our model is based on FasterNet-M [44]. Comparative experiments include MetaFormer-M [52], MPViT-Base [53], Swin Transformer v2-T [5], and ConvNeXt v2-Base [54].                                                                 
+
+> :Preprint submitted to Elsevier Page 11 of 23 Table 1
+> Encoder comparison results on the NYUv2 dataset. The symbols ↑and ↓indicate whether higher or lower values are better, respectively. The best metric is indicated in bold .
+> Method Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> Swin v2 [5] 58.49 21.09 50.51 43.08 52.22 81.34 20.46 77.11 49.76
+> ConvNeXt v2 [54] 41.04 31.24 27.20 18.21 24.11 72.20 29.29 61.79 27.69 MPViT [53] 57.77 21.18 47.09 39.43 47.78 81.13 19.82 75.16 47.44 MetaFormer [53] 53.31 23.69 44.75 34.01 42.96 77.86 22.10 74.51 43.27 Ours 58.59 18.67 47.37 40.35 49.18 81.03 17.88 74.67 46.83
+
+4.1.2. Dataset 
+
+NYUv2 [13] dataset contains 795 training samples and 654 validation samples. It includes scene classification and 40 semantic categories. The ceiling, floor, and wall are considered background classes, while the remaining categories are treated as object classes. To avoid misguidance from small instances, the instances are restricted to cover at least 0.25 % of the area. Due to the lack of orientation labels in the original NYUv2 dataset, we utilize orientation annotations provided by EMSANet [3]. 
+
+SUN RGB-D [14] dataset includes 5,285 training samples and 5,050 validation samples. This dataset provides scene classification and 37 semantic categories but lacks instance-level segmentation and orientation labels. The original SUN RGB-D dataset provides 3D bounding boxes with class labels and orientations. First, establish a mapping between class labels and 3D bounding boxes to obtain instance information. Then, match the instance information with the 3D semantic point clouds to extract instance segmentation masks and orientations. 
+
+Cityscapes [15] dataset is a large-scale dataset designed for urban scene understanding. It contains 5,000 annotated images collected from 50 different cities, with 2,975 images for training, 500 for validation, and 1,525 for testing. Each image has a resolution of 2048 × 1024 pixels, providing fine-grained details for tasks such as semantic segmentation, instance segmentation, and object detection. 
+
+4.1.3. Evaluation metrics 
+
+To comprehensively assess performance, we use multiple evaluation metrics. For instance segmentation task, we employ panoptic quality (PQ) as the primary metric, which combines segmentation quality (SQ) and recognition quality (RQ) to measure the model’s ability to distinguish between different instances and categories. Additionally, for orientation estimation, we introduce the mean absolute angle error (MAAE), which calculates the average absolute error between predicted and true angles. In the semantic segmentation task, we use mean intersection over union (mIoU) to evaluate the degree of matching between predicted and ground-truth segmentation maps. For the scene classification task, we select balanced accuracy (bAcc) to ensure the model performs well even with imbalanced class distributions. In the panoptic segmentation task, we integrate mIoU, PQ, RQ, SQ, and MAAE to form a comprehensive and detailed evaluation system. 
+
+4.2. Ablation study 
+
+To validate the model’s effectiveness, we conduct ablation experiments on the NYUv2 dataset. We compare the improved fusion encoder with existing encoders and then separately evaluate the CFIL, NFCL, non-bottleneck 1D layer, and multi-task adaptive loss. Finally, we perform an ablation study on the entire model. 
+
+4.2.1. Fusion encoder 
+
+The encoder plays a critical role in feature extraction from inputs. We compare the improved fusion encoder with both convolutional and transformer-based architectures in scene understanding tasks. As shown in Table 1, our experiments reveal that the fully convolutional masked autoencoder ConvNeXt v2 falls short in dense prediction tasks, achieving an instance PQ of 41.04%. Similarly, the MPViT, designed specifically for dense prediction, struggles with multitasking scenes. In contrast, the fusion encoder excels with an instance PQ of 58.59%, outperforming other methods. While Swin Transformer v2 (Swin v2) shows strong performance, its frequent memory accesses lead to slower inference speed. Figure 8 displays the feature maps of these encoders. Swin v2 broadly highlights the scene information, but the object boundaries are relatively blurred. In contrast, the improved fusion encoder more clearly   
+
+> :Preprint submitted to Elsevier Page 12 of 23
+
+(a) RGB (b) Depth (c) Swin v2 (d) Ours 
+
+Figure 8: Feature visualization of backbones. We visualize the model inputs and the features extracted by Swin Transformer v2 and our method. Compared to the blurred features of Swin Transformer v2, our method more distinctly highlights objects in the scene, demonstrating better suitability for segmentation tasks. 
+
+Table 2 
+
+Comparison of context modules. We compare the proposed context feature interaction layer with existing context modules. They are used in the multi-layer feature fusion stage of the semantic decoder.                                                          
+
+> Method Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> SPPELAN [55] 58.79 19.18 47.55 41.09 49.60 81.66 18.18 77.39 46.51 ASPP [56] 58.75 18.14 48.40 41.81 50.51 81.61 17.83 76.73 47.98 SimSPPF [57] 58.34 19.07 47.62 40.56 49.12 81.37 18.03 74.70 46.40 RFB [58] 58.98 18.08 48.46 42.15 50.83 81.88 17.75 76.51 47.14 Ours 59.25 18.27 50.16 42.83 51.78 81.60 17.56 77.00 49.72
+
+Table 3 
+
+Comparison of the context feature interaction layer positions. P0: CFIL not used. P1: encoder. P2: instance decoder. P3: semantic decoder and instance decoder. P4: encoder and semantic decoder. Ours: semantic decoder.                                                                   
+
+> Method Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> P0 58.39 18.41 46.93 40.61 49.14 81.54 18.06 77.58 46.36 P1 59.37 19.34 48.39 41.81 51.02 80.78 18.58 76.23 47.72 P2 58.71 16.63 48.17 41.44 50.21 81.55 15.63 77.89 47.12 P3 59.49 17.90 48.99 42.40 51.24 81.56 17.25 75.08 49.25 P4 58.88 19.78 47.62 40.52 49.05 81.60 18.41 75.21 47.13 Ours 59.25 18.27 50.16 42.83 51.78 81.60 17.56 77.00 49.72
+
+emphasizes the object contours. This clarity of contours helps the model to more accurately segment target regions, thereby improving the performance of the segmentation task. 
+
+4.2.2. Context feature interaction layer 
+
+The context feature interaction layer is designed to capture multi-scale context information, thereby enhancing the model’s performance in complex scenes. Our study demonstrates the advantages of CFIL through comparisons with 
+
+: Preprint submitted to Elsevier Page 13 of 23 Table 4 
+
+Comparison of the normalized focus channel layers on the semantic decoder. L0: 1st, 2nd, 3rd, and 4th layers. L1: 2nd and 3rd layers. L2: 1st and 2nd layers. L3: 2nd, 3rd, and 4th layers. Ours: 1st, 2nd, and 3rd layers.                                                          
+
+> Method Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> L0 59.15 19.03 49.37 42.00 50.61 81.97 17.74 76.48 48.93 L1 58.78 19.88 49.24 42.52 51.60 81.21 18.08 74.64 48.88 L2 59.37 18.42 50.01 42.74 51.71 81.5 17.78 76.42 49.53 L3 58.97 18.03 48.41 41.65 50.32 81.76 17.41 76.35 48.45 Ours 59.90 19.64 50.21 43.21 52.58 81.20 18.79 76.57 49.82
+
+Table 5 
+
+Comparison of feature extraction modules. In the instance decoder layer, we compare the non-bottleneck 1D module with BasicBlock, Bottleneck, MobileBottleneck, and GhostBottleneck.                                                          
+
+> Method Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> BasicBlock [59] 58.51 18.40 49.33 42.29 51.17 81.45 17.40 76.87 49.17 Bottleneck [59] 57.97 18.80 50.33 41.97 50.93 81.23 18.20 76.41 50.26
+> MobileBottleneck [60] 58.24 20.45 48.46 40.85 49.45 81.38 19.54 75.03 48.66 GhostBottleneck [61] 58.14 20.29 48.93 41.82 51.02 80.74 19.72 75.86 48.75 Ours 59.25 18.27 50.16 42.83 51.78 81.60 17.56 77.00 49.72
+
+existing methods, as detailed in Table 2. Specifically, the CFIL achieves optimal values across six key performance metrics, with semantic mIoU and instance PQ reaching 49.72% and 59.25%, respectively. This result indicates that CFIL not only improves the quality of semantic foreground masks but also indirectly enhances the accuracy of instance segmentation. Furthermore, we explore the impact of the position of feature interaction on various tasks in Table 3. Due to the deeper layer in the instance branch, the additional feature interaction leads to limited improvements in panoptic quality. When CFIL is applied to the semantic branch, the model exhibits the most balanced performance, with a panoptic mIoU reaching 50.16%. 
+
+4.2.3. Normalized focus channel layer 
+
+The primary objective behind the design of the normalized focus channel layer is to enhance the representation capability of information from the shallow encoder layers. We implement NFCL guidance in the skip connection layers of the semantic decoder, which consist of four layers in total. As shown in Table 4, applying NFCL to the 1st, 2nd, and 3rd layers yields better performance compared to applying it to the 2nd, 3rd, and 4th layers. This suggests that the 4th layer’s encoder feature extraction is already effective and does not require additional guidance. Thus, placing NFCL in the 1st, 2nd, and 3rd layers optimizes the model’s performance, achieving a semantic mIoU of 49.82%. 
+
+4.2.4. Non-bottleneck 1D decoder 
+
+In the instance decoder, we evaluate the effectiveness of the non-bottleneck 1D module by comparing it with several commonly used feature extraction modules. In Table 5, GhostBottleneck [61] employs the Ghost module to reduce computational costs, but this approach cannot fully utilize the correlations between features. MobileBottleneck [60] relies heavily on depthwise separable convolution, leading to inadequate fusion of features across different layers. This limitation is particularly pronounced in dense prediction tasks. While the Bottleneck [59] module minimizes parameters and computational complexity through dimensionality reduction and expansion, this process can result in information loss. In contrast, the non-bottleneck 1D module uses 1D convolutions directly for feature extraction, which preserves the original feature dimensions. As a result, it achieves superior performance across six metrics, with an instance PQ of 59.25%. 
+
+4.2.5. Multi-task adaptive loss 
+
+Multi-task adaptive loss dynamically adjusts the focus of the model’s learning. The adjustment factor determines the extent of this adjustment. To select an appropriate adjustment magnitude, we conduct experiments with different 
+
+: Preprint submitted to Elsevier Page 14 of 23 (a) Loss comparison  
+
+> (b) Loss variance
+> Figure 9: Comparison plot of multi-task adaptive loss. Figure a and Figure b represent the loss comparison and loss variance, respectively. The blue line represents the original fixed-weight loss, while the orange line represents the multi-task adaptive loss. To make the comparison clearer, we record the loss values and variances from epoch 100 onward. Our method makes the training process more convergent and stable.
+
+adjustment factors. As shown in Table 6, decreasing the adjustment magnitude progressively improves the model’s learning effectiveness, demonstrating that multi-task learning benefits from fine-tuning. When the adjustment factor is 0.01, the model achieves the most balanced performance, with a semantic mIoU of 47.72% and a panoptic PQ of 41.81%. Additionally, we record the values of fixed-weight loss versus multi-task adaptive loss during training in Fig. 9a. The fixed-weight loss exhibits significant fluctuations during training. In contrast, multi-task adaptive loss converges more quickly and smoothly. Meanwhile, we conducted five experiments for each of the two loss functions and calculated the variance for each epoch across the five experiments. As shown in Fig. 9b, the multi-task adaptive loss demonstrates better convergence, indicating smaller differences across experiments and greater stability.   
+
+> :Preprint submitted to Elsevier Page 15 of 23
+
+Table 6 
+
+Comparison of adjustment factors for multi-task adaptive loss. "Fixed" represents the original fixed weight. The numbers denote the adjustment factors, with our method using an adjustment factor of 0.01.                                                          
+
+> Method Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> Fixed 58.59 18.67 47.37 40.35 49.18 81.03 17.88 74.67 46.83 0.1 57.66 19.90 47.17 40.05 49.05 80.63 19.15 72.99 47.21 0.05 58.86 19.06 47.72 40.07 48.74 80.96 18.33 73.59 46.74 0.02 59.40 19.02 48.25 41.56 50.34 81.44 18.21 74.59 47.63 0.01 59.37 19.34 48.39 41.81 51.02 80.78 18.58 76.23 47.72
+
+Table 7 
+
+Comparison results of the ablation study on the overall framework. Fusion: improved fusion encoder. Adaptive: multi-task adaptive loss. CFIL: context feature interaction layer. NFCL: normalized focus channel layer.                                                               
+
+> Fusion Adaptive CFIL NFCL Instance Panoptic Scene Semantic PQ ↑MAAE ↓mIoU ↑PQ ↑RQ ↑SQ ↑MAAE ↓bAcc ↑mIoU ↑
+> 58.49 21.09 50.51 43.08 52.22 81.34 20.46 77.11 49.76
+> ✓58.59 18.67 47.37 40.35 49.18 81.03 17.88 74.67 46.83
+> ✓✓59.37 19.34 48.39 41.81 51.02 80.78 18.58 76.23 47.72
+> ✓✓✓59.25 18.27 50.16 42.83 51.78 81.60 17.56 77.00 49.72
+> ✓✓✓✓59.90 19.64 50.21 43.21 52.58 81.20 18.79 76.57 49.82
+
+Table 8 
+
+Comparison results of model complexity. Based on EMSAFormer, we compare the proposed model with models using different encoders. The comparison metrics include the number of parameters, FLOPs, FPS, and video memory usage (VRAM).                                        
+
+> Method Params FLOPs FPS VRAM Semantic mIoU ↑Instance PQ ↑
+> EMSAFormer [4] 72.08 M 50.66 G16.32 3188 MiB 49.76 58.49 ConvNeXt v2 [54] 111.84 M 112.38 G 14.42 4592 MiB 27.69 41.04 MetaFormer [52] 76.14 M 72.06 G 12.01 3620 MiB 43.27 53.31 MPViT [53] 92.76 M 235.24 G 9.94 5266 MiB 47.44 57.77 Ours 71.82 M75.28 G 20.33 3293 MiB 49.82 59.90
+
+4.2.6. Framework 
+
+To assess the overall framework’s effectiveness, we conduct ablation experiments on each design component of the model, as shown in Table 7. Beginning with the baseline, we utilize the efficient fusion encoder, which improves feature fusion and enhances performance on the instance segmentation task. We then introduce multi-task adaptive loss, which dynamically adjusts the learning strategy for each task. This adjustment leads to improvements in six metrics, with instance PQ reaching 59.37%. Next, we incorporate CFIL into the semantic decoder to capture multi-scale context information. This addition results in improvements across eight metrics, including a 2-point increase in semantic mIoU, reaching 49.72%. Finally, we add NFCL to focus on local detail information, achieving gains in five metrics and a panoptic PQ of 43.21%. Figure 10 visualizes the ablation experiment results with panoptic heatmaps. The fusion encoder effectively reduces focus variations within the same object range compared to the baseline. The introduction of the adaptive learning strategy enhances the model’s ability to recognize furniture. Additionally, the cross-dimensional feature guidance from CFIL and NFCL strengthens the model’s focus on stacked objects, leading to more accurate scene representation. 
+
+4.3. Model complexity 
+
+We compare the complexity of the proposed model with other models. As shown in Table 8, our model achieves the lowest number of parameters at 71.82M, while maintaining low FLOPs and video memory usage. Benefiting from the utilization of redundant features, which reduces memory access frequency, our model achieves an FPS of 
+
+: Preprint submitted to Elsevier Page 16 of 23 (a) RGB (b) Depth (c) Baseline (d) Fusion (e) Adaptive (f) CFIL (g) NFCL                 
+
+> Figure 10: Visualization of the ablation experiment. We present the panoptic heatmaps for the model with the improvements: fusion encoder, multi-task adaptive loss, context feature interaction layer, and normalized focus channel layer. Benefiting from the adaptive learning strategy and cross-dimensional feature guidance, the model achieves more accurate recognition and contour representation.
+
+20.33, outperforming other methods. The transformer architecture has advantages over the convolutional architecture ConvNeXt v2 in terms of accuracy. However, as a convolutional architecture, the proposed model achieves the best precision, with a semantic mIoU of 49.82% and an instance PQ of 59.90%. 
+
+4.4. Comparison with SOTA methods 
+
+4.4.1. NYUv2 
+
+We compare our model with existing methods on the NYUv2 dataset. Since the only available method for comparison in multi-task scene understanding is the one proposed by Fischedick et al. [4], we compared our model with semantic segmentation networks. As shown in Table 9, benefiting from the depth information’s representation of spatial structure, the RGB-D methods achieve higher accuracy than the RGB methods. Our method achieves the best semantic mIoU score of 49.82% while performing multiple tasks simultaneously. Additionally, Figure 11 shows a comparison of panoptic segmentation maps. Typically, outdoor lighting can interfere with indoor scene segmentation. However, our method successfully identifies the complete window outlines. Furthermore, the segmentation of indoor potted plants and furniture is also more complete. 
+
+4.4.2. SUN RGB-D 
+
+To assess the model’s generalization performance across various scenes, we perform experiments on the SUN RGB-D dataset. As illustrated in Table 10, increasing the number of model layers allows CI-Net [33] to mitigate the limitations caused by missing depth information in the RGB modality. In comparison, our approach surpasses others, achieving a semantic mIoU score of 45.56%. Figure 12 showcases the panoptic segmentation maps. While reflections in the mirror can disrupt model perception, our model remains unaffected. In low-light conditions, it also provides more accurate segmentation of object contours. Additionally, in cases of object occlusion, our model effectively identifies the chair hidden behind the dining table. 
+
+4.4.3. Cityscapes 
+
+Typically, indoor models perform less effectively when applied to outdoor scenes. The proposed model is primarily designed for indoor scenes. To further assess its adaptability, we conducted experiments on the outdoor Cityscapes dataset with the resolution set to 1024 × 512. In Fig. 13, we present visual results at various stages of instance segmentation, semantic segmentation, and panoptic segmentation. Even with blurry depth input, the model effectively segments vehicles, buildings, and streetlights. Additionally, the semantic heatmap clearly highlights the model’s focus   
+
+> :Preprint submitted to Elsevier Page 17 of 23
+
+(a) RGB (b) Depth (c) Swin v2 (d) ConvNeXt v2 (e) MPViT (f) MetaFormer (g) Ours 
+
+Figure 11: Panoptic segmentation maps on NYUv2. Based on EMSAFormer, we compare our proposed model with models using different encoders. Our method withstands lighting variations and provides more complete segmentation of indoor plants and furniture. 
+
+Table 9 
+
+Comparison results on the NYUv2 dataset. We compare our proposed model with existing semantic segmentation models and list the input modalities and backbones of these models.                                                    
+
+> Method Mode Backbone Semantic mIoU ↑
+> MaskSup [62] RGB U-Net++ 39.31 DIANet [35] RGB ResNet50 42.60 MTML [63] RGB ResNet50 41.51 FDNet [64] RGB DenseNet264 47.40 PGT [65] RGB Swin-S 46.43 SOSD-Net [31] RGB DeepLabv3 +45.00 DenseMTL [34] RGB ResNet101 40.84 ZACN [66] RGB-D ResNet34 49.15 Malleable 2.5D [67] RGB-D ResNet50 49.70 ComPtr [68] RGB-D Swin-T 49.20 MKE [24] RGB-D ResNet101 48.88 Link-RGBD [20] RGB-D ResNet50 49.50 MMANet [22] RGB-D R34-NBt1D 49.62 SGACNet [21] RGB-D R34-NBt1D 49.40 EMSAFormer [4] RGB-D Swin v2 49.76 Ours RGB-D FasterNet-M 49.82
+
+on key objects. Notably, the segmentation result is unaffected by the occlusion of the vehicle logo. Furthermore, we compare the proposed model with existing methods in Table 11, showing superior performance with a semantic mIoU of 65.11%. 
+
+4.5. Limitation and discussion 
+
+Although the proposed RGB-D scene understanding model has made significant strides in performance, efficiency, and task adaptability, it still faces certain limitations and areas that warrant further exploration. The enhanced fusion encoder leverages redundant feature information by sampling only a subset of features to improve processing speed. However, achieving a better balance between accuracy and processing time remains an open challenge. Future optimizations could employ Neural Architecture Search (NAS) to tailor the model for hardware constraints 
+
+: Preprint submitted to Elsevier Page 18 of 23 (a) RGB (b) Depth (c) EMSAFormer (d) Ours 
+
+Figure 12: Panoptic segmentation maps on the SUN RGB-D dataset. We compare the panoptic segmentation maps of our proposed model with those of EMSAFormer. Our method accurately identifies and segments objects under low-lighting and occlusion conditions. 
+
+Table 10 
+
+Comparison results on the SUN RGB-D dataset. We compare our proposed model with existing semantic segmentation models, using semantic mIoU as the evaluation metric.                            
+
+> Method Mode Backbone Semantic mIoU ↑
+> DIANet [35] RGB ResNet50 43.10 CI-Net [33] RGB ResNet101 44.30 SSMA [23] RGB ResNet50 38.40 SSMA [23] RGB-D ResNet50 43.90 3DGNN [18] RGB-D VGG-Net 40.20 D-CNN [19] RGB-D VGG-Net 42.00 EMSAFormer [4] RGB-D Swin v2 44.13 Ours RGB-D FasterNet-M 45.56
+
+Table 11 
+
+Comparison results on the Cityscapes dataset. Semantic mIoU is adopted as the evaluation metric.                            
+
+> Method Mode Backbone Semantic mIoU ↑
+> IkshanaNet [69] RGB IkshanaNet 54.40 SegNet [70] RGB VGG-Net 56.10 ENet [71] RGB ENet 58.30 Lovasz [72] RGB ENet 63.06 ESPNet [73] RGB ESPNet 60.30 EMSANet [3] RGB-D ResNet34 NBt1D 41.92 EMSAFormer [4] RGB-D Swin v2 60.76 Ours RGB-D FasterNet-M 65.11
+
+[74]. Another key challenge is the scalability of high-resolution inputs. As computational complexity increases, the current implementation struggles to process very high-resolution images or videos. Therefore, exploring more efficient architectures or compression techniques that can handle higher-resolution data without compromising performance is an important avenue for future research. Additionally, the model assumes that RGB-D inputs are well-calibrated and noise-free, which is not always the case in real-world applications. Consumer-grade depth sensors are often affected by 
+
+: Preprint submitted to Elsevier Page 19 of 23 Figure 13: Visualization results on the Cityscapes dataset. We present the input information, ground truth (GT), the heatmap and segmentation map for semantic segmentation, as well as the instance center and offset for instance segmentation. 
+
+issues such as reflections, transparent surfaces, and sparse measurements at object boundaries. Improving robustness to sensor noise and calibration errors will be a valuable direction for future work. In real-world scenarios, symbolic reasoning could augment data-driven models to handle logical constraints [75], such as ensuring that tables and chairs must be supported by the floor. Moreover, the current approach processes frames independently and disregards the temporal consistency of the data stream. Leveraging past predictions to improve current estimates in dynamic scenes, for instance, through memory networks or 3D convolutions [76][77], could enhance consistency and reduce flickering in segmentation outputs. Beyond these technical discussions, several ethical considerations must be addressed for practical applications. Privacy concerns arise when deploying RGB-D sensors in sensitive areas, as continuous scene understanding may inadvertently capture sensitive personal information. Data anonymization protocols and strict access controls should be implemented to comply with privacy regulations. Moreover, failure cases such as misclassification in cluttered or occluded environments can lead to incorrect robotic decisions, potentially causing safety risks. Systematic evaluation and transparent reporting of such failure modes are necessary to build trust and ensure reliability. Robotic environmental perception encompasses a wide range of scene features. While our work bridges important gaps between theoretical advances and practical applications, real-world deployment will require careful consideration of safety-critical failure modes, ethical constraints, and domain-specific adaptation challenges. Future research should prioritize not only algorithmic improvements but also comprehensive evaluations under diverse, realistic conditions to ensure reliable performance across different environments. 
+
+## 5. Conclusion 
+
+This paper presents an efficient RGB-D scene understanding model that integrates semantic segmentation, instance segmentation, orientation estimation, panoptic segmentation, and scene classification tasks into a unified framework. The fusion encoder effectively extracts complementary features from both RGB and depth data, addressing the feature redundancy issue. The introduction of the normalized focus channel layer and the context feature interaction layer further guides the model to focus on regions with high information content and spatial structures. Additionally, a multi-task adaptive loss function is designed, allowing the model to adjust its learning strategy in real time based on data variations, thus enabling more flexible joint training and performance optimization. Extensive experiments on the NYUv2, SUN RGB-D, and Cityscapes datasets demonstrate that the model achieves superior performance and faster speed.   
+
+> :Preprint submitted to Elsevier Page 20 of 23
+
+Future research directions will focus on expanding the model’s capabilities through the integration of additional modalities, including thermal imaging and point cloud data, to enhance robustness across diverse environmental conditions. We intend to investigate advanced optimization techniques, such as model pruning, quantization, and neural architecture search, to reduce computational latency and resource requirements. Additionally, we will explore data-efficient learning paradigms, including semi-supervised and few-shot learning approaches, to improve the model’s applicability in situations with limited labeled data. 
+
+## References 
+
+[1] Songyou Peng, Kyle Genova, Chiyu Jiang, Andrea Tagliasacchi, Marc Pollefeys, Thomas Funkhouser, et al. Openscene: 3d scene understanding with open vocabularies. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 815–824, 2023. [2] Xiangchao Chang, Menghui Zhou, Xulong Wang, Po Yang, et al. Informative relationship multi-task learning: Exploring pairwise contribution across tasks’ sharing knowledge. Knowledge-Based Systems , page 112187, 2024. [3] Daniel Seichter, Söhnke Benedikt Fischedick, Mona Köhler, and Horst-Michael Groß. Efficient multi-task rgb-d scene analysis for indoor environments. In International Joint Conference on Neural Networks , pages 1–10. IEEE, 2022. [4] Söhnke Benedikt Fischedick, Daniel Seichter, Robin Schmidt, Leonard Rabes, and Horst-Michael Gross. Efficient multi-task scene analysis with rgb-d transformers. In International Joint Conference on Neural Networks , pages 1–10. IEEE, 2023. [5] Ze Liu, Han Hu, Yutong Lin, Zhuliang Yao, Zhenda Xie, Yixuan Wei, Jia Ning, Yue Cao, Zheng Zhang, Li Dong, et al. Swin transformer v2: Scaling up capacity and resolution. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 12009–12019, 2022. [6] Jongchan Park, Sanghyun Woo, Joon-Young Lee, and In So Kweon. A simple and light-weight attention module for convolutional neural networks. International Journal of Computer Vision , 128(4):783–798, 2020. [7] Eduardo Romera, José M Alvarez, Luis M Bergasa, and Roberto Arroyo. Erfnet: Efficient residual factorized convnet for real-time semantic segmentation. IEEE Transactions on Intelligent Transportation Systems , 19(1):263–272, 2017. [8] Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose M Alvarez, and Ping Luo. Segformer: Simple and efficient design for semantic segmentation with transformers. Advances in Neural Information Processing Systems , 34:12077–12090, 2021. [9] Yongtao Wu, Fanghui Liu, Grigorios Chrysos, and Volkan Cevher. On the convergence of encoder-only shallow transformers. Advances in Neural Information Processing Systems , 36:52197–52237, 2023. [10] Baijiong Lin, Feiyang Ye, Yu Zhang, and Ivor Tsang. Reasonable effectiveness of random weighting: A litmus test for multi-task learning. 
+
+Transactions on Machine Learning Research , pages 2835–8856, 2022. [11] Shikun Liu, Edward Johns, and Andrew J Davison. End-to-end multi-task learning with attention. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1871–1880, 2019. [12] Hengshuang Zhao, Jianping Shi, Xiaojuan Qi, Xiaogang Wang, and Jiaya Jia. Pyramid scene parsing network. In IEEE Conference on Computer Vision and Pattern Recognition , pages 2881–2890, 2017. [13] Nathan Silberman, Derek Hoiem, Pushmeet Kohli, and Rob Fergus. Indoor segmentation and support inference from rgbd images. In European Conference on Computer Vision , pages 746–760. Springer, 2012. [14] Shuran Song, Samuel P Lichtenberg, and Jianxiong Xiao. Sun rgb-d: A rgb-d scene understanding benchmark suite. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 567–576, 2015. [15] Marius Cordts, Mohamed Omran, Sebastian Ramos, Timo Rehfeld, Markus Enzweiler, Rodrigo Benenson, Uwe Franke, Stefan Roth, and Bernt Schiele. The cityscapes dataset for semantic urban scene understanding. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 3213–3223, 2016. [16] Angela Dai, Angel X Chang, Manolis Savva, Maciej Halber, Thomas Funkhouser, and Matthias Nießner. Scannet: Richly-annotated 3d reconstructions of indoor scenes. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5828–5839, 2017. [17] Andreas Geiger, Philip Lenz, Christoph Stiller, and Raquel Urtasun. Vision meets robotics: The kitti dataset. The International Journal of Robotics Research , 32(11):1231–1237, 2013. [18] Xiaojuan Qi, Renjie Liao, Jiaya Jia, Sanja Fidler, and Raquel Urtasun. 3d graph neural networks for rgbd semantic segmentation. In IEEE/CVF International Conference on Computer Vision , pages 5199–5208, 2017. [19] Weiyue Wang and Ulrich Neumann. Depth-aware cnn for rgb-d segmentation. In European Conference on Computer Vision , pages 135–150. Springer, 2018. [20] Peng Wu, Runze Guo, Xiaozhong Tong, Shaojing Su, Zhen Zuo, Bei Sun, and Junyu Wei. Link-rgbd: Cross-guided feature fusion network for rgbd semantic segmentation. IEEE Sensors Journal , 22(24):24161–24175, 2022. [21] Yang Zhang, Chenyun Xiong, Junjie Liu, Xuhui Ye, and Guodong Sun. Spatial-information guided adaptive context-aware network for efficient rgb-d semantic segmentation. IEEE Sensors Journal , 23(19):23512–23521, 2023. [22] Shicai Wei, Chunbo Luo, and Yang Luo. Mmanet: Margin-aware distillation and modality-aware regularization for incomplete multimodal learning. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 20039–20049, 2023. [23] Abhinav Valada, Rohit Mohan, and Wolfram Burgard. Self-supervised model adaptation for multimodal semantic segmentation. International Journal of Computer Vision , 128(5):1239–1285, 2020. [24] Zihui Xue, Sucheng Ren, Zhengqi Gao, and Hang Zhao. Multimodal knowledge expansion. In IEEE/CVF International Conference on Computer Vision , pages 854–863, 2021. [25] Bowen Cheng, Maxwell D Collins, Yukun Zhu, Ting Liu, Thomas S Huang, Hartwig Adam, and Liang-Chieh Chen. Panoptic-deeplab: A simple, strong, and fast baseline for bottom-up panoptic segmentation. In IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 12475–12485, 2020. 
+
+: Preprint submitted to Elsevier Page 21 of 23 [26] Sanket Kachole, Yusra Alkendi, Fariborz Baghaei Naeini, Dimitrios Makris, and Yahya Zweiri. Asynchronous events-based panoptic segmentation using graph mixer neural network. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 4082–4091, 2023. [27] Junwen He, Yifan Wang, Lijun Wang, Huchuan Lu, Bin Luo, Jun-Yan He, Jin-Peng Lan, Yifeng Geng, and Xuansong Xie. Towards deeply unified depth-aware panoptic segmentation with bi-directional guidance learning. In IEEE/CVF International Conference on Computer Vision ,pages 4111–4121, 2023. [28] Niccolò Cavagnero, Gabriele Rosi, Claudia Cuttano, Francesca Pistilli, Marco Ciccone, Giuseppe Averta, and Fabio Cermelli. Pem: Prototype-based efficient maskformer for image segmentation. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 15804– 15813, 2024. [29] Wentong Li, Yuqian Yuan, Song Wang, Jianke Zhu, Jianshu Li, Jian Liu, and Lei Zhang. Point2mask: Point-supervised panoptic segmentation via optimal transport. In IEEE/CVF International Conference on Computer Vision , pages 572–581, 2023. [30] Simon Vandenhende, Stamatios Georgoulis, Wouter Van Gansbeke, Marc Proesmans, Dengxin Dai, and Luc Van Gool. Multi-task learning for dense prediction tasks: A survey. IEEE Transactions on Pattern Analysis and Machine Intelligence , 44(7):3614–3633, 2021. [31] Lei He, Jiwen Lu, Guanghui Wang, Shiyu Song, and Jie Zhou. Sosd-net: Joint semantic object segmentation and depth estimation from monocular images. Neurocomputing , 440:251–263, 2021. [32] Dan Xu, Wanli Ouyang, Xiaogang Wang, and Nicu Sebe. Pad-net: Multi-tasks guided prediction-and-distillation network for simultaneous depth estimation and scene parsing. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 675–684, 2018. [33] Tianxiao Gao, Wu Wei, Zhongbin Cai, Zhun Fan, Sheng Quan Xie, Xinmei Wang, and Qiuda Yu. Ci-net: A joint depth estimation and semantic segmentation network using contextual information. Applied Intelligence , 52(15):18167–18186, 2022. [34] Ivan Lopes, Tuan-Hung Vu, and Raoul de Charette. Cross-task attention mechanism for dense multi-task learning. In IEEE/CVF Winter Conference on Applications of Computer Vision , pages 2329–2338, 2023. [35] Kejie Lyu, Yingming Li, and Zhongfei Zhang. Dual-dianet: A sharing-learnable multi-task network based on dense information aggregation. 
+
+Neurocomputing , 569:127035, 2024. [36] Shikun Liu, Edward Johns, and Andrew J Davison. End-to-end multi-task learning with attention. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1871–1880, 2019. [37] Hu Han, Anil K Jain, Fang Wang, Shiguang Shan, and Xilin Chen. Heterogeneous face attribute estimation: A deep multi-task learning approach. IEEE Transactions on Pattern Analysis and Machine Intelligence , 40(11):2597–2609, 2017. [38] Jitesh Jain, Jiachen Li, Mang Tik Chiu, Ali Hassani, Nikita Orlov, and Humphrey Shi. Oneformer: One transformer to rule universal image segmentation. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 2989–2998, 2023. [39] Jiayi Shen, Qi Wang, Zehao Xiao, Nanne Van Noord, and Marcel Worring. Go4align: Group optimization for multi-task alignment. Advances in Neural Information Processing Systems , 37:111382–111405, 2024. [40] Ahmed Agiza, Marina Neseem, and Sherief Reda. Mtlora: Low-rank adaptation approach for efficient multi-task learning. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 16196–16205, 2024. [41] Qiang Liu, Mengyu Chu, and Nils Thuerey. Config: Towards conflict-free training of physics informed neural networks. arXiv preprint arXiv:2408.11104 , 2024. [42] Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. Imagenet: A large-scale hierarchical image database. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 248–255, 2009. [43] Mingxing Tan. Efficientnet: Rethinking model scaling for convolutional neural networks. arXiv preprint arXiv:1905.11946 , 2019. [44] Jierun Chen, Shiu-hong Kao, Hao He, Weipeng Zhuo, Song Wen, Chul-Ho Lee, and S-H Gary Chan. Run, don’t walk: chasing higher flops for faster neural networks. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 12021–12031, 2023. [45] Yichao Liu, Zongru Shao, Yueyang Teng, and Nico Hoffmann. Nam: Normalization-based attention module. arXiv preprint arXiv:2111.12419 ,2021. [46] Alex Kendall, Yarin Gal, and Roberto Cipolla. Multi-task learning using uncertainty to weigh losses for scene geometry and semantics. In 
+
+IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7482–7491, 2018. [47] Evan Shelhamer, Jonathan Long, and Trevor Darrell. Fully convolutional networks for semantic segmentation. IEEE Transactions on Pattern Analysis and Machine Intelligence , 39(4):640–651, 2016. [48] Youngwan Lee and Jongyoul Park. Centermask: Real-time anchor-free instance segmentation. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 13906–13915, 2020. [49] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detection with region proposal networks. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelligence , 39(6):1137–1149, 2016. [50] Lucas Beyer, Alexander Hermans, and Bastian Leibe. Biternion nets: Continuous head pose regression from discrete training labels. In Pattern Recognition: 37th German Conference , pages 157–168. Springer, 2015. [51] Bolei Zhou, Agata Lapedriza, Aditya Khosla, Aude Oliva, and Antonio Torralba. Places: A 10 million image database for scene recognition. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelligence , 40(6):1452–1464, 2017. [52] Weihao Yu, Mi Luo, Pan Zhou, Chenyang Si, Yichen Zhou, Xinchao Wang, Jiashi Feng, and Shuicheng Yan. Metaformer is actually what you need for vision. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10819–10829, 2022. [53] Youngwan Lee, Jonghee Kim, Jeffrey Willette, and Sung Ju Hwang. Mpvit: Multi-path vision transformer for dense prediction. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7287–7296, 2022. [54] Sanghyun Woo, Shoubhik Debnath, Ronghang Hu, Xinlei Chen, Zhuang Liu, In So Kweon, and Saining Xie. Convnext v2: Co-designing and scaling convnets with masked autoencoders. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 16133–16142, 2023. [55] Chien-Yao Wang, I-Hau Yeh, and Hong-Yuan Mark Liao. Yolov9: Learning what you want to learn using programmable gradient information. 
+
+arXiv preprint arXiv:2402.13616 , 2024. 
+
+: Preprint submitted to Elsevier Page 22 of 23 [56] Liang-Chieh Chen, George Papandreou, Iasonas Kokkinos, Kevin Murphy, and Alan L Yuille. Deeplab: Semantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs. IEEE Transactions on Pattern Analysis and Machine Intelligence ,40(4):834–848, 2017. [57] Chuyi Li, Lulu Li, Hongliang Jiang, Kaiheng Weng, Yifei Geng, Liang Li, Zaidan Ke, Qingyuan Li, Meng Cheng, Weiqiang Nie, et al. Yolov6: A single-stage object detection framework for industrial applications. arXiv preprint arXiv:2209.02976 , 2022. [58] Songtao Liu, Di Huang, et al. Receptive field block net for accurate and fast object detection. In European Conference on Computer Vision ,pages 385–400. Springer, 2018. [59] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 770–778, 2016. [60] Andrew G. Howard, Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, Tobias Weyand, Marco Andreetto, and Hartwig Adam. Mobilenets: Efficient convolutional neural networks for mobile vision applications. arXiv preprint arXiv:1704.04861 , 2017. [61] Kai Han, Yunhe Wang, Qi Tian, Jianyuan Guo, Chunjing Xu, and Chang Xu. Ghostnet: More features from cheap operations. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1580–1589, 2020. [62] Hasib Zunair and A Ben Hamza. Masked supervised learning for semantic segmentation. arXiv preprint arXiv:2210.00923 , 2022. [63] Richa Upadhyay, Prakash Chandra Chhipa, Ronald Phlypo, Rajkumar Saini, and Marcus Liwicki. Multi-task meta learning: learn how to adapt to unseen tasks. In 2023 International Joint Conference on Neural Networks , pages 1–10. IEEE, 2023. [64] Mingmin Zhen, Jinglu Wang, Lei Zhou, Tian Fang, and Long Quan. Learning fully dense neural networks for image semantic segmentation. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 33, pages 9283–9290, 2019. [65] Yuxiang Lu, Shalayiding Sirejiding, Yue Ding, Chunlin Wang, and Hongtao Lu. Prompt guided transformer for multi-task dense prediction. 
+
+IEEE Transactions on Multimedia , 26:6375–6385, 2024. [66] Zongwei Wu, Guillaume Allibert, Christophe Stolz, Chao Ma, and Cédric Demonceaux. Depth-adapted cnns for rgb-d semantic segmentation. In Asian Conference on Computer Vision , pages 388–404. Springer, 2021. [67] Yajie Xing, Jingbo Wang, and Gang Zeng. Malleable 2.5 d convolution: Learning receptive fields along the depth-axis for rgb-d scene parsing. In European Conference on Computer Vision , pages 555–571. Springer, 2020. [68] Youwei Pang, Xiaoqi Zhao, Lihe Zhang, and Huchuan Lu. Comptr: Towards diverse bi-source dense prediction tasks via a simple yet general complementary transformer. arXiv preprint arXiv:2307.12349 , 2023. [69] Venkata Satya Sai Ajay Daliparthi. The ikshana hypothesis of human scene understanding. In Proceedings of the Satellite Workshops of ICVGIP 2021 , pages 161–181. Springer, 2022. [70] Vijay Badrinarayanan, Alex Kendall, and Roberto Cipolla. Segnet: A deep convolutional encoder-decoder architecture for image segmentation. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelligence , 39(12):2481–2495, 2017. [71] Adam Paszke, Abhishek Chaurasia, Sangpil Kim, and Eugenio Culurciello. Enet: A deep neural network architecture for real-time semantic segmentation. arXiv preprint arXiv:1606.02147 , 2016. [72] Maxim Berman, Amal Rannen Triki, and Matthew B Blaschko. The lovász-softmax loss: A tractable surrogate for the optimization of the intersection-over-union measure in neural networks. In IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 4413–4421, 2018. [73] Sachin Mehta, Mohammad Rastegari, Anat Caspi, Linda Shapiro, and Hannaneh Hajishirzi. Espnet: Efficient spatial pyramid of dilated convolutions for semantic segmentation. In European Conference on Computer Vision , pages 552–568, 2018. [74] Yang Zhang, Mingying Li, Huilin Pan, Moyun Liu, and Yang Zhou. Efficient visual fault detection for freight train via neural architecture search with data volume robustness. IEEE Transactions on Industrial Informatics , 2024. [75] Mingyu Zhang, Jiting Cai, Mingyu Liu, Yue Xu, Cewu Lu, and Yong-Lu Li. Take a step back: Rethinking the two stages in visual reasoning. In European Conference on Computer Vision , pages 124–141. Springer, 2024. [76] Huanlong Zhang, Jiamei Liang, Jiapeng Zhang, Tianzhu Zhang, Yingzi Lin, and Yanfeng Wang. Attention-driven memory network for online visual tracking. IEEE Transactions on Neural Networks and Learning Systems , 2023. [77] Sparsh Mittal et al. A survey of accelerator architectures for 3d convolution neural networks. Journal of Systems Architecture , 115:102041, 2021. 
+
+: Preprint submitted to Elsevier Page 23 of 23

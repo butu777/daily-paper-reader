@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-001.webp",
+      "caption": "Figure 3: Left: initial solution profiles for temperature, water vapor mixing ratio, raindrop number concentration, and rain mass mixing ratio obtained from a single column of input to P3. Right: corresponding fall speed vqr and characteristic speeds σsed,1 and σsed,2. The fall speed used in P3’s substepping calculations (vqr) is notably slower than the speed dictated by the largest sedimentation eigenvalue.",
+      "page": 11,
+      "index": 1,
+      "width": 783,
+      "height": 333
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-002.webp",
+      "caption": "Figure 12: Selected solution profiles at t = 300 s using the adaptive second-order ERK method with Rtol = 10−2. A comparison with the P3 method with ∆t = 300 s is also provided.",
+      "page": 25,
+      "index": 2,
+      "width": 820,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-003.webp",
+      "caption": "Figure 11: 2D histogram of pointwise log error estimate of the second-order ERK (ERK2) solution with adaptive time step and Rtol = 10−2 as a percentage relative to the reference solution.",
+      "page": 25,
+      "index": 3,
+      "width": 706,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-004.webp",
+      "caption": "Table 1: Integrator settings for the methods in Sections 4.2.3 and 4.2.4. Cells with — indicate not applicable.",
+      "page": 22,
+      "index": 4,
+      "width": 790,
+      "height": 731
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-005.webp",
+      "caption": "Figure 2: Selected solution profiles at 300 s using the P3 time integration method with ∆t = 300 s, 3.2768 s, and 0.4096 s.",
+      "page": 10,
+      "index": 5,
+      "width": 820,
+      "height": 217
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-006.webp",
+      "caption": "Figure 5: Predicted stability bound on time step for column 37 based on (i) CFL condition (see Equation 9), (ii) fall speeds (see Equation 11), and (iii) stability region of the forward Euler method when considering the rainshaft model (Equation 1) with sedimentation as the only active process. We compare these bounds with the time step selected by an adaptive time step approach in SUNDIALS with a second-order ERK method which uses an embedded first-order method to estimate temporal error and adapt the time step. The SUNDIALS controller performs well in correctly capturing the CFL condition (Equation 9).",
+      "page": 14,
+      "index": 6,
+      "width": 581,
+      "height": 364
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-007.webp",
+      "caption": "Figure 7: (Left) WRMSE of qr vs. local process time step when various operator splitting methods in SUNDIALS are applied to the rainshaft model. (Right) WRMSE of qr vs. total wall clock time to integrate all columns to t = 300 s. In both plots, the WRMS norm of the reference solution is provided by the dotted black line in order to contextualize the relative magnitude of the error estimates attained by each method. When the WMRSE of the solution provided by a particular method is equal to that of the WRMS norm of the reference solution, the relative WRMSE of that solution is 100%.",
+      "page": 18,
+      "index": 7,
+      "width": 820,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-008.webp",
+      "caption": "Figure 9: (Left) WRMSE vs. time step for explicit Runge–Kutta (ERK), diagonally implicit Runge–Kutta (DIRK), and implicit-explicit (ImEx) methods with fixed time steps. The result from the second-order operator splitting method from Section 4.1 is provided for comparison. (Right) WRMSE vs. total simulation wall clock time.",
+      "page": 23,
+      "index": 8,
+      "width": 820,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-009.webp",
+      "caption": "Figure 4: Inverse timescales for sedimentation, self-collection, and evaporation for 1000 columns from E3SM described in Section 2.2 at t = 0 s and t = 200 s. Generally, sedimentation timescales are faster than those of the other processes, although in some columns self-collection timescales are as fast as or faster than those of sedimentation. Additionally,",
+      "page": 13,
+      "index": 9,
+      "width": 820,
+      "height": 256
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-010.webp",
+      "caption": "Figure 8: (Left) WRMSE vs. local process time step when various operator splitting methods in SUNDIALS are applied to the rainshaft model with positivity and size limiters turned off for all methods. (Right) WRMSE vs. total wall clock time to integrate all columns to t = 300 s. In both panels, omitted points correspond to time steps for which the model aborted or produced NaN when no limiters were active.",
+      "page": 19,
+      "index": 10,
+      "width": 788,
+      "height": 346
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-011.webp",
+      "caption": "Figure 10: WRMSE vs. total simulation wall clock time for ARK (including explicit Runge–Kutta (ERK), diagonally implicit Runge–Kutta (DIRK), and implicit-explicit (ImEx)) and MRI-GARK methods with adaptive time stepping. The result from the second-order explicit method with fixed time steps from Section 4.2.3 is provided as a comparison.",
+      "page": 24,
+      "index": 11,
+      "width": 664,
+      "height": 483
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-012.webp",
+      "caption": "Figure 1: 2D histogram of pointwise log difference between highly-resolved reference and P3 solution with time steps of 300 s, 3.2768 s, and 0.4096 s, with the differences shown as percentages relative to the highly-resolved reference solution.",
+      "page": 9,
+      "index": 12,
+      "width": 623,
+      "height": 931
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11345v1/fig-013.webp",
+      "caption": "Figure 6: (a) Eigenvalues of the discrete sedimentation operator (blue circle) and the overall operator F (orange x) at t = 200 s for column 37. Stability regions for second, third, and fourth-order ERK methods are overlaid on the eigenvalues. (b) The predicted upper bounds on the time step based on the CFL condition (i.e., Equation 9, dotted line), the P3 approximate CFL condition (i.e., Equation 11, dashed-dotted line), stability bound of the forward Euler method (i.e., Equation 12, dashed blue line), and the time step chosen by a second-order ERK method with adaptive time step in SUNDIALS (dashed orange line) with a relative tolerance of 10−3. (c) and (d) The analogous plots for column 821.",
+      "page": 16,
+      "index": 13,
+      "width": 794,
+      "height": 695
+    }
+  ]
+}

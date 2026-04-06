@@ -1,0 +1,190 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-001.webp",
+      "caption": "Fig. 3: Overview of VIEW2SPACE task design. VIEW2SPACE comprises three task types: MCQ, counting, and visual grounding detection. Reasoning difficulty ranges from one-hop perceptual queries to multi-hop cross-view spatial reasoning.",
+      "page": 6,
+      "index": 1,
+      "width": 710,
+      "height": 282
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-002.webp",
+      "caption": "Table 5: Human Evaluation on VIEW2SPACE.",
+      "page": 25,
+      "index": 2,
+      "width": 662,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-003.webp",
+      "caption": "Fig. 19: Sample of detection tasks - 5",
+      "page": 38,
+      "index": 3,
+      "width": 558,
+      "height": 840
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-004.webp",
+      "caption": "Fig. 10: Sample of training data - 1",
+      "page": 26,
+      "index": 4,
+      "width": 552,
+      "height": 750
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-005.webp",
+      "caption": "Fig. 1: A single glance is often insufficient for completing real-world tasks. Humans naturally integrate observations across sparse viewpoints to form a shared spatial understanding. Given heterogeneous views (e.g., robotic dog and drone), one can efficiently align what different agents observe and reason across sparse viewpoints.",
+      "page": 2,
+      "index": 5,
+      "width": 723,
+      "height": 205
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-006.webp",
+      "caption": "Fig. 20: Sample of detection tasks - 6",
+      "page": 39,
+      "index": 6,
+      "width": 558,
+      "height": 894
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-007.webp",
+      "caption": "Fig. 9: Answer Distribution and Statistical Analysis of View2Space-V1",
+      "page": 22,
+      "index": 7,
+      "width": 700,
+      "height": 500
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-008.webp",
+      "caption": "Fig. 15: Sample of detection tasks - 1",
+      "page": 34,
+      "index": 8,
+      "width": 558,
+      "height": 840
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-009.webp",
+      "caption": "Fig. 4: Scaling Behaviour across Reasoning and Key-Object Visibility Difficulty (see Sec. 4.1). Each subplot plots mIoU versus task difficulty. Each curve corresponds to a specific dataset size, fitted over the averaged performance at each difficulty level (aggregated across multiple samples and weighted accordingly). The dense empirical dot plots and detailed results are provided in the appendix.",
+      "page": 14,
+      "index": 9,
+      "width": 723,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-010.webp",
+      "caption": "Fig. 14: Samples of multiple choice questioning tasks",
+      "page": 33,
+      "index": 10,
+      "width": 723,
+      "height": 1022
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-011.webp",
+      "caption": "Fig. 16: Sample of detection tasks - 2",
+      "page": 35,
+      "index": 11,
+      "width": 558,
+      "height": 840
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-012.webp",
+      "caption": "Fig. 12: Scaling behaviour across dataset size and difficulty. Each subplot reports mIoU. Empirical data points over dataset sizes (2B and 4B) are shown here.",
+      "page": 28,
+      "index": 12,
+      "width": 685,
+      "height": 462
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-013.webp",
+      "caption": "Fig. 17: Sample of detection tasks - 3",
+      "page": 36,
+      "index": 13,
+      "width": 558,
+      "height": 1082
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-014.webp",
+      "caption": "Fig. 7: (a) Verify Comparison Keys: check comparison keys across objects within a category; (b) Verify Tag Libraries: check the completeness of the tag library; (c) Verify Tag Assignment: check whether tags are correctly assigned.",
+      "page": 19,
+      "index": 14,
+      "width": 508,
+      "height": 750
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-015.webp",
+      "caption": "Fig. 5: Overview of VIEW2SPACE Scene Thematic Categories",
+      "page": 17,
+      "index": 15,
+      "width": 496,
+      "height": 690
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-016.webp",
+      "caption": "Table 2: Comparison on MINDCUBE-Tiny. The second column indicates whether models are fine-tuned on MINDCUBE (w Tuning vs. w/o Tuning).",
+      "page": 12,
+      "index": 16,
+      "width": 554,
+      "height": 509
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-017.webp",
+      "caption": "Fig. 11: Scaling behavior of Qwen3-VL-2B and Qwen3-VL-4B under Grounded Chainof-Thought with Visual Evidence training on VIEW2SPACE. Performance is reported across increasing training data sizes (1k–300k) for count (accuracy), MCQ (accuracy), and detection (mIoU) tasks. While both models benefit from additional data, MCQ performance exhibits diminishing returns beyond 100k samples—particularly for the 4B model—whereas detection tasks show a clear data threshold effect, with near-zero performance at very small scales and substantial gains once sufficient grounded supervision is provided.",
+      "page": 27,
+      "index": 17,
+      "width": 710,
+      "height": 248
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-018.webp",
+      "caption": "Table 4: Thinking vs. Non-Thinking Comparison on VIEW2SPACE-v1. The light blue region labelled “Direct” corresponds to inference without chain-of-thought reasoning, where the model produces the final answer directly.",
+      "page": 24,
+      "index": 18,
+      "width": 690,
+      "height": 655
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-019.webp",
+      "caption": "Table 1: Comparison on VIEW2SPACE-v1",
+      "page": 9,
+      "index": 19,
+      "width": 712,
+      "height": 477
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-020.webp",
+      "caption": "Fig. 18: Sample of detection tasks - 4",
+      "page": 37,
+      "index": 20,
+      "width": 558,
+      "height": 1086
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-021.webp",
+      "caption": "Fig. 13: Samples of counting task",
+      "page": 31,
+      "index": 21,
+      "width": 723,
+      "height": 898
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-022.webp",
+      "caption": "Fig. 8: For each RGB image (a), a high-resolution mesh (b) and the corresponding depth map (c) are provided, from which instance occlusion-aware 2D/3D bounding boxes (d/e) and segmentation masks (f) can be readily derived.",
+      "page": 20,
+      "index": 22,
+      "width": 723,
+      "height": 365
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16506v1/fig-023.webp",
+      "caption": "Fig. 2: Overview of the multi-view data engine. Stage 1: Assets are collected, categorized, and size-normalized, and annotated using OSD-Tag with verification. Stage 2: Given theme configurations defining asset categories and spatial relations, scenes are synthesized by sampling layouts under compositional constraints. Stage 3: Multi-view images are rendered together with physics-based metadata. Stage 4: Spatial relations are selected to automatically generate grounded question-answer pairs.",
+      "page": 5,
+      "index": 23,
+      "width": 717,
+      "height": 379
+    }
+  ]
+}

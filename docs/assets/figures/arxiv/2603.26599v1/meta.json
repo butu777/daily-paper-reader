@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-001.webp",
+      "caption": "Table 3 | Generalization Performance on Standard VBench Captions. Compared with the base model, prior post-training methods provide only limited gains and even degrade certain metrics, such as Imaging Quality. In contrast, VGGRPO achieves the best overall performance on most metrics among the base model and prior post-training baselines. These results show that VGGRPO transfers effectively to the standard VBench caption set, improving generation quality while maintaining robust generalization across diverse scenarios. The best and second-best results are highlighted in bold and underlined, respectively.",
+      "page": 25,
+      "index": 1,
+      "width": 967,
+      "height": 186
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-002.webp",
+      "caption": "Figure 1 | World-consistent Video Generations with VGGRPO. We compare the baseline video diffusion model (left, orange) with the VGGRPO-aligned model (right, green). Each example depicts a challenging dynamic scene; we visualize representative keyframes from the generated video and reconstructed scene geometry from the inferred 4D scene representation. VGGRPO produces markedly more coherent scene structure and smoother camera motion over time, reducing geometric drift and structural artifacts in challenging dynamic settings.",
+      "page": 2,
+      "index": 2,
+      "width": 983,
+      "height": 848
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-003.webp",
+      "caption": "Figure 3 | Qualitative Comparison on Static and Dynamic Scenes. We show the first, middle, and last frames of video generations for a static-scene prompt (left) and a dynamic-scene prompt (right), with a representative segment of each prompt shown at the top. All baselines exhibit inconsistent artifacts, including geometric drift, temporal flicker, and unstable camera motion. In contrast, VGGRPO produces more coherent scene structure with smoother camera trajectories across frames.",
+      "page": 10,
+      "index": 3,
+      "width": 983,
+      "height": 603
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-004.webp",
+      "caption": "Figure 4 | Reward Components Ablation. The reconstructed scene visualizes the estimated camera trajectory (red curve), with the first and last frames shown below each reconstruction. Compared to the Baseline, optimizing the motion reward 𝑟motion stabilizes camera motion, but geometric artifacts persist (green circle). Adding the reprojection consistency reward (𝑟motion+𝑟geo) further improves scene geometry while preserving smooth camera motion, proving the complementarity of both components.",
+      "page": 12,
+      "index": 4,
+      "width": 979,
+      "height": 365
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-005.webp",
+      "caption": "Figure 5 | Analysis of the Latent Geometry Model. We compare the latent geometry model with the original RGB-based geometry model on 50 RealEstate10K test sequences under controlled perturbations applied in the video latent space. The top row reports camera pose estimation performance as the perturbation scale 𝛼 increases, measured by relative rotation accuracy (left, Racc@5), area under the accuracy curve (middle, AUC@5), and relative translation accuracy (right, Tacc@5). Our latent geometry model maintains stable performance across all noise levels, whereas the RGB-based geometry model degrades substantially as the perturbation grows. The bottom row shows a decoded RGB frame from the perturbed latents at different values of 𝛼. Even when perturbations produce only barely perceptible visual changes in RGB space, the RGB-based geometry model already degrades, reflecting the distribution gap when applied to generated content rather than real images. Our latent geometry model, trained directly on generated latents, avoids this gap and remains robust.",
+      "page": 24,
+      "index": 5,
+      "width": 983,
+      "height": 413
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-006.webp",
+      "caption": "Table 1 | Quantitative Comparison. The best and runner-up results are shown in bold and underlined, respectively. In both static- and dynamic-scene benchmarks, our method consistently improves geometric consistency and overall video quality over baselines across different base models, demonstrating the effectiveness of latent-space geometry-aware post-training.",
+      "page": 9,
+      "index": 6,
+      "width": 983,
+      "height": 396
+    },
+    {
+      "url": "assets/figures/arxiv/2603.26599v1/fig-007.webp",
+      "caption": "Figure 2 | Method Overview. (a) Latent Geometry Model. We connect latents from the diffusion VAE encoder to a geometry foundation model via a lightweight connector, yielding a Latent Geometry Model that predicts 4D scene geometry directly from video latents. (b) VGGRPO training. We perform latent-space GRPO using two complementary rewards, camera motion smoothness and geometry reprojection consistency, computed entirely in latent space with the latent geometry model. Together, these components align the video diffusion model toward 4D world-consistent generation on both static and dynamic scenes.",
+      "page": 5,
+      "index": 7,
+      "width": 1111,
+      "height": 475
+    }
+  ]
+}

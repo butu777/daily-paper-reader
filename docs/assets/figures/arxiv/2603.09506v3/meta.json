@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09506v3/fig-001.webp",
+      "caption": "Figure 3. Stage-wise qualitative example of context-driven navigation. An episode where the agent must find a dresser described as “located next to the bed” and “a white dresser with a mirror on top”. Early dresser candidate is not selected because context objects are absent; after the bed is detected, the map concentrates around the corresponding room, frontier selection focuses on that area, and a dresser that satisfies both intrinsic attributes and 3D spatial relations with the bed and mirror is finally verified as the goal.",
+      "page": 7,
+      "index": 1,
+      "width": 982,
+      "height": 566
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09506v3/fig-002.webp",
+      "caption": "Figure 2. Overall pipeline of Context-Nav. Given RGB-D observations, odometry, and a free-form text goal, the perception and mapping modules use GOAL-CLIP, open-vocabulary detection, and 3D projection to build an occupancy map, a context-conditioned value map, and an instance-level map. Whenever a target object candidate is detected, the verification module checks intrinsic attributes with a VLM and extrinsic attributes through 3D spatial reasoning to decide whether to terminate or continue exploring.",
+      "page": 3,
+      "index": 2,
+      "width": 1032,
+      "height": 406
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09506v3/fig-003.webp",
+      "caption": "Table 1. Benchmark results on InstanceNav and CoIN-Bench. Comparison of RL-trained policies, training-free modular baselines, and the proposed Context-Nav on InstanceNav and the three CoIN-Bench splits (Val Seen, Val Seen Synonyms, Val Unseen). Input type c denotes a category-level goal specification, while d denotes a language description of the target.",
+      "page": 6,
+      "index": 3,
+      "width": 862,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09506v3/fig-004.webp",
+      "caption": "Figure 4. Qualitative results across diverse categories and context descriptions. Successful episodes on CoIN-Bench for nine different target categories, showing top-down trajectories and corresponding goal views. The instructions span a wide range of natural language, from captions that only specify extrinsic context to descriptions that combine intrinsic and extrinsic attributes, and from short hints to detailed multi-sentence goals.",
+      "page": 8,
+      "index": 4,
+      "width": 988,
+      "height": 920
+    }
+  ]
+}

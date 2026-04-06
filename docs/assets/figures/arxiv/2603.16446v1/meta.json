@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-001.webp",
+      "caption": "Table 2: Ablation study on Fidelity Encoder.",
+      "page": 11,
+      "index": 1,
+      "width": 534,
+      "height": 460
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-002.webp",
+      "caption": "Table 3: Inference time comparisons with several existing methods. Subscripts denote number of steps.",
+      "page": 25,
+      "index": 2,
+      "width": 706,
+      "height": 466
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-003.webp",
+      "caption": "Fig. 1: We compare our DiffUR3 pipeline with other methods on low-quality images with raindrops and reflections from our newly collected real-world benchmark. Specifically, (c) DAI [14] is designed for reflection removal, (d) A cascaded method, and (e) A re-trained all-in-one method (i.e., Histoformer [36] and † indicates re-trained on our dataset), (f) Our DiffUR3 pipeline jointly removes both degradations in a single pass.",
+      "page": 2,
+      "index": 3,
+      "width": 434,
+      "height": 379
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-004.webp",
+      "caption": "Fig. 4: (a) Overall pipeline of our DiffUR3 framework. Given a low-quality image Ilq, the restoration stage removes the undesired degradation to obtain the initial result Is. Both Ilq and Is are fed into the next stage as the condition images. We inject the effective condition information through a control branch, which outputs control signals for the noise prediction U-Net. (b) Details of the Modulate&Gate module within the control branch. (c) The generation of noisy latent zt during the training phase. Note that the noisy latent starts from random Gaussian noise during the inference.",
+      "page": 7,
+      "index": 4,
+      "width": 708,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-005.webp",
+      "caption": "Fig. 11: Visual results of various methods on our RDRF-testing. Superscript † means this method is re-trained on our RDRF-traing dataset. Please check and zoom in on screen for a better view.",
+      "page": 14,
+      "index": 5,
+      "width": 714,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-006.webp",
+      "caption": "Fig. 7: More visual results of various methods on our RDRF-wild dataset. Please check and zoom in on screen for a better view.",
+      "page": 23,
+      "index": 6,
+      "width": 648,
+      "height": 215
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-007.webp",
+      "caption": "Fig. 2: (a) Sketch diagram and actual equipment of our image acquisition platform. To suppress shutter-induced micro-vibrations which may potentially induce image misalignment, we implement a wireless triggering mechanism. It comprises a remote controller and a camera-mounted signal receiver, enabling contact-free shutter operation. (b) The data collection pipeline for our RDRF dataset. é denotes light occlusion",
+      "page": 4,
+      "index": 7,
+      "width": 533,
+      "height": 393
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-008.webp",
+      "caption": "Fig. 8: More visual results of various methods on our RDRF-wild dataset. Please check and zoom in on screen for a better view.",
+      "page": 24,
+      "index": 8,
+      "width": 714,
+      "height": 495
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-009.webp",
+      "caption": "Fig. 9: More visual results of various methods on our RDRF-testing dataset. Please check and zoom in on screen for a better view.",
+      "page": 24,
+      "index": 9,
+      "width": 714,
+      "height": 494
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16446v1/fig-010.webp",
+      "caption": "Fig. 3: Detail of re-designed Gate block for integrating multiple stage I models. The newly designed gate block aims to leverage the complementary advantages of multiple stage I models, since single stage I may not be able to provide comprehensive degradation-aware cues.",
+      "page": 20,
+      "index": 10,
+      "width": 714,
+      "height": 354
+    }
+  ]
+}

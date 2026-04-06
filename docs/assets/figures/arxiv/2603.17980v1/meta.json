@@ -1,0 +1,134 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-001.webp",
+      "caption": "Fig. 3: Illustration of asymmetric cross-modal feature fusion.",
+      "page": 6,
+      "index": 1,
+      "width": 716,
+      "height": 213
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-002.webp",
+      "caption": "Table 3: Evaluation of 3D scene understanding tasks. \"–\" indicates the number is not available. For ScanRefer, the content in \"()\" indicates results with proposal refinement [29]. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively.",
+      "page": 11,
+      "index": 2,
+      "width": 652,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-003.webp",
+      "caption": "Table 8: Full evaluation Results on ScanQA [3]. We use the val set of ScanQA for evaluation. Reported metrics include EM-1, BLEU-1 to BLEU-4, METEOR, ROUGEL, and CIDEr. \"–\" indicates the number is not available. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively.",
+      "page": 25,
+      "index": 3,
+      "width": 725,
+      "height": 456
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-004.webp",
+      "caption": "Table 9: Evaluation Results on SQA3D [43]. We use the test set of SQA3D for evaluation. We additionally report the average EM@1 for different question types, including What, Is, How, Can, Which, and Others. \"–\" indicates the number is not available. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively.",
+      "page": 25,
+      "index": 4,
+      "width": 725,
+      "height": 389
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-005.webp",
+      "caption": "Fig. 5: Qualitative examples on ScanQA [3].",
+      "page": 26,
+      "index": 5,
+      "width": 719,
+      "height": 503
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-006.webp",
+      "caption": "Fig. 6: Qualitative examples on SQA3D [43].",
+      "page": 26,
+      "index": 6,
+      "width": 719,
+      "height": 502
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-007.webp",
+      "caption": "Fig. 1: Comparison of (a) 3D-input, (b) 2D-input, and (c) our egomotion-input approaches for spatial reasoning in MLLMs.",
+      "page": 2,
+      "index": 7,
+      "width": 725,
+      "height": 217
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-008.webp",
+      "caption": "Table 2: Evaluation Results on VSI-Bench [59]. For baselines, we follow the setting of VSI-Bench to set frame numbers. For Motion-MLLM, we utilize the keyframes selected by its motion-visual keyframe filtering module.",
+      "page": 10,
+      "index": 8,
+      "width": 725,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-009.webp",
+      "caption": "Table 5: Ablation study on ScanQA [3] and SQA3D [43]. “Full MV Filtering” refers to evaluating all criteria on every frame during motion-visual keyframe filtering. “Concat+MLP” first concatenates the 2D visual and egomotion tokens along the feature dimension, followed by an MLP to transform them into the embedding space.",
+      "page": 14,
+      "index": 9,
+      "width": 652,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-010.webp",
+      "caption": "Table 7: Training and evaluation data statistics. All training sets are derived from ScanNet [18]. †Scan2Cap reuses ScanRefer annotations with a different task formulation.",
+      "page": 23,
+      "index": 10,
+      "width": 686,
+      "height": 230
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-011.webp",
+      "caption": "Fig. 8: Qualitative examples of visual grounding on ScanRefer [12].",
+      "page": 28,
+      "index": 11,
+      "width": 716,
+      "height": 492
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-012.webp",
+      "caption": "Fig. 9: Qualitative examples of dense captioning on Scan2Cap [16].",
+      "page": 28,
+      "index": 12,
+      "width": 721,
+      "height": 477
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-013.webp",
+      "caption": "Fig. 7: Qualitative examples on VSI-Bench [59].",
+      "page": 27,
+      "index": 13,
+      "width": 718,
+      "height": 1096
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-014.webp",
+      "caption": "Fig. 4: Prompts used for each task in Motion-MLLM. All tasks share the same system prompt and receive video frames along with IMU data as input. Each task uses a task-specific user prompt with a unified <answer> tag format for response extraction.",
+      "page": 24,
+      "index": 14,
+      "width": 717,
+      "height": 525
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-015.webp",
+      "caption": "Table 1: Evaluation Results on ScanQA [3] and SQA3D [43]. We use the val set of ScanQA and test set of SQA3D for evaluation. “–” indicates the number is not available. “2D”, “3D”, and “M” specify the model’s input type as 2D data (images/videos), 3D data (point clouds/depth maps), and egomotion data, respectively.",
+      "page": 9,
+      "index": 15,
+      "width": 725,
+      "height": 579
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17980v1/fig-016.webp",
+      "caption": "Fig. 2: Architecture of Motion-MLLM. The \\ and icons indicate trainable and frozen modules, respectively.",
+      "page": 5,
+      "index": 16,
+      "width": 717,
+      "height": 375
+    }
+  ]
+}

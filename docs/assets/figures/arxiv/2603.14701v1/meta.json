@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-001.webp",
+      "caption": "Figure 1: Performance of depth foundation models under",
+      "page": 1,
+      "index": 1,
+      "width": 508,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-002.webp",
+      "caption": "Figure 4: (a) AURORA-KITTI vs. real adverse weather (MUSES) [14]. Comparison across day/night and fog/rain/snow",
+      "page": 6,
+      "index": 2,
+      "width": 1029,
+      "height": 464
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-003.webp",
+      "caption": "Figure 8: The benchmarking qualitative visualisation results on the AURORA-KITTI dataset under night and snowy conditions.",
+      "page": 11,
+      "index": 3,
+      "width": 929,
+      "height": 998
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-004.webp",
+      "caption": "Figure 7: The benchmarking qualitative visualisation results on the AURORA-KITTI dataset under foggy and rainy conditions.",
+      "page": 10,
+      "index": 4,
+      "width": 929,
+      "height": 993
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-005.webp",
+      "caption": "Figure 5: Clean structural prior distillation. During training, a frozen depth foundation teacher predicts a dense prior from",
+      "page": 8,
+      "index": 5,
+      "width": 979,
+      "height": 290
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-006.webp",
+      "caption": "Figure 6: LiDAR realism under adverse weather. Range-",
+      "page": 8,
+      "index": 6,
+      "width": 466,
+      "height": 323
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-007.webp",
+      "caption": "Figure 2: The proposed depth completion and denoising",
+      "page": 4,
+      "index": 7,
+      "width": 498,
+      "height": 350
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-008.webp",
+      "caption": "Figure 3: The simulation pipeline for both the RGBL and the",
+      "page": 4,
+      "index": 8,
+      "width": 498,
+      "height": 344
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-009.webp",
+      "caption": "Figure 9: Visualisation of results with the pretrained model",
+      "page": 12,
+      "index": 9,
+      "width": 496,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14701v1/fig-010.webp",
+      "caption": "Table 5",
+      "page": 9,
+      "index": 10,
+      "width": 504,
+      "height": 328
+    }
+  ]
+}

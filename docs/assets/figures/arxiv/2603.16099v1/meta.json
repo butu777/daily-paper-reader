@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-001.webp",
+      "caption": "Figure 3: Visualization of the effects of appearance injection and semantic distillation. We visualize the reconstruction results with and without appearance injection and present feature visualizations with and without semantic distillation.",
+      "page": 6,
+      "index": 1,
+      "width": 743,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-002.webp",
+      "caption": "Figure 4: Qualitative visual results on one-view-based novel view generation.",
+      "page": 7,
+      "index": 2,
+      "width": 744,
+      "height": 303
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-003.webp",
+      "caption": "Table 3: WorldScore-style reference-free evaluation results. We report results on WorldScore-Indoor and on DL3DV as an outdoor benchmark.",
+      "page": 10,
+      "index": 3,
+      "width": 822,
+      "height": 206
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-004.webp",
+      "caption": "Figure 7: Qualitative visualization of the ablation study under the 1-view-based NVS setting. We compare the full model with variants without Cross-View Correspondence and without Manifold-Drift Forcing.",
+      "page": 10,
+      "index": 4,
+      "width": 738,
+      "height": 324
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-005.webp",
+      "caption": "Figure 8: Prediction space comparison on single-scene overfitting. We overfit a single training scene for 2000 iterations and visualize the fitting results at different training steps. Compared to v-prediction, x0-prediction converges faster and reaches higher-fidelity structure and appearance under the same optimization budget.",
+      "page": 14,
+      "index": 5,
+      "width": 781,
+      "height": 568
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-006.webp",
+      "caption": "Figure 10: Additional visualizations (II). More 3DGS structure visualizations with novel-view RGB renderings and depth map visualizations for OneWorld-generated 3D scenes.",
+      "page": 18,
+      "index": 6,
+      "width": 784,
+      "height": 994
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-007.webp",
+      "caption": "Table 6: Ablation on CVC hyperparameters evaluated on RealEstate10K under the 1-view NVS setting. Top: threshold τ (fix λcvc=0.2). Bottom: CVC weight λcvc (fix τ=0.9).",
+      "page": 13,
+      "index": 7,
+      "width": 777,
+      "height": 271
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-008.webp",
+      "caption": "Figure 5: Visualization of 3DGS and rendered novel views.",
+      "page": 8,
+      "index": 8,
+      "width": 742,
+      "height": 439
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-009.webp",
+      "caption": "Figure 2: Overview of the proposed OneWorld framework. (a) We construct a unified 3D representation space by introducing appearance injection and semantic distillation. (b) During DiT [42] training, we incorporate cross-view correspondence, preserving cross-view geometric token correspondences from the target view to the conditioned view. (c) Manifold-drift forcing: we augment the original 3D manifold by mixing ground-truth 3D features with sampled 3D features, enabling a more robust 3D decoder.",
+      "page": 4,
+      "index": 9,
+      "width": 826,
+      "height": 456
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-010.webp",
+      "caption": "Figure 11: More examples. Additional 3DGS-rendered novel-view RGB images and the corresponding depth map visualizations for OneWorld-generated 3D scenes.",
+      "page": 19,
+      "index": 10,
+      "width": 784,
+      "height": 914
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16099v1/fig-011.webp",
+      "caption": "Figure 9: Additional visualizations (I). 3DGS structure visualizations and the corresponding novelview RGB renderings and depth map visualizations for OneWorld-generated 3D scenes.",
+      "page": 17,
+      "index": 11,
+      "width": 784,
+      "height": 985
+    }
+  ]
+}

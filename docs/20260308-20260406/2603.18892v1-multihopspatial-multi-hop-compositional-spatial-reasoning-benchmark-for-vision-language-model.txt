@@ -1,0 +1,1505 @@
+Title: MultihopSpatial: Multi-hop Compositional Spatial Reasoning Benchmark for Vision-Language Model
+
+URL Source: https://arxiv.org/pdf/2603.18892v1
+
+Published Time: Fri, 20 Mar 2026 01:24:41 GMT
+
+Number of Pages: 31
+
+Markdown Content:
+# MultihopSpatial: Multi-hop Compositional Spatial Reasoning Benchmark for Vision-Language Model 
+
+Youngwan Lee ⋆1,2, Soojin Jang ⋆1, Yoorhim Cho 1, Seunghwan Lee 3,Yong-Ju Lee 1, and Sung Ju Hwang 2,4 
+
+> 1
+
+Electronics and Telecommunications Research Institute, South Korea  
+
+> 2
+
+Korea Advanced Institute of Science and Technology, South Korea  
+
+> 3
+
+Sungkyunkwan University, South Korea  
+
+> 4
+
+DeepAuto, South Korea Project page: https://youngwanlee.github.io/multihopspatial 
+
+Abstract. Spatial reasoning is foundational for Vision-Language Mod-els (VLMs), particularly when deployed as Vision-Language-Action (VLA) agents in physical environments. However, existing benchmarks predomi-nantly focus on elementary, single-hop relations, neglecting the multi-hop compositional reasoning and precise visual grounding essential for real-world scenarios. To address this, we introduce MultihopSpatial , offer-ing three key contributions: (1) A comprehensive benchmark designed for multi-hop and compositional spatial reasoning, featuring 1- to 3-hop complex queries across diverse spatial perspectives. (2) Acc@50IoU ,a complementary metric that simultaneously evaluates reasoning and visual grounding by requiring both answer selection and precise bound-ing box prediction—capabilities vital for robust VLA deployment. (3) 
+
+MultihopSpatial-Train , a dedicated large-scale training corpus to fos-ter spatial intelligence. Extensive evaluation of 37 state-of-the-art VLMs yields eight key insights, revealing that compositional spatial reasoning remains a formidable challenge. Finally, we demonstrate that reinforce-ment learning post-training on our corpus enhances both intrinsic VLM spatial reasoning and downstream embodied manipulation performance. 
+
+1 Introduction 
+
+The recent surge of interest in physical AI has accelerated the development of em-bodied agents, particularly Vision-Language-Action (VLA) models [7,21,22,36]. These agents fundamentally rely on Vision-Language Models (VLMs) for spatial reasoning to interact with the real world. However, existing VLMs often lack precise visual grounding, leading to significant difficulties in accurate perception and action execution within VLA frameworks [10, 18, 43, 44]. In complex envi-ronments, agents must execute multi-step, compositional spatial reasoning and accurately localize targets to succeed. As illustrated in Fig. 1, an instruction  
+
+> ⋆
+
+Equal contribution  
+
+> arXiv:2603.18892v1 [cs.CV] 19 Mar 2026 2Y. Lee et al.
+> Fig. 1: A multi-hop spatial reasoning example for an embodied agent in the real-world scenario.
+
+like “ Could you move the round cup on my right—the one furthest away? ” re-quires an agent to adopt an ego-centric perspective, isolate the target position, filter by attributes, and compare relations. This internal reasoning perfectly mir-rors a diagnostic multi-hop multiple-choice question (MCQ) coupled with exact bounding box prediction. Ultimately, an agent can only successfully navigate and manipulate an object if it accurately answers the query and visually grounds the target. Despite rapid advancements, existing spatial reasoning benchmarks largely focus on single-hop queries, such as verifying elementary relations like "Is X to the right of Y?" [13, 19, 25, 27, 37]. As depicted in the left panel of Fig. 2, these datasets typically evaluate spatial understanding through standard MCQs with-out requiring spatial localization. This design not only fails to capture the com-positional reasoning required in dynamic physical environments but also leaves a significant spatial blind spot in VLM evaluation [3], as models can often se-lect the correct answer without genuinely locating the target. Furthermore, while some recent efforts provide training sets alongside their benchmarks [19,39], they typically do not extend their validation to end-to-end VLA execution, leaving a profound gap between VLM spatial reasoning metrics and actual embodied action performance. To bridge this gap, we introduce MultihopSpatial , a comprehensive bench-mark evaluating multi-hop, compositional spatial reasoning paired with visual grounding. It comprises 4,500 QA pairs spanning 1- to 3-hop complexities across attribute, position, and relation dimensions, encompassing both ego-centric and exo-centric viewpoints to mirror real-world interactions. To ensure robust eval-uation for VLA deployment, we introduce a complementary grounded metric, 
+
+Acc@50IoU , which considers an answer correct only if the predicted bounding box overlaps the ground-truth by at least 50% IoU. The critical necessity of this metric is starkly illustrated in Fig. 2 (right): while frontier VLMs achieve super-ficially high standard MCQ accuracy (solid bars), their performance plummets under Acc@50IoU (striped bars). This severe discrepancy confirms that standard MCQs mask a profound lack of spatial grounding, validating Acc@50IoU as an essential tool to expose genuine capabilities. Finally, we provide a 6,791-sample training set, validating the dataset’s utility not merely as an evaluation tool, but as a potent corpus for enhancing downstream VLA performance. MultihopSpatial 3Q. From the perspective of the person wearing white , who                   
+
+> among the sitting people to his right is closest to him?
+> (a) woman holding white bowl
+> (b) woman in black holding food
+> (c) man in black holding food
+> (d) person with sunglasses on head
+> Gemini 3 Flash
+> Claude Sonnet 4.5
+> GPT 5.2
+> GT bbox : [0.52, 0.34, 0.71, 0.64]
+> GPT 5.2
+> 3-Hop Accuracy
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+
+Benchmark 
+
+> MultihopSpatial
+
+Existing Benchmarks                        
+
+> 3DSRBench Q: Consider the real -
+> world 3D locations of the
+> objects. Which object has
+> a higher location?
+> (a) teddy bear
+> (b) bushes
+> SpatialMQA
+> OmniSpatial
+> Q: Where is the bicycle
+> located relative to the
+> fire hydrant?
+> (a) in front of
+> (c) left of
+> (b )behind
+> (d) right of
+> Q: From the player in the
+> white jersey's view, where
+> is the referee?"
+> (a) l eft
+> (c) can not determine
+> (b )right
+> GPT -5.2: (c) left of
+> Claude Sonnet 4.5 :(c) left of
+> Gemini 3 Flash :(c) left of
+> GPT -5.2: (b) right
+> Claude Sonnet 4.5 :(b) r ight
+> Gemini 3 Flash :(b) right
+> GPT -5.2: (a) teddy bear
+> Claude Sonnet 4.5 :(a) teddy bear
+> Gemini 3 Flash :(a) teddy bear
+> :(d)
+> :(a)
+> :(b)
+> [0.05, 0.31, 0.42, 0.80]
+> [0.42, 0.31, 0.17, 0.28]
+> [0.68, 0.43, 0.99, 0.87]
+
+Fig. 2: Comparison of existing benchmarks (single-hop) and MultihopSpa-tial benchmark. In the question text, colored spans denote the queried reasoning components: Perspective, Attribute, Position, and Relation. 
+
+We extensively evaluate 37 VLMs, encompassing state-of-the-art commer-cial, open-weight, and specialized spatial reasoning models. Our findings reveal that multi-hop spatial reasoning remains a formidable challenge; for instance, a highly capable reasoning model ( e.g ., GPT-5.2-Thinking) drops from 45.8% in standard MCQ to a mere 9.4% under our grounded metric on MultihopSpatial 3-Hop in Fig. 2 (right). Beyond evaluation, we leverage the MultihopSpatial-Train set to post-train a base VLM using reinforcement learning ( e.g ., GRPO [34]). Our experiments demonstrate that this RL post-training not only enhances the model’s intrinsic multi-hop spatial reasoning capabilities across five benchmarks but also translates to improved performance in two downstream embodied VLA tasks. Our main contributions are summarized as follows: 
+
+– MultihopSpatial: A novel benchmark jointly evaluating multi-hop, com-positional spatial reasoning and visual grounding in VLMs. 
+
+– Acc@50IoU: A complementary grounded metric requiring both correct an-swer selection and precise bounding box prediction, eliminating the blind spot of traditional MCQs. 
+
+– MultihopSpatial-Train: A dedicated corpus where RL post-training en-hances both intrinsic VLM spatial intelligence and downstream VLA manip-ulation performance. 
+
+2 Related Work 
+
+VLM spatial reasoning benchmarks have rapidly evolved from elementary rela-tions (SpatialVLM [9], BLINK [14]) to diverse dimensions, including 3D prop-4 Y. Lee et al. 3-Hop           
+
+> POS -REL -ATT 50 %
+> POS -REL -ATT 50 %
+> Exo -centric View
+> Ego -centric View
+> Description Category
+> Visual properties (Texture, Shape, Color, Pattern, Material, etc.) Attribute (ATT)
+> Spatial location and orientation (Left, Right, Behind, In front of, etc.) Position (POS)
+> Spatial relationship (Close, Far, High, Low, etc.) Relation (REL)
+> 1-Hop
+> POS 13.1 %
+> REL 36.9 %
+> POS 19.0 %
+> REL 31.0 %
+> 2-Hop
+> POS -ATT 12.1 %
+> ATT -REL 13.8 %
+> REL -POS 24.1 %
+> POS -ATT 14.3 %
+> ATT -REL 15.9 %
+> REL -POS 19.7 %
+
+Fig. 3: Compositional structure and category definitions in MultihopSpatial. 
+
+erties (3DSRBench [27]), video (VSI-Bench [40]), scale (SpatialScore [39]), real-world complexity (SpatiaLab [37]), fine-grained taxonomies (OmniSpatial [19]), multi-image contexts (MMSI-Bench [42]), and perspectives (SpatialMQA [25]). However, they predominantly rely on single-hop queries, under-evaluating the compositional reasoning essential for real-world scenarios. MultihopSpatial ad-dresses this by introducing 1- to 3-hop complex queries. Crucially, we advance beyond standard MCQs with a grounded metric requiring both correct answer selection and precise spatial localization, ensuring evaluations explicitly reflect the visual grounding vital for VLA deployment. 
+
+3 MultihopSpatial 
+
+3.1 Overview 
+
+We introduce MultihopSpatial , a 4.5K-sample benchmark of manually anno-tated VQA pairs focusing on multi-hop, compositional spatial queries common in real-world scenarios. Each example provides ground-truth bounding boxes to jointly evaluate reasoning and spatial localization, which is crucial for embod-ied/VLA settings ( e.g ., grasping and action). This grounded design improves interpretability and eliminates the evaluation blind spot of random guessing. 
+
+3.2 Dataset Construction Data Source, Annotation and Verification. We curate 3,563 spatially complex images from COCO [23] and PACO-Ego4D [32], ensuring diverse cov-erage of everyday indoor/outdoor scenes and ego/exo perspectives. Upon these images, we construct 4,500 multiple-choice questions (MCQs), perfectly balanced across 1- to 3-hop reasoning levels (1,500 per hop) and viewpoints (750 ego-centric and 750 exo-centric per hop). To completely eliminate the reliability concerns and hallucinations inherent in AI-generated data, all QA pairs and bounding boxes were strictly annotated by ten trained human experts. Each sample underwent a rigorous multi-stage verification process with three rounds of independent cross-checking. Finally, MultihopSpatial 5Q. From the perspective of the person                                                             
+
+> wearing a gray short -sleeved T -shirt ,
+> which standing person is to his left ?
+> (a) person wearing a pink dress
+> (b) child wearing a checkered shirt
+> (c) headset -wearing person
+> (d) person wearing earrings
+> Ego -centric View
+> ATT -POS
+> Q. From the perspective of the person
+> wearing jeans , which square or
+> rectangular object is closest to them?
+> (a) air vent
+> (b) silver basket with bottle
+> (c) envelope on bed
+> (d) picture frame ATT -REL
+> Q. From the perspective of the child
+> wearing a sleeveless shirt , which object
+> to the right of the child is highest ?
+> (a) laptop with a visible screen
+> (b) ceiling light
+> (c) cellphone
+> (d) white mug POS -REL
+> Exo -centric View
+> Q. Which object is farthest and in front
+> of the black door?
+> (a) person
+> (b) red sign
+> (c) car
+> (d) bicycle
+> Q. Which white object is farthest
+> from the chair?
+> (a) kitchen towel
+> (b) refrigerator
+> (c) picture frame
+> (d) table
+> Q. Which square or rectangular object
+> on the left side of the image is closest to
+> the table lamp?
+> (a) TV
+> (b) black phone with keyboard
+> (c) closed laptop
+> (d) mouse pad
+> Q. What is the silver object on the table ?
+> (a) spoon
+> (b) plate with bread
+> (c) sauce container
+> (d) knife
+> REL -POS
+
+3-Hop 2-Hop 
+
+3-Hop 2-Hop                
+
+> ATT -POS ATT -REL ATT -POS -REL
+> Q. From the perspective of the woman
+> wearing glasses , which round or
+> cylindrical object in front of her
+> is farthest from me?
+> (a) water cup
+> (b) salt shaker
+> (c) silver pot
+> (d) white pot ATT -POS -REL
+
+Fig. 4: Example MultihopSpatial questions for 2-hop and 3-hop reason-ing under ego-centric (top) and exo-centric (bottom) views . We omit the phrase “and provide the bounding box coordinate of the region related to your answer ” for brevity. 
+
+three verifiers ensured that: (i) all option entities exist in the image, (ii) the bounding-box annotation precisely matches the referred target, and (iii) the labeled answer is correct and uniquely supported by the question. This strict protocol yielded a high inter-annotator agreement (Krippendorff’s α = 0 .90 ), ensuring a high-quality and dependable benchmark for evaluating complex spa-tial reasoning. Full annotation guidelines and verification procedures are detailed in Appendix D. Furthermore, we introduce MultihopSpatial-Train , an auxil-iary large-scale corpus of 6,791 grounded VQA samples designed to support the post-training of VLMs for spatial intelligence. 
+
+Spatial Reasoning Categories. We define three fundamental spatial rea-soning categories: Attribute (att ), Position (pos ), and Relation (rel ), detailed in Fig. 3. Our benchmark systematically composes these categories into multi-hop questions ( e.g ., 2- and 3-hop) that demand sequential intermediate inferences, e.g ., identifying candidates, comparing relations, and resolving am-biguities. Such compositional reasoning is essential for robust real-world scene understanding and embodied interaction. By increasing the hop count, we rep-resent longer reasoning chains and escalating difficulty, enabling fine-grained diagnosis of model performance across different levels of reasoning complexity. 
+
+1-Hop. Single-step questions targeting one spatial category ( pos or rel ). We exclude att as a standalone category, since attributes are primarily perceptual unless composed with spatial metrics. While 1-hop spatial reasoning has been 6 Y. Lee et al. 
+
+explored in prior works [19, 25, 27, 37], we deliberately include it to serve as a controlled baseline for depth-wise comparisons against multi-hop compositions. 
+
+2-Hop. Questions combining two categories ( att+pos , att+rel , or pos+rel ). As shown in Fig. 4, these queries typically follow a two-stage structure: (i) re-stricting the candidate set using one category, and (ii) identifying the target by applying the other. We define this as “2-hop” because both constraints must be jointly satisfied, regardless of the specific inference order. 
+
+3-Hop. Questions incorporating all three categories ( att+pos+rel ) in a sin-gle query. An att cue narrows candidates, after which the model reasons over 
+
+pos and rel to identify the target ( e.g ., selecting the rightmost object that is farthest/closest). This structure (Fig. 4) mirrors how humans refer to objects in cluttered scenes, testing the disambiguation needed for embodied task execution. 
+
+4 Reinforcement Learning on MultihopSpatial-Train 
+
+Beyond serving as a static evaluation benchmark, we investigate the utility of MultihopSpatial as a training corpus. To validate whether it can effectively en-hance the multi-hop spatial reasoning capabilities of VLMs, we post-train a base VLM via reinforcement learning. We adopt the Reinforcement Learning with Verifiable Rewards (RLVR) paradigm [12, 34], employing deterministic, rule-based reward functions to provide unambiguous correctness signals. Our dataset is naturally suited for RLVR, as each sample provides a unique multiple-choice answer and a ground-truth bounding box for binary verification and continuous localization evaluation, respectively. To optimize the VLM, we employ Group Relative Policy Optimization (GRPO), an efficient RL algorithm that eliminates the need for a critic model. For a given input, GRPO samples a group of responses and optimizes the policy using ad-vantage scores obtained by normalizing sequence-level rewards within the group. This optimization is driven by our composite reward function, which jointly eval-uates format adherence, answer correctness, and spatial localization accuracy. The model is prompted to output a specific format: “ Answer: (X) ” followed by “ Bounding Box: [x1, y1, x2, y2] ”, where X ∈ { a, b, c, d } and coordinates are normalized to a [0 , 1000] scale [6, 16]. The total reward R for a generated sequence is simply defined as the sum of three components: 
+
+R = Rformat + α · Rmcq + β · Rbbox , (1) where we set weighting coefficients α = β = 1 .
+
+Format Reward ( Rformat ). A binary reward assigning 1 if the output strictly follows the expected parsing format, and 0 otherwise. 
+
+MCQ Reward ( Rmcq ). A discrete correctness signal where Rmcq = 1 if the parsed choice matches the ground-truth label, and 0 otherwise. If parsing fails, it defaults to 0. 
+
+Bounding Box Reward ( Rbbox ). To evaluate spatial grounding, we calcu-late the Generalized Intersection over Union (GIoU) [33] between the predicted MultihopSpatial 7
+
+and ground-truth bounding boxes. To provide a dense, positively-scaled training signal, we normalize the GIoU score ( ∈ [−1, 1] ) into a [0 , 1] range: 
+
+Rbbox = GIoU( ˆB, B ∗) + 1 2 . (2) A perfect overlap yields Rbbox = 1 , whereas completely disjoint boxes receive 
+
+Rbbox < 0.5. Unparsable bounding boxes default to 0. By aggregating a discrete reasoning signal ( Rmcq ) with a continuous ground-ing signal ( Rbbox ), our composite reward design encourages the VLM to simul-taneously enhance its compositional spatial reasoning and precise visual local-ization capabilities. Rather than optimizing solely for text-based answer correct-ness, this joint formulation ensures that the model’s reasoning is intrinsically tied to actual visual grounding. 
+
+5 Experiments 
+
+5.1 Experiment Setup 
+
+We benchmark 37 VLMs spanning five categories on MultihopSpatial: (i) Proprietary instant models (3) : Claude-Opus-4.5 [4],Claude–Sonnet-4.5 [5], and GPT-5.2 [31]. (ii) Proprietary reasoning models (5) : Gemini-3-Pro 5 &-Flash, GPT-5.2-Thinking (xhigh), Claude-Opus-4.5-Thinking, and Claude-Sonnet-4.5-Thinking. (iii) Open-weight instant models (13) : Qwen3-VL-Instruct [6] (4B,8B,32B, and 235B-A22B), InternVL-3.5 [35] (4B,8B,14B,38B), GLM-4.6V [15], Gemma-3-IT [20] (4B,12B and 27B), and Molmo2-8B [11]. (iv) Open-weight reasoning models (9) : Qwen3-VL-Thinking (4B,8B,32B, and 235B-A22B), InternVL-3.5 with thinking mode (4B,8B,14B,38B), and GLM-4.6V, each with thinking mode enabled. (v) Spatial reasoning models (7) : SenseNova-SI-1.3-InternVL3-8B [8], Cosmos-Reason2-8B [30], VST-7B-RL [41], SpaceQwen3-VL-2B [9], SpaceOm [1], Spa-tialReasoner [28], and SpaceThinker2.5VL-3B [2]. Reasoning variants are ob-tained by enabling the thinking mode of the corresponding instant model, using the /think tag or equivalent API option. All models are prompted with the same instruction template and evaluated under identical conditions. For each question, models are required to provide both a multiple-choice answer and a bounding box prediction for the target object (See the system prompt in Appendix C.) 
+
+Training setup. We train Qwen3-VL-4B-Instruct [6] as the base policy model using GRPO [34] with LoRA [17] applied to the LLM backbone (10 epochs, learn-ing rate 5 × 10 −5, batch size 128). For VLA evaluation, we integrate our model into VLM4VLA [43] and train on the CALVIN ABC →D [29] and Libero [24], following VLM4VLA hyperparameters. Please see details in Appendix A.  
+
+> 5Gemini-3-Pro&-Flash operate with thinking mode enabled by default, and do not provide an option to fully disable it. We therefore classify them as reasoning models.
+
+8 Y. Lee et al. 
+
+Table 1: Benchmark results across different hop counts and Ego/Exo per-spectives . Green cells indicate the best performance within each model group. 
+
+Model Overall 3Hop-Ego 3Hop-Exo 2Hop-Ego 2Hop-Exo 1Hop-Ego 1Hop-Exo 
+
+Acc. Acc@50 avg. IoU Acc. Acc@50 Acc. Acc@50 Acc. Acc@50 Acc. Acc@50 Acc. Acc@50 Acc. Acc@50 
+
+Proprietary Models – Instant 
+
+Claude-Opus-4.5 [4] 45.1 3.2 13.3 25.7 2.0 48.5 3.6 33.7 2.0 58.1 4.8 43.2 3.5 61.1 3.1 Claude-Sonnet-4.5 [5] 20.9 0.5 4.2 6.4 0.4 18.5 0.9 12.3 0.0 34.7 1.6 13.5 0.0 40.0 0.1 GPT-5.2 [31] 19.3 2.0 11.8 5.3 0.7 18.0 4.9 10.8 0.1 30.4 5.9 8.1 0.0 43.3 0.4 
+
+Open-weight Models – Instant 
+
+GLM-4.6V [15] 43.2 35.2 69.5 15.9 12.3 46.7 39.3 22.7 18.4 61.6 53.2 32.4 24.3 80.1 63.7 Molmo2-8B [11] 41.8 0.3 8.8 15.9 0.3 44.4 0.4 21.6 0.3 60.4 0.1 32.4 0.4 76.4 0.3 Qwen3-VL-235B-Instruct [6] 41.3 34.8 71.1 14.8 12.3 42.9 37.6 21.9 18.5 58.5 52.7 30.7 23.5 79.2 64.4 Qwen3-VL-32B-Instruct [6] 40.9 33.4 69.6 13.9 9.7 43.9 36.4 21.9 17.2 59.2 53.1 30.4 22.3 76.4 61.6 InternVL-3.5-38B [35] 40.8 9.7 28.7 17.5 3.2 44.5 12.3 24.3 4.5 56.8 24.5 31.9 3.3 69.6 10.4 InternVL-3.5-14B [35] 39.7 7.9 26.2 17.1 2.5 44.5 10.1 22.0 2.8 56.1 14.4 30.4 3.3 68.0 14.0 InternVL-3.5-4B [35] 39.7 10.3 30.0 15.9 3.1 45.2 13.5 23.9 4.5 54.9 18.7 31.9 3.6 66.3 18.4 InternVL-3.5-8B [35] 38.3 9.4 30.0 14.7 2.9 41.1 10.7 23.3 4.0 50.1 17.2 30.5 4.5 70.0 17.3 Qwen3-VL-8B-Instruct [6] 38.0 31.3 69.5 12.3 8.8 42.1 36.1 18.8 15.2 55.3 49.1 26.7 20.8 72.8 58.0 Qwen3-VL-4B-Instruct [6] 37.8 31.0 69.9 15.5 10.9 40.1 33.7 20.9 16.0 53.5 46.9 26.7 21.2 70.3 57.2 Gemma-3-IT-27B [20] 33.1 0.4 5.4 18.1 0.1 30.8 0.5 22.0 0.1 45.7 1.1 28.1 0.3 53.9 0.3 Gemma-3-IT-12B [20] 29.8 0.4 5.9 16.9 0.3 31.6 0.5 22.1 0.4 40.8 0.5 22.9 0.1 44.5 0.5 Gemma-3-IT-4B [20] 28.4 0.2 3.0 22.1 0.0 27.2 0.3 22.5 0.1 36.8 0.3 27.1 0.3 34.7 0.1 
+
+Proprietary Models – Reasonin g
+
+Gemini-3-Pro [16] 64.7 40.6 55.0 39.7 18.8 71.1 45.3 36.8 20.5 81.2 55.5 71.1 41.1 88.4 62.3 GPT-5.2-Thinking [31] 57.9 11.5 29.0 36.1 8.5 55.7 10.4 49.7 7.6 63.6 18.0 65.6 12.5 76.4 11.7 Gemini-3-Flash [16] 57.2 40.2 61.2 6.9 4.3 61.2 46.9 42.3 25.3 80.0 63.7 66.0 38.9 86.8 62.1 Claude-Opus-4.5-Thinking [4] 47.0 4.7 16.7 25.5 3.5 49.7 4.7 35.2 3.1 60.0 8.8 45.1 5.2 66.5 2.9 Claude-Sonnet-4.5-Thinking [5] 32.2 4.3 19.2 14.7 1.9 29.9 3.6 22.1 2.3 45.7 8.1 31.3 3.9 49.3 6.1 
+
+Open-weight Models – Reasoning 
+
+Qwen3-VL-32B-Thinking [6] 46.8 37.4 67.2 19.2 12.9 57.5 47.1 24.3 18.1 70.1 60.0 30.4 23.1 79.6 63.2 Qwen3-VL-235B-Thinking [6] 45.1 36.3 67.8 17.6 12.7 51.2 42.3 24.8 19.3 67.6 58.7 31.2 22.8 78.1 61.9 Qwen3-VL-4B-Thinking [6] 42.6 28.7 58.3 20.4 9.2 48.1 34.8 22.3 12.0 63.9 50.7 30.8 16.3 70.4 49.2 InternVL-3.5-38B-Thinking [35] 42.1 27.4 57.0 19.5 10.9 43.3 32.5 24.7 15.3 56.8 39.2 34.8 20.7 73.6 45.9 GLM-4.6V-Thinking [15] 42.0 34.7 70.1 14.1 10.7 46.3 40.0 19.5 15.3 63.1 56.1 31.2 23.3 77.6 62.7 Qwen3-VL-8B-Thinking [6] 41.7 29.5 60.1 18.5 9.2 47.9 36.4 21.3 11.9 63.3 51.6 28.5 16.5 70.5 51.2 InternVL-3.5-8B-Thinking [35] 40.6 5.2 22.1 20.5 1.3 39.9 6.7 24.1 1.9 57.3 10.4 30.9 3.5 70.5 7.6 InternVL-3.5-4B-Thinking [35] 40.6 4.7 21.4 18.3 1.2 41.2 4.8 24.4 1.7 58.5 9.6 32.8 1.5 68.1 9.3 InternVL-3.5-14B-Thinking [35] 38.2 11.1 34.7 14.1 4.7 42.8 13.6 21.1 5.6 55.3 20.5 27.6 6.4 68.0 15.9 
+
+Specialized Spatial Reasoning Models 
+
+SenseNova-InternVL3-8B [8] 42.3 17.3 38.8 20.4 9.1 45.2 19.7 25.2 9.2 55.5 27.2 34.5 11.2 73.2 27.2 Cosmos-Reason2-8B [30] 37.8 27.9 61.4 15.2 10.5 40.7 31.9 19.5 13.5 54.5 43.5 26.5 17.1 70.1 51.1 VST-7B-RL [41] 36.0 0.0 1.5 16.7 0.0 34.1 0.1 23.9 0.0 48.1 0.0 24.5 0.0 68.8 0.0 SpaceQwen3-VL-2B [9] 33.6 10.1 31.5 18.5 4.0 32.5 9.9 22.8 4.0 47.2 22.9 26.1 4.4 54.3 15.2 SpaceOm [1] 32.3 0.3 2.6 15.3 0.5 37.9 0.1 19.6 0.1 47.9 0.4 20.5 0.3 52.8 0.4 SpatialReasoner [28] 31.7 8.7 29.9 18.0 6.8 34.0 10.3 19.6 4.3 46.0 13.7 21.3 5.7 51.5 11.2 SpaceThinker-3B [2] 31.1 4.0 16.6 15.9 2.9 36.3 3.7 19.2 2.9 44.5 6.5 20.8 3.3 50.0 4.3 
+
+5.2 Evaluation Metrics 
+
+We employ three complementary metrics to jointly evaluate reasoning correct-ness and spatial grounding: 
+
+MCQ Accuracy. Measures the percentage of correct multiple-choice predic-tions ( ˆy = y∗). While standard, it does not verify spatial localization. 
+
+Acc@50IoU. Our primary grounded metric requires correct answer selection and precise localization. A prediction is correct only if ˆy = y∗ and IoU( ˆB, B ∗) ≥
+
+0.5. This filters out ungrounded predictions, ensuring genuine localization. 
+
+Avg. IoU. Computed exclusively over MCQ-correct samples, this metric isolates grounding capability from reasoning errors, evaluating how precisely a model localizes the target once correctly identified. 
+
+5.3 Main Results Overall Performance Highlights. As shown in Tab. 1, Gemini-3-Pro achieves the highest MCQ accuracy (64.7%) and Acc@50IoU (40.6%), while Qwen3-VL-MultihopSpatial 91-Hop 2-Hop 3-Hop 
+
+> 0
+> 20
+> 40
+> 60
+> MCQ Accuracy (%)
+> 31.9
+> 24.0
+> 17.7
+> Gemini-3-Pro
+> GPT-5.2
+> GPT-5.2-Thinking
+> GPT-5.2
+> Gemini-3-Pro
+> GPT-5.2
+
+(a) Ego-centric MCQ Accuracy   
+
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> MCQ Accuracy (%)
+> 66.2
+> 55.2
+> 42.1
+> Gemini-3-Pro
+> Gemma-3-IT-4B
+> Gemini-3-Pro
+> GPT-5.2
+> Gemini-3-Pro
+> GPT-5.2
+
+(b) Exo-centric MCQ Accuracy     
+
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 10
+> 20
+> 30
+> 40
+> Acc@50IoU (%)
+> 11.1 8.1 5.8
+> Gemini-3-Pro
+> Claude-Sonnet-4.5
+> Gemini-3-Flash
+> Claude-Sonnet-4.5
+> Gemini-3-Pro
+> Gemma-3-IT-4B
+
+(c) Ego-centric Acc@50IoU    
+
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 20
+> 40
+> 60
+> Acc@50IoU (%)
+> 26.8 26.2
+> 18.5
+> Qwen3-VL-235B
+> VST-7B-RL
+> Gemini-3-Flash
+> VST-7B-RL
+> Qwen3-VL-32B-Thinking
+> VST-7B-RL
+
+(d) Exo-centric Acc@50IoU                     
+
+> Claude Gemini GPT Qwen3-VL InternVL GLM Gemma Molmo Spatial Reasoning Claude Gemini GPT Qwen3-VL InternVL GLM Gemma Molmo Spatial Reasoning Instant Reasoning Spatial Mean
+
+Fig. 5: All model performance across hop count and ego/exo perspectives. 
+
+32B-Thinking leads the open-weight category. Notably, top performance in an-swer selection does not guarantee precise localization ( e.g ., Qwen3-VL-235B leads in average IoU). This discrepancy demonstrates that compositional rea-soning and grounding capabilities remain largely decoupled in current VLMs. 
+
+Metric-dependent Rankings. This decoupling causes drastic rank reversals between metrics. Models like Claude-Opus-4.5 and Molmo2-8B rank high in MCQ but plummet in Acc@50IoU ( e.g ., Claude drops from 7th to 29th), in-dicating shortcut-based answers without genuine localization. Conversely, the smaller Qwen3-VL-4B rises from 25th to 10th due to its robust grounding. These shifts prove that evaluating MCQ alone is highly misleading, making Acc@50IoU essential for verifying true spatial understanding. 
+
+Benchmark Difficulty. With the best model peaking at just 40.6% Acc@50IoU, MultihopSpatial remains far from saturated. The difficulty peaks under 3-hop ego-centric conditions, where only 3 of 37 models exceed the 25% random MCQ baseline, and just 9 surpass 10% Acc@50IoU. Strikingly, even advanced rea-soning models like GPT-5.2-Thinking (8.5%) and Claude-Sonnet-4.5-Thinking (1.9%) fail drastically here, confirming our benchmark rigorously evaluates both compositional reasoning and spatial grounding capabilities of current VLMs. 
+
+5.4 In-depth Analysis 
+
+In this section, we present a comprehensive analysis of 37 VLMs on the proposed MultihopSpatial benchmark and derive eight key insights. 
+
+A1. Performance Degradation across Reasoning Hops. Evaluating the impact of reasoning complexity across all 37 models (Fig. 6) reveals a consistent performance degradation as the number of hops increases, confirming that com-positional spatial reasoning remains a fundamental challenge for current VLMs. Both MCQ accuracy and Acc@50IoU exhibit steep declines from 1-hop to 3-hop. 10 Y. Lee et al. 1-Hop 2-Hop 3-Hop    
+
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 80
+> 90
+> MCQ Accuracy (%)
+> 31.9
+> 24.0
+> 17.7
+> 66.2
+> 55.2
+> 42.1
+> MCQ Accuracy
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> Acc@50IoU (%)
+> 11.1
+> 8.1
+> 5.8
+> 26.8
+> 26.2
+> 18.5
+> Acc@50IoU
+> Ego-centric Exo-centric
+
+Fig. 6: Average Performance by Hop Count. 1-Hop 2-Hop 3-Hop               
+
+> 0
+> 20
+> 40
+> 60
+> 80
+> MCQ Accuracy (%)
+> 62.9
+> 50.8
+> 38.1
+> 73.1
+> 63.3
+> 49.0
+> 27.9
+> 21.5
+> 15.5
+> 39.8
+> 28.0
+> 20.4
+> MCQ Accuracy
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 20
+> 40
+> 60
+> Acc@50IoU (%)
+> 23.1 21.5
+> 15.1
+> 36.6 36.5
+> 26.4
+> 8.2 6.5 4.3
+> 16.8
+> 11.4 7.9
+> Acc@50IoU
+> Instant Exo Reasoning Exo Instant Ego Reasoning Ego
+
+Fig. 7: Reasoning vs. Instant Models. 1-Hop 2-Hop 3-Hop                
+
+> 0
+> 20
+> 40
+> 60
+> 80
+> MCQ Accuracy (%)
+> 64.0
+> 56.7
+> 44.1
+> 69.0
+> 56.6
+> 42.9 43.0
+> 30.4
+> 20.0
+> 30.0
+> 22.5
+> 16.9
+> MCQ Accuracy
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 20
+> 40
+> 60
+> Acc@50IoU (%)
+> 18.6 20.8
+> 15.0
+> 33.3 31.3
+> 22.3
+> 13.1 7.6 5.0
+> 11.9 9.2 6.3
+> Acc@50IoU
+> Proprietary Exo Open-weight Exo Proprietary Ego Open-weight Ego
+
+Fig. 8: Open-weight vs. Proprietary models. 1-Hop 2-Hop 3-Hop          
+
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> MCQ Accuracy (%)  47.1
+> 36.8
+> 28.0
+> 50.3
+> 41.9
+> 31.9
+> 42.5
+> 35.2
+> 27.2
+> MCQ Accuracy
+> 1-Hop 2-Hop 3-Hop
+> 0
+> 5
+> 10
+> 15
+> 20
+> 25
+> 30
+> 35
+> 40
+> Acc@50IoU (%)
+> 16.8
+> 14.4
+> 10.1
+> 19.4 18.7
+> 12.9
+> 10.8 10.6 7.8
+> Acc@50IoU
+> General (Instant, 10B) General (Reasoning, 10B) Spatial Reasoning Models
+
+Fig. 9: Spatial Reasoning Models vs. General Models ( ≤10B). 
+
+Crucially, this degradation is exacerbated under ego-centric evaluation, which re-quires additional perspective transformation. The widening performance gap be-tween ego-centric and exo-centric views at higher hops suggests that perspective-taking compounds with multi-step reasoning, creating a multiplicative rather than additive difficulty. 
+
+A2. Ego vs. Exo: Perspective-Taking as a Compounding Bottleneck. 
+
+Beyond a simple performance drop (Fig. 6), ego-centric evaluation fundamen-tally alters capability visibility. Under exo-centric conditions (Fig. 5(d)), our Acc@50IoU metric clearly distinguishes grounding-capable models ( e.g ., Qwen3-VL) from those lacking native localization ( e.g ., InternVL-3.5) despite their sim-ilar MCQ accuracies. Conversely, ego-centric evaluation (Fig. 5(c)) acts as an evaluation blind spot; it suppresses even strong grounding models to a 20–25% floor, completely masking these capability gaps. This compression highlights the necessity of evaluating perspectives jointly and reinforces Acc@50IoU as an es-sential metric to expose disparities invisible to conventional MCQ evaluation. 
+
+A3. Instant vs. Reasoning: Diminishing Returns under Multi-Hop Pressure. While reasoning models consistently outperform instant models (Fig. 7), this advantage diminishes under multi-hop pressure. The initial MCQ gain of up to +8 pp at 1-hop narrows considerably by 3-hop. Critically, even with extended thinking, reasoning models plummet to sub-20% MCQ accuracy and sub-10% Acc@50IoU on 3-hop ego-centric tasks. This convergence toward the performance floor reveals that inference-time reasoning ( e.g ., chain-of-thought) yields dimin-ishing returns as compositional steps accumulate. MultihopSpatial thus exposes MultihopSpatial 11 0 10 20 30 40 50 60 
+
+Overall Accuracy (%) 
+
+> GPT-5.2
+> Claude-Sonnet-4.5
+> Gemma-3-IT-4B
+> Gemma-3-IT-12B
+> SpaceThinker2.5VL-3B
+> SpatialReasoner
+> Claude-Sonnet-4.5-Thinking
+> SpaceOm
+> Gemma-3-IT-27B
+> SpaceQwen3-VL-2B
+> VST-7B-RL
+> Cosmos-Reason2-8B
+> Qwen3-VL-4B
+> Qwen3-VL-8B
+> InternVL-3.5-14B-Thinking
+> InternVL-3.5-8B
+> InternVL-3.5-4B
+> InternVL-3.5-14B
+> InternVL-3.5-4B-Thinking
+> InternVL-3.5-8B-Thinking
+> InternVL-3.5-38B
+> Qwen3-VL-32B
+> Qwen3-VL-235B
+> Qwen3-VL-8B-Thinking
+> Molmo2-8B
+> GLM-4.6V-Thinking
+> InternVL-3.5-38B-Thinking
+> SenseNova-SI
+> Qwen3-VL-4B-Thinking
+> GLM-4.6V
+> Claude-Opus-4.5
+> Qwen3-VL-235B-Thinking
+> Qwen3-VL-32B-Thinking
+> Claude-Opus-4.5-Thinking
+> Gemini-3-Flash
+> GPT-5.2-Thinking
+> Gemini-3-Pro
+> 90%
+> 98%
+> 99%
+> 99%
+> 87%
+> 73%
+> 87%
+> 99%
+> 99%
+> 70%
+> 100%
+> 26%
+> 18%
+> 18%
+> 71%
+> 75%
+> 74%
+> 80%
+> 88%
+> 87%
+> 76%
+> 18%
+> 16%
+> 29%
+> 99%
+> 17%
+> 35%
+> 59%
+> 33%
+> 19%
+> 93%
+> 20%
+> 20%
+> 90%
+> 30%
+> 80%
+> 37%
+
+Grounded (Acc@50IoU) 
+
+Ungrounded 
+
+Proprietary (Instant) 
+
+Proprietary (Reasoning) 
+
+Open-weight (Instant) 
+
+Open-weight (Reasoning) 
+
+Spatial Reasoning 
+
+Fig. 10: Grounded (Acc@50IoU) vs. Ungrounded accuracy per model. Solid bars indicate grounded accuracy (Acc@50IoU) and hatched regions indicate un-grounded responses. Percentages denote the ungrounded ratio. 5 10 20 30 40 50 60 
+
+Overall MCQ Accuracy (%) 
+
+0
+
+10 
+
+20 
+
+30 
+
+40 
+
+> Overall Acc@50IoU (%)
+> Claude-Opus-4.5 Claude-Sonnet-4.5
+> GPT-5.2
+> GLM-4.6V
+> Gemini-3-Pro
+> GPT-5.2-Thinking
+> Gemini-3-Flash
+> Claude-Opus-4.5-Thinking
+> Qwen3-VL-32B-Thinking
+> Qwen3-VL-235B-Thinking
+
+Proprietary (Instant) 
+
+Proprietary (Reasoning) 
+
+Open-weight (Instant) 
+
+Open-weight (Reasoning) 
+
+Spatial Reasoning 
+
+Perfect grounding (y=x) 
+
+Fig. 11: Grounding Gap. Prop. 
+
+(Instant) 
+
+Prop. 
+
+(Reason.) 
+
+Open 
+
+(Instant) 
+
+Open 
+
+(Reason.) 
+
+Spatial 
+
+0
+
+10 
+
+20 
+
+30 
+
+40 
+
+50 
+
+> Overall Accuracy (%)
+
+7% 
+
+93% 
+
+39% 
+
+61% 
+
+41% 
+
+59% 
+
+57% 
+
+43% 
+
+28% 
+
+72% 
+
+Grounded 
+
+Ungrounded Fig. 12: Ungrounded Ratio. 
+
+a capability ceiling that test-time compute alone cannot resolve, confirming its value as a genuinely challenging benchmark even for state-of-the-art models. 
+
+A4. Open-weight vs. Proprietary Models. While proprietary models hold a slight MCQ advantage in ego-centric tasks (Fig. 8)—indicating stronger perspective-taking—open-weight models consistently dominate in Acc@50IoU. This reversal stems from a distinct asymmetry in visual grounding capabilities. Proprietary models exhibit high variance: while the Gemini-3 series demonstrates robust localization, others ( e.g ., GPT-5.2, Claude) lack native grounding, significantly dragging down the group average. Conversely, open-weight families ( e.g ., Qwen3-VL, GLM-4.6V) maintain consistently high grounding performance, forming a dense cluster at 60%+ in exo-centric Acc@50IoU. These findings highlight that the open-weight ecosystem currently offers more reliable spatial grounding than its proprietary counterparts. 
+
+A5. Generalist vs. Specialist Models. Comparing specialized spatial reason-ing models (SRMs) against comparable general-purpose VLMs ( ≤10B) reveals a counterintuitive trend (Fig. 9): SRMs consistently underperform across all metrics and hop counts. This shortfall primarily stems from the robust native 12 Y. Lee et al. 4 8 12 14 27 32 38 235                                                        
+
+> 0
+> 25
+> 50
+> 75
+> MCQ Accuracy (%)  Overall
+> 4812 14 27 32 38 235
+> 0
+> 25
+> 50
+> 75
+> 1-Hop
+> 4812 14 27 32 38 235
+> 0
+> 25
+> 50
+> 75
+> 2-Hop
+> 4812 14 27 32 38 235
+> 0
+> 25
+> 50
+> 75
+> 3-Hop
+> 4812 14 27 32 38 235
+> Model Size (B)
+> 0
+> 20
+> 40
+> 60
+> Acc@50IoU (%)
+> 4812 14 27 32 38 235
+> Model Size (B)
+> 0
+> 20
+> 40
+> 60
+> 4812 14 27 32 38 235
+> Model Size (B)
+> 0
+> 20
+> 40
+> 60
+> 4812 14 27 32 38 235
+> Model Size (B)
+> 0
+> 20
+> 40
+> 60
+> Qwen3-VL (Instant) Qwen3-VL (Thinking) InternVL-3.5 (Instant) InternVL-3.5 (Reasoning) Gemma-3-IT Exo (solid) Ego (dashed)
+
+Fig. 13: Effect of model scale on MCQ Accuracy (top) and Acc@50IoU (bot-tom) across overall and per-hop settings. Solid lines indicate exo-centric and dashed lines indicate ego-centric performance. POS 
+
+> REL
+> P-R P-A
+> A-R
+> 78%
+> 85%
+> 88% 82%
+> 83%
+> Proprietary Instant
+> POS
+> REL
+> P-R P-A
+> A-R
+> 36%
+> 47%
+> 63%
+> 46%
+> 53%
+> Proprietary Reasoning
+> POS
+> REL
+> P-R P-A
+> A-R
+> 42%
+> 57%
+> 69%
+> 55%
+> 61%
+> Open-weight Instant
+> POS
+> REL
+> P-R P-A
+> A-R
+> 37%
+> 53%
+> 67%
+> 49%
+> 54%
+> Open-weight Reasoning
+> POS
+> REL
+> P-R P-A
+> A-R
+> 46%
+> 63%
+> 71%
+> 57%
+> 64%
+> Spatial Reasoning
+
+Fig. 14: Average Error Rates ( ↓, %) by tag combination across model cate-gories. A, R, and P denote Attribute, Relation, and Position, respectively. 
+
+grounding inherent in general models ( e.g ., Qwen3-VL), which most SRMs lack. While a few SRMs perform competitively, high intra-group variance demon-strates that the “spatial reasoning” label does not guarantee localization ability. These findings indicate that current SRMs, typically fine-tuned on single-step QA, fail to generalize to multi-hop scenarios, suggesting that general-purpose VLMs provide a stronger foundation for compositional spatial understanding. 
+
+A6. Grounding gap: Grounded vs. Ungrounded Accuracy. Fig. 11 re-veals a striking disconnect between answer selection and spatial localization: most models fall far below the y = x line, indicating that high MCQ accuracy does not entail accurate grounding. Across all 37 models, the average ungrounded ratio reaches 59%, meaning that more than half of correctly answered questions lack proper spatial localization (Fig. 10). This ratio varies dramatically by cat-egory (Fig. 12): proprietary instant models exhibit 93% ungrounded accuracy, while open-weight reasoning models achieve the lowest at 43%, largely driven by Qwen3-VL and GLM families whose ungrounded ratios remain below 20%. At the extreme, models such as Gemma-3-IT, Molmo2, and Claude-Sonnet-4.5 exceed 98% ungrounded, effectively answering through shortcuts without any spatial understanding. These findings validate Acc@50IoU as an essential com-plement to MCQ evaluation: without it, models that rely entirely on linguistic shortcuts would be indistinguishable from those with genuine spatial understand-ing. 
+
+A7. The Limits of LLM Scaling in Spatial Reasoning. Analyzing model scale across three open-weight families (Fig. 13) reveals that scaling the language MultihopSpatial 13 
+
+Table 2: Impact of MultihopSpatial-Train on spatial reasoning across diverse benchmarks. MultihopSpatial (In-domain) Out-of-Domain Model Acc. Acc@50IoU avg. IoU BLINK [14] 3DSRBench [27] OmniSpatial [19] VSI-Bench [40] SpatialMQA [25] Qwen3-VL-4B-Instruct 37.8 31.0 69.9 82.5 56.1 42.7 62.8 39.6        
+
+> w/ MultihopSpatial 62.9 53.8 72.6 85.3 56.3 43.9 63.2 41.1
+
+Table 3: Vision-Language-Action evaluation on Calvin ABC-D [29] and Libero [24] benchmark. Each task (Task-#) measures success rate (%) on Calvin and Calvin denotes the average number of successfully completed tasks per sequence.                
+
+> VLM backbone Task-1 Task-2 Task-3 Task-4 Task-5 Calvin Libero
+> Qwen3-VL-4B-Instruct 92.4 81.8 74.1 66.8 59.9 3.75 35.8
+> w/ MultihopSpatial-Train 93.0 85.4 79.3 73.2 66.9 3.98 40.0
+
+backbone alone yields limited gains. While MCQ accuracy shows modest, satu-rating improvements, Acc@50IoU largely plateaus ( e.g ., Qwen3-VL) or remains near zero ( e.g ., Gemma-3-IT). A notable exception is InternVL-3.5 at 38B, which exhibits a sharp grounding jump from 5.2% to 27.4%. Crucially, this leap coin-cides with a significant upgrade in its vision encoder (from 300M to 6B), whereas models utilizing fixed, small vision encoders ( e.g ., Qwen3-VL’s 400M) saturate early. This stark contrast demonstrates that multi-hop spatial reasoning depends critically on scaling the capacity of visual spatial representations, rather than relying solely on the language component’s reasoning capacity. 
+
+A8. Error Analysis on Tag Compositions. Analyzing error rates across spa-tial tag combinations (Fig. 14) reveals that while reasoning models consistently outperform instant models, multi-tag compositions remain a critical bottleneck. Specifically, the pos -rel (P-R ) combination incurs significantly higher errors than single-tag settings, highlighting the severe difficulty of jointly handling po-sitional localization and relational comparison. Even specialized spatial reason-ing models, which achieve the lowest overall errors, exhibit non-trivial failures on these complex compositions. This underscores that true compositional spatial reasoning remains an unresolved challenge across the current VLM ecosystem. 
+
+5.5 MultihopSpatial-Train: Utility as a Training Corpus 
+
+To validate MultihopSpatial as a training resource for improving spatial reason-ing in VLMs, we compare our Qwen3-VL-4B-Instruct trained on our Multihop-Train with its baseline on spatial reasoning benchmarks and VLA benchmarks. 
+
+Spatial Reasoning Benchmarks. We evaluate the GRPO-trained model on both the in-domain MultihopSpatial benchmark and five out-of-domain spatial reasoning benchmarks in Tab. 2. On the in-domain MultihopSpatial benchmark, GRPO training yields substantial improvements across all three metrics. The large gains in MCQ Accuracy and Acc@50IoU indicate that the model learns to perform multi-hop spatial reasoning more reliably, while the modest but con-sistent improvement in Avg. IoU suggests that grounding quality also benefits. 14 Y. Lee et al.   
+
+> Fig. 15: Qualitative failure analysis on a 3-hop ego-centric question. All three models recognized the position condition “in front of ” , but failed to incorporate it into their final predictions.
+
+More notably, the trained model achieves consistent improvements on all five out-of-domain benchmarks, despite being trained exclusively on MultihopSpa-tial data. This suggests that the spatial reasoning capabilities acquired through our dataset generalize beyond the in-domain distribution, transferring to diverse spatial understanding tasks. 
+
+VLM as backbone for Vision-Language-Action. To investigate whether improved spatial reasoning transfers to embodied decision-making, we evaluate the models as VLM backbones using VLM4VLA [43] on the CALVIN ABC-D [29] and Libero [24] benchmarks. As shown in Tab. 3, the MultihopSpatial-trained model consistently outperforms the baseline. On CALVIN, the average task completion score rises from 3.75 to 3.98, with the performance gap widening as the task chain lengthens (from +0.6% on Task-1 to +7.0% on Task-5). This highlights compounding benefits in long-horizon sequential manipulation. Fur-thermore, the model achieves a +4.2% absolute improvement (35.8% → 40.0%) on the Libero benchmark. These results demonstrate that spatial reasoning capa-bilities acquired from MultihopSpatial-Train not only generalize across vision-language benchmarks but also translate into robust robotic policy execution, reinforcing spatial reasoning as a foundational capability for VLAs. 
+
+5.6 Qualitative Results 
+
+Fig. 15 illustrates a representative failure case for a 3-hop ego-centric question, requiring three sequential inferences. The query asks to identify the farthest square or rectangular object in front of the sitting person. However, all three models neglect pos , instead selecting the farthest rectangular object based solely on att and rel . Examining each model’s rationale reveals that they explicitly acknowledge the in front of constraint during reasoning, yet consistently disre-gard it in the final answer—demonstrating a failure to maintain intermediate conditions throughout the chain. This highlights the necessity of our composi-MultihopSpatial 15 
+
+tional evaluation: an error at any single hop inevitably propagates to an incorrect final prediction. Additional qualitative results are provided in Appendix E. 
+
+6 Conclusion 
+
+We introduce MultihopSpatial , a comprehensive dataset for evaluating and enhancing multi-hop, compositional spatial reasoning in VLMs. To ensure eval-uations explicitly reflect the visual grounding vital for Vision-Language-Action (VLA) deployment, we propose Acc@50IoU , a complementary grounded met-ric that simultaneously evaluates correct answer selection and precise spatial localization. While our extensive evaluation of 37 models reveals that complex spatial reasoning remains a formidable challenge, we demonstrate that RL post-training on our dedicated corpus effectively mitigates this issue. Ultimately, Mul-tihopSpatial drives consistent improvements in both intrinsic VLM reasoning and downstream VLA task execution. We hope our dataset and grounded evaluation paradigm will catalyze future research in Embodied AI, particularly in scaling up spatial priors for real-time, dynamic robotic control in the wild. 
+
+7 Acknowledgments 
+
+This work was supported by Institute of Information & communications Tech-nology Planning & Evaluation (IITP) grant funded by the Korea government (MSIT) (No. 2022-0-00871, Development of AI Autonomy and Knowledge En-hancement for AI Agent Collaboration, 90%) and (No.2019-0-00075, Artificial Intelligence Graduate School Program(KAIST), 10%). 
+
+References 
+
+1. AI, R.: Spaceom: A multimodal model for space exploration. https : / / huggingface.co/remyxai/SpaceOm (2024), accessed: 2026-03-02 7, 8 2. AI, R.: Spacethinker-qwen2.5vl-3b. https : / / huggingface . co / remyxai / SpaceThinker-Qwen2.5VL-3B (2025), accessed: 2026-03-02 7, 8 3. Alam, N., Murali, L.K., Bharadwaj, S., Liu, P., Chung, T., Sharma, D., Kiran, K., Tam, W., Vegesna, B.K.S., et al.: The spatial blindspot of vision-language models. arXiv preprint arXiv:2601.09954 (2026) 2 4. Anthropic: Claude opus 4.5 system card. Tech. rep., Anthropic (2025), https: //www.anthropic.com/claude-opus-4-5-system-card , accessed: 2026-03-02 7, 8 5. Anthropic: Claude sonnet 4.5 system card. Tech. rep., Anthropic (September 2025), 
+
+https://www.anthropic.com/claude-sonnet-4-5-system-card , accessed: 2026-03-02 7, 8 6. Bai, S., Cai, Y., Chen, R., Chen, K., Chen, X., Cheng, Z., Deng, L., Ding, W., Gao, C., Ge, C., et al.: Qwen3-vl technical report. arXiv preprint arXiv:2511.21631 (2025) 6, 7, 8, 20, 21, 25 7. Brohan, A., Brown, N., Carbajal, J., Chebotar, Y., Chen, X., Choromanski, K., Ding, T., Driess, D., Dubey, A., Finn, C., et al.: Rt-2: Vision-language-action mod-els transfer web knowledge to robotic control. In: CoRL. PMLR (2023) 1 16 Y. Lee et al. 8. Cai, Z., Wang, R., Gu, C., Pu, F., Xu, J., Wang, Y., Yin, W., Yang, Z., Wei, C., Sun, Q., et al.: Scaling spatial intelligence with multimodal foundation models. arXiv preprint arXiv:2511.13719 (2025) 7, 8 9. Chen, B., Xu, Z., Kirmani, S., Ichter, B., Sadigh, D., Guibas, L., Xia, F.: Spa-tialvlm: Endowing vision-language models with spatial reasoning capabilities. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition. pp. 14455–14465 (2024) 3, 7, 8 10. Chen, H., Guo, J., Wang, B., Zhang, T., Huang, X., Zheng, B., Hou, Y., Tie, C., Deng, J., Shao, L.: Goal-vla: Image-generative vlms as object-centric world models empowering zero-shot robot manipulation. arXiv preprint arXiv:2506.23919 (2025) 111. Clark, C., Zhang, J., Ma, Z., Park, J.S., Salehi, M., Tripathi, R., Lee, S., Ren, Z., Kim, C.D., Yang, Y., et al.: Molmo2: Open weights and data for vision-language models with video understanding and grounding. arXiv preprint arXiv:2601.10611 (2026) 7, 8 12. DeepSeek-AI: Deepseek-r1: Incentivizing reasoning capability in llms via reinforce-ment learning. arXiv preprint arXiv:2501.12948 (2025) 6 13. Du, M., Wu, B., Li, Z., Huang, X.J., Wei, Z.: Embspatial-bench: Benchmarking spatial understanding for embodied tasks with large vision-language models. In: Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers). pp. 346–355 (2024) 2 14. Fu, X., Hu, Y., Li, B., Feng, Y., Wang, H., Lin, X., Roth, D., Smith, N.A., Ma, W.C., Krishna, R.: Blink: Multimodal large language models can see but not per-ceive. In: ECCV. pp. 148–166. Springer (2024) 3, 13 15. GLM-V Team, Hong, W., Yu, W., Gu, X., Wang, G., Gan, G., Tang, H., Cheng, J., Qi, J., Ji, J., Pan, L., Duan, S., Wang, W., Wang, Y., Cheng, Y., He, Z., Su, Z., Yang, Z., Pan, Z., Zeng, A., et al.: GLM-4.5V and GLM-4.1V-Thinking: Towards versatile multimodal reasoning with scalable reinforcement learning. arXiv preprint arXiv:2507.01006 (2025), https://arxiv.org/abs/2507.01006 7, 8 16. Google: Gemini 3. https://gemini.google.com/ (2025), accessed: 2025-03-02 6, 817. Hu, E.J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W.: Lora: Low-rank adaptation of large language models. In: ICLR (2022) 7, 20 18. Huang, H., Chen, X., Chen, Y., Li, H., Han, X., Wang, Z., Wang, T., Pang, J., Zhao, Z.: Roboground: Robotic manipulation with grounded vision-language pri-ors. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 22540–22550 (2025) 1 19. Jia, M., Qi, Z., Zhang, S., Zhang, W., Yu, X., He, J., Wang, H., Yi, L.: Omnispatial: Towards comprehensive spatial reasoning benchmark for vision language models. In: ICLR (2026), https://openreview.net/forum?id=6nZKT2rL0H 2, 4, 6, 13 20. Kamath, A., Ferret, J., Pathak, S., Vieillard, N., Merhej, R., Perrin, S., Matejovi-cova, T., Ramé, A., Rivière, M., Rouillard, L., et al.: Gemma 3 technical report. arXiv preprint arXiv:2503.19786 4 (2025) 7, 8 21. Kim, M.J., Pertsch, K., Karamcheti, S., Xiao, T., Balakrishna, A., Nair, S., Rafailov, R., Foster, E., Lam, G., Sanketi, P., et al.: Openvla: An open-source vision-language-action model. arXiv preprint arXiv:2406.09246 (2024) 1 22. Li, J., et al.: Physiagent: An embodied agent framework in physical environments. arXiv preprint arXiv:2509.24524 (2025) 1 23. Lin, T.Y., Maire, M., Belongie, S., Hays, J., Perona, P., Ramanan, D., Dollár, P., Zitnick, C.L.: Microsoft coco: Common objects in context. In: ECCV. pp. 740–755. Springer (2014) 4, 23 MultihopSpatial 17 24. Liu, B., Zhu, Y., Gao, C., Feng, Y., qiang liu, Zhu, Y., Stone, P.: LIBERO: Benchmarking knowledge transfer for lifelong robot learning. In: NeurIPS (2023), 
+
+https://openreview.net/forum?id=xzEtNSuDJk 7, 13, 14, 20 25. Liu, J., Liu, Z., Cen, Z., Zhou, Y., Zou, Y., Zhang, W., Jiang, H., Ruan, T.: Can multimodal large language models understand spatial relations? In: Che, W., Nabende, J., Shutova, E., Pilehvar, M.T. (eds.) ACL. pp. 620–632. Association for Computational Linguistics, Vienna, Austria (Jul 2025). https://doi.org/10. 18653/v1/2025.acl-long.31 , https://aclanthology.org/2025.acl-long.31/ 
+
+2, 4, 6, 13 26. Loshchilov, I., Hutter, F.: Decoupled weight decay regularization. In: International Conference on Learning Representations (2018), https://openreview.net 20 27. Ma, W., Chen, H., Zhang, G., Chou, Y.C., Chen, J., de Melo, C., Yuille, A.: 3dsrbench: A comprehensive 3d spatial reasoning benchmark. In: ICCV. pp. 6924– 6934 (2025) 2, 4, 6, 13 28. Ma, W., Chou, Y.C., Liu, Q., Wang, X., de Melo, C., Xie, J., Yuille, A.: Spatial-reasoner: Towards explicit and generalizable 3d spatial reasoning. NeurIPS (2025) 7, 8 29. Mees, O., Hermann, L., Rosete-Beas, E., Burgard, W.: Calvin: A benchmark for language-conditioned policy learning for long-horizon robot manipulation tasks. IEEE Robotics and Automation Letters 7(3), 7327–7334 (2022) 7, 13, 14, 20 30. NVIDIA: Cosmos-reason2-8b. https : / / huggingface . co / nvidia / Cosmos -Reason2-8B (2024), accessed: 2025-03-02 7, 8 31. OpenAI: Update to GPT-5 system card: GPT-5.2. Tech. rep., OpenAI (Decem-ber 2025), https://openai.com/index/gpt-5-system-card-update-gpt-5-2/ ,accessed: 2026-03-02 7, 8 32. Ramanathan, V., Kalia, A., Petrovic, V., Wen, Y., Zheng, B., Guo, B., Wang, R., Marquez, A., Kovvuri, R., Kadian, A., et al.: Paco: Parts and attributes of common objects. In: CVPR. pp. 7141–7151 (2023) 4, 23 33. Rezatofighi, H., Tsoi, N., Gwak, J., Sadeghian, A., Reid, I., Savarese, S.: Gener-alized intersection over union: A metric and a loss for bounding box regression. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 658–666 (2019) 6 34. Shao, Z., Wang, P., Zhu, Q., Xu, R., Song, J., Li, X., Zhang, M., Zhang, Y., Li, Y., Wu, Y., Guo, D.: Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 (2024) 3, 6, 7 35. Wang, W., Gao, Z., Gu, L., Pu, H., Cui, L., Wei, X., Liu, Z., Jing, L., Ye, S., Shao, J., et al.: Internvl3. 5: Advancing open-source multimodal models in versatility, reasoning, and efficiency. arXiv preprint arXiv:2508.18265 (2025) 7, 8 36. Wang, Y., et al.: Vlaser: Vision-language-action model with synergistic embodied reasoning. In: ICLR (2026) 1 37. Wasi, A.T., Faisal, W., Rahman, A., Anik, M.A., Shahriar, M., Topu, M.M., Meem, S.T., Priti, R.N., Mitu, S.A., Hoque, M.I., et al.: Spatialab: Can vision-language models perform spatial reasoning in the wild? arXiv preprint arXiv:2602.03916 (2026) 2, 4, 6 38. von Werra, L., Belkada, Y., Tunstall, L., Beeching, E., Thrush, T., Lambert, N., Huang, S., Rasul, K., Gallouédec, Q.: TRL: Transformers Reinforcement Learning (2020), https://github.com/huggingface/trl 20 39. Wu, H., Huang, X., Chen, Y., Zhang, Y., Wang, Y., Xie, W.: Spatialscore: Towards unified evaluation for multimodal spatial understanding. arXiv e-prints pp. arXiv– 2505 (2025) 2, 4 18 Y. Lee et al. 40. Yang, J., Yang, S., Gupta, A.W., Han, R., Fei-Fei, L., Xie, S.: Thinking in space: How multimodal large language models see, remember, and recall spaces. In: CVPR. pp. 10632–10643 (2025) 4, 13 41. Yang, R., Zhu, Z., Li, Y., Huang, J., Yan, S., Zhou, S., Liu, Z., Li, X., Li, S., Wang, W., et al.: Visual spatial tuning. arXiv preprint arXiv:2511.05491 (2025) 7, 8 42. Yang, S., Xu, R., Xie, Y., Yang, S., Li, M., Lin, J., Zhu, C., Chen, X., Duan, H., Yue, X., et al.: Mmsi-bench: A benchmark for multi-image spatial intelligence. arXiv preprint arXiv:2505.23764 (2025) 4 43. Zhang, J., Chen, X., Guo, Y., Hu, Y., Chen, J.: VLM4VLA: Revisiting vision-language-models in vision-language-action models. In: ICLR (2026), https:// openreview.net/forum?id=tc2UsBeODW 1, 7, 14, 20 44. Zhang, Z., Li, H., Dai, Y., Zhu, Z., Zhou, L., Liu, C., Wang, D., Tay, F.E.H., Chen, S., Liu, Z., Liu, Y., Li, X., Zhou, P.: From spatial to actions: Grounding vision-language-action model in spatial foundation priors. In: The Fourteenth In-ternational Conference on Learning Representations (2026), https://openreview. net/forum?id=fzmittHfq3 1MultihopSpatial 19 
+
+# Appendices 
+
+A Training Details . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 A.1 Training for VLM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 A.2 Training for VLA . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 B Additional Experiments . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21 B.1 Ablation Study: RL vs. SFT Post-training . . . . . . . . . . . . . . . . . . . . 21 B.2 Ablation Study on α and β in the Reward Function . . . . . . . . . . . 22 C System Prompt . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 D Annotation and Verification Guidelines . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 D.1 Annotation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 D.2 Verification . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24 E Qualitative Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 F Limitation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 20 Y. Lee et al. 
+
+A Training Details 
+
+A.1 Training for VLM 
+
+We use Qwen3-VL-4B-Instruct [6] as the base policy model. We apply LoRA [17] to the LLM backbone while keeping the base LLM weights, vision encoder, and vision-language merger frozen. The learning rate for the LoRA adapters is set to 5 × 10 −5. For GRPO, we sample G = 4 candidate outputs per question with a maximum completion length of 2,048 tokens and a maximum prompt length of 1,024 tokens. Training is conducted for 10 epochs using the AdamW optimizer [26] ( β1 = 0 .9, β2 = 0 .999 ) with a cosine learning rate schedule, 3% 
+
+warmup ratio, weight decay of 0.1, and learning rate of 5 × 10 −5. The effective batch size is 128 (8 GPUs × 16 prompts per GPU). We use DeepSpeed ZeRO Stage-2 with BF16 mixed precision and gradient checkpointing. Our implemen-tation builds on the TRL library [38]. All reward weights are set to α = β = 1 
+
+in Eq. (1). 
+
+A.2 Training for VLA 
+
+For Vision-Language-Action evaluation, we adopt VLM4VLA [43] which en-ables fair comparison of different VLM backbones under the same training pipeline and evaluation protocol. Specifically, we use Qwen3-VL-4B-Instruct as the VLM backbone. We conduct CALVIN [29] experiments on the ABC →D split, which contains approximately 1.05M training samples from 147 episodes across three environments (A, B, C). We follow the VLM4VLA [43] settings, which insert learnable action tokens into the VLM’s input embedding sequence and append an MLP-based action head (FCDecoder) to decode continuous 7-DoF actions (6-DoF end-effector pose + 1-DoF gripper). We train with the Adam optimizer using a learning rate of 2 × 10 −5 with cosine annealing (minimum LR scale of 0.01) and a linear warmup over the first 0.25 epochs. We employ BFloat16 mixed precision and DeepSpeed ZeRO Stage 2 for distributed training across 8 NVIDIA A100 (80GB) GPUs with gradient clipping of 1.0. The en-tire model—including the vision encoder, language model backbone, and action head—is fine-tuned end-to-end without LoRA. Action labels are normalized to the range [−0.65 , 0.65] . The action head employs a Huber loss for the 6-DoF arm actions and binary cross-entropy for the gripper action, with a gripper loss weighting ratio of 0.01. We use a per-GPU batch size of 16 (effective batch size of 128) and train for 2 epochs (16,466 optimizer steps). For LIBERO [24] experiments, we evaluate on the LIBERO-10 suite, which comprises 10 long-horizon tabletop manipulation tasks with 50 demonstrations per task. We use the same VLM4VLA framework with Qwen3-VL-4B-Instruct as the VLM backbone and the FCDecoder action head. Training employs the Adam optimizer with a learning rate of 2 × 10 −5, cosine annealing (minimum LR scale of 0.01), and linear warmup over the first 0.25 epochs. We use BFloat16 mixed precision and DeepSpeed ZeRO Stage 2 across 8 NVIDIA A100 (80GB) GPUs with gradient clipping of 1.0, and fine-tune the entire model end-to-end MultihopSpatial 21                   
+
+> Table 4: Ablation Study: RL vs. SFT Post-training on MultihopSpatial-Train. Model MCQ Acc. Acc@50IoU avg. IoU
+> Qwen3-VL-4B-Instruct 28.9 23.3 67.4
+> +SFT 58.1 49.0 71.5
+> +GRPO ( Rmcq )61.8 51.6 71.4
+> +GRPO ( Rmcq +Rbbox )61.1 52.3 72.4
+
+without LoRA. Action labels are normalized to [−0.65 , 0.65] with the same loss configuration (Huber loss for arm actions, binary cross-entropy for the gripper, gripper loss ratio of 0.01). Unlike the CALVIN setup, we use an action chunk size of 4 (versus 10 for CALVIN) and apply gradient accumulation with a factor of 4, resulting in a per-GPU batch size of 16 with an effective batch size of 512. We train for 15K optimizer steps and select the best checkpoint based on evaluation performance. 
+
+B Additional Experiments 
+
+Ablation Setup. Unless otherwise specified, all ablation studies in this sec-tion follow the same training configuration as our main experiments detailed in App. A, with one key modification: the models are trained for 5 epochs in-stead of 10. This reduced training duration allows for efficient exploration of various hyperparameters. To ensure a strictly fair comparison in the subsequent experiments, both the SFT and GRPO (RL) models are trained for 5 epochs using an identical learning rate of 5 × 10 −5.
+
+B.1 Ablation Study: RL vs. SFT Post-training SFT with bounding box prediction. To enable the SFT model to jointly predict the multiple-choice answer and the bounding box, we adopt a response augmentation strategy within the standard next-token prediction (NTP) frame-work. Specifically, during data loading, we transform each ground-truth response from the original MCQ-only format ( e.g ., “ (b) green round container ”) into a structured format: “ Answer: (b) green round container\nBounding Box: [876, 506, 940, 604] ”. The ground-truth bounding box, originally in pixel coordinates [x, y, w, h ], is converted to the [x1, y 1, x 2, y 2] format on a 0–1000 normalized scale following Qwen3-VL [6]. This allows the model to learn spatial localization purely through the language modeling objective, without architec-tural modifications or auxiliary detection heads. 
+
+Results and analysis. As shown in Tab. 4, SFT provides a substantial im-provement over the base model across all metrics (+29.2% MCQ Acc., +25.7% Acc@50IoU), confirming that task-specific fine-tuning is essential for multi-hop spatial reasoning. Building upon this, GRPO with only the MCQ reward ( Rmcq )22 Y. Lee et al.                    
+
+> Table 5: Ablation Study: α&βin Reward Function.
+> α&βMCQ Acc. Acc@50IoU avg. IoU 1 & 1 61.1 52.3 72.4 1 & 2 60.6 51.1 71.6 2 & 1 52.5 45.3 72.8
+> 2 & 2 59.9 51.8 72.6
+
+further improves MCQ accuracy to 61.8% (+3.7%) and Acc@50IoU to 51.6% (+2.6%), demonstrating that RL can discover reasoning strategies beyond stan-dard supervised imitation. The most notable finding emerges when comparing SFT and GRPO ( Rmcq +
+
+Rbbox ) for visual grounding. Although SFT learns to generate coordinates through NTP, this implicit supervision treats coordinate tokens identically to natural lan-guage tokens, providing no geometric feedback on localization quality. In con-trast, GRPO with an explicit bounding box reward ( Rbbox ) directly optimizes for IoU-based accuracy, yielding the highest Acc@50IoU (52.3%) and average IoU (72.4%). This suggests that explicit reward-based optimization is vastly more effective than implicit next-token prediction for spatial grounding, as the reward signal provides a direct measure of geometric correctness that token-level cross-entropy loss cannot capture. Finally, comparing the two GRPO variants reveals a natural trade-off: adding 
+
+Rbbox causes a marginal decrease in MCQ accuracy (61.8% → 61.1%) while improving localization metrics (51.6% → 52.3% Acc@50IoU). When the reward function includes a bounding box component, policy optimization allocates part of its capacity toward improving localization, slightly shifting the focus away from pure answer selection. Nevertheless, the MCQ accuracy drop is minimal (−0.7% ), while the localization gains are more pronounced, indicating that the combined reward achieves an optimal balance between reasoning and grounding. 
+
+B.2 Ablation Study on α and β in the Reward Function 
+
+We conduct an ablation study to explore the impact of the hyperparameters α
+
+and β in the reward function (Eq. (1)). As shown in Tab. 5, the configuration of α = 1 and β = 1 achieves the optimal balance, yielding the highest MCQ Accuracy (61.1%) and Acc@50IoU (52.3%). Interestingly, increasing α dispro-portionately ( α = 2 , β = 1 ) maximizes the average IoU (72.8) but causes a severe degradation in MCQ Accuracy (52.5%). This reveals a clear trade-off: over-weighting one reward component forces the policy to over-optimize for spa-tial localization at the severe expense of logical reasoning. Furthermore, scaling both weights equally ( α = 2 , β = 2 ) largely restores performance compared to the imbalanced settings, demonstrating that the relative ratio between the re-wards is more critical than their absolute magnitudes. Based on these findings, we adopt α = 1 and β = 1 as our default configuration. MultihopSpatial 23 
+
+C System Prompt 
+
+Instruction for evaluation on MultihopSpatial 
+
+{Question} Please respond in the following format: Answer: (your choice, e.g., "(a) object name") Bounding Box: {{"bbox_2d": [x1, y1, x2, y2]}} Important: Use NORMALIZED coordinates (0.0 to 1.0). Example: {{"bbox_2d": [0.25, 0.1, 0.75, 0.8]}} 
+
+D Annotation and Verification Guidelines 
+
+D.1 Annotation 
+
+The QA pairs in MultihopSpatial were manually designed by ten trained anno-tators based on 3,563 images curated from COCO [23] and PACO-Ego4D [32]. Each QA pair follows an N-hop structure composed of three spatial reasoning categories — Attribute ( att ), Position ( pos ), and Relation ( rel ) — spanning 1-hop to 3-hop complexities across exo-centric and ego-centric viewpoints. Each pair consists of a question, four multiple-choice options, and a response, along with a bounding box annotation for the target object. Fig. 26 shows the anno-tation interface. 
+
+Viewpoint Definition. Exo-centric view refers to a third-person perspective from an outside observer surveying the entire scene. Ego-centric view refers to the first-person perspective of either a real person appearing in the image or a virtual person placed within the image space. For the ego-centric view, the frontal direction of the perspective subject must be identifiable. Ego-centric view is not permitted when the image is taken from an overhead angle or when the subject lacks a notion of front and back (e.g., a ball or a plate). Inanimate objects cannot serve as the perspective subject. 
+
+N-Hop Spatial Reasoning Structure. Each QA pair is structured as a com-positional problem combining att , pos , and rel , as summarized in Tab. 6. The hop count equals the number of categories in the question. 1-Hop questions use 
+
+Table 6: Definitions and examples of the three spatial reasoning categories used in MultihopSpatial.       
+
+> Category Definition Examples
+> ATT Visual properties of an object (color, shape, state, etc.) red object, sitting person, round object POS Spatial location of an object left side of the image, in front of the man, on the desk REL Spatial relationship between objects (comparative, superlative) highest, closest, farthest
+
+either pos or rel alone; 2-Hop questions combine two categories ( att+pos ,24 Y. Lee et al. 
+
+att+rel , or pos+rel ); and 3-Hop questions incorporate all three categories (att+pos+rel ). Distance ( rel ) is judged based on 3D spatial depth rather than 2D pixel distance in the image. 
+
+QA Construction Guidelines. Question must include the reasoning cate-gories corresponding to the designated hop count. Ego-centric view questions must begin with a subject-establishing phrase: "From the perspective of [person description]," for a real person, or "When I’m standing [location/situation] and facing the camera," for a virtual person. Choice consists of four multiple-choice items, each referring to a single object. Objects must be present in the image and distinguishable by their visual characteristics. If the att condition is color, color descriptors must be excluded from the options. If the question targets a specific category (e.g., person, vehicle), all options must belong to that same category. The options must not be eliminable from the question alone. Response is the option that is visually accurate given the question. 
+
+D.2 Verification 
+
+Each QA pair underwent a rigorous multi-stage verification process consisting of three independent rounds. In the first round, annotators checked whether (i) all objects in the question and options exist in the image, (ii) the bounding box corresponds to the correct answer, (iii) the question follows the designated tem-plate, and (iv) the answer is visually accurate. In the second round, a different group of annotators cross-examined the samples against the first-round criteria and conducted additional checks for grammatical naturalness and whether any option could be eliminated without viewing the image. A QA pair was rejected if it failed at either of these two initial stages, including cases where the ques-tion omitted a required reasoning category, any option referred to more than one object, or the bounding box was missing or incorrect. Finally, in the third round, three independent verifiers conducted a conclusive review to ensure unan-imous agreement. They strictly verified that all option entities exist in the image, the bounding-box annotation precisely matches the target, and the labeled an-swer is uniquely supported. Following this exhaustive three-round protocol, we measured the inter-annotator agreement, achieving a remarkable Krippendorff’s 
+
+α = 0 .90 . Given the inherent complexity and potential subjectivity involved in evaluating multi-hop and compositional spatial reasoning, this high score is significant. It strongly demonstrates that our rigorous multi-stage filtering suc-cessfully eliminated the ambiguity, hallucination, and noise typically found in AI-generated data. Consequently, this high consensus guarantees that our final-ized benchmark provides a strictly objective, highly reliable, and unambiguous gold standard for evaluating the true spatial reasoning capabilities of vision-language models. Fig. 27 shows the interfaces used throughout the verification process. MultihopSpatial 25 
+
+E Qualitative Results 
+
+We provide additional qualitative results illustrating failure cases on 2-hop and 3-hop ego-centric and exo-centric questions. The results in Fig. 16 and Fig. 17 in-dicate that the models struggle even with basic perspective-taking, while Fig. 18 and Fig. 19 reveal that they often fail to retain intermediate conditions, such as attributes or positions, throughout the reasoning process. Figs. 20 to 25 further present representative 2-hop failure cases covering all three pairwise compositions (att+pos , att+rel , and pos+rel ). Compared with the 3-hop examples, the shorter reasoning chains are generally better preserved until the final prediction. However, the models still fail in different ways, even on the same sample. Overall, these examples suggest that the difficulty does not stem only from long reason-ing chains. An error in a single intermediate cue can easily propagate and lead to an incorrect final answer. This again highlights the importance of evaluating compositional spatial reasoning beyond single-hop queries. 
+
+F Limitation 
+
+While MultihopSpatial comprehensively evaluates and enhances multi-hop spatial reasoning, a few limitations remain. First, our RL post-training ex-periments were primarily conducted on a compact model ( e.g ., Qwen3-VL-4B-Instruct [6]). Exploring how the compounding benefits of this spatial post-training scale with much larger VLMs is an important direction we leave for fu-ture work. Second, our current benchmark and training corpus are constructed exclusively from static images. Extending our compositional reasoning frame-work to spatial-temporal environments ( e.g ., video-based multi-hop composi-tional reasoning) represents a critical next step. We believe addressing these areas in future research will further advance the foundational spatial intelligence of embodied agents. 26 Y. Lee et al. GPT 5.2  
+
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+
+Answer: (d) , Bounding Box: [0.0, 0.355, 0.08, 0.42] 
+
+Rationale: …I can see this person is in the center -left area of the frame, walking on the brick path. \n\n From this person's 
+
+perspective, \"to his right \" means the right side of the image from our viewing …wearing a white short -sleeve t -shirt and 
+
+sunglasses, facing away from the camera, appears to be seated on the far left bench, making them the farthest … 
+
+Answer: (d) Bounding Box: [0.885, 0.698, 0.973, 0.814] 
+
+Rationale: The person wearing a backpack and a gray long -sleeve sweatshirt is walking on the brick path near the left -center of 
+
+the image. “To his right” (image -right side from his position) there are multiple sitting …the person in the white short -sleeve t -
+
+shirt wearing sunglasses …making him the farthest sitting person to the gray -sweatshirt backpack wearer’s right. 
+
+Answer: (d) Boudning Box: [0.711, 0.912, 0.893, 0.96] 
+
+Rationale: The reference person is wearing a gray long -sleeve sweatshirt and a black backpack… From his perspective walking 
+
+away, \"to his right \" corresponds to the right side of the image. The sitting people on the right include a person on the grass 
+
+ledge and a person and a person sitting on a wall further to the right. Choice (d) describes which perfectly matches… 
+
+Q. From the perspective of the person wearing a backpack and a gray 
+
+long -sleeve sweatshirt , which sitting person to his right is farthest 
+
+rom him? and provide the bounding box coordinate of the region 
+
+related to your answer. 
+
+(a) person looking at laptop 
+
+(b) person wearing striped t -shirt 
+
+(c) person wearing red t -shirt holding book 
+
+(d) person wearing white short -sleeve t -shirt wearing sunglasses facing 
+
+away from camera 
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+3-Hop Ego -centric (ATT -POS -REL )
+
+Fig. 16: Qualitative failure analysis on a 3-hop ego-centric question. All three models fail to correctly identify the perspective. GPT 5.2 
+
+3-Hop Ego -centric (ATT -POS -REL )  
+
+> Claude Sonnet 4.5 GT BBox
+> Gemini 3 Flash
+
+Answer: (a) person wearing brown clothes Bounding Box: [0.224, 0.381, 0.095, 0.252] 
+
+Rationale: ... (from her perspective) include: - A person in brown clothes - A person in a navy long -sleeve shirt …person 
+
+wearing brown clothes appears to be seated directly across or slightly to the left from the woman in black , making them the 
+
+closest person on the left side to her .
+
+Answer: (b) person holding a cup Bounding Box: [0.528, 0.306, 0.623, 0.430] 
+
+Rationale: … Then I look only at the sitting people on the left side of the image : (a) the person in brown clothes (the man in a 
+
+brown jacket closest to the camera on the left), (b) the person holding a cup ( a seated person left -of -center holding a drink), (c) 
+
+the man wearing black clothes and glasses (not on the left side; also appears standing in the back, so not applicable), and … 
+
+Answer: (a) person wearing brown clothes Bounding Box: [0.381, 0.318, 0.735, 0.433] 
+
+Rationale: …From an observer's (the camera's) perspective , the group of people sitting on the …Determine who is closest: Of 
+
+those sitting on the left side of the image/table, the person wearing brown clothes (a brown jacket/fleece) is sitting at the 
+
+corner of the table, making them the closest … 
+
+Q. From the perspective of a woman wearing black clothes and 
+
+glasses , which sitting person on the left side is closest to her? and 
+
+provide the bounding box coordinate of the region related to your 
+
+answer. 
+
+(a) person wearing brown clothes 
+
+(b) person holding a cup 
+
+(c) man wearing black clothes and glasses 
+
+(d) person wearing a navy long -sleeve shirt 
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Fig. 17: Qualitative failure analysis on a 3-hop ego-centric question. All three models fail to correctly identify the perspective. MultihopSpatial 27 GPT 5.2 
+
+ATT -POS -REL  
+
+> GPT 5.2
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+
+Answer: (c) flowerpot Bounding Box: [0.195, 0.067, 0.105, 0.167] 
+
+Rationale: … the tray is not round or cylindrical, so it shouldn't be considered. \n\n Among the round/cylindrical objects: Cup: 
+
+middle area of table Plate with bread: front -right area Flowerpot: background through window The flowerpot is in the 
+
+background outside, positioned more towards the left -center of the image, making it farthest from the bicycle …
+
+Answer: (b) tray Bounding Box: [0.00, 0.19, 0.56, 0.72] 
+
+Rationale: The bicycle is visible outside the window on the right side of the image. Among the round/cylindrical table objects: 
+
+the cup and the plate with bread are on the right side (close to the bicycle), while the tray is on the left side of the table (farthest 
+
+from the bicycle) . The flowerpot is outside and not on the table. Therefore, the tray is the farthest table object from the… 
+
+Answer: (b) tray Boudning Box: [0.21, 0.0, 0.59, 0.42] 
+
+Rationale: …To find the round or cylindrical object on the table that is farthest from it, we evaluate the objects on the table: the 
+
+tray, the coffee cup, and the plate with bread. …In terms of distance from the bicycle (top -right), the tray (middle -left) is the 
+
+most distant object on the table, followed by the plate with bread and then the cup. … farthest object among those listed. 
+
+Q. Which round or cylindrical object on the table is farthest from the 
+
+bicycle? and provide the bounding box coordinate of the region related 
+
+to your answer. 
+
+(a) cup 
+
+(b) tray 
+
+(c) flowerpot 
+
+(d) plate with bread 
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+3-Hop Exo-centric (ATT -POS -REL )
+
+Fig. 18: Qualitative failure analysis on a 3-hop exo-centric question. GPT and Gemini fail on attribute condition recognition, whereas Claude fails on position condition recognition. Answer: (b) person in red clothing Bounding Box: [0.791, 0.183, 0.049, 0.09] 
+
+Rationale: … plate wearing number 1 (PLOUFFE). Looking at the right side of the image, I can see: \n- The umpire in black 
+
+clothing behind the catcher \n- The catcher in dark clothing \n- People in the dugout area \n- Spectators in the stands wearing red 
+
+clothing … the person in red clothing in the stands would be the farthest from the batter at home plate .
+
+Answer: (b) person in red clothing Bounding Box: [0.842, 0.169, 0.983, 0.372] 
+
+Rationale: … (a) #24 is standing in the dugout area to the right of center; (b) the person in red clothing is standing in the stands 
+
+at the far right; (c) the headset wearer is the umpire at the lower right; (d) the person in black clothing is also the umpir e … 
+
+The farthest from the batter is the person in red clothing because they are positioned highest and farthest to the right … 
+
+Answer: (d) person in black clothing Boudning Box: [0.711, 0.912, 0.893, 0.96] 
+
+Rationale: … The person in red clothing appears to be sitting in the stands, and the person with the headset is standing on the 
+
+left side of the image. Comparing the distances between the batter and the remaining standing people on the right, the umpire is 
+
+further away from the batter than the person with number 24. 
+
+Q. Which standing person on the right side of the image is farthest 
+
+from the man holding a baseball bat? and provide the bounding box 
+
+coordinate of the region related to your answer. 
+
+(a) person with number 24 on clothing 
+
+(b) person in red clothing 
+
+(c) person wearing a headset 
+
+(d) person in black clothing 
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2  
+
+> GPT 5.2
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3
+> Flash
+> GPT 5.2
+
+3-Hop Exo-centric (ATT -POS -REL )
+
+Fig. 19: Qualitative failure analysis on a 3-hop exo-centric question. GPT and Claude fail to recognize the attribute condition, whereas Gemini fails on relation recognition. 28 Y. Lee et al. Answer: (b) person wearing a light green top Bounding Box: [0.35, 0.36, 0.85, 0.95] 
+
+Rationale: ... From the woman in the white tank top's perspective, her left side would be where the woman in the green top is 
+
+positioned in the foreground. Among the choices, the person wearing a light green top (b) is the closest person on the left 
+
+side of the woman in the white tank top (from the white tank top woman's perspective). 
+
+Answer: (c) bald man Bounding Box: [0.0, 0.15, 0.18, 0.33] 
+
+Rationale: The woman wearing a white tank top is seated slightly left of center in the background. She is facing toward the 
+
+right side of the image (toward the woman in green). From her perspective, her left side corresponds to the viewer’s left side 
+
+of the image. … Therefore, the person on her left side and closest to her is the bald man. 
+
+2-Hop Ego -centric View (POS -REL )
+
+Q. From the perspective of the woman wearing a white tank top , who is on her left side and 
+
+closest to her? and provide the bounding box coordinate of the region related to your answer. 
+
+(a) person wearing a red top 
+
+(b) person wearing a light green top 
+
+(c) bald man 
+
+(d) person wearing a brown short -sleeve T -shirt 
+
+Answer: (d) person wearing a brown short -sleeve T -shirt Bounding Box: [0.175, 0.306, 0.372, 0.444] 
+
+Rationale: First, identify the woman wearing a white tank top, who is seated on the left side … her right side is towards the 
+
+camera and her left side is towards the background of the scene . … Among the given choices, the person in the brown shirt 
+
+is the one located on her left side and is part of the same seating area.  
+
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+> GPT 5.2
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Fig. 20: Qualitative failure analysis on a 2-hop ego-centric question. GPT, Gemini, and Claude fail on perspective, position, and relation, respectively. Answer: (c) chair covered with clothing Bounding Box: [0.0, 0.32, 0.15, 0.58] 
+
+Rationale: … From their perspective, \"front left \" would be to their left side and in front of them. \n\n3. Looking at 
+
+that area, I can see a light -colored wooden chair (appears to be in a natural wood finish) with what appears to be dark 
+
+clothing or fabric draped over it. \n\n4. This matches option (c) \"chair covered with clothing \”… 
+
+Answer: (a) penguin doll Bounding Box: [0.74, 0.55, 0.83, 0.76] 
+
+Rationale: … When a person faces the camera, their left side corresponds to the right side of the image. On the right 
+
+side foreground, there is a small black -and -white penguin doll placed on top of a round wicker stool. Other black 
+
+objects (such as the hat) are on the left side of the image, which would be the person’s right … 
+
+2-Hop Ego -centric View (ATT -POS )
+
+Q. From the perspective of the person wearing black , what is the 
+
+black object to their front left ? and provide the bounding box 
+
+coordinate of the region related to your answer. 
+
+(a) penguin doll 
+
+(b) round chair 
+
+(c) chair covered with clothing 
+
+(d) hat 
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Answer: (a) penguin doll Bounding Box: [0.74, 0.6, 0.79, 0.69] 
+
+Rationale: … An object that is to their \"front left \" would therefore be located in the lower -right quadrant of the 
+
+image relative to their position. The penguin doll is situated on the right side of the image and is closer to the 
+
+foreground than the person, placing it at their front -left … 
+
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+> GPT 5.2
+
+Fig. 21: Qualitative failure analysis on a 2-hop ego-centric question. GPT and Gemini fail on position recognition, whereas Claude fails on attribute recognition. MultihopSpatial 29 Answer: (b) cake Bounding Box: [0.32, 0.45, 0.54, 0.76] 
+
+Rationale: Looking at the image from the groom's perspective (the man on the right), … The groom is standing 
+
+directly next to the cake, and these round decorations on the cake are the closest round objects to him . The picture 
+
+frame is behind him, the table is below, and the knife is linear, not round. …
+
+Answer: (b) cake Bounding Box: [0.0, 0.15, 0.18, 0.33] 
+
+Rationale: … The round ones are the table with a round top and the cylindrical cake. The knife isn't round, and the 
+
+picture frame is rectangular. The groom is positioned center -right, and it seems the cake is closest to his hands on 
+
+the right. 
+
+2-Hop Ego -centric View (ATT -REL )
+
+Q. From the perspective of the groom , which round object is closest to him? 
+
+and provide the bounding box coordinate of the region related to your answer. 
+
+(a) table 
+
+(b) cake 
+
+(c) knife 
+
+(d) picture 
+
+Answer: (b) cake Bounding Box: [0.476, 0.744, 0.88, 0.999] 
+
+Rationale: The groom is the man in the center of the image, … Although the edge of the table is physically closer to 
+
+his torso, the cake is the main round object he is directly interacting with and is located right at his hands. In the 
+
+context of this scene, the cake is the most prominent \"round object \" he is facing and engaging with.  
+
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+> GPT 5.2
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Fig. 22: Qualitative failure analysis on a 2-hop ego-centric question. All three models fail on relation recognition. Answer: (d) frame Bounding Box: [0.369, 0.0, 0.641, 0.283] 
+
+Rationale: … man hugging the green cushion (who is on the left side of the image) … The laptop (white/gray) is on 
+
+the table in front of him - relatively close … The frame on the right side near the TV appears to be the farthest gray 
+
+object …
+
+Answer: (a) poster Bounding Box: [0.74, 0.55, 0.83, 0.76] 
+
+Rationale: The man hugging the green cushion is sitting on the left side of the couch. We compare the gray objects: 
+
+the laptop is on the table directly in front of him (very close), … and the large gray poster on the red wall (with “RUN 
+
+DMC”) is positioned higher and more centrally on the wall, farther from the man compared to the others .
+
+2-Hop Exo -centric View (ATT -REL )
+
+Q. Which gray object is farthest from the man hugging the green 
+
+cushion? and provide the bounding box coordinate of the region 
+
+related to your answer. 
+
+(a) poster 
+
+(b) TV 
+
+(c) laptop 
+
+(d) frame 
+
+Answer: (b) TV Bounding Box: [0.0, 0.574, 0.638, 0.99] 
+
+Rationale: … we first identify the man on the left side of the image who is holding a green pillow. … Among these, 
+
+the laptop and the frame are relatively close to the man. The poster is further away in the middle of the wall, but the 
+
+TV is located on the far right side of the room, which is the greatest distance from the man on the left . 
+
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+> GPT 5.2
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Fig. 23: Qualitative failure analysis on a 2-hop exo-centric question. All three models fail to recognize the attribute condition. 30 Y. Lee et al. Answer: (c) wine glass Bounding Box: [0.52, 0.0, 0.65, 0.35] 
+
+Rationale: … doll - it's positioned on the left side of the image … On the right side, I can see a wine glass \n\nThe 
+
+wine glass appears to be the rightmost object in the image, making it the farthest from the doll on the right side. 
+
+Answer: (c) wine glass Bounding Box: [0.74, 0.55, 0.83, 0.76] 
+
+Rationale: The doll is positioned on the left side of the image. … The wine glass is located at the far right edge and 
+
+slightly toward the upper -right area of the image, making it the most distant object from the doll in terms of spatial 
+
+separation across the frame. Therefore, the wine glass is the farthest object from the doll on the right side. 
+
+2-Hop Exo -centric View (POS -REL )
+
+Q. Which object farthest from the doll on the right side of 
+
+the image? and provide the bounding box coordinate of the 
+
+region related to your answer. 
+
+(a) fork 
+
+(b) spoon on blue table mat 
+
+(c) wine glass 
+
+(d) knife 
+
+Answer: (c) wine glass Bounding Box: [0.0, 0.822, 0.417, 1.0] 
+
+Rationale: … we evaluate the spatial positions of each option relative to the doll, which is located on the left. The 
+
+**spoon** and **fork** on the blue table mat are located relatively close to the center of the table. … the wine glass 
+
+at the far upper -right corner is both visually and geometrically the farthest object among the choices.  
+
+> Claude Sonnet 4.5
+> GT BBox
+> Gemini 3 Flash
+> GPT 5.2
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Fig. 24: Qualitative failure analysis on a 2-hop exo-centric question. All three models fail to correctly determine the spatial relation based on the 3D distance. Answer: (b) wall lamp Bounding Box: [0.42, 0.0, 0.51, 0.15] 
+
+Rationale: … (a) flowerpot - The flowerpot is visible on the right side, but it's typically cylindrical/circular \n(b) wall 
+
+lamp - The lamp is on the right but is more of a fixture shape … I notice there appears to be a rectangular or square -
+
+shaped wall lamp mounted on the wall on the right side of the image. 
+
+Answer: (d) table Bounding Box: [0.72, 0.515, 0.98, 0.955] 
+
+Rationale: … (a) flowerpot → cylindrical, not square or rectangular. (b) wall lamp → mostly cylindrical/rounded, not 
+
+square or rectangular. (c) pillow → rectangular but located more toward the center -left where the man is resting. (d) 
+
+table → the bedside table on the right side of the image has a clearly rectangular top surface . … 
+
+2-Hop Exo -centric Vie w (ATT -POS )
+
+Q. Which square or rectangular object is on the right side 
+
+of the image? and provide the bounding box coordinate of 
+
+the region related to your answer. 
+
+(a) flowerpot 
+
+(b) wall lamp 
+
+(c) pillow the man is resting his head on 
+
+(d) table 
+
+Answer: (b) wall lamp Bounding Box: [0.0, 0.656, 0.339, 0.771] 
+
+Rationale: … The table has a circular top, and the flowerpot is more curved/vase -shaped. The pillow mentioned in 
+
+option (c) is located more towards the center and left of the image. Therefore, the wall lamp is the most fitting square 
+
+or rectangular object on the right side.  
+
+> Claude Sonnet 4.5
+> GT BBox
+> GPT 5.2
+> Gemini 3 Flash
+
+Gemini 3 Flash 
+
+Claude Sonnet 4.5 
+
+GPT 5.2 
+
+Fig. 25: Qualitative failure analysis on a 2-hop exo-centric question. All three models fail to recognize the attribute condition. MultihopSpatial 31 
+
+Fig. 26: Screenshot of the data annotation interface. Annotators write aquestion-answer pair, select a view type, and draw a bounding box. 
+
+Fig. 27: Screenshot of the data verification interface. Reviewers verify samples based on the criteria and provide corrections and comments.
