@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.19583v1/fig-001.webp",
+      "caption": "Figure 2: Pass rates comparison (Pass@1 and Pass@5) across platforms, skills configurations, and task difficulty levels.",
+      "page": 4,
+      "index": 1,
+      "width": 479,
+      "height": 280
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19583v1/fig-002.webp",
+      "caption": "Figure 3: Average per-task token usage across platforms, skills configurations, and task difficulty levels.",
+      "page": 4,
+      "index": 2,
+      "width": 481,
+      "height": 280
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19583v1/fig-003.webp",
+      "caption": "Table 1: Detailed CF/BF/BC@1 outcomes across platforms, skills configurations, and task difficulty levels. Each cell reports the number of CF/BF/BC tasks.",
+      "page": 3,
+      "index": 3,
+      "width": 496,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19583v1/fig-004.webp",
+      "caption": "Table 2: Detailed CF/BF/BC@5 outcomes across platforms, skills configurations, and task difficulty levels. Each cell reports the number of CF/BF/BC tasks.",
+      "page": 3,
+      "index": 4,
+      "width": 496,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19583v1/fig-005.webp",
+      "caption": "Table 3: List of peripherals supported by IoT-SkillsBench.",
+      "page": 5,
+      "index": 5,
+      "width": 498,
+      "height": 599
+    },
+    {
+      "url": "assets/figures/arxiv/2603.19583v1/fig-006.webp",
+      "caption": "Figure 1: Overview of the skills-based agentic framework for embedded and IoT systems development and the IoTSkillsBench benchmark.",
+      "page": 1,
+      "index": 6,
+      "width": 494,
+      "height": 343
+    }
+  ]
+}

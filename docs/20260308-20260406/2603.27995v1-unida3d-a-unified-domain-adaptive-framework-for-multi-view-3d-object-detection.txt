@@ -1,0 +1,542 @@
+Title: UniDA3D: A Unified Domain-Adaptive Framework for Multi-View 3D Object Detection
+
+URL Source: https://arxiv.org/pdf/2603.27995v1
+
+Published Time: Tue, 31 Mar 2026 01:54:01 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+> IEEE TRANSACTIONS ON IMAGE PROCESSING 1
+
+# UniDA3D: A Unified Domain-Adaptive Framework for Multi-View 3D Object Detection 
+
+Hongjing Wu †, Student Member, IEEE, Cheng Chi †, Member, IEEE, Jinlin Wu, Member, IEEE Yanzhao Su, Member, IEEE Zhen Lei, Member, IEEE Wenqi Ren ∗, Member, IEEE 
+
+Abstract —Camera-only 3D object detection is critical for au-tonomous driving, offering a cost-effective alternative to LiDAR-based methods. In particular, multi-view 3D object detection has emerged as a promising direction due to its balanced trade-off between performance and cost. However, existing methods often suffer significant performance degradation under complex envi-ronmental conditions such as nighttime, fog, and rain, primarily due to their reliance on training data collected mostly in ideal conditions. To address this challenge, we propose UniDA3D, a unified domain-adaptive multi-view 3D object detector designed for robust perception under diverse adverse conditions. UniDA3D formulates nighttime, rainy, and foggy scenes as a unified multi-target domain adaptation problem and leverages a novel query-guided domain discrepancy mitigation (QDDM) module to align object features between source and target domains at both batch and global levels via query-centric adversarial and contrastive learning. Furthermore, we introduce a domain-adaptive teacher– student training pipeline with an exponential-moving-average teacher and dynamically updated high-quality pseudo labels to enhance consistency learning and suppress background noise in unlabeled target domains. In contrast to prior approaches that re-quire separate training for each condition, UniDA3D performs a single unified training process across multiple domains, enabling robust all-weather 3D perception. On a synthesized multi-view 3D benchmark constructed by generating nighttime, rainy, and foggy counterparts from nuScenes (nuScenes-Night, nuScenes-Rain, and nuScenes-Haze), UniDA3D consistently outperforms state-of-the-art camera-only multi-view 3D detectors under extreme conditions, achieving substantial gains in mAP and NDS while maintaining real-time inference efficiency. 
+
+Index Terms —3D object detection, domain adaptation, multi-view perception, autonomous driving, extreme weather conditions 
+
+I. I NTRODUCTION 
+
+# CAMERA-ONLY 3D object detection has become a core perception capability for autonomous driving, where reli-able 3D scene understanding is required for safe planning and 
+
+H. Wu and W. Ren are with the Shenzhen Campus of Sun Yat-sen University, Shenzhen, China, and with The State Key Laboratory of Blockchain and Data Security, Zhejiang University, Hangzhou, China. E-mail: wuhj28@mail2.sysu.edu.cn, renwq3@mail.sysu.edu.cn. C. Chi is with the Beijing Academy of Artificial Intelligence, Beijing, China. E-mail: chengchi6666@gmail.com. J. Wu and Z. Lei are with the National Laboratory of Pattern Recognition, Institute of Automation, Chinese Academy of Sciences, Beijing, China. E-mail: 2993376081@qq.com, zhen.lei@ia.ac.cn. Y. Su is with the Xi’an Research Institute of High-tech, Xi’an, China. E-mail: syzlhh@163.com.  
+
+> †
+
+These authors contributed equally to this work.  
+
+> ∗
+
+Corresponding author. Manuscript submitted to IEEE Transactions on Image Processing. 
+
+decision-making. Compared with LiDAR-centric solutions, camera-based systems are attractive for large-scale deployment due to their lower hardware cost, easier maintenance, and richer appearance cues. In particular, multi-view 3D object de-tection, which exploits multiple synchronized cameras around the vehicle, has emerged as a promising paradigm that achieves a favorable trade-off between accuracy and deployment cost. Compared with monocular 3D detectors [1]–[3] and LiDAR-based 3D detectors [4]–[6], multi-view camera-only methods provide a better balance between perception performance and deployment cost. Recent multi-view detectors [7]–[12] have made remarkable progress, with some even approaching or surpassing LiDAR-based methods under standard daytime benchmarks. Despite this progress, current camera-only 3D detectors are still far from robust in complex real-world environments. In practical deployment, autonomous vehicles must operate across a wide spectrum of adverse conditions, such as night-time, heavy rain, and dense fog, where illumination, visibility, and image statistics differ drastically from those in clear day-time scenes. However, most existing datasets and models are developed under near-ideal conditions, and naively applying these detectors to extreme weather often leads to severe per-formance degradation and unstable behavior. This robustness gap is particularly critical for safety-critical perception, where missed detections or inaccurate 3D localization under adverse weather can directly jeopardize downstream planning. In this work, we focus on the problem of multi-view 3D object detection under multiple adverse environmental conditions in a camera-only setting. Concretely, we consider a training scenario where annotated source data are available only in clear daytime, while the target domains consist of nighttime, rainy, and foggy conditions without ground-truth labels. The goal is to learn a single detector that generalizes well across all these target domains, without training separate models for each weather type. Existing solutions face several key challenges in this setting. First, the domain shifts induced by different adverse conditions are heterogeneous and multi-faceted: nighttime introduces low-light noise and color shifts, fog causes low contrast and depth-dependent visibility loss, and rain introduces localized streaks and partial occlusions. A generic domain adaptation strategy designed for a single domain pair (e.g., clear →
+
+night) is often insufficient to simultaneously handle these diverse shifts. Second, multi-view 3D detection involves not 
+
+0000–0000/00$00.00 © 2025 IEEE  
+
+> arXiv:2603.27995v1 [cs.CV] 30 Mar 2026 IEEE TRANSACTIONS ON IMAGE PROCESSING 2
+
+only image-level appearance but also cross-view geometric reasoning and depth estimation, making domain discrepancies propagate from the image space to the 3D representation space. Simply aligning 2D feature maps may fail to correct errors accumulated in 3D queries or BEV representations. Third, collecting densely annotated multi-view 3D datasets under extreme conditions is prohibitively expensive, and syn-thetic image transformations can distort object appearance and geometry, rendering the original annotations suboptimal for direct supervision. A number of prior works have explored robustness to adverse weather from different angles. Multi-modal ap-proaches [13]–[15] fuse LiDAR and camera signals to enhance detection in challenging conditions, but they require additional sensors and are thus less suitable for camera-only platforms. In addition, recent multi-modal datasets and fusion frameworks explicitly target robustness in challenging environments by combining LiDAR, radar, RGB, and thermal sensing [16]– [18], further demonstrating the benefit of complementary modalities at the cost of increased hardware and system complexity. Domain adaptation methods for 2D detection and LiDAR-based 3D detection [19]–[23], as well as cross-domain localization under inconsistent environmental conditions [24], bridge distribution gaps between source and target domains via adversarial learning, knowledge distillation, or pseudo labeling. However, these methods typically target a single target domain or focus on LiDAR or range sensors, and do not explicitly address unified adaptation for camera-based multi-view 3D perception under multiple adverse conditions. Weather-aware modules [25], [26] introduce condition-specific designs or codebooks to improve robustness, yet they usually require dedicated training or parameterization for each weather condition, increasing both computational and maintenance costs. Moreover, existing perception benchmarks only partially cover our problem setting. Datasets such as Virtual KITTI [27], [28] and SynFog [29] provide synthetic variations with diverse weather and illumination, but they either focus on LiDAR-based detection or do not provide multi-view camera imagery with 3D annotations across multiple adverse conditions. As a result, there is still a lack of standardized benchmarks for evaluating camera-only multi-view 3D detectors under realistic extreme-weather scenarios, which hinders systematic study of unified domain adaptation in this context. To address these challenges, we propose UniDA3D , a
+
+Uni fied Domain-Adaptive framework for multi-view 3D object detection that achieves robust all-weather perception through a single training process. UniDA3D formulates nighttime, rainy, and foggy scenarios as a unified multi-target domain adap-tation problem, enabling the model to learn shared domain-invariant semantics while preserving condition-specific nu-ances. A key ingredient of UniDA3D is the Query-Guided Domain Discrepancy Mitigation (QDDM) module, which performs domain alignment at the level of 3D object queries rather than entire feature maps. By leveraging object queries as semantic anchors, QDDM focuses alignment on object-centric features, mitigates background noise, and combines batch-level adversarial training with class-wise global repre-sentations to alleviate long-tail category bias across domains. In addition, we adopt a domain-adaptive teacher–student self-training pipeline, where an exponential-moving-average teacher generates dynamically updated high-confidence pseudo labels for unlabeled adverse-weather images, providing reli-able high-level supervision tailored to the target distributions. Beyond the unified adaptation framework, we also construct a multi-view 3D object detection benchmark under extreme conditions, covering rain, fog, and nighttime scenarios. The benchmark consists of multi-view camera streams with 3D an-notations and synthesized adverse-weather counterparts, which together support both training and evaluation of camera-only multi-view 3D detectors in challenging environments. Extensive experiments on nuScenes-Night and our adverse-weather benchmark demonstrate that UniDA3D consistently outperforms state-of-the-art camera-only multi-view 3D de-tectors under extreme conditions, while maintaining compet-itive performance in clear weather and real-time inference efficiency. Ablation studies further verify the contribution of each component: query-level alignment significantly improves robustness to background shifts, global class memory miti-gates long-tail degradation across weather domains, and the teacher–student pipeline improves pseudo-label quality in all target conditions. We also observe that unified training across nighttime, rain, and fog yields better overall performance and parameter efficiency than training separate models for each condition, highlighting the advantage of treating multi-weather adaptation as a single unified problem. In summary, the main contributions of this work are as follows:  
+
+> •
+
+We formulate unified domain adaptation for camera-only multi-view 3D object detection under multiple adverse conditions, and propose UniDA3D, a unified framework that achieves robust all-weather detection through a single training process without training separate models for each weather type.  
+
+> •
+
+We design a query-guided domain discrepancy mitiga-tion module that exploits 3D object queries as semantic anchors to align object-level features across domains at both batch and global scales, effectively suppressing background noise and mitigating long-tail category bias.  
+
+> •
+
+We develop a domain-adaptive teacher–student self-training pipeline with dynamically updated high-quality pseudo labels, which provides reliable target-domain supervision and stabilizes optimization across different adverse conditions.  
+
+> •
+
+We construct a multi-view 3D object detection bench-mark under extreme conditions, covering rain, fog, and nighttime; extensive experiments on this benchmark and nuScenes-Night show that UniDA3D delivers state-of-the-art performance under extreme weather while main-taining real-time inference efficiency. II. R ELATED WORK 
+
+A. Perception Dataset for Extreme Conditions 
+
+Achieving dynamic perception of objects in open environ-ments is a major challenge in computer vision, as object IEEE TRANSACTIONS ON IMAGE PROCESSING 3
+
+appearance can undergo significant changes under complex illumination and weather. Building datasets that explicitly cover diverse conditions is therefore critical for improving robustness. In object tracking, Ye et al. [30] introduced the NAT2021 dataset for nighttime aerial tracking under extreme low-light conditions, while Wu et al. [31] constructed syn-thetic foggy and nighttime UAV datasets to facilitate domain-adaptive tracking under adverse weather. For 2D scene under-standing in driving scenarios, Sakaridis et al. [32] generated Foggy Cityscapes by applying physically based fog simulation to urban images, and Liu et al. [33] built VOC Foggy and VOC Dark to train and evaluate detectors in foggy and low-light conditions. Beyond these early efforts, ACDC [34], Dark Zurich [35], and BDD100K [36] provide large-scale real-world data with diverse weather and illumination, but mainly focus on single-view 2D perception. For 3D object detection, the Virtual KITTI series [27], [28] and SynFog [29] offer photo-realistic synthetic data with varied weather to study robust perception and domain adaptation. Several works [37]– [39] further generate simulated LiDAR data under fog, snow, and rain using physically based models, targeting robustness of LiDAR-based 3D detection in adverse weather. Recently, multi-modal benchmarks that combine LiDAR, radar, RGB, and thermal cameras [16]–[18] investigate robustness from a multi-sensor perspective, but rely on additional hardware that may not be feasible for camera-only platforms. Overall, most existing resources either target 2D single-view tasks, LiDAR-centric 3D perception, or hardware-rich multi-modal setups, and rarely offer camera-only multi-view imagery with 3D an-notations across multiple extreme conditions. Our benchmark is developed to fill this gap by providing multi-view 3D data tailored to nighttime, rain, and fog in a camera-only setting, enabling systematic evaluation of unified domain adaptation for vision-based 3D detection. 
+
+B. Multi-view 3D Object Detection 
+
+Multi-view 3D object detection has become a fundamental component of perception systems for autonomous driving, offering a cost-effective alternative to LiDAR by leveraging spatial cues from multiple camera views. Recent methods mainly follow two directions: BEV-based detectors [7]–[9], [40], [41] that transform image features into a top-down representation, and sparse query-based detectors [10], [11], [42], [43] that directly predict objects from learnable queries. Representative BEV approaches such as BEVDet [40], BEV-Former [7], BEVDepth [8], and BEVStereo [41] progressively improve temporal modeling and depth estimation, while query-based methods like PETR [42], SOLOFusion [10], Stream-PETR [11], and Ray Denoising [12] emphasize object-centric temporal reasoning and robust query refinement. Beyond BEV and query paradigms, unified 3D perception frameworks [43], [44] and stronger backbones or pretraining strategies [1]– [3], [45], [46] further enhance performance, and monocu-lar 3D detectors [1]–[3] demonstrate that geometric cues can be recovered even from single-view images. However, most existing multi-view detectors are designed and evaluated on benchmarks such as nuScenes [47], KITTI [48], and Waymo [49], which predominantly contain daytime and clear-weather scenes. Illumination shifts, weather-induced visibility degradation, and cross-condition long-tail distributions are seldom modeled explicitly, and explicit domain adaptation mechanisms are rarely incorporated. UniDA3D builds upon a strong multi-view query-based detector and focuses on en-hancing its generalization to multiple adverse-weather domains through unified domain-adaptive training. 
+
+C. Cross-domain Adaptation 
+
+In many real-world scenarios, significant domain shifts be-tween training and deployment environments pose major chal-lenges to model generalization, making cross-domain adapta-tion a central research topic. In 2D detection, early works such as domain adaptive Faster R-CNN [50] perform image-level and instance-level alignment, while more recent ap-proaches like DATR [51] employ class-wise and dataset-level alignment for DETR-based detectors [52]. IA-YOLO [33] explicitly addresses adverse-weather shifts by integrating a differentiable image processing module with adaptive param-eter prediction, and benchmarks like BDD100K [36] support systematic evaluation across weather and time-of-day varia-tions. Knowledge distillation and adversarial learning under adverse conditions [19], [20] and mean-teacher architectures for UAV tracking [30], [31] further highlight the effective-ness of teacher–student training for cross-domain robustness. For 3D object detection, most adaptation efforts [21]–[23], [53] focus on LiDAR-based methods and inter-dataset dis-crepancies. ST3D [53] and ST3D++ [23] use self-training with denoised pseudo labels to transfer LiDAR detectors, ReDB [22] improves pseudo-label reliability and class balance, and CMT [21] combines co-training with contrastive learning. Sunshine-to-rainstorm distillation [37] and related simulation-based methods [38], [39] explore cross-weather adaptation for LiDAR-based 3D detection, while MonoWAD [25] introduces a weather-aware diffusion model for monocular 3D detection. Additional studies [16], [17], [24] investigate localization and detection under inconsistent environmental conditions, often relying on extra modalities such as radar or thermal imaging. However, these approaches typically target a single target domain, focus on LiDAR or monocular settings, or depend on additional sensors, and do not explicitly address unified adaptation for camera-based multi-view 3D perception across multiple adverse-weather domains. III. M ETHOD 
+
+In this section, we illustrate the overall architecture of the proposed UniDA3D in Fig. 1. Our approach adopts a teacher-student self-training pipeline, where the proposed query-guided domain discrepancy mitigation module is integrated into the training process of the student model. UniDA3D first employs different image generators to synthesize multi-view datasets under nighttime, foggy and rainy conditions for model training and evaluation. Subsequently, source-domain images with ground-truth labels and unlabeled target-domain images are jointly fed into the detector network, where domain-consistent learning is conducted under the supervision IEEE TRANSACTIONS ON IMAGE PROCESSING 4Backbone  Transformer 
+
+Encoder -Decoder 
+
+Object Queries 
+
+QDDM 
+
+…
+
+> Original
+> Night
+> Rain
+> Haze
+
+Target Domain 
+
+Source Domain 
+
+Synthesis 
+
+Backbone  Transformer 
+
+Encoder -Decoder 
+
+Prediction Head 
+
+> label
+> position
+> scale
+> direction
+> velocity
+
+Teacher Model 
+
+Student Model 
+
+EMA 
+
+ℒ𝑔𝑡 
+
+ℒ𝑝𝑠𝑒𝑢𝑑𝑜 
+
+ℒ𝑐𝑜𝑛𝑡𝑟𝑎𝑠𝑡 
+
+ℒ𝑑𝑜𝑚 
+
+Target Domain Query 
+
+Source Domain Query 
+
+Loss Computation 
+
+Class 𝑘 Global 
+
+Representation 
+
+Prediction 
+
+Head 
+
+Domain 
+
+Adaptation 
+
+# UniD A3D Framework  
+
+> Fig. 1. Overview of the proposed UniDA3D. UniDA3D first synthesizes nighttime, rainy, and foggy multi-view images to assist training. A domain-adaptive teacher–student self-training pipeline is employed to transfer knowledge from the source domain to the target domains. UniDA3D is further equipped with a query-guided domain discrepancy mitigation (QDDM) module to align object-level features across domains at both batch and global scales.
+
+of multi-domain feature alignment and high-quality pseudo labels. Finally, the 3D detection head outputs the predicted object bounding boxes along with semantic information. 
+
+Design motivation. Extreme-weather images introduce heavy background shifts and long-tail category bias. Instead of aligning whole feature maps, UniDA3D performs query-level alignment centered on object hypotheses to suppress back-ground noise and focus on semantics that transfer across domains. Beyond batch-wise alignment, we maintain class-wise global representations with frequency-adaptive updates to avoid domination by frequent categories. Finally, we unify multiple target domains into a single training procedure with a shared objective, avoiding condition-specific models and enabling one-pass all-weather training. In the following, we describe the three key components of UniDA3D in detail: cross-domain multi-view image synthesis, domain-adaptive self-training, and query-guided domain discrepancy mitigation. 
+
+A. Cross-domain Multi-view Image Synthesis 
+
+Due to the lack of multi-view 3D detection data under extreme conditions, we synthesize corresponding datasets for nighttime, fog and rain using different image generation meth-ods. Specifically, we employ UNIT [54] to synthesize night-time images from daytime data. The UNIT model is initialized with VGG-128 pre-trained weights. During inference, given a daytime image Iday , the corresponding nighttime image Inight 
+
+is generated as follows: 
+
+Inight = Gnight (Eday (Iday )) , (1) where Eday denotes the encoder that projects the daytime image into a shared latent space, and Gnight denotes the generator that reconstructs a nighttime image from the latent representation. To simulate foggy weather, we introduce haze effects based on a physical scattering process. Following Koschmieder’s law [55], the observed hazy image Hc(x, y ) is modeled as: 
+
+Hc(x, y ) = Jc(x, y ) · t(x, y ) + Ac · (1 − t(x, y )) , (2) where (x, y ) denote spatial coordinates, c indicates the RGB channels, J is the original clear image, A represents the global atmospheric light, and t captures the fraction of light reaching the camera without scattering. The transmission maps needed for haze rendering are estimated by Depth Anything [56], enabling realistic fog synthesis over multi-view images. As for synthesizing rainy images, we adopt a three-stage pipeline [57], including noise generation, motion blur, and image blending. Given the original image Iday , the rainy image 
+
+Irain is obtained by: 
+
+Irain = Blend (Iday , Blur (Noise (Iday ))) , (3) where Noise (·) generates the initial raindrop noise map, Blur (·) applies directional motion blur to simulate raindrop streaks, and Blend (·, ·) fuses the clean image and the processed raindrop layer to generate realistic rainy images. 
+
+Implementation details of synthesis. UNIT is implemented at resolution 720 ×1280 with identity and cycle-consistency losses weighted by λid =0 .5 and λcyc =10 . For haze rendering, we sample the attenuation coefficient β ∼ U (0 .6, 1.4) and atmospheric light A ∼ U (0 .7, 1.0) per image. Depth maps IEEE TRANSACTIONS ON IMAGE PROCESSING 5
+
+are estimated by Depth Anything v2 (ViT-B) and bilinearly resized to feature scales. For rain, we set streak density 
+
+ρ ∼ U(0 .02 , 0.06) , length L ∼ U(7 , 15) pixels, angle 
+
+θ ∼ U (−15 ◦, 15 ◦), motion blur kernel size k ∈ [7 , 11] , and blending ratio α ∼ U (0 .15 , 0.35) . We fix random seed to 42 for reproducibility. For each nuScenes sample, all camera views are transformed consistently within a given weather domain (night, haze or rain), while preserving the original calibration and 3D bounding boxes, so that the synthesized images remain geometrically aligned with the existing anno-tations. During training, these synthesized extreme-condition images are treated as unlabeled target-domain data: we do not use the original nuScenes annotations as direct supervision in the target domains, but rely on teacher-generated pseudo labels instead (see Sec. III-B for details of the teacher–student pipeline). 
+
+B. Domain-Adaptive Self-Training 
+
+We design a teacher–student pipeline to train the model using data from multiple domains. The model receives the source-domain data Is = {(xsi , ysi )}Ms 
+
+> i=1
+
+and the target-domain data Ict = {xti}M ct 
+
+> i=1
+
+as inputs, where x denotes the images, y denotes the corresponding annotations, and i
+
+indexes training samples. The variable c denotes the type of extreme condition, including nighttime, foggy or rainy scenarios. For each training batch, we randomly select one of the extreme conditions as the target domain to simulate domain variation. Our teacher and student models share an identical 3D object detection architecture, with the teacher model exclusively processing target domain data to generate pseudo labels, thereby addressing the lack of high-level super-vision in the target domain. Concretely, the teacher model’s predictions undergo Hungarian matching [58] to assign pre-dictions to objects and filter duplicates, using a matching cost that combines classification confidence and 3D box IoU: 
+
+Cij = − log( pij ) + λbox · (1 − IoU (bi, b j )) , where pij is the predicted class probability, bi and bj are bounding boxes, and 
+
+λbox =2 .0 balances classification and localization. Predictions are further filtered using a classification confidence threshold 
+
+β to yield reliable pseudo labels ˆYct = {yti }M ct
+
+> i=1
+
+. The student model is then trained using both source-domain data with ground-truth annotations and target-domain data with pseudo labels, sharing the same detection loss formulation for both. The teacher model is updated using an Exponential Moving Average (EMA) of the student model’s parameters, which promotes stable training and facilitates smooth knowledge transfer, as defined by the following equation: 
+
+θ(t) 
+
+> teacher
+
+= α · θ(t−1)  
+
+> teacher
+
++ (1 − α) · θ(t)
+
+> student
+
+, (4) where θ(t) 
+
+> teacher
+
+is updated from the previous teacher θ(t−1) 
+
+> teacher
+
+and the current student θ(t)
+
+> student
+
+, controlled by a smoothing coefficient α.Pseudo labels are necessary because, although synthetic pipelines can transform clear images into adverse conditions, the transformation may distort object appearance and geome-try, making original annotations suboptimal as supervision in the target domain. In realistic deployment, unlabeled target 
+
+Algorithm 1 Domain-adaptive teacher–student training  
+
+> 1:
+
+Initialize student θs, copy teacher θt ← θs 
+
+> 2:
+
+for each iteration do  
+
+> 3:
+
+Sample a batch: source (xs, ys) and target xt 
+
+> 4:
+
+Teacher forward on xt (no grad) to produce predictions 
+
+ˆyt 
+
+> 5:
+
+Filter pseudo labels by class confidence β and NMS  
+
+> 6:
+
+Student forward on xs, xt 
+
+> 7:
+
+Compute Lgt on (xs, ys) 
+
+> 8:
+
+Compute Lpseudo on (xt, ˆyt) 
+
+> 9:
+
+Compute Ldom and Lcontrast (QDDM)  
+
+> 10:
+
+L = Lgt + Lpseudo + λdom Ldom + λcon Lcontrast  
+
+> 11:
+
+Update θs by back-propagation; do not update θt by gradients  
+
+> 12:
+
+EMA update teacher: θt ← αθ t + (1 − α)θs 
+
+> 13:
+
+end for 
+
+data are far more accessible than high-quality annotations. The teacher model provides high-confidence pseudo labels that are temporally stable (via EMA) and tailored to the target distribution, which improves supervision quality and reduces confirmation bias compared to directly reusing possibly mis-matched synthetic labels. 
+
+Teacher update and gradient flow. The teacher network does not participate in back-propagation and is only updated by EMA from the student; teacher forward on target images is performed without gradient tracking and is used solely to generate pseudo labels. 
+
+Schedules. We linearly ramp up λdom and λcon from 0 to their maxima ( λdom =0 .1 and λcon =0 .1) in the first 20% of iterations, and warm up EMA with α increasing from 0.95 to 0.99. We keep a fixed per-class confidence threshold β=0 .9,and we detach teacher gradients throughout training. 
+
+Loss functions. For both source and target branches, the detection loss follows the standard formulation in transformer-based 3D detectors [11], [42]: Lgt and Lpseudo are composed of a classification loss and a 3D bounding-box regression loss (combining L1 and IoU terms) with identical weighting coefficients on source and target samples. This choice ensures that pseudo labels, once filtered by confidence, receive the same type of supervision as ground-truth annotations, while the overall contribution of domain-alignment losses Ldom and 
+
+Lcontrast is controlled solely by λdom and λcon .
+
+C. Query-Guided Domain Discrepancy Mitigation module 
+
+(I) Preliminary. UniDA3D is developed based on the widely adopted PETR [42] framework. Given a set of multi-camera images I = {Ii ∈ R3×HI ×WI , i = 1 , 2, . . . , N }, they are first processed by a shared convolutional backbone and a feature pyramid network (FPN) to extract multi-scale 2D image features: 
+
+F = {F li ∈ RCl×HlF ×W lF , i = 1 , . . . , N, l = 1 , . . . , L }, (5) where L denotes the number of FPN levels, and Cl, H lF , W lF
+
+are the channel and spatial dimensions of the l-th level features. A fixed number of learnable 3D object queries IEEE TRANSACTIONS ON IMAGE PROCESSING 6Label Mask 
+
+> Center Features Aggregation
+
+…
+
+> Global -level Contrastive Learning
+
+…
+
+…
+
+…
+
+> Global -level Contrastive Learning
+
+Source Domain Center Features 
+
+Target Domain Center Features 
+
+Dynamic Weight Updating 
+
+…
+
+> …
+
+Car  Truck  Bus  Pedestrian Barrier 
+
+Global Representation 
+
+Domain Discriminator 
+
+C GRL   
+
+> Linear ReLU Linear
+
+Source 
+
+or 
+
+Target ?  
+
+> Fig. 2. Details of the query-guided domain discrepancy mitigation (QDDM) module. QDDM leverages 3D object queries to align source and target features at the object level. It combines adversarial training and contrastive learning with dynamically updated global representation, promoting robust and consistent cross-domain 3D object detection.
+
+Q ∈ RNQ×D are initialized in the 3D space, where each query 
+
+qj ∈ RD encodes the spatial location, orientation, and size of a potential object. These queries are associated with a set of 3D reference points P ∈ RNQ×3. Each 3D reference point pj ∈
+
+R3 is projected onto all camera views using the corresponding intrinsic and extrinsic parameters. The resulting 2D projections are used to generate camera-aware positional encodings Eij ∈
+
+RD , capturing the spatial correspondence between 3D queries and 2D image features. Unlike DETR3D [59], which explicitly samples image features, PETR [42] avoids feature sampling by directly applying cross-attention between 3D object queries and global image features F, guided by the learned positional encodings Eij , thereby mitigating information loss caused by projection ambiguity. Finally, the transformer decoder refines the 3D queries Q through multi-layer cross-attention and predicts object class scores and 3D bounding box parameters 
+
+(x, y, z, w, h, l, θ x, θ y ).The 3D object queries play a central role in bridging the 3D spatial space and the 2D visual domain, as they serve as the core representation for object-level reasoning across views. Crucially, since each query encodes a potential object hypothesis in the 3D world, it provides a natural anchor for performing object-level domain adaptation. As shown in Fig. 2, we design query-guided domain discrepancy mitigation module to facilitate robust and transferable 3D perception under cross-domain scenarios. 
+
+(II) Batch-level Domain-Consistent Adversarial Learn-ing. Compared to reducing domain discrepancies at the full feature map level, employing a query-based domain adversar-ial training strategy is more effective. This approach mitigates the interference of background noise in domain alignment by focusing solely on minimizing the appearance discrepancies of target objects across domains. Specifically, we retain the 3D object queries as well as their corresponding predicted classification labels of both the source and target domains in the current batch. Guided by the predicted class labels, we derive semantic center features for each class through masked feature selection and class-wise feature aggregation. Specif-ically, we mask out queries with classification confidence below a threshold γ=0 .5 to ensure only reliable predictions contribute to class centers. For each query, we first group features across the batch based on class labels, then normalize and aggregate those within the same class to compute the corresponding semantic center features. The process is defined as follows: 
+
+cwk = 1
+
+nwkN w
+
+X
+
+> i=1
+
+I(ywi = k) · f wi
+
+∥f wi ∥2
+
+, (6) where w ∈ { s, t } indicates the domain label, with s and t
+
+representing the source and target domains, respectively. f wi ∈
+
+RC denotes the feature representation of the i-th object query, 
+
+ywi ∈ { 1, 2, . . . , K } is its predicted class label, I(·) is the indicator function, N w is the number of object queries, and 
+
+nwk denotes the number of instances assigned to class k.To promote domain-invariant representation learning, we perform adversarial domain alignment on the fused semantic center features. Specifically, the semantic center features from the source and target domains, denoted as csk and ctk for class k, are concatenated and then passed through a Gradient Reversal Layer (GRL), followed by a multi-layer perceptron (MLP) domain discriminator Ddom :
+
+ˆdk = Ddom (GRL(Concat( csk, ctk))) , (7) where ˆdk denotes the predicted domain label. The GRL reverses the gradients during backpropagation, encouraging the semantic center features to be indistinguishable across domains. The domain discriminator is trained using a standard binary cross-entropy loss: 
+
+Ldom = − X
+
+> k
+
+h
+
+dk log ˆdk + (1 − dk) log(1 − ˆdk)
+
+i
+
+, (8) where dk ∈ { 0, 1} is the domain label, with 0 for source and 1 for target. The three target domains are randomly selected to engage in adversarial training with the source domain’s object features, ultimately resulting in a feature extraction network that is invariant to domain discrepancies, thereby enhancing the model’s robustness under extreme conditions. 
+
+(III) Contrast-Aware Global Representation Guidance. 
+
+Imbalanced category distributions often lead to biased feature representations, particularly when aggregating information IEEE TRANSACTIONS ON IMAGE PROCESSING 7
+
+across domains. To address this issue, a global representation 
+
+cglobal  
+
+> k
+
+is maintained for each class k, serving as a continu-ously updated semantic reference throughout training. These global embeddings are refined incrementally by incorporat-ing features from incoming batches. Specifically, rather than applying uniform updates, a class-aware weighting strategy is employed, in which the update magnitude is dynamically adjusted according to the relative frequency of each class. The dynamic weight updating allows infrequent classes to contribute more substantially, while moderating the influence of dominant classes. The refinement of cglobal  
+
+> k
+
+is defined as: 
+
+cglobal  
+
+> k
+
+←
+
+
+
+1 − nk
+
+nk + Sk
+
+
+
+· cglobal  
+
+> k
+
++ nk
+
+nk + Sk
+
+· cwk , (9) where Sk denotes the accumulated number of samples ob-served for category k. Consequently, the global representation 
+
+cglobal  
+
+> k
+
+serves as consistent semantic features for contrastive learning across domains. A class-wise contrastive loss is applied to align batch-level semantic center features cwk with global representation cglobal , promoting semantic consistency and cross-domain alignment: 
+
+Lcontrast = X
+
+> w∈{ s,t }
+
+LCE 
+
+ sim( cwk , cglobal ), k  , (10) where sim( ·, ·) denotes cosine similarity. The contrastive loss is implemented by first computing temperature-scaled similari-ties between the batch-level class center cwk and all global class centers: sk,k ′ = exp(sim( cwk , cglobal  
+
+> k′
+
+)/τ ) for all classes k′ ∈{1, . . . , K }, then applying softmax over all classes to obtain a probability distribution pk = softmax ([ sk, 1, . . . , s k,K ]) , and finally computing cross-entropy against the ground-truth class 
+
+k: LCE (pk, k ) = − log( pk[k]) . This encourages the batch-level center to be similar to its corresponding global center while being dissimilar to other class centers. Accordingly, the overall training objective can be formulated as: 
+
+Ltotal = Lgt + Lpseudo + λdom Ldom + λcon Lcontrast , (11) where Lgt denotes the supervised loss computed from ground-truth labels, and Lpseudo corresponds to the loss based on pseudo labels. The hyperparameters λdom and λcon balance the contributions of domain alignment and contrastive objectives, with final values set to λdom =0 .1 and λcon =0 .1 after ramp-up. IV. E XPERIMENTS 
+
+A. Experimental setup 
+
+Datasets. The nuScenes [47] dataset is a large-scale au-tonomous driving dataset collected by Motional, featuring six-camera surround-view images that capture full 360° scenes, along with synchronized LiDAR and RADAR data. It pro-vides comprehensive 3D annotations for tasks such as object detection, tracking, and segmentation. Following the method described in Section III-A, we synthesize three extreme-condition datasets from the original nuScenes data, namely nuScenes-Night, nuScenes-Haze and nuScenes-Rain. The orig-inal nuScenes training set contains 28,130 samples, and we synthesize corresponding extreme-condition versions main-taining the same sample count. The validation set contains 6,019 samples, also synthesized to match the original distri-bution. The training and validation splits remain consistent with the official nuScenes protocol. During unified training, the clear-weather nuScenes training split is treated as the la-beled source domain, while all synthesized extreme-condition versions (Night, Haze, Rain) are used as unlabeled target domains; evaluation is always conducted on the synthesized validation splits of each target domain. 
+
+Metric. Model performance is evaluated following the nuScenes [47] protocol, based on mean Average Precision (mAP) and nuScenes Detection Score (NDS). The mAP is computed across multiple distance thresholds over the standard detection classes. NDS aggregates mAP and several True Positive (TP) metrics: mATE (translation error), mASE (scale error), mAOE (orientation error), mAVE (velocity error), and mAAE (attribute error), where lower values indicate better performance in localization, size, orientation, motion, and attribute estimation, respectively. Unless otherwise stated, all reported numbers are obtained on the validation split of each synthesized target domain without using any labels from that domain during training, thereby reflecting the true adaptation capability of the compared methods. 
+
+B. Implementation Details 
+
+Our implementation is based on StreamPETR [11]. We conduct experiments using ResNet-50 [60] and V2-99 [61] as backbone networks, initializing them with pretrained weights from nuImages [47] and DD3D [46], respectively. Input im-ages are resized to 256 ×704 for ResNet-50 and 320 ×800 
+
+for V2-99. UniDA3D is trained with the AdamW optimizer (learning rate 2 × 10 −4, weight decay 0.01 ), a batch size of 8, and cosine learning rate decay; models with ResNet-50 and V2-99 backbones are trained for 60 and 24 epochs, respectively, following the schedule of StreamPETR. In each iteration, mini-batches are composed with a 1:1 ratio of source to target samples, and target samples are uniformly drawn from nuScenes-Night, nuScenes-Haze and nuScenes-Rain. We adopt standard data augmentation including color jitter, random resize-and-crop, and horizontal flipping. The EMA coefficient for the teacher model is warmed up from 0.95 to 0.99 as described in Sec. III-B. UniDA3D is developed using Python 3.8 and PyTorch 1.11.0, and is trained and evaluated on four NVIDIA RTX 4090 GPUs with a fixed random seed of 42. 
+
+C. State-of-the-art Comparisons 
+
+We compare our proposed UniDA3D with existing state-of-the-art methods on the validation set of our synthesized nuScenes datasets under three extreme conditions. All base-lines are trained using the same data composition (clear-weather nuScenes plus synthesized target domains) and train-ing protocol described in the previous subsection to ensure a fair comparison. 
+
+NuScenes-Night Dataset. As shown in Table I, UniDA3D demonstrates remarkable performance in terms of mAP, NDS, and other metrics. In the V2-99 backbone group, we achieve a mAP of 45.04% and an NDS of 53.76%, surpassing the IEEE TRANSACTIONS ON IMAGE PROCESSING 8
+
+TABLE I COMPARISON WITH STATE -OF -THE -ART METHODS ON THE NU SCENES -N IGHT V A L SET . M ODELS ARE GROUPED BY BACKBONE (R ES NET AND V2-99) 
+
+> FOR A FAIR COMPARATIVE ANALYSIS
+
+. BOLD INDICATES THE BEST RESULT .
+
+Methods Backbone Image Size mAP ↑ NDS ↑ mATE ↓ mASE ↓ mAOE ↓ mAVE ↓ mAAE ↓
+
+BEVDet (CBGS) [40] ResNet50 256 × 704 6.98 14.82 91.65 50.68 84.18 136.67 60.21 PETR [42] ResNet50 512 × 1408 11.97 15.51 92.69 74.40 147.76 136.79 37.72 StreamPETR [11] ResNet50 256 × 704 15.60 32.53 82.84 30.91 64.91 49.59 24.48 SOLOFusion [10] ResNet50 256 × 704 17.84 32.91 77.64 30.78 78.28 47.02 26.41 BEVDet4D [9] ResNet50 256 × 704 22.33 37.27 76.82 28.64 61.64 49.51 22.35 BEVFormer v2 [45] ResNet50 640 × 1600 25.56 35.37 80.78 29.39 53.37 89.09 21.50 BEVDepth [8] ResNet50 256 × 704 27.16 41.33 69.37 27.99 54.67 48.16 22.31 BEVStereo [41] ResNet50 256 × 704 29.37 43.35 64.94 28.66 51.71 46.22 21.78 BEVFormer-base [7] R101-DCN 900 × 1600 30.31 43.77 74.99 29.08 42.68 46.74 20.34 
+
+UniDA3D (ours) ResNet50 256 × 704 39.74 50.02 65.43 27.36 49.08 36.80 19.83 
+
+StreamPETR [11] V2-99 640 × 1600 26.78 41.58 70.93 27.27 58.18 39.33 22.42 PETRv2 [44] V2-99 320 × 800 28.86 31.93 84.01 71.00 154.73 48.74 21.26 
+
+UniDA3D (ours) V2-99 320 × 800 45.04 53.76 65.87 26.57 43.13 32.58 19.74 
+
+TABLE II COMPARISON WITH STATE -OF -THE -ART METHODS ON THE NU SCENES -R AIN V A L SET .                                          
+
+> Methods Backbone mAP ↑NDS ↑
+> BEVDet (CBGS) [40] ResNet50 10.70 20.37 PETR [42] ResNet50 15.26 17.82 SOLOFusion [10] ResNet50 17.19 33.17 BEVFormer v2 [45] ResNet50 17.62 28.97 BEVFormer-base [7] R101-DCN 17.28 31.79 BEVDet4D [9] ResNet50 23.48 37.90 StreamPETR [11] ResNet50 28.19 43.70 BEVDepth [8] ResNet50 28.85 42.59 BEVStereo [41] ResNet50 30.28 43.35
+> UniDA3D (ours) ResNet50 39.58 49.74
+> PETRv2 [44] V2-99 32.70 35.11 StreamPETR [11] V2-99 34.26 47.53
+> UniDA3D (ours) V2-99 45.32 54.71
+
+TABLE III COMPARISON WITH STATE -OF -THE -ART METHODS ON THE NU SCENES -H AZE V A L SET .                                          
+
+> Methods Backbone mAP ↑NDS ↑
+> BEVDet (CBGS) [40] ResNet50 21.60 32.45 PETR [42] ResNet50 24.28 23.86 BEVDet4D [9] ResNet50 28.43 42.39 SOLOFusion [10] ResNet50 31.01 43.82 BEVDepth [8] ResNet50 31.67 45.12 BEVStereo [41] ResNet50 33.50 46.72 BEVFormer v2 [45] ResNet50 33.88 42.59 StreamPETR [11] ResNet50 35.50 49.38 BEVFormer-base [7] R101-DCN 36.71 48.79
+> UniDA3D (ours) ResNet50 40.62 50.54
+> PETRv2 [44] V2-99 36.73 37.84 StreamPETR [11] V2-99 41.50 52.56
+> UniDA3D (ours) V2-99 46.85 55.90
+
+second-best method PETRv2 [44] by 16.18% and 21.83%, respectively. UniDA3D also outperforms StreamPETR [11] in mATE by a margin of 5.06%, indicating more accurate localization under low-light conditions where depth cues and object contours are severely degraded. In the ResNet group, we obtain a mAP of 39.74% and an NDS of 50.02%, significantly outperforming BEVFormer-base [7], which employs a more powerful R101-DCN backbone. This suggests that UniDA3D’s unified adaptation strategy yields larger gains than simply scaling up model capacity. Moreover, UniDA3D achieves real-time inference speed, substantially faster than many competing methods; since no extra computation is introduced during in-ference, the efficiency remains the same as StreamPETR [11], confirming that our adaptation modules are training-only. 
+
+NuScenes-Rain Dataset. UniDA3D also performs remark-ably well in rainy conditions as shown in Table II. Using the ResNet-50 backbone, UniDA3D achieves a mAP of 39.58% and an NDS of 49.74%, yielding improvements of 9.30% and 6.39% over the method BEVStereo [41]. With the V2-99 backbone, UniDA3D achieves 45.32% mAP and 54.71% NDS, achieving significant improvements over other state-of-the-art methods. The consistent gains across both backbones indicate that UniDA3D is complementary to backbone scaling and can effectively mitigate occlusions and streak-like arti-facts introduced by rain, which typically cause detectors to hallucinate or miss small objects. 
+
+NuScenes-Haze Dataset. As shown in Table III, UniDA3D exhibits strong performance under hazy conditions. Within the V2-99 backbone group, our method achieves a mAP of 46.85% and an NDS of 55.90%, outperforming the second-best approach StreamPETR [11] by 5.35% and 3.34%, respectively. Similarly, in the ResNet-50 group, UniDA3D attains a mAP of 40.62% and an NDS of 50.54%. Haze mainly reduces contrast and long-range visibility; the improvements in both mAP and NDS reveal that query-level alignment and pseudo-label refinement substantially enhance the stability of 3D localization and orientation estimation in such conditions. Notably, UniDA3D attains impressive performance with just one unified training run across all extreme conditions, show-casing its all-in-one capability for robust 3D object detection under diverse extreme conditions. Compared with training separate models per weather domain, our unified design avoids overfitting to a single condition and allows complementary regularization between night, rain, and haze, leading to better average performance and deployment simplicity. IEEE TRANSACTIONS ON IMAGE PROCESSING 9StreamPETR -Night                                                      
+
+> UniDA3D -Haze UniDA3D -Rain UniDA3D -Night
+> StreamPETR -Rain StreamPETR -Haze
+> Fig. 3. t-SNE visualization results (Blue point: Source Domain, Red point: Target Domain). The distribution consistency between red and blue points reflects the discrepancy in features extracted by the model. A smaller gap between the distributions indicates stronger domain adaptation capability. TABLE IV EFFECT OF EMA RATIO . A LL EXPERIMENTS ARE CONDUCTED ON NU SCENES -N IGHT V A L SET .
+> EMA Ratio mAP ↑NDS ↑mATE ↓
+> 0.9 40.83 51.10 67.08 0.99 40.90 51.15 67.14 0.999 33.44 45.12 65.31
+> TABLE V EFFECT OF FILTERING THRESHOLD . T HE FILTERING THRESHOLD REFERS TO THE CONFIDENCE THRESHOLD USED TO RETAIN HIGH -QUALITY PSEUDO LABELS GENERATED BY THE TEACHER MODEL . A LL EXPERIMENTS ARE CONDUCTED ON NU SCENES -N IGHT V A L SET .
+> Filtering threshold mAP ↑NDS ↑mATE ↓
+> 0.3 40.09 50.54 69.83 0.6 40.41 51.37 66.60 0.9 40.90 51.15 67.14
+> TABLE VI EFFECTIVENESS OF SELF -TRAINING AND QDDM MODULES . A LL EXPERIMENTS ARE CONDUCTED ON NU SCENES -N IGHT V A L SET .
+> Self-training QDDM mAP ↑NDS ↑mATE ↓
+> 26.78 41.58 70.93
+> ✓40.90 51.15 67.14
+> ✓41.88 51.72 65.91
+> ✓✓45.04 53.76 65.87
+
+D. Ablation Study & Analysis 
+
+Study on the training hyper-parameter of UniDA3D. 
+
+We conduct ablation studies on the EMA ratio and filtering threshold. As shown in Table IV, an EMA ratio of 0.99 achieves the best performance with 40.90% mAP and 51.15% NDS. When the EMA ratio is too small (0.9), the teacher updates too quickly and becomes noisy, whereas an exces-sively large value (0.999) leads to a stale teacher that lags behind the student and accumulates outdated biases, resulting in degraded performance. Table V shows that increasing the filtering threshold consistently improves performance, with the best results achieved at 0.9. This indicates that, under severe domain shifts, it is preferable to rely on fewer but highly con-fident pseudo labels rather than aggressively exploiting low-confidence predictions, which are more likely to be erroneous. Based on these results, we adopt an EMA ratio of 0.99 and a filtering threshold of 0.9 in our settings. 
+
+Study on the components of UniDA3D. We conduct ablation studies on the two proposed modules in UniDA3D to validate their effectiveness. As shown in Table VI, the baseline model (StreamPETR without self-training or QDDM) suffers a significant performance drop in nighttime scenar-ios due to severe domain discrepancies. Incorporating the teacher–student self-training pipeline significantly enhances the model’s domain adaptation capability by exploiting un-labeled target data, and QDDM alone also brings substantial gains by enforcing query-level feature alignment. In particular, the QDDM module reduces the domain gap in object-level feature representations via adversarial and contrastive learning at both batch and global levels, resulting in a mAP of 41.88 (+15.10%) and an NDS of 51.72 (+10.14%) over the baseline. When both modules are jointly applied, the model achieves its best robustness, reaching a mAP of 45.04 (+18.26%) and an NDS of 53.76 (+12.18%). The additive nature of the gains confirms that UniDA3D benefits from both improved super-vision (through pseudo labels) and better feature alignment, rather than relying on only one of these mechanisms. 
+
+t-SNE Visualization. We compare the t-SNE visualiza-tion results of feature representations between UniDA3D and StreamPETR under nighttime, rainy and foggy conditions to analyze the domain adaptation effectiveness of our method. As shown in Fig. 3, StreamPETR exhibits clear distribution gaps between source and target domains across all three ex-treme conditions, with target features forming clusters that are largely separated from their source counterparts. In contrast, UniDA3D produces more consistent and overlapping feature distributions, demonstrating its ability to extract domain-invariant representations across diverse environments. This qualitative evidence is consistent with the quantitative im-provements and suggests that query-level alignment and global class memory jointly encourage weather-robust semantics. 
+
+Limitations. Although UniDA3D achieves impressive re-sults under simulated extreme conditions, there are still two key limitations. Firstly, the target domains are synthesized us-ing image-to-image translation and physically-based rendering methods, which may not fully capture the complexity and diversity of real-world environmental conditions such as sensor artifacts, compound weather patterns, and rare corner cases. Secondly, the robustness of UniDA3D under compounded ex-treme conditions such as nighttime combined with heavy rain remains to be further investigated, and extending our unified adaptation framework to real-world all-weather datasets is an important direction for future work. V. C ONCLUSION 
+
+In this work, we propose UniDA3D, a unified domain-adaptive framework for generalizable 3D object detection under diverse extreme conditions. By integrating a query-guided domain discrepancy mitigation module and a teacher– student self-training pipeline, UniDA3D effectively aligns object-level features across domains and introduces reliable semantic supervision without requiring annotations in target IEEE TRANSACTIONS ON IMAGE PROCESSING 10 
+
+domains. The unified training method eliminates the need for condition-specific models, enabling all-weather 3D perception through a single model. REFERENCES [1] Z. Li, X. Xu, S. Lim, and H. Zhao, “Unimode: Unified monocular 3d object detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 16 561–16 570. [2] L. Yan, P. Yan, S. Xiong, X. Xiang, and Y. Tan, “Monocd: Monocular 3d object detection with complementary depths,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2024, pp. 10 248–10 257. [3] K.-C. Huang, T.-H. Wu, H.-T. Su, and W. H. Hsu, “Monodtr: Monocular 3d object detection with depth-aware transformer,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 4012–4021. [4] Y. Zhou, P. Sun, Y. Zhang, D. Anguelov, J. Gao, T. Ouyang, J. Guo, J. Ngiam, and V. Vasudevan, “End-to-end multi-view fusion for 3d object detection in lidar point clouds,” in Conference on Robot Learning .PMLR, 2020, pp. 923–932. [5] Y. Chae, H. Kim, and K.-J. Yoon, “Towards robust 3d object detection with lidar and 4d radar fusion in various weather conditions,” in 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 15 162–15 172. [6] L. Fan, Y. Yang, Y. Mao, F. Wang, Y. Chen, N. Wang, and Z. Zhang, “Once detected, never lost: Surpassing human performance in offline lidar based 3d object detection,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2023, pp. 19 820–19 829. [7] Z. Li, W. Wang, H. Li, E. Xie, C. Sima, T. Lu, Q. Yu, and J. Dai, “Bevformer: learning bird’s-eye-view representation from lidar-camera via spatiotemporal transformers,” IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024. [8] Y. Li, Z. Ge, G. Yu, J. Yang, Z. Wang, Y. Shi, J. Sun, and Z. Li, “Bevdepth: Acquisition of reliable depth for multi-view 3d object de-tection,” in Proceedings of the AAAI conference on artificial intelligence ,vol. 37, no. 2, 2023, pp. 1477–1485. [9] J. Huang and G. Huang, “Bevdet4d: Exploit temporal cues in multi-camera 3d object detection,” arXiv preprint arXiv:2203.17054 , 2022. [10] J. Park, C. Xu, S. Yang, K. Keutzer, K. Kitani, M. Tomizuka, and W. Zhan, “Time will tell: New outlooks and a baseline for temporal multi-view 3d object detection,” arXiv preprint arXiv:2210.02443 , 2022. [11] S. Wang, Y. Liu, T. Wang, Y. Li, and X. Zhang, “Exploring object-centric temporal modeling for efficient multi-view 3d object detection,” in Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 3621–3631. [12] F. Liu, T. Huang, Q. Zhang, H. Yao, C. Zhang, F. Wan, Q. Ye, and Y. Zhou, “Ray denoising: Depth-aware hard negative sampling for multi-view 3d object detection,” in European Conference on Computer Vision .Springer, 2024, pp. 200–217. [13] Q. Cai, Y. Pan, T. Yao, C.-W. Ngo, and T. Mei, “Objectfusion: Multi-modal 3d object detection with object-centric fusion,” in Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 18 067–18 076. [14] Z. Liu, H. Tang, A. Amini, X. Yang, H. Mao, D. Rus, and S. Han, “Bevfusion: Multi-task multi-sensor fusion with unified bird’s-eye view representation,” arXiv preprint arXiv:2205.13542 , 2022. [15] J. Koh, J. Kim, J. H. Yoo, Y. Kim, D. Kum, and J. W. Choi, “Joint 3d object detection and tracking using spatio-temporal representation of camera image and lidar point clouds,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 36, no. 1, 2022, pp. 1210– 1218. [16] Q. Yan and Y. Wang, “Thermrad: A multi-modal dataset for ro-bust 3d object detection under challenging conditions,” arXiv preprint arXiv:2308.10161 , 2023. [17] X. Huang, Z. Xu, H. Wu, J. Wang, Q. Xia, Y. Xia, J. Li, K. Gao, C. Wen, and C. Wang, “L4dr: Lidar-4dradar fusion for weather-robust 3d object detection,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 39, no. 4, 2025, pp. 3806–3814. [18] W. Zimmer, J. Birkner, M. Brucker, H. T. Nguyen, S. Petrovski, B. Wang, and A. C. Knoll, “Infradet3d: Multi-modal 3d object detection based on roadside infrastructure camera and lidar sensors,” in 2023 IEEE Intelligent Vehicles Symposium (IV) . IEEE, 2023, pp. 1–8. [19] Y. Liu, Y. Zhang, R. Lan, C. Cheng, and Z. Wu, “Awardistill: Adaptive and robust 3d object detection in adverse weather through knowledge distillation,” Available at SSRN 4913864 .[20] M. Hu, Y. Wu, Y. Yang, J. Fan, and B. Jing, “Dagl-faster: Domain adaptive faster r-cnn for vehicle object detection in rainy and foggy weather conditions,” Displays , vol. 79, p. 102484, 2023. [21] S. Chen, J. Zhuo, X. Li, H. Liu, R. Wang, J. Chen, and H. Ma, “Cmt: Co-training mean-teacher for unsupervised domain adaptation on 3d object detection,” in Proceedings of the 32nd ACM International Conference on Multimedia , 2024, pp. 4738–4747. [22] Z. Chen, Y. Luo, Z. Wang, M. Baktashmotlagh, and Z. Huang, “Revisiting domain-adaptive 3d object detection by reliable, diverse and class-balanced pseudo-labeling,” in Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 3714–3726. [23] J. Yang, S. Shi, Z. Wang, H. Li, and X. Qi, “St3d++: Denoised self-training for unsupervised domain adaptation on 3d object detection,” 
+
+IEEE transactions on pattern analysis and machine intelligence , vol. 45, no. 5, pp. 6354–6371, 2022. [24] P. Yin, L. Xu, J. Zhang, H. Choset, and S. Scherer, “i3dloc: Image-to-range cross-domain localization robust to inconsistent environmental conditions,” arXiv preprint arXiv:2105.12883 , 2021. [25] Y. Oh, H.-I. Kim, S. T. Kim, and J. U. Kim, “Monowad: Weather-adaptive diffusion model for robust monocular 3d object detection,” in 
+
+European Conference on Computer Vision . Springer, 2024, pp. 326– 345. [26] X. Li, J. Liu, Y. Lei, L. Ma, X. Fan, and R. Liu, “Monotdp: Twin depth perception for monocular 3d object detection in adverse scenes,” arXiv preprint arXiv:2305.10974 , 2023. [27] Y. Cabon, N. Murray, and M. Humenberger, “Virtual kitti 2,” arXiv preprint arXiv:2001.10773 , 2020. [28] A. Gaidon, Q. Wang, Y. Cabon, and E. Vig, “Virtual worlds as proxy for multi-object tracking analysis,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2016, pp. 4340–4349. [29] Y. Xie, H. Wei, Z. Liu, X. Wang, and X. Ji, “Synfog: a photo-realistic synthetic fog dataset based on end-to-end imaging simulation for ad-vancing real-world defogging in autonomous driving,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2024, pp. 21 763–21 772. [30] J. Ye, C. Fu, G. Zheng, D. P. Paudel, and G. Chen, “Unsupervised domain adaptation for nighttime aerial tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 8896–8905. [31] H. Wu, S. Yao, F. Huang, S. Wang, L. Zhang, Z. Zheng, and W. Ren, “Lvptrack: High performance domain adaptive uav tracking with label aligned visual prompt tuning,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 39, no. 8, 2025, pp. 8395–8403. [32] C. Sakaridis, D. Dai, and L. Van Gool, “Semantic foggy scene under-standing with synthetic data,” International Journal of Computer Vision ,vol. 126, no. 9, pp. 973–992, 2018. [33] W. Liu, G. Ren, R. Yu, S. Guo, J. Zhu, and L. Zhang, “Image-adaptive yolo for object detection in adverse weather conditions,” in Proceedings of the AAAI conference on artificial intelligence , vol. 36, no. 2, 2022, pp. 1792–1800. [34] C. Sakaridis, D. Dai, and L. Van Gool, “Acdc: The adverse conditions dataset with correspondences for semantic driving scene understanding,” in Proceedings of the IEEE/CVF international conference on computer vision , 2021, pp. 10 765–10 775. [35] C. Sakaridis, D. Dai, and L. V. Gool, “Guided curriculum model adap-tation and uncertainty-aware evaluation for semantic nighttime image segmentation,” in Proceedings of the IEEE/CVF international conference on computer vision , 2019, pp. 7374–7383. [36] F. Yu, W. Xian, Y. Chen, F. Liu, M. Liao, V. Madhavan, T. Darrell et al. ,“Bdd100k: A diverse driving video database with scalable annotation tooling,” arXiv preprint arXiv:1805.04687 , vol. 2, no. 5, p. 6, 2018. [37] X. Huang, H. Wu, X. Li, X. Fan, C. Wen, and C. Wang, “Sunshine to rainstorm: Cross-weather knowledge distillation for robust 3d object detection,” in Proceedings of the AAAI Conference on Artificial Intelli-gence , vol. 38, no. 3, 2024, pp. 2409–2416. [38] M. Hahner, C. Sakaridis, D. Dai, and L. Van Gool, “Fog simulation on real lidar point clouds for 3d object detection in adverse weather,” in Proceedings of the IEEE/CVF international conference on computer vision , 2021, pp. 15 283–15 292. [39] M. Hahner, C. Sakaridis, M. Bijelic, F. Heide, F. Yu, D. Dai, and L. Van Gool, “Lidar snowfall simulation for robust 3d object detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 16 364–16 374. [40] J. Huang, G. Huang, Z. Zhu, Y. Ye, and D. Du, “Bevdet: High-performance multi-camera 3d object detection in bird-eye-view,” arXiv preprint arXiv:2112.11790 , 2021. IEEE TRANSACTIONS ON IMAGE PROCESSING 11 
+
+[41] Y. Li, H. Bao, Z. Ge, J. Yang, J. Sun, and Z. Li, “Bevstereo: Enhancing depth estimation in multi-view 3d object detection with temporal stereo,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 37, no. 2, 2023, pp. 1486–1494. [42] Y. Liu, T. Wang, X. Zhang, and J. Sun, “Petr: Position embedding trans-formation for multi-view 3d object detection,” in European conference on computer vision . Springer, 2022, pp. 531–548. [43] X. Lin, T. Lin, Z. Pei, L. Huang, and Z. Su, “Sparse4d: Multi-view 3d object detection with sparse spatial-temporal fusion,” arXiv preprint arXiv:2211.10581 , 2022. [44] Y. Liu, J. Yan, F. Jia, S. Li, A. Gao, T. Wang, and X. Zhang, “Petrv2: A unified framework for 3d perception from multi-camera images,” in 
+
+Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 3262–3272. [45] C. Yang, Y. Chen, H. Tian, C. Tao, X. Zhu, Z. Zhang, G. Huang, H. Li, Y. Qiao, L. Lu et al. , “Bevformer v2: Adapting modern image backbones to bird’s-eye-view recognition via perspective supervision,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2023, pp. 17 830–17 839. [46] D. Park, R. Ambrus, V. Guizilini, J. Li, and A. Gaidon, “Is pseudo-lidar needed for monocular 3d object detection?” in Proceedings of the IEEE/CVF international conference on computer vision , 2021, pp. 3142– 3152. [47] H. Caesar, V. Bankiti, A. H. Lang, S. Vora, V. E. Liong, Q. Xu, A. Krishnan, Y. Pan, G. Baldan, and O. Beijbom, “nuscenes: Amultimodal dataset for autonomous driving,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2020, pp. 11 621–11 631. [48] A. Geiger, P. Lenz, C. Stiller, and R. Urtasun, “Vision meets robotics: The kitti dataset,” The international journal of robotics research , vol. 32, no. 11, pp. 1231–1237, 2013. [49] P. Sun, H. Kretzschmar, X. Dotiwalla, A. Chouard, V. Patnaik, P. Tsui, J. Guo, Y. Zhou, Y. Chai, B. Caine et al. , “Scalability in perception for autonomous driving: Waymo open dataset,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2020, pp. 2446–2454. [50] Y. Chen, W. Li, C. Sakaridis, D. Dai, and L. Van Gool, “Domain adaptive faster r-cnn for object detection in the wild,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2018, pp. 3339– 3348. [51] L. Chen, J. Han, and Y. Wang, “Datr: Unsupervised domain adaptive detection transformer with dataset-level adaptation and prototypical alignment,” IEEE Transactions on Image Processing , 2025. [52] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, and J. Dai, “Deformable detr: Deformable transformers for end-to-end object detection,” arXiv preprint arXiv:2010.04159 , 2020. [53] J. Yang, S. Shi, Z. Wang, H. Li, and X. Qi, “St3d: Self-training for unsupervised domain adaptation on 3d object detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,2021, pp. 10 368–10 378. [54] M.-Y. Liu, T. Breuel, and J. Kautz, “Unsupervised image-to-image trans-lation networks,” Advances in neural information processing systems ,vol. 30, 2017. [55] K. He, J. Sun, and X. Tang, “Single image haze removal using dark channel prior,” IEEE transactions on pattern analysis and machine intelligence , vol. 33, no. 12, pp. 2341–2353, 2010. [56] L. Yang, B. Kang, Z. Huang, X. Xu, J. Feng, and H. Zhao, “Depth anything: Unleashing the power of large-scale unlabeled data,” in Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2024, pp. 10 371–10 381. [57] K. Garg and S. K. Nayar, “Photorealistic rendering of rain streaks,” ACM Transactions on Graphics (TOG) , vol. 25, no. 3, pp. 996–1002, 2006. [58] H. W. Kuhn, “The hungarian method for the assignment problem,” Naval research logistics quarterly , vol. 2, no. 1-2, pp. 83–97, 1955. [59] Y. Wang, V. C. Guizilini, T. Zhang, Y. Wang, H. Zhao, and J. Solomon, “Detr3d: 3d object detection from multi-view images via 3d-to-2d queries,” in Conference on robot learning . PMLR, 2022, pp. 180–191. [60] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2016, pp. 770–778. [61] Y. Lee, J.-w. Hwang, S. Lee, Y. Bae, and J. Park, “An energy and gpu-computation efficient backbone network for real-time object detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition workshops , 2019, pp. 0–0.

@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-001.webp",
+      "caption": "Figure 5: Accuracy of VLMs in selecting candidate paths in images, on navigation tasks.",
+      "page": 6,
+      "index": 1,
+      "width": 487,
+      "height": 308
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-002.webp",
+      "caption": "Figure 6: Accuracy of VLMs in selecting candidate paths in images, on manipulation tasks.",
+      "page": 7,
+      "index": 2,
+      "width": 487,
+      "height": 308
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-003.webp",
+      "caption": "Figure 7: Number of tokens used by each querying method.",
+      "page": 7,
+      "index": 3,
+      "width": 488,
+      "height": 316
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-004.webp",
+      "caption": "Figure 1: Examples of language-constrained robot motion planning problems, and the solutions scored highest by Qwen2.5-VL (dotted trajectories).",
+      "page": 3,
+      "index": 4,
+      "width": 664,
+      "height": 413
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-005.webp",
+      "caption": "Figure 9: Accuracy of zero-shot and finetuned models on a test set of 28 problems.",
+      "page": 8,
+      "index": 5,
+      "width": 775,
+      "height": 206
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-006.webp",
+      "caption": "Figure 3: Example of galleries of screenshots showing the robot moving along each trajectory, with each row presenting a sequence screenshots from one trajectory. (a) The robot goes around the table in 2 topologically different ways; (b) The robot goes around the table and column in 2 topologically different ways.",
+      "page": 4,
+      "index": 6,
+      "width": 798,
+      "height": 218
+    },
+    {
+      "url": "assets/figures/arxiv/2603.13100v1/fig-007.webp",
+      "caption": "Figure 4: Accuracy of VLMs in selecting candidate paths in images with different query methods, averaged across two types of preferences (object proximity and path style).",
+      "page": 5,
+      "index": 7,
+      "width": 487,
+      "height": 302
+    }
+  ]
+}

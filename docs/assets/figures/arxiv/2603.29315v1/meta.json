@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-001.webp",
+      "caption": "TABLE I: Learned dynamics models’ planning and execution performance in terms of Lwℓ1 and LPIPS losses. All methods were evaluated under controlled brush/paint state conditions.",
+      "page": 6,
+      "index": 1,
+      "width": 508,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-002.webp",
+      "caption": "Fig. 6: Target brushstrokes from five human artists (two examples per artist) and the strokes reproduced by the robot using different methods. The numbers shown are the weighted ℓ1 loss between the target and the painted strokes. Instances with the best performances are highlighted with bold borders. Overall, IMPASTO-UNet approximated human brushstrokes with lower error and higher visual similarity.",
+      "page": 6,
+      "index": 2,
+      "width": 512,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-003.webp",
+      "caption": "Fig. 7: Qualitative results showing the target strokes from overlaid strokes and the strokes painted by the robot using different methods. Instances with the best performances are highlighted with bold borders. The difference with Fig. 6 is that the base images (canvas states) already have painted strokes. This requires the dynamics models to make predictions with low prediction errors given the noisy background. The numbers shown are the weighted ℓ1 loss. Note that the loss is only calculated around the target stroke area. IMPASTO-UNet is more accurate in reproducing brushstrokes given the noisy base images.",
+      "page": 6,
+      "index": 3,
+      "width": 462,
+      "height": 481
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-004.webp",
+      "caption": "Fig. 3: Hardware system setup of IMPASTO.",
+      "page": 3,
+      "index": 4,
+      "width": 462,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-005.webp",
+      "caption": "Fig. 8: Qualitative results showing the target paintings and the painting produced by the robot using IMPASTO vs. FRIDA. The planning horizon was set to H = 5, and the framed images are the targets for MPC within each prediction window. IMPASTO can approximate oil paintings with better details in terms of forces and shapes, as shown by quantitative results in Table II.",
+      "page": 8,
+      "index": 5,
+      "width": 1052,
+      "height": 245
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-006.webp",
+      "caption": "Fig. 9: IMPASTO was able to closely approximate a complex oil painting with 204 strokes (not all steps are shown).",
+      "page": 8,
+      "index": 6,
+      "width": 512,
+      "height": 644
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-007.webp",
+      "caption": "Fig. 4: Overview of the learning and planning framework. Top: IMPASTO-UNet’s neural pixel dynamics model, which combines an image encoder and an action encoder to predict the effect of a stroke. The model is trained using a weighted ℓ1 loss. Bottom: To find one or more consecutive strokes between a base image and a target image, an MPC-based planner optimizes stroke parameters with a weighted ℓ1 image objective in a receding-horizon, closed loop.",
+      "page": 4,
+      "index": 7,
+      "width": 898,
+      "height": 422
+    },
+    {
+      "url": "assets/figures/arxiv/2603.29315v1/fig-008.webp",
+      "caption": "Fig. 5: Training and evaluation Lℓ1 (unweighted) of IMPASTO’s dynamics model vs. number of training samples (log–log scale).",
+      "page": 5,
+      "index": 8,
+      "width": 462,
+      "height": 312
+    }
+  ]
+}

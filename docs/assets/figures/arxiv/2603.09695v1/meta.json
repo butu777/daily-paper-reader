@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09695v1/fig-001.webp",
+      "caption": "Fig. 1: Example scene from the View-of-Delft [1] dataset with radar and annotation data. The two inlets on the left show corresponding LiDAR and radar point clouds around the same pedestrian. Unlike the LiDAR point cloud, it is difficult to detect the pedestrian using only the local region of the radar point cloud due to its sparsity. However, incorporating global information (i.e. the pedestrian’s relative position to the ego-vehicle and the scene, e.g. drivable area marked with blue) with local features such as shape and velocity, the pedestrian’s presence becomes more apparent.",
+      "page": 1,
+      "index": 1,
+      "width": 512,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09695v1/fig-002.webp",
+      "caption": "TABLE I: Comparison of VoD validation set results. DRIFT uses cross-attention feature sharing. Pre-training is performed by perciv-scenes-2 dataset. The best results of each configuration (with and without pre-training) are bold. Results marked with † are inherited from [6], results marked with * comes from re-implemented methods.",
+      "page": 6,
+      "index": 2,
+      "width": 868,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09695v1/fig-003.webp",
+      "caption": "Fig. 4: Visualization results of ground truth, CenterPoint, and DRIFT (proposed) on the VoD validation set. Blue/green/red boxes indicate car, pedestrian, and cyclist detections, respectively. All images are trimmed.",
+      "page": 7,
+      "index": 3,
+      "width": 1026,
+      "height": 342
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09695v1/fig-004.webp",
+      "caption": "Fig. 5: Visualization of free-road ground truth and prediction on perciv-scenes-2 validation set on BEV. Yellow segment indicate free-road region.",
+      "page": 7,
+      "index": 4,
+      "width": 471,
+      "height": 537
+    },
+    {
+      "url": "assets/figures/arxiv/2603.09695v1/fig-005.webp",
+      "caption": "Fig. 3: Model architecture. The top figure shows the overall architecture of DRIFT, which consists of a point path, a pillar path, and feature sharing blocks. The feature after block i: Mi×Ci in Hi×Wi refers to a sparse pillar representation tensor with shape Mi × Ci, from BEV grid size Hi × Wi, where Mi is the number of non-empty pillars and Ci is the number of channels. (a) Point transformer block. (b) Pillar transformer block. (c1) Feature sharing block with add or concatenation fusion. (c2) Feature sharing block with cross-attention fusion.",
+      "page": 4,
+      "index": 5,
+      "width": 1037,
+      "height": 751
+    }
+  ]
+}

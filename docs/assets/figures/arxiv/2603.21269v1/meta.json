@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-001.webp",
+      "caption": "Fig. 2: Overview of the proposed DGFM. (a) The architecture of our dynamic geometry foundation model: 3D latent representations and 2D visual semantic features are fused and subsequently aligned along the temporal axis to achieve globally consistent and fine-grained reconstruction. (b) Qualitative reconstruction results compared against Ground Truth, π3 [23], and VGGT [21]. The red bounding boxes highlight regions where both π3 and VGGT suffer from poor human reconstruction. In contrast, our method preserves precise human positioning and maintains stable geometric structures.",
+      "page": 6,
+      "index": 1,
+      "width": 725,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-002.webp",
+      "caption": "Table 1: Comparison with state-of-the-art methods on dynamic HA-VLN [7] benchmark. ∗ indicates methods using the pretrained waypoint predictor from [9]. Complex Data indicates the method simultaneously uses panorama RGB-D images and/or odometry. Simple Data indicates the method only uses Monocular RGB images.",
+      "page": 11,
+      "index": 2,
+      "width": 708,
+      "height": 236
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-003.webp",
+      "caption": "Fig. 13: Qualitative results of our DyGeoVLN model on real-world experiments: including dynamic and static scenarios.",
+      "page": 25,
+      "index": 3,
+      "width": 708,
+      "height": 837
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-004.webp",
+      "caption": "Fig. 10: Qualitative results of our DyGeoVLN model on dynamic HA-VLN [7] benchmark. (Cases 1-2)",
+      "page": 21,
+      "index": 4,
+      "width": 723,
+      "height": 893
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-005.webp",
+      "caption": "Fig. 1: The system overview of our DyGeoVLN. Given instruction and sequential images, the vision encoder and our proposed dynamic geometry foundation model (DGFM) respectively produce visual tokens and geometry tokens in a stream manner. Then these tokens are fused via cross-branch feature fusion to obtain spatial-semantic fused tokens. Finally, the LLM integrates the fused tokens and instruction tokens, followed by de-tokenizing the predicted sequence directly into robot actions. To efficiently compress the historical token, we build a spatial token pruning strategy on top of our DGFM, yielding a compact set of pruned spatial-semantic tokens.",
+      "page": 3,
+      "index": 5,
+      "width": 725,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-006.webp",
+      "caption": "Fig. 11: Qualitative results of our DyGeoVLN model on R2R-CE [11] benchmark.",
+      "page": 23,
+      "index": 6,
+      "width": 725,
+      "height": 864
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-007.webp",
+      "caption": "Fig. 5: Qualitative comparison between state-of-the-art method StreamVLN [30] and our DyGeoVLN on the R2R-CE [11] benchmark. DyGeoVLN demonstrates improved trajectory consistency, whereas StreamVLN stops midway and fails to reach the destination.",
+      "page": 13,
+      "index": 7,
+      "width": 725,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-008.webp",
+      "caption": "Fig. 7: Qualitative results of our DyGeoVLN model. The robot successfully follows instructions to reach the goal while avoiding collisions with moving pedestrians.",
+      "page": 13,
+      "index": 8,
+      "width": 723,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-009.webp",
+      "caption": "Fig. 8: Example cases of our DyHM3D dataset.",
+      "page": 19,
+      "index": 9,
+      "width": 579,
+      "height": 581
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-010.webp",
+      "caption": "Fig. 4: Qualitative comparison between state-of-the-art method StreamVLN [30] and our DyGeoVLN on the dynamic HA-VLN [7] benchmark. StreamVLN loses track of the path and fails to handle dynamic human context, while DyGeoVLN better understands human behaviors and accurately reaches the target destination.",
+      "page": 12,
+      "index": 10,
+      "width": 721,
+      "height": 295
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-011.webp",
+      "caption": "Table 2: Comparison with state-of-the-art methods on R2R-CE [11] dataset. ∗ indicates methods using the waypoint predictor from [9]. Complex Data indicates the method simultaneously uses panorama RGB-D images and/or odometry. Simple Data indicates the method only uses Monocular RGB images.",
+      "page": 12,
+      "index": 11,
+      "width": 706,
+      "height": 336
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-012.webp",
+      "caption": "Fig. 12: Setup of real-world experiments: (a) Hardware configuration of the quadruped robot; (b) Schematic of the real-world deployment pipeline.",
+      "page": 24,
+      "index": 12,
+      "width": 648,
+      "height": 324
+    },
+    {
+      "url": "assets/figures/arxiv/2603.21269v1/fig-013.webp",
+      "caption": "Fig. 9: Qualitative comparison of reconstruction performance on dynamic scenes.",
+      "page": 20,
+      "index": 13,
+      "width": 723,
+      "height": 815
+    }
+  ]
+}

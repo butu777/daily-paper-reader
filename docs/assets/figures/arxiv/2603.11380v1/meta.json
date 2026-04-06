@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11380v1/fig-001.webp",
+      "caption": "Figure 1. Left: Two corner cases of adverse driving scenes (foggy condition causing poor visibility and camera over-exposure resulting in degraded image quality). Right: Performance (GPTScore) comparison on DRIVEXQA dataset.",
+      "page": 1,
+      "index": 1,
+      "width": 487,
+      "height": 289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11380v1/fig-002.webp",
+      "caption": "Table 2. Results on DRIVEXQA dataset across weather conditions and sensor failures. Each cell shows GPT-4o-mini score/Human evaluation score. Blue indicates state-of-the-art results. Weather conditions: CL (Cloudy), FG (Foggy), NT (Night), RN (Rainy), SN (Sunny). Sensor failures: MB (Motion Blur), OE (Overexposure), UE (Underexposure), LJ (LiDAR Jitter), EL (Event Low-resolution).",
+      "page": 7,
+      "index": 2,
+      "width": 1031,
+      "height": 274
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11380v1/fig-003.webp",
+      "caption": "Table 4. Ablation study on sensor modality combinations. Results show the importance of each modality and its complementary effects for robust VQA performance under adverse conditions.",
+      "page": 8,
+      "index": 3,
+      "width": 1027,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11380v1/fig-004.webp",
+      "caption": "Figure 3. Hierarchical XQA examples on DRIVEXQA dataset. The framework demonstrates three semantic levels: Global Scene Level, Allocentric Level, and Ego-Vehicle Centric Level.",
+      "page": 4,
+      "index": 4,
+      "width": 492,
+      "height": 511
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11380v1/fig-005.webp",
+      "caption": "Figure 4. Overview of MVX-LLM. The framework processes multi-modal sensor inputs (RGB, Depth, Event cameras from four viewpoints, and LiDAR point clouds) through specialized encoders. The DCA mechanism integrates RGB, Depth, and Event features before token replacement. The Question Answering component utilizes the fused representations to generate hierarchical responses across Global Scene, Allocentric, and Ego-Vehicle Centric levels under adverse driving conditions.",
+      "page": 5,
+      "index": 5,
+      "width": 986,
+      "height": 258
+    }
+  ]
+}

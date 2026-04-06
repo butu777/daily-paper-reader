@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-001.webp",
+      "caption": "Figure 1. Existing unimodal OVS methods fail in cloudy environments due to severely degraded optical inputs. By incorporating SAR, which penetrates clouds and haze, MM-OVSeg produces significantly more accurate and consistent segmentation results.",
+      "page": 1,
+      "index": 1,
+      "width": 488,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-002.webp",
+      "caption": "Figure 3. IoU performance for each individual class under the six evaluation settings defined in Table 1. Purple bars and blue bars represent seen and unseen classes, respectively.",
+      "page": 6,
+      "index": 2,
+      "width": 832,
+      "height": 413
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-003.webp",
+      "caption": "Figure 4. Visualization of OVS results. From left to right: input RGB image, input SAR image, ground truth, and segmentation outputs from CAT-Seg, EBSeg, GSNet, SegEarth-OV, and our MM-OVSeg. In the legend, underlined categories represent unseen classes and the remaining categories are seen classes.",
+      "page": 7,
+      "index": 3,
+      "width": 889,
+      "height": 600
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-004.webp",
+      "caption": "Figure 2. Overall optimization framework of MM-OVSeg. The training pipeline consists of two stages. (1) In the Cross-Modal Unification stage, the SAR DINO encoder is trained to align SAR features with the fixed RGB DINO features using the CMU-Data collection of 25,087 RGB and SAR image pairs. (2) In the full MM-OVSeg training stage, the model jointly processes optical and SAR inputs for multimodal open-vocabulary segmentation. The Dual-Encoder Fusion module integrates RGB and SAR dense features and aligns them with CLIP text embeddings, after which a linear classifier predicts the final segmentation map.",
+      "page": 3,
+      "index": 4,
+      "width": 1029,
+      "height": 570
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-005.webp",
+      "caption": "Figure 5. Visualization of different stages in multimodal fusion within DEF. DEF produces finer spatial localization and stronger alignment between dense and global visual features and text representations.",
+      "page": 8,
+      "index": 5,
+      "width": 483,
+      "height": 570
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-006.webp",
+      "caption": "Table 1. Evaluation settings for MM-OVSeg. The experiments cover clear sky and cloudy weather, synthetic cloud cover with different opacity levels (thin or thick), and both intra domain and cross domain generalization scenarios.",
+      "page": 5,
+      "index": 6,
+      "width": 1022,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.17528v1/fig-007.webp",
+      "caption": "Table 2. Comparison of OVS methods across all evaluation settings defined in Table 1. The table reports mIoU scores for each setting and the overall mean. Settings correspond to: ①: PIE-cloud→PIE-cloud; ②: DDHR-SK→DDHR-SK; ③: OEM-thick→OEM-thick; ④: OEM-thin→OEM-thin; ⑤: PIE-clean→PIE-clean; ⑥: DDHR-SK→DDHR-CH. MM-OVSeg achieves the highest accuracy in all settings and obtains the best overall mean score, demonstrating strong robustness under cloudy conditions and superior cross domain generalization.",
+      "page": 5,
+      "index": 7,
+      "width": 982,
+      "height": 201
+    }
+  ]
+}

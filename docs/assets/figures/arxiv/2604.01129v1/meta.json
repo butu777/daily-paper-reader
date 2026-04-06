@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-001.webp",
+      "caption": "Fig. 3: Qualitative demonstrations of ReinDriveGen on OOD safety-critical corner cases. Every two consecutive rows show two frames from the same scene, with the edit type and edited region annotated in each image.",
+      "page": 6,
+      "index": 1,
+      "width": 725,
+      "height": 617
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-002.webp",
+      "caption": "Fig. 6: Ablation study on vehicle completion. Vehicle completion fills in unobserved surfaces in the pseudo-images, effectively eliminating vehicle distortion and texture artifacts in the diffusion outputs.",
+      "page": 11,
+      "index": 2,
+      "width": 721,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-003.webp",
+      "caption": "Fig. 4: Qualitative comparison of novel trajectories in the lane-change scenario.",
+      "page": 8,
+      "index": 3,
+      "width": 720,
+      "height": 315
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-004.webp",
+      "caption": "Fig. 2: Overview of ReinDriveGen’s two core components. Left: Our simulator edits dynamic point clouds and completes vehicle geometry to render structural pseudo-images, which condition the video diffusion model for photorealistic synthesis. Right: To enhance quality in out-of-distribution (OOD) scenarios, we employ RL post-training. A pairwise reward mechanism ranks generated candidates into positive and negative sets, providing robust contrastive supervision.",
+      "page": 4,
+      "index": 4,
+      "width": 716,
+      "height": 263
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-005.webp",
+      "caption": "Fig. 9: Preference prediction accuracy of the pointwise reward model (green) and the pairwise preference model (orange) during training (top) and on the test set (bottom). The pairwise model achieves higher test-set accuracy (95% vs. 91%) with more stable training dynamics, demonstrating that jointly contrasting two samples within a shared forward pass yields more robust preference judgments than independent pointwise scoring.",
+      "page": 19,
+      "index": 5,
+      "width": 725,
+      "height": 373
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-006.webp",
+      "caption": "Fig. 7: Ablation study on RL-based post-training. From top to bottom: doubled vehicle speed, in-place spinning, and vehicle rollover. As the RL training step increases, the generated vehicles exhibit progressively better geometry, texture fidelity, and lighting plausibility.",
+      "page": 12,
+      "index": 6,
+      "width": 716,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-007.webp",
+      "caption": "Fig. 5: Qualitative comparison of vehicle trajectory editing. Top two rows: the target vehicle is shifted 6m left and 4m backward. Bottom two rows: the target vehicle is shifted 6m to the right and 1m backward.",
+      "page": 9,
+      "index": 7,
+      "width": 720,
+      "height": 419
+    },
+    {
+      "url": "assets/figures/arxiv/2604.01129v1/fig-008.webp",
+      "caption": "Fig. 10: Qualitative comparison of RL post-training with pointwise vs. pairwise reward. From left to right: video diffusion without RL, RL with pointwise reward, and RL with pairwise reward. Red dashed boxes highlight vehicle regions. While pointwise reward offers limited improvement and sometimes suffers from reward hacking artifacts, the pairwise reward mechanism consistently produces vehicles with better geometry, texture fidelity, and lighting plausibility, demonstrating its superiority as the reward signal for RL post-training.",
+      "page": 20,
+      "index": 8,
+      "width": 725,
+      "height": 523
+    }
+  ]
+}

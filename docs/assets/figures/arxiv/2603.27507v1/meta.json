@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-001.webp",
+      "caption": "Fig. 1: Chat-Scene++ surpasses previous SOTA methods on five benchmarks in the field of 3D scene understanding.",
+      "page": 1,
+      "index": 1,
+      "width": 488,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-002.webp",
+      "caption": "TABLE II: Templates for grounded chain-of-thought.",
+      "page": 6,
+      "index": 2,
+      "width": 516,
+      "height": 395
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-003.webp",
+      "caption": "Fig. 5: Examples of various 3D scene-language understanding tasks. All the tasks are unified to single-turn question-answering pairs without extra task heads. Object identifiers are used to reference and ground the object during the conversation.",
+      "page": 7,
+      "index": 3,
+      "width": 856,
+      "height": 529
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-004.webp",
+      "caption": "TABLE XI: Performance comparison on VSI-Bench [33] using 2D-only input. “Avg.” denotes overall performance.",
+      "page": 10,
+      "index": 4,
+      "width": 523,
+      "height": 235
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-005.webp",
+      "caption": "TABLE IV: Performance comparison. “Expert models” are tailored for specific tasks using task-oriented heads, while “LLM-based models” are designed for general instructions and responses. Entries in gray denote the incorporation of ground-truth objects into the model inputs.",
+      "page": 8,
+      "index": 5,
+      "width": 1070,
+      "height": 375
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-006.webp",
+      "caption": "Fig. 3: Overall model architecture of Chat-Scene++. The model structures a 3D scene as a context-rich object sequence, forming the scene embeddings for the LLM input. Specifically, it decomposes the 3D scene into a sequence of object representations paired with object ID tokens. Context-rich object features are extracted using large-scale pre-trained 3D and 2D models. These features are then mapped to the LLM’s embedding space, where scene embeddings are constructed by sequentially combining object IDs with their corresponding object-level embeddings. By leveraging flexible object IDs, Grounded CoT can be optionally enabled to enhance reasoning over object relationships.",
+      "page": 4,
+      "index": 6,
+      "width": 1010,
+      "height": 536
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-007.webp",
+      "caption": "TABLE VI: Ablation studies on object features. “Pos.” adds additional position embeddings to introduce spatial context.",
+      "page": 9,
+      "index": 7,
+      "width": 908,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-008.webp",
+      "caption": "TABLE V: Ablation studies on object identifiers. “Plain Text” employs plain text for object numbers, “Gaussian” uses fixed Gaussian embeddings, and “Learnable” learns new identifier tokens. “Random Order” means using random ID order during training. “Token Cost” denotes the total tokens for N objects, including object identifiers.",
+      "page": 9,
+      "index": 8,
+      "width": 908,
+      "height": 196
+    },
+    {
+      "url": "assets/figures/arxiv/2603.27507v1/fig-009.webp",
+      "caption": "Fig. 4: Illustration of multi-modal context-rich feature extraction. Chat-Scene [24] extracts object-centric features for separate object proposals, while Chat-Scene++ extracts context-rich object features using 3D scene-level encoders and 2D image-level encoders.",
+      "page": 5,
+      "index": 9,
+      "width": 1012,
+      "height": 402
+    }
+  ]
+}

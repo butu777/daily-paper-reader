@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-001.webp",
+      "caption": "Table 1. Comparison on NAVSIM Benchmark. The best results are denoted by bold and the second best are denoted by underline.",
+      "page": 6,
+      "index": 1,
+      "width": 492,
+      "height": 495
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-002.webp",
+      "caption": "Table 2. Comparison on Bench2Drive Benchmark. The best results are denoted by bold and the second best are denoted by underline. † denotes using privileged perceptual information.",
+      "page": 6,
+      "index": 2,
+      "width": 483,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-003.webp",
+      "caption": "Figure 7. Visualization of the decoded image and BEV from Dynamics Tokenizer. For each row, we show the current image and BEV map, the decoded future image and BEV map, and the ground-truth future image and BEV map. Across diverse driving scenarios, the decoded futures faithfully capture ego motion and the dynamics of surrounding agents.",
+      "page": 15,
+      "index": 3,
+      "width": 813,
+      "height": 641
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-004.webp",
+      "caption": "Figure 4. Transferability of learned dynamics. Dynamics tokens extracted from one scenario are injected into a new scene and decoded into the future image and the BEV map. We contrast the current states, the future states decoded with transferred dynamics, and the original future states. The results show that both ego-centric and environment-centric dynamics are transferable across scenarios.",
+      "page": 7,
+      "index": 4,
+      "width": 967,
+      "height": 377
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-005.webp",
+      "caption": "Figure 2. Overview of the DynVLA. (a) Given adjacent image observations, a dynamics encoder extracts ego-centric and environmentcentric dynamics, which are discretized via VQ codebooks. Then, the ego-centric dynamics are regularized by the GT ego action, and the combined dynamics are decoded to reconstruct the future image and BEV map conditioned on each current state. (b) DynVLA is supervised to first generate discrete dynamics tokens followed by action tokens, forming structured Dynamics CoT modeling.",
+      "page": 3,
+      "index": 5,
+      "width": 958,
+      "height": 393
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-006.webp",
+      "caption": "Figure 10. Representative failure cases. From left to right, we show the planning result, the current observation, the future decoded from inferred dynamics, and the ground-truth future. These cases include incorrect inference of surrounding vehicles’ intentions, misidentification of drivable areas during large turning maneuvers, and ambiguous dynamics reasoning due to degraded visual observations.",
+      "page": 18,
+      "index": 6,
+      "width": 813,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-007.webp",
+      "caption": "Figure 6. Dynamics CoT improves planning by reasoning over future dynamics. The first two columns show the current observation and the future decoded by reasoned dynamics. The third and last columns compare planning results with and without Dynamics CoT. Compared to direct action prediction, Dynamics CoT provides intent-aware, foresighted, and constraint-compliant future dynamics, enabling safer and more feasible planning in challenging scenarios.",
+      "page": 8,
+      "index": 7,
+      "width": 917,
+      "height": 548
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-008.webp",
+      "caption": "Figure 3. Overview of the training pipeline for DynVLA. DynVLA first learns a Dynamics Tokenizer by reconstructing future states from adjacent frames, producing discrete dynamics tokens. It then performs SFT on Dynamics CoT, training the model to generate dynamics tokens before action tokens. Finally, the policy is optimized via RFT with trajectory-level reward and KL regularization.",
+      "page": 4,
+      "index": 8,
+      "width": 988,
+      "height": 215
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-009.webp",
+      "caption": "Figure 9. Additional qualitative comparisons of planning behavior with and without Dynamics CoT.",
+      "page": 17,
+      "index": 9,
+      "width": 813,
+      "height": 466
+    },
+    {
+      "url": "assets/figures/arxiv/2603.11041v1/fig-010.webp",
+      "caption": "Figure 8. Additional visualizations of the transferability of learned dynamics.",
+      "page": 16,
+      "index": 10,
+      "width": 917,
+      "height": 773
+    }
+  ]
+}

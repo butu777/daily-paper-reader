@@ -1,0 +1,134 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-001.webp",
+      "caption": "Fig. 3: Overview of RS-WorldModel. The framework is a vision-language world model trained via a three-stage pipeline: S1: geo-aware generative pretraining on metadata-conditioned image forecasting, S2: synergistic instruction tuning for joint understanding and forecasting, and S3: verifiable reinforcement optimization with task-specific rewards.",
+      "page": 6,
+      "index": 1,
+      "width": 721,
+      "height": 567
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-002.webp",
+      "caption": "Table 3: Text-guided future scene forecasting results on the 1.6K subset. Baseline references are provided in Section 4.1.",
+      "page": 11,
+      "index": 2,
+      "width": 714,
+      "height": 330
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-003.webp",
+      "caption": "Fig. 10: Prompt template for draft generation using Qwen3-VL-32B-Instruct in the scalable data construction pipeline.",
+      "page": 26,
+      "index": 3,
+      "width": 725,
+      "height": 952
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-004.webp",
+      "caption": "Fig. 6: Forecasting tasks (TFSF). Token-length distribution (left) and word cloud of frequent terms (right) for the text-guided future scene forecasting subset.",
+      "page": 21,
+      "index": 4,
+      "width": 725,
+      "height": 231
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-005.webp",
+      "caption": "Fig. 7: Understanding tasks (ST-CQA). Token-length distribution (left) and word cloud of frequent terms (right) for the spatiotemporal change questionanswering subset.",
+      "page": 21,
+      "index": 5,
+      "width": 725,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-006.webp",
+      "caption": "Fig. 15: Prompt used by GPT-4o to compute GPT-based scores for the text-guided future scene forecasting (TFSF) task.",
+      "page": 30,
+      "index": 6,
+      "width": 725,
+      "height": 618
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-007.webp",
+      "caption": "Fig. 1: RS-WorldModel: A unified world model for remote sensing that integrates spatiotemporal change understanding and future scene forecasting capabilities. (a) Qualitative comparison with leading methods. (b) Quantitative results on the RSWBench-1.1M.",
+      "page": 2,
+      "index": 7,
+      "width": 718,
+      "height": 457
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-008.webp",
+      "caption": "Fig. 12: Prompt used by GPT-5-Nano to compute GPT-Score for the spatiotemporal change understanding (ST-CQA) task.",
+      "page": 29,
+      "index": 8,
+      "width": 725,
+      "height": 368
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-009.webp",
+      "caption": "Fig. 11: Prompt template for text refinement with Qwen2.5-72B-Instruct in the data construction pipeline.",
+      "page": 29,
+      "index": 9,
+      "width": 725,
+      "height": 200
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-010.webp",
+      "caption": "Table 2: Spatiotemporal change question-answering results on the 5K subset. The table compares RS-WorldModel with commercial, open-source, and domain-specific baselines. Baseline references are provided in Section 4.1.",
+      "page": 10,
+      "index": 10,
+      "width": 725,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-011.webp",
+      "caption": "Table 5: Ablation on the three-stage training paradigm. Forecasting on the 1.6K subset; understanding on the 5K subset. ∗GAGP-only uses metadata conditioning without text instructions.",
+      "page": 14,
+      "index": 11,
+      "width": 728,
+      "height": 511
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-012.webp",
+      "caption": "Fig. 8: ST-CQA case study. Model responses with GPT-Scores. RS-WorldModel achieves the best score.",
+      "page": 23,
+      "index": 12,
+      "width": 723,
+      "height": 842
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-013.webp",
+      "caption": "Fig. 2: Data construction pipeline and dataset composition. We establish a scalable pipeline to transform multi-temporal observations into high-quality instruction data, supporting understanding and forecasting tasks with strict train-test isolation.",
+      "page": 4,
+      "index": 13,
+      "width": 714,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-014.webp",
+      "caption": "Fig. 9: TFSF case study. Generated results for three textual instructions. RSWorldModel obtains the highest GPT-based scores.",
+      "page": 24,
+      "index": 14,
+      "width": 718,
+      "height": 846
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-015.webp",
+      "caption": "Fig. 16: LLM-as-a-Judge prompt template based on Qwen3-30B-A3B-Instruct2507 for verifiable reinforcement optimization (VRO).",
+      "page": 31,
+      "index": 15,
+      "width": 725,
+      "height": 531
+    },
+    {
+      "url": "assets/figures/arxiv/2603.14941v1/fig-016.webp",
+      "caption": "Table 1: Comparison of dataset capabilities and scales for remote sensing understanding and generation. ✓: supported; ✗: not supported; –: not applicable (dataset does not target this task category).",
+      "page": 5,
+      "index": 16,
+      "width": 725,
+      "height": 263
+    }
+  ]
+}

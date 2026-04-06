@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-001.webp",
+      "caption": "Table 3: Ablation study of each proposed component. + and - denote improvement/degradation relative to the baseline.",
+      "page": 11,
+      "index": 1,
+      "width": 610,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-002.webp",
+      "caption": "Fig. 11: Visualization of trajectory planning on HUGSIM benchmark(nuScenes [1])",
+      "page": 25,
+      "index": 2,
+      "width": 616,
+      "height": 1039
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-003.webp",
+      "caption": "Fig. 12: Visualization of trajectory planning on HUGSIM benchmark(KITTI-360 [24])",
+      "page": 26,
+      "index": 3,
+      "width": 616,
+      "height": 1040
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-004.webp",
+      "caption": "Fig. 1: Performance vs. training data scale on NAVSIM v2. Bubble size indicates model parameters. Our Latent-WAM achieves the highest EPDMS with significantly fewer training data and smaller model size, demonstrating superior data efficiency over existing world-model-based methods. World4Drive is marked separately as it employs an additional ViT-L depth estimator.",
+      "page": 2,
+      "index": 4,
+      "width": 581,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-005.webp",
+      "caption": "Fig. 15: Visualization of trajectory planning on HUGSIM benchmark(Pandaset [39])",
+      "page": 29,
+      "index": 5,
+      "width": 616,
+      "height": 1040
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-006.webp",
+      "caption": "Fig. 6: Additional trajectory visualizations on NAVSIM. Green: human driving trajectory. Yellow: predicted trajectory from the corresponding method.",
+      "page": 22,
+      "index": 6,
+      "width": 650,
+      "height": 964
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-007.webp",
+      "caption": "Table 1: Comparison with state-of-the-art methods on the NAVSIM v2 with extended metrics. We indicate the best and second best with bold and underlined respectively. †: The reported results are dependent on perception-based annotation.",
+      "page": 10,
+      "index": 7,
+      "width": 712,
+      "height": 326
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-008.webp",
+      "caption": "Table 2: Photorealistic closed-loop evaluation on HUGSIM [48]. Zero-shot generalization using our model from the NAVSIM-v2 evaluation. Scores are per difficulty and overall average road completion (RC) and HD-Score, higher always better.",
+      "page": 10,
+      "index": 8,
+      "width": 712,
+      "height": 226
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-009.webp",
+      "caption": "Fig. 5: Visualization of attention maps between scene tokens and image patches. From top to bottom, the three groups correspond to going straight, turning right, and turning left respectively.",
+      "page": 14,
+      "index": 9,
+      "width": 722,
+      "height": 316
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-010.webp",
+      "caption": "Fig. 14: Visualization of trajectory planning on HUGSIM benchmark(Waymo [31])",
+      "page": 28,
+      "index": 10,
+      "width": 616,
+      "height": 1040
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-011.webp",
+      "caption": "Fig. 4: Visualization of planning trajectories, where the green line is the human trajectory, the yellow line is the predicted trajectory of corresponding method.",
+      "page": 13,
+      "index": 11,
+      "width": 710,
+      "height": 373
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-012.webp",
+      "caption": "Fig. 2: Overview of the Latent-WAM architecture. See Sec. 3.1 for details.",
+      "page": 4,
+      "index": 12,
+      "width": 722,
+      "height": 355
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-013.webp",
+      "caption": "Fig. 13: Visualization of trajectory planning on HUGSIM benchmark(KITTI-360)",
+      "page": 27,
+      "index": 13,
+      "width": 616,
+      "height": 1040
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-014.webp",
+      "caption": "Fig. 9: Visualization of attention maps between scene tokens and image patches across consecutive frames. All groups depict left-turn scenarios. Geometric distillation yields more focused attention on task-relevant regions compared to the baseline.",
+      "page": 24,
+      "index": 14,
+      "width": 723,
+      "height": 472
+    },
+    {
+      "url": "assets/figures/arxiv/2603.24581v1/fig-015.webp",
+      "caption": "Fig. 10: Visualization of attention maps between scene tokens and image patches across consecutive frames. All groups depict right-turn scenarios. Geometric distillation yields more focused attention on task-relevant regions compared to the baseline.",
+      "page": 24,
+      "index": 15,
+      "width": 723,
+      "height": 471
+    }
+  ]
+}

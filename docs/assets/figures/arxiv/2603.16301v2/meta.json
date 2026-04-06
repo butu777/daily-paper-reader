@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-001.webp",
+      "caption": "Fig. 1. Our OGScene3D achieves incremental open-vocabulary scene understanding by continuously updating scene graphs and semantic Gaussian maps.",
+      "page": 1,
+      "index": 1,
+      "width": 623,
+      "height": 594
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-002.webp",
+      "caption": "Fig. 5. Qualitative comparison of semantic segmentation on Replica [15]. Details are highlighted with colorful boxes. Our method achieves more precise semantic representation than baselines.",
+      "page": 11,
+      "index": 2,
+      "width": 1060,
+      "height": 748
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-003.webp",
+      "caption": "Fig. 8. Visualization of real-world experiments. Using RGB-D data from the Gemini 336 camera as input, our method performs accurate dense RGB mapping and open-set semantic mapping.",
+      "page": 15,
+      "index": 3,
+      "width": 522,
+      "height": 348
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-004.webp",
+      "caption": "Fig. 9. The hardware setup used for real-world semantic mapping and scene understanding experiments.",
+      "page": 15,
+      "index": 4,
+      "width": 521,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-005.webp",
+      "caption": "TABLE VI DETAILED RUNTIME OF OUR METHOD REGARDING OPEN-SET SEMANTIC MAPPING.",
+      "page": 15,
+      "index": 5,
+      "width": 523,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-006.webp",
+      "caption": "TABLE III QUANTITATIVE COMPARISON OF OPEN-VOCABULARY 3D SEMANTIC SEGMENTATION ON SCANNET DATASET.",
+      "page": 14,
+      "index": 6,
+      "width": 1074,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-007.webp",
+      "caption": "TABLE II QUANTITATIVE COMPARISON OF OPEN-VOCABULARY 3D SEMANTIC SEGMENTATION ON REPLICA DATASET.",
+      "page": 14,
+      "index": 7,
+      "width": 1068,
+      "height": 289
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-008.webp",
+      "caption": "Fig. 7. Qualitative comparison on 3D semantic mapping. Our method achieves predictive completion, enabling more accurate and comprehensive 3D semantic reconstruction results. Only our method can correctly segment objects such as rug, table and background wall.",
+      "page": 13,
+      "index": 8,
+      "width": 1062,
+      "height": 880
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-009.webp",
+      "caption": "TABLE I COMPARISON OF ZERO-SHOT NOVEL-VIEW SEMANTIC SEGMENTATION.",
+      "page": 12,
+      "index": 9,
+      "width": 1068,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2603.16301v2/fig-010.webp",
+      "caption": "Fig. 6. Qualitative comparison of semantic segmentation on real-world dataset ScanNet [16]. Details are highlighted with colorful boxes. Our method achieves more precise semantic mapping than baselines.",
+      "page": 12,
+      "index": 10,
+      "width": 1053,
+      "height": 624
+    }
+  ]
+}

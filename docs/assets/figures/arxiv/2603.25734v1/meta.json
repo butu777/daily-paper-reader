@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.25734v1/fig-001.webp",
+      "caption": "Figure 2: Overview of LIGHT. Left: Training. We form different modalities, e.g., body, hand, and object, each diffused with its own noise level. After adding modal-wise and frame-wise rotary positional encodings, the tokens are processed by a shared Transformer decoder and an MLP head to predict clean motion. Right: Inference. We compare a uniform schedule that denoises all modalities synchronously with a staged schedule that keeps one modality cleaner from the uniform run.",
+      "page": 4,
+      "index": 1,
+      "width": 826,
+      "height": 490
+    }
+  ]
+}

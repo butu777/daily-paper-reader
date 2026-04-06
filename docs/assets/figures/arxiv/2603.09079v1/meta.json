@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.09079v1/fig-001.webp",
+      "caption": "Fig. 2: GST-VLA framework. Two frozen encoders produce semantic features and metric depth. The LoRA adapted GST lifts these into Ng=128 anisotropic 3D Gaussian tokens via four operations. A cross-attention projector injects spatial tokens into the VLM, where DA-CoT sublayers attend to the raw 256-primitive Gaussian field. The action expert receives dual conditioning: VLM hidden states (semantic and visual context) and DA-CoT action tokens (3D geometric reasoning).",
+      "page": 6,
+      "index": 1,
+      "width": 1054,
+      "height": 522
+    }
+  ]
+}

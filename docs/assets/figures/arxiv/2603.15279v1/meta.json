@@ -1,0 +1,150 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-001.webp",
+      "caption": "Figure 19: Uncurated samples from the model trained on ImageNet-32.",
+      "page": 25,
+      "index": 1,
+      "width": 664,
+      "height": 662
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-002.webp",
+      "caption": "Figure 20: Uncurated samples from the model trained on ImageNet-64.",
+      "page": 25,
+      "index": 2,
+      "width": 664,
+      "height": 554
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-003.webp",
+      "caption": "Figure 21: Uncurated samples from the model trained on FFHQ-256.",
+      "page": 26,
+      "index": 3,
+      "width": 664,
+      "height": 1104
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-004.webp",
+      "caption": "Figure 13: Sampling trajectories of LOOM-CFM (top) and the version of the algorithm that does not save the reassignments (bottom) trained on CIFAR10. The i-th row in both grids starts with the same initial noise. LOOM-CFM tends to produce sharper genereations and converges earlier.",
+      "page": 22,
+      "index": 4,
+      "width": 664,
+      "height": 1254
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-005.webp",
+      "caption": "Table 3: Unconditional generation results on FFHQ 256×256",
+      "page": 10,
+      "index": 5,
+      "width": 627,
+      "height": 266
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-006.webp",
+      "caption": "Table 2: Unconditional generation results on ImageNet-32 and ImageNet-64",
+      "page": 10,
+      "index": 6,
+      "width": 760,
+      "height": 455
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-007.webp",
+      "caption": "Figure 1: 2D Gaussian-to-Gaussian generation with CFM. This example illustrates the intuition behind the source of the curvature of the marginal sampling trajectories in the conditional flow matching framework and how optimal transport coupling could potentially solve this issue. (a) With independent coupling the sampling trajectories are highly curved. (b) This is due to the fact that in CFM the learned marginal vector field is an average over all source-to-target directions. As in the Gaussian case the distribution is symmetric around the origin, the learned vector field for small values of t points towards the origin, since the target points are more likely to be sampled from the other side. (c) OT coupling resolves the curvature of the trajectories and results in the identity mapping via averaging only over the sources and targets that are close to each other.",
+      "page": 3,
+      "index": 7,
+      "width": 822,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-008.webp",
+      "caption": "Table 4: ADM network architecture and training parameters of LOOM-CFM for each model.",
+      "page": 18,
+      "index": 8,
+      "width": 718,
+      "height": 474
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-009.webp",
+      "caption": "Figure 15: Sampling trajectories of the model trained on ImageNet-64.",
+      "page": 23,
+      "index": 9,
+      "width": 664,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-010.webp",
+      "caption": "Figure 14: Sampling trajectories of the model trained on ImageNet-32.",
+      "page": 23,
+      "index": 10,
+      "width": 664,
+      "height": 624
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-011.webp",
+      "caption": "Table 5: Detailed ablation results on CIFAR10.",
+      "page": 19,
+      "index": 11,
+      "width": 273,
+      "height": 880
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-012.webp",
+      "caption": "Figure 9: Number of reassignments within a minibatch along the training progress depending on the batch size.",
+      "page": 19,
+      "index": 12,
+      "width": 417,
+      "height": 313
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-013.webp",
+      "caption": "Figure 18: Uncurated samples from the model trained on CIFAR10.",
+      "page": 24,
+      "index": 13,
+      "width": 582,
+      "height": 581
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-014.webp",
+      "caption": "Figure 17: Samples from the FFHQ-256 model with different NFE (from left to right: 2, 4, 8 and 12 function evaluations).",
+      "page": 24,
+      "index": 14,
+      "width": 582,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-015.webp",
+      "caption": "Table 1: Unconditional generation results on CIFAR10. (∗) indicates that the reported numbers are calculated by us using the official code, as they were not reported in the corresponding papers.",
+      "page": 9,
+      "index": 15,
+      "width": 636,
+      "height": 849
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-016.webp",
+      "caption": "Figure 12: OT cost per minibatch along the training progress depending on the number of noise caches (the size of the dataset). The lines corresponding to the exponential moving average of the cost are shown.",
+      "page": 20,
+      "index": 16,
+      "width": 408,
+      "height": 309
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-017.webp",
+      "caption": "Figure 11: Number of reassignments within a minibatch along the training progress depending on the number of noise caches (the size of the dataset). The lines corresponding to the exponential moving average of the cost are shown.",
+      "page": 20,
+      "index": 17,
+      "width": 408,
+      "height": 309
+    },
+    {
+      "url": "assets/figures/arxiv/2603.15279v1/fig-018.webp",
+      "caption": "Figure 7: The form of the multiplier s(t) by y in the optimal vector field v(y, t) = y · s(t) for different values of σ.",
+      "page": 16,
+      "index": 18,
+      "width": 416,
+      "height": 309
+    }
+  ]
+}

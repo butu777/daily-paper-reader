@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.08131v1/fig-001.webp",
+      "caption": "Fig. 1: Conceptual comparison and overview of UniGround . Top: Existing zeroshot 3D visual grounding pipelines typically construct candidate objects using datasettrained 3D detectors with prior information, which may degrade under domain shift and affect downstream reasoning quality. Bottom: UniGround adopts a training-free paradigm consisting of Global Candidate Filtering for 2D–3D instance construction and open-vocabulary encoding, followed by the Local Precision Grounding for geometricaware multi-view reasoning with a structured and parsable output. Right: Example of real-world deployment in an unseen office scene.",
+      "page": 2,
+      "index": 1,
+      "width": 725,
+      "height": 238
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08131v1/fig-002.webp",
+      "caption": "Table 1: Evaluations of 3DVG on the ScanRefer Validation Set and a Subset of the EmbodiedScan Set within ARKitScenes.",
+      "page": 10,
+      "index": 2,
+      "width": 702,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08131v1/fig-003.webp",
+      "caption": "Fig. 6: Real-world qualitative results in unseen indoor scenes under capture noise and layout shift.",
+      "page": 13,
+      "index": 3,
+      "width": 704,
+      "height": 373
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08131v1/fig-004.webp",
+      "caption": "Fig. 5: Qualitative comparison on the cross-dataset ARKitScene benchmark. Purple boxes denote failures and green boxes denote correct grounding.",
+      "page": 12,
+      "index": 4,
+      "width": 704,
+      "height": 590
+    },
+    {
+      "url": "assets/figures/arxiv/2603.08131v1/fig-005.webp",
+      "caption": "Fig. 2: Overview of UniGround . Given raw scene observations and a language query, UniGround performs Stage 1: Global Candidate Filtering to retrieve a compact candidate set, followed by Stage 2: Local Precision Grounding, which localizes the target by jointly reasoning over global scene context for spatial verification and candidate-centric visual evidence for semantic identification.",
+      "page": 5,
+      "index": 5,
+      "width": 725,
+      "height": 394
+    }
+  ]
+}
