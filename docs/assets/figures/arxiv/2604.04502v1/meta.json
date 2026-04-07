@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-001.webp",
+      "caption": "Fig. 1: Comparison of three control pipelines. (a) VLA is adapted from a VLM by introducing new action modality, but this adaptation sacrifices some degree of generalization. (b) “Video model + IDM” generalize well, but lacks accuracy in low-level control. (c) Our Veo-Act is a hierarchical pipeline that automatically switch between video planner and VLA, combining the strengths of both approaches.",
+      "page": 1,
+      "index": 1,
+      "width": 529,
+      "height": 527
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-002.webp",
+      "caption": "Fig. 4: Multi-head IDM training pipeline. We collect frame-pair samples in simulation and on the real robot, where each sample includes consecutive observations (It−1, It), the executed action at, and a binary interaction label gt (grasp=1, nongrasp=0). We apply observation-level augmentation (STEM-OB) to the image sequence to improve robustness and reduce sim-toreal gap, and feed the augmented frame pairs with state st into a DINOv3-based encoder. The multi-head IDM predicts an action ât and a gate value Ĝt ∈ [0, 1] using two separate MLP heads. The model is trained end-to-end with a Huber loss for action regression and a binary cross-entropy loss for interaction detection, jointly optimizing L = λactLact(at, ât)+λgateLgate(gt, Ĝt).",
+      "page": 6,
+      "index": 2,
+      "width": 1045,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-003.webp",
+      "caption": "Fig. 12: Example of the action smoother. We plot one action dimension before and after smoothing.",
+      "page": 15,
+      "index": 3,
+      "width": 529,
+      "height": 398
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-004.webp",
+      "caption": "Fig. 6: Real-robot success rates. Instruction-following is yellow and overall is green.",
+      "page": 8,
+      "index": 4,
+      "width": 529,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-005.webp",
+      "caption": "Fig. 7: Ablation on the wrist-camera invisible setting. Instruction-following is yellow and overall is green.",
+      "page": 8,
+      "index": 5,
+      "width": 529,
+      "height": 385
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-006.webp",
+      "caption": "TABLE II: Ablation study results on the wrist-camera invisible setting. Each entry reports success count as Suc/All and the corresponding success rate.",
+      "page": 8,
+      "index": 6,
+      "width": 461,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-007.webp",
+      "caption": "Fig. 2: Three Paradigms of inference. The generated trajectories are shown in the top row as the generated video, where the last frame indicates task success. The second row shows trajectories executed by pure IDM inference. The third row shows trajectories executed by the Veo-Act architecture, but it locks into the low-level policy after the first switch. The fourth row shows trajectories executed by the full Veo-Act setup. Here, 0 denotes the instruction-following stage and 1 denotes the interaction stage.",
+      "page": 4,
+      "index": 7,
+      "width": 968,
+      "height": 529
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-008.webp",
+      "caption": "Fig. 3: Overview of the hierarchical planning and control pipeline. Starting from the first observation I0 and a language prompt, a video model generates a future visual trajectory I∗0:n. A multi-head inverse dynamics model converts this trajectory into a planned action chunk a∗0:n−1 and a predicted gate sequence, then a smoother produces ā∗0:n−1. During execution, the controller pops actions from the queue to follow the plan, while the IDM interaction detection head evaluates a real-time gate value Gt from current observations. If Gt exceeds a threshold, control switches from instruction following stage to a reactive low-level policy for dexterous interaction; otherwise it continues consuming the planned action queue. The system can switch back and resume the remaining planned actions to complete the task.",
+      "page": 5,
+      "index": 8,
+      "width": 984,
+      "height": 501
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04502v1/fig-009.webp",
+      "caption": "TABLE V: Configuration of Our Different Models",
+      "page": 16,
+      "index": 9,
+      "width": 674,
+      "height": 854
+    }
+  ]
+}

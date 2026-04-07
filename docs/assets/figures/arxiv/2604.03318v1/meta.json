@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.03318v1/fig-001.webp",
+      "caption": "Figure 3. Illustration of the data generation pipeline. Randomly sampled video frames and a tailored instruction are first given to GPT-4o to produce detailed per-frame descriptions. Qwen2.5-72B then infers viewpoint transitions and synthesizes them into the Role-Play Caption (RPC). In parallel, another GPT-4o instance, guided by a structured instruction, extracts the required spatial context from the multi-frame input and question. Finally, GPT-4o merges the RPC and spatial context to generate the final EgoMind Chain-of-Thought.",
+      "page": 6,
+      "index": 1,
+      "width": 1036,
+      "height": 427
+    },
+    {
+      "url": "assets/figures/arxiv/2604.03318v1/fig-002.webp",
+      "caption": "Figure 1. Illustration of the differences among spatial reasoning approaches. Direct questioning often fails because of missing cross-frame correlations and limited awareness of implicit objects needed for spatial bridging. Guided questioning helps the model gradually establish these associations. In contrast, EgoMind CoT explicitly models viewpoint transitions and implicit spatial bridges, builds a coherent global scene representation, and reliably produces the correct answer.",
+      "page": 2,
+      "index": 2,
+      "width": 1026,
+      "height": 520
+    },
+    {
+      "url": "assets/figures/arxiv/2604.03318v1/fig-003.webp",
+      "caption": "Table 1. A comprehensive comparison of EgoMind with state-of-the-art vision–language models across four spatial reasoning benchmarks.",
+      "page": 7,
+      "index": 3,
+      "width": 1032,
+      "height": 473
+    },
+    {
+      "url": "assets/figures/arxiv/2604.03318v1/fig-004.webp",
+      "caption": "Figure 2. Illustration of the proposed EgoMind framework. MLLMs powered by EgoMind first generate a Role-Play Caption by producing per-frame scene descriptions and inferring viewpoint transitions. The model then performs Progressive Spatial Analysis (PSA) to identify relevant objects, expand spatial dependencies via implicit spatial bridges, and form a coherent reasoning chain. Finally, the system outputs the EgoMind CoT, unifying RPC and PSA into an interpretable spatial reasoning process.",
+      "page": 5,
+      "index": 4,
+      "width": 1020,
+      "height": 531
+    }
+  ]
+}

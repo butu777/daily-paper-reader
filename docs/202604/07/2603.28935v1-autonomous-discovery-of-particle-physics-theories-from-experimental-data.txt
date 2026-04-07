@@ -1,0 +1,579 @@
+Title: Autonomous Discovery of Particle Physics Theories from Experimental Data
+
+URL Source: https://arxiv.org/pdf/2603.28935v1
+
+Published Time: Wed, 01 Apr 2026 00:08:39 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+# Autonomous Discovery of Particle Physics Theories from Experimental Data 
+
+Stephon Alexander 1,2 , Benjamin Bradley 3, Loukas Gouskos 1,2 ,Cooper Niu 1,2 
+
+> 1
+
+Department of Physics, Brown University, Providence, 02912, RI, USA. 
+
+> 2
+
+Brown Center for Theoretical Physics and Innovation (BCTPI), Brown University, Providence, 02912, RI, USA. 
+
+> 3
+
+Department of Computer Science, Brown University, Providence, 02906, RI, USA. Contributing authors: stephon alexander@brown.edu; benjamin bradley@brown.edu; loukas gouskos@brown.edu; cooper niu@brown.edu; 
+
+Abstract 
+
+The search for physics beyond the Standard Model is hindered by a combina-torial explosion of possible theories. We introduce Albert , a neuro-symbolic artificial intelligence framework to systematically navigate this vast theory space. By encoding particle physics as a formal language, Albert generates tok-enized sequences representing symmetries, particles, and interactions under a rule-based grammar, eliminating the hallucinations common in large language models. The reinforcement learning environment enforces first-principle theoret-ical constraints, computes observables with radiative corrections, and evaluates statistical likelihood via χ2 analysis against experimental data. As a proof of con-cept, we train a 25-million-parameter transformer model using only legacy data from the Large Electron–Positron Collider, which contains no direct evidence of the top quark. Remarkably, Albert successfully rediscovered the Standard Model and autonomously inferred necessity and properties of the top quark, pre-dicting its mass at 178 .9 ± 5.0 GeV, consistent with its modern measurement at the Large Hadron Collider. These results demonstrate the potential of AI-driven theory exploration as a rigorous, hallucination-free, and scalable paradigm for autonomous discovery of new physics. 
+
+1
+
+> arXiv:2603.28935v1 [hep-ph] 30 Mar 2026
+
+# 1 Introduction 
+
+The Standard Model (SM) of particle physics provides a remarkably precise description of the fundamental building blocks of matter and their interactions. The discovery of the Higgs boson at the CERN Large Hadron Collider (LHC) by the ATLAS and CMS experimentsin 2012 [1, 2] completed the SM’s last missing piece, marking not a conclusion, but the opening of a new chapter. Compelling evidence for dark matter, dark energy, and matter–antimatter asymmetry all point to the same conclusion: there must be physics beyond the SM (BSM). However, after decades of searches in colliders, direct dark matter detection experiments, astrophysical and cosmological observations, extra dimensions, no definitive clue of BSM physics has emerged. The challenge lies not only in the absence of signals, but also in the combinatorial explosion. Even modest extensions of the SM can potentially generate an astronomical number of possibilities. Historically, theorists have navigated this landscape using heuristic principles such as naturalness, symmetry, or mathematical elegance. While powerful, these criteria are inherently subjective and may not reflect nature’s true preferences. Recent advances in artificial intelligence (AI) suggest a new paradigm for scientific discovery. Deep neural networks have demonstrated a remarkable capacity to navigate combinatorial spaces far beyond brute-force enumeration, from the game of Go [3] to protein folding [4], and large language models (LLMs) have further extended these capabilities to abstract reasoning, code synthesis, and pattern recognition [5, 6]. In theoretical physics, partial workflow has been already assisted by AI/ML. Symbolic regression has recovered mathematical expressions from numerical data [7– 9], reinforcement learning (RL) has been applied to constrained regions of model space [10, 11], and frontier LLMs have already assisted physicists and mathemati-cians to solve open questions [12, 13]. Concurrent and complementary approaches to AI-driven theory exploration have recently appeared. The FermiAcc [14] employs OpenAI agent as a scaffolded reasoning engine, orchestrating existing phenomenol-ogy tools to generate and validate BSM hypotheses for collider anomalies. Similarly, 
+
+ArgoLoom [15] and ColliderAgent [16] automate the computational workflow from Lagrangian to collider observable via agentic AI pipelines. On the experimental side, the JFC framework [17] demonstrates that LLM-based agents can autonomously execute complete analysis pipelines, from event selection through statistical infer-ence. These approaches primarily automate existing workflows, leveraging the broad knowledge encoded in pretrained language models. However, the ultimate goal is an AI theorist that autonomously explores the exper-imental measurements, proposes new theories, enforces the first-principle constraints such as gauge invariance and anomaly cancellation, computes precision theoretical predictions with radiative corrections, and identifies the imprint of BSM physics in experimental data. In this article we introduce a neuro-symbolic AI framework, Albert 
+
+(Autonomous Lagrangian Building and Exploration with RL-trained Transformer), that autonomously proposes quantum field theories (QFTs) directly from experimen-tal data. Rather than wrapping physics knowledge in a general-purpose LLM, Albert 
+
+constructs a purpose-built formal language with a theory grammar that encodes the 2rules of QFT. Candidate theories are generated as structured token sequences within this grammar, which enforces that every candidate is a well-formed, quantum consis-tent Lagrangian by construction, a guarantee that no amount of scaling can provide in free-form language models. A Transformer-based policy network, trained entirely from scratch on domain-specific token sequences and therefore free of any prior exposure to physics literature, learns to navigate theory space through reinforcement learning guided by first principles and experimental likelihood. As a proof of concept, we apply Albert to a historically grounded inference prob-lem. Given only the physics knowledge prior to 1990, with the top quark, Higgs boson, and tau neutrino unknown, can Albert using exclusively precision electroweak mea-surements from the Large Electron–Positron Collider (LEP) [18] independently infer what is missing? LEP provides a particularly stringent testbed. It never had suffi-cient energy to produce any of these particles directly, forcing Albert to infer their existence solely from the indirect signatures they leave in precision observables. The workflow consists of three stages. We begin by teaching Albert the funda-mental syntax and structure of QFTs. This is achieved with supervised pretraining of a 25-million parameter transformer on 100,000 synthetic theories sampled from the the-ory grammar. Next, Albert is fine-tuned via RL, with rewards that enforce quantum consistency constraints. In the final stage, a complete computational pipeline evaluates each candidate theory, proceeding from the Lagrangian through automated Feynman rule derivation to precision observables with radiative corrections, and reward the-ories according to their χ2 likelihood against LEP measurements. Provided only an incomplete and unorganized set of particles known prior to 1990, with the top quark, tau neutrino, and Higgs boson absent, Albert autonomously infers the quantum numbers, spin, and masses of all three missing particles and predicts the top quark mass mtop = 178 .9 ± 5.0 GeV and Higgs boson mass mHiggs = 146 .9 ± 17 .4 GeV, consistent with the LHC precision measurements of mtop = 172 .52 ± 0.33 GeV and 
+
+mHiggs = 125 .20 ± 0.11 GeV [19] within 1 σ and 1 .2σ of Albert ’s posterior uncer-tainty, respectively. This serves as a demonstration that autonomous theory discovery from indirect precision observables is achievable without human assistance. 
+
+# 2 Quantum Field Theory as a Formal Language 
+
+A QFT is fully specified by a set of discrete and continuous ingredients: a gauge symmetry group, matter fields transforming in definite representations of that group, their interactions, conserved currents and a set of masses and coupling constants. The gauge group determines which force carriers exist and fixes the structure of their self-interactions. Each matter field is characterized by its spin, its chirality (for fermions), and its group transformation properties under each gauge group (i.e., its representation and quantum numbers). The allowed interactions are terms in the Lagrangian of the theory and must be symmetry-invariant contractions of the participating fields. We generate candidate theories in a hierarchical approach. At the first level, the sequence must be syntactically well-formed. Every token must belong to a recognized type and appear in a grammatically permitted position. We define a vocabulary of approximately 200 tokens that encodes every ingredient of a general renormalizable 3d. Tokenized Theory                                                   
+
+> SU(3) CΛSU(2) LΛU(1) Y
+> Vacuum Expectation Value
+> v=246 GeV
+> Type (Scalar or Fermion)
+> Chirality
+> Group Representation
+> Number of Generation
+> Yukawa Couplings
+> Scalar Self-interaction
+> (Gauge Groups)
+> (Symmetry Breaking Pattern)
+> (Matter Fields)
+> (Interactions)
+> a. Theory Space
+> b. Symbolic Theory
+> c. Theory Component
+> Gauge_U GAUGE_SU g_1 g_2
+> Gauge_SU g_3
+> rank_1 rank_2
+> rank_3
+> VEV v_1 REPS singlet fnd hypercharge(1/2) END_REPS
+> dim_2 246 GeV (0, 1) END_VEV
+> Complex_Scalar
+> Fermion
+> m_1 no_chirality aquire v_1
+> m_2 left REPS singlet fnd hypercharge(-1/2) END_REPS
+> dim_2 gen_3 END_MULTIPLET
+> END_MULTIPLET
+> Fermion m_3 right REPS singlet singlet hypercharge(-1)
+> END_REPS dim_1 gen_3 END_MULTIPLET
+> Term_Yukawa i_1 MPLTS m_1 m_2 m_3 END_MPLTS
+> PARAMS 0.511 MeV 105.7 MeV 1776.9 MeV END_PARAMS
+
+Fig. 1 : (a) The space of all possible physics theories can be characterized by a set of fundamental axes (e.g. symmetry, unitarity, naturalness, particle content, and experi-mental agreement) forming a high-dimensional landscape in which the Standard Model occupies a specific location. (b) The symbolic Lagrangian of the Standard Model. (c) Quantum field theories can be encoded into token sequences that contain the information of gauge groups, symmetry breaking patterns, matter field contents, and interaction terms. (d) An example of a tokenized theories. QFT in (3 + 1) dimension spacetime (the full vocabulary is tabulated in Table 5). At each step of the generative process, the grammar masker evaluates the current sequence and construct a grammar mask vector M with Mi = 0 for all grammatically permissible tokens and Mi = −∞ to all invalid tokens. Thus, the grammar masker reduces the effective action space to only those completions consistent with the rules of QFT prior to probability normalization. Given a vector of raw logits L (i.e., the unnormalized scores assigned by the network to each token in the vocabulary), the probability Pi of token i is: 
+
+Pi = exp   Li
+
+T + Mi
+
+P
+
+j exp 
+
+ Lj
+
+T + Mj
+
+ , (1) where the temperature T controls the sharpness of the probability distribution over the vocabulary. A lower temperature concentrates probability mass on high-logit tokens, while a higher temperature flattens it toward a uniform distribution. This formu-lation is analogous to the Boltzmann distribution in statistical mechanics, where T
+
+plays the role of thermodynamic temperature and the grammar mask Mi acts as a chemical potential, assigning infinite energetic cost to physically forbidden tokens and suppressing their occupation probability to exactly zero. The theory space opened by this representation is vast. Restricting to gauge groups SU( N ) and U( N ) with N ≤ 3, allowing at most 10 matter multiplets, and discretizing continuous parameters into bins, the number of distinct token sequences and hence distinct candidate theories, already exceeds 10 50 . Here, the search space is estimated 4Fermion  m_2  left  REPS  ?       
+
+> Grammar rule after “REPS” token
+> What is the SU(3) representation of a left-handed fermion?
+> next token prediction
+> singlet
+> fundamental
+> adjoint
+> yukawa
+> fermion
+> hypercharge(-1/2)
+> Transformer Prediction
+> 52.3
+> 45.8
+> 29.7
+> 34.4
+> 8.5
+> 3.2
+> … (all other tokens)
+> Grammar Mask
+> M = 0 (valid)
+> M = 0 (valid)
+> M = 0 (valid)
+> M = (invalid)
+
+Λ∼ 
+
+> M = (invalid)
+
+Λ∼ 
+
+> M = (invalid)
+
+Λ∼  
+
+> Final Probability
+> 55.3%
+> 28.9%
+> 15.7%
+> 0%
+> 0%
+> 0%
+> 0% M = (invalid)
+
+Λ∼           
+
+> Fermion m_2 left REPS ?next token prediction singlet
+> Grammar rule after “REPS” and “singlet” tokens
+> What is the SU(2) representation of a left-handed fermion?
+> Hallucination-free :
+> invalid tokens are
+> blocked by grammar
+
+Fig. 2 : At each autoregressive step, the grammar mask assigns M = −∞ to all physi-cally inadmissible tokens prior to softmax normalization, restricting valid completions to singlet , fundamental , and adjoint for the SU(3) representation query. A con-ventional large language model may hallucinate and assign significant confidence to tokens such as hypercharge(-1/2) at this position. The theory grammar reduces the posterior probability of all such tokens to exactly zero, guaranteeing that every gen-erated sequence constitutes a well-formed Lagrangian term at every decoding step. as the product of the number of grammar-constrained valid tokens at each step of the sequence generation. Relaxing any of these restrictions increases the count com-binatorially. For comparison, the FeynRules model database [20, 21], one of the most comprehensive repositories of BSM theories implemented for phenomenological study, contains only hundreds of theories. The region explored by human theorists over decades is vanishingly small relative to this space. Brute-force enumeration is intractable, and uniform random sampling is overwhelmingly unlikely to produce the-ories consistent with precision data. A learned policy that navigates theory space guided by a physical reward signal is therefore essential. 
+
+# 3 Physical Consistency and Experimental Agreement 
+
+The space of admissible QFTs is not arbitrary. It is constrained by foundational laws of physics, and any viable theory must satisfy them simultaneously. Our theory grammar, by construction, generates only Lorentz-invariant, local, gauge-symmetric Lagrangians. To further ensure mathematical and physical consistency, we impose three additional constraints. 
+
+Gauge Anomaly Cancellation : the requirement that quantum corrections do not break the gauge symmetry of the classical Lagrangian. In a consistent gauge theory, 5triangle diagrams with three external gauge bosons must vanish when summed over all fermion species running in the loop. For example, a U(1) Y gauge factor imposes the cubic hypercharge condition 
+
+X
+
+> fermions
+
+Y 3 = 0 , (2) where Y denotes the hypercharge of each left-handed fermion, with right-handed fermions contributing with opposite sign. This imposes strict algebraic conditions on the charge and representation assignments of the matter content, conditions that in the SM are satisfied only through a precise cancellation between quark and lepton hypercharges across each generation. If gauge anomalies persist, then the Ward iden-tities are violated, the longitudinal gauge boson modes cannot be decoupled, and the S-matrix loses unitarity. 
+
+No detector-accessible exotic particles : particles carrying electric or color charge interact with detector material through electromagnetic or strong forces, leaving observable tracks, calorimeter deposits, and missing transverse energy signatures. Any such particle with mass below the collider’s kinematic threshold is therefore experi-mentally accessible, and a proposed theory predicting new exotic particles must be consistent with existing search results. In the present framework, this constraint is implemented conservatively by requiring that no new particle carrying electric or color charge has a mass below the LEP-II center-of-mass energy of √s/ 2 ∼ 100 GeV, without reference to decay topology or production cross section 1.
+
+Perturbative Unitarity : for scattering amplitudes to be physically meaningful, all dimensionless couplings must remain small enough such that the perturbative expansion is reliable. When a coupling grows beyond O(1), loop corrections become comparable to tree-level contributions, the expansion breaks down, and the S-matrix loses unitarity at the perturbative level. The phenomenological predictions Otheory  
+
+> k
+
+are computed via an automated pipeline built on Sarah [22] and Spheno [23]. Sarah is a Mathematica package that takes as input the symbolic Lagrangian of any user-specified renormalizable gauge theory and automatically derives the complete set of Feynman rules, mass matri-ces, and renormalization group equations. The resulting analytical expressions are exported as a Fortran model file and passed to Spheno , which performs the full numerical evaluation of physical observables, including loop-corrected particle masses, decay widths, and electroweak precision quantities such as the W boson mass, the effective weak mixing angle sin 2 θeff , and the oblique correction parameters S, T ,and U [24, 25]. Given a tokenized theory sequence, Albert constructs the corre-sponding Sarah model file through a purpose-built and in-house parser program. 
+
+Albert then executes the Sarah /Spheno pipeline autonomously and returns the predicted electroweak precision observables. Because this pipeline is fully determinis-tic, its outputs are exactly reproducible and entirely free of language model inference and hallucination by construction. 
+
+> 1If a exotic particle is unstable and decays to SM particles, the collider signature is determined by the decay products rather than the exotic particle itself, and the experimental accessibility depends critically on the decay topology, branching ratios, and the resulting final-state kinematics.
+
+6Gauge Structure                           
+
+> Known Particles
+> Language Model
+> Theory Grammar
+> Theory #1
+> Theory #2
+> Theory #3
+> Theory #4
+> Theory #G
+> …
+> Theory #5
+> Theory #6
+> …
+> …
+> …
+> Gauge Anomaly
+> Unitarity
+> Detector-Accessible
+> Exotic Particles
+> Veri fi able Rewards
+> Group Generation
+> Advantages
+> Ai=riΛmean (r)
+> std (r)
+> |A∼B|
+> |A∑B|
+> J(A,B)=
+> Jaccard Similarity Jaccard Similarity Matrix
+> Similar
+> Different
+> Policy Network
+> Symbolic Computation Feynman Rules Observable Statistical Analysis
+> Fully Automated Computation Pipeline
+> Exploratory Bonus
+> Rewards
+> Theory Database
+> Mathematically Consistent Theories
+> Compute Observables
+> for New Theories
+> Save Valid Theories
+> Flawed
+> Theories
+> Valid
+> Theories
+> Likelihood μ2
+> Prompt
+
+Fig. 3 : Autonomous theory discovery. A prompt encoding the known gauge structure and particle content is fed into the policy network, which combines a Transformer-based language model with a theory grammar masker to generate a group of G candidate theories as tokenized sequences. Each candidate is evaluated against three hard consistency checks (gauge anomaly cancellation, perturbative unitarity, and absence of detector-accessible exotic particles), with flawed theories discarded and valid theories assigned group-relative advantages. An exploratory bonus computed from pairwise Jaccard similarities between candidates penalizes similar theories and rewards diverse exploration. Surviving theories proceed to a fully automated com-putation pipeline that derives Feynman rules, computes loop-corrected electroweak observables, and evaluates the χ2 likelihood against measurements from the LEP experiment, closing the training loop without human intervention. Only theories passing all three checks proceed to the Sarah /Spheno evaluation pipeline, where the reward is computed as a continuous function of the χ2 agreement with the LEP precision electroweak dataset, 
+
+χ2 =
+
+Nobs X
+
+k=1 
+
+
+
+Otheory 
+
+k − O exp 
+
+k
+
+2
+
+σ2
+
+k
+
+, (3) where Otheory 
+
+k and Oexp 
+
+k are the theoretical prediction and experimental measurement of the k-th observable respectively, σk is the associated experimental uncertainty, and 
+
+Nobs is the total number of observables included in the fit. In the present study, the experimental dataset consists of a single observable, the W boson mass mW =80 .447 ± 0.042 GeV, measured at LEP-II through direct resonance reconstruction [26]. With Nobs = 1, the χ2 alone cannot discriminate among theories with multiple free parameters. The discriminating power instead arises from the conjunction of the three 7consistency constraints: anomaly cancellation, perturbative unitarity, and absence of exotic particles, which sharply restrict the admissible particle content and quantum numbers, leaving the χ2 to select the mass scale of the surviving candidates. Continuous free parameters are discretized onto a grid defined by a base drawn from {1, 2, 5} and an integer exponent. Although a comprehensive Bayesian treatment of the full parameter space would provide optimal inference, its computational cost renders it impractical as a reward signal during training 2. To provide rapid χ2 feedback to the RL environment, we instead employ differential evolution, a gradient-free global optimization algorithm well suited to non-convex and high-dimensional parameter landscapes [27, 28]. At each evaluation step, differential evolution scans the discretized free parameter space and returns the minimum χ2 value, which serves as the fitness signal for the RL reward function. This hierarchical structure ensures that the expensive numerical evaluation is reserved exclusively for the small fraction of candidates that satisfy all theoretical consistency conditions, and that the RL signal is dominated by physically meaningful discrimination among viable theories rather than by trivial constraint violations. 
+
+# 4 Inventing Theories from Data 
+
+Theory construction is a sequential decision problem with long-range dependencies. The choice of gauge group at the beginning of a token sequence constrains which rep-resentations are admissible for matter fields many tokens later, and the full particle content must be globally consistent before any meaningful reward can be assigned. The Transformer architecture [29] is particularly well-suited to this structure. Its self-attention mechanism allows every token in the sequence to directly attend to every preceding token, capturing non-local dependencies between gauge group assignments, representation choices, and interaction terms regardless of their separation in the sequence. This global context sensitivity is essential for theory construction, where a single inconsistent charge assignment in the sequence invalidates the entire theory. To preclude data leakage from pretrained language models that have been exposed to SM literature, the policy network is trained entirely from scratch on domain-specific token sequences. The architecture follows the GPT decoder-only design [30], augmented with Rotary Positional Embedding (RoPE) [31] to encode the positional information and a key-value (KV) cache [32] to accelerate autoregressive inference. The full set of architectural hyperparameters is reported in Table 1. 
+
+4.1 Supervised Pretraining 
+
+Prior to any exposure to experimental data, the policy network is pretrained via supervised next-token prediction on a synthetic corpus of complete theory sequences. The theory grammar functions as a decision tree, providing a closed and deterministic set of rules that guarantees physical validity at every generation step. Theory sequences are sampled by traversing this decision tree autoregressively, selecting uniformly at random from the set of grammatically admissible tokens at each step. This uniform 
+
+> 2We only employ Markov Chain Monte Carlo (MCMC) sampling for the final posterior characterization of the converged solutions.
+
+8sampling strategy ensures that the resulting corpus is unbiased with respect to any particular gauge group, matter representation, or interaction structure, producing a diverse training distribution of 100 ,000 synthetic theories. This stage teaches the model the fundamental syntactic and structural rules of QFT, including valid gauge group compositions, admissible representation assign-ments, and the hierarchical ordering of Lagrangian terms, without imposing any phenomenological bias. The pretraining objective is the standard cross-entropy loss over the token vocabulary, 
+
+LPT (θ) = − 1
+
+N
+
+> N
+
+X
+
+> n=1
+> Tn
+
+X
+
+> t=1
+
+log πθ
+
+
+
+x(n) 
+
+> t
+
+x(n)
+
+> <t
+
+
+
+, (4) where x(n) 
+
+> t
+
+denotes the t-th token of the n-th theory sequence and Tn is its total length. Within a single training epoch, the next-token prediction perplexity, defined as exp( LPT ), reaches 1 .75, where 1 .0 corresponds to deterministic prediction. Since the grammar mask typically restricts each decoding step to only a handful of valid tokens, a perplexity of 1 .75 indicates that the model has acquired near-complete mastery of the theory grammar’s syntactic structure. The pretrained model then initializes the policy network prior to reinforcement learning, providing a warm start from which the RL stage can efficiently fine-tune toward experimental agreement rather than exploring theory space from random initialization. 
+
+4.2 Reinforcement Learning via GRPO 
+
+Following pretraining, the policy network is fine-tuned via RL against the full theory validation and experimental likelihood pipeline described in Section 3. Theory gener-ation is formulated as a sequential decision-making problem in which the policy πθ
+
+constructs a candidate theory token by token, conditioned on a prompt q encoding only the gauge structures and particle contents. A completed sequence constitutes a trajectory and specifies a unique, internally consistent QFT Lagrangian. We employ Group Relative Policy Optimization (GRPO) [33] as the RL algorithm to fine-tune the model. At each training step, the policy samples a group of G candidate theories {oi}Gi=1 from the same prompt q. Each candidate is evaluated by the reward environment, yielding a group of G rewards {ri}Gi=1 . Rather than assessing rewards in absolute terms, GRPO normalizes them within the group to compute the group-relative advantage ,ˆAi = ri − mean( r)std( r) , (5) where r = ( r1, . . . , r G). Advantages indicate how much candidate oi outperformed or underperformed the group mean. This within-group normalization eliminates the need for a separately trained value network, substantially reducing memory requirements relative to actor-critic algorithms such as PPO [34]. The full training objective is given by 
+
+J (θ) = JPolicy (θ) − β DKL (πref ∥ πθ) + η JJaccard , (6) 9where the three terms serve complementary roles. The policy objective JPolicy drives improvement in physical and phenomenological quality. The KL divergence penalty with coefficient β regularizes the updated policy against a frozen reference policy 
+
+πref , preventing collapse onto a degenerate mode of repetitive or narrow theories. The Jaccard diversity objective JJaccard explicitly encouraging the policy network to propose diverse theories and broad exploration of theory space. The policy objective takes the clipped surrogate form, 
+
+JPolicy (θ) = 1
+
+G
+
+> G
+
+X
+
+> i=1
+
+min 
+
+
+
+ρi(θ) ˆAi, clip( ρi(θ), 1 − ε, 1 + ε) ˆAi
+
+
+
+, (7) where the probability ratio 
+
+ρi(θ) = πθ (oi | q)
+
+πθold (oi | q) (8) measures the relative change in probability assigned to candidate oi between the cur-rent and previous policy. The RL of language models is inherently susceptible to training instability and catastrophic forgetting when parameter updates are insuffi-ciently constrained. Excessively large policy updates can destroy the syntactic and structural knowledge acquired during supervised pretraining, collapsing the policy onto degenerate or repetitive theory sequences from which recovery is not guaranteed. Clipping ρi(θ) to the interval [1 − ε, 1 + ε] directly addresses this failure mode by bounding the per-step policy change, preventing aggressive weight update and hence stabilizing the training. The KL divergence penalty 
+
+DKL (πref ∥ πθ) = πref (oi | q)
+
+πθ(oi | q) − log πref (oi | q)
+
+πθ(oi | q) − 1. (9) provides a complementary regularization, preventing the updated policy from drifting too far from the reference policy πref (i.e. the pretrained model) over the course of training. The Jaccard diversity term penalizes pairwise similarity within the sampled group by comparing the physical content of candidate theories rather than their raw token sequences. Each generated token sequence is parsed into a structured representation encoding the matter field content, interaction terms, and field types (real scalar, com-plex scalar, or fermion). The Jaccard similarity between two theories oi and oj is then computed over these parsed physical dictionaries, 
+
+J(oi, o j ) = |oi ∩ oj ||oi ∪ oj | , (10) where oi ∩ oj denotes the multiset of physical ingredients present in both theories simultaneously, oi ∪ oj denotes the multiset of all physical ingredients present in either theory, and | · | denotes the cardinality of the corresponding multiset. A value of J = 1 indicates two physically identical theories sharing identical field content and interactions, while J = 0 indicates two theories sharing no common physical 10 ingredients. 
+
+LJaccard = 1
+
+G(G − 1) 
+
+X
+
+> i̸=j
+
+J(oi, o j ). (11) This formulation ensures that the diversity penalty operates at the level of physical content rather than superficial token overlap, penalizing groups in which candidate theories share common field content and interactions regardless of how those properties are encoded in the token sequence. Without this explicit diversity incentive, the policy may collapse onto a narrow cluster of locally rewarding theories while neglecting large unexplored regions of the theory landscape. 
+
+Fig. 4 : Training dynamics of the RL stage. (Left) Sub-rewards for perturba-tive unitarity (red), absence of detector-accessible exotic particles (blue), and gauge anomaly cancellation (yellow) as a function of training episode. All three sub-rewards converge from large negative values toward zero within approximately 20 episodes, indicating that the policy has learned to satisfy all consistency constraints simulta-neously. (Right) Theory validity success rate (green dashed) and intra-group Jaccard diversity (blue solid) over training. The success rate rises sharply to above 95% within the first 15 episodes and remains stable thereafter. Diversity initially declines as the policy concentrates on the valid region of theory space. Once the success rate stabi-lizes at high values, the Jaccard penalty in the training objective forces the policy to simultaneously maintain high validity and high diversity, driving a recovery and sta-bilization of diversity near 0 .4. Albert achieves broad exploration without sacrificing theoretical consistency. 
+
+# 5 Rediscovering the SM 
+
+Deducing the properties of an unobserved particle from its virtual contributions to precision observables is among the most stringent tests of a quantum field theory framework. The top quark represents a canonical example: too massive to be produced directly at LEP, its existence was inferred indirectly from precision electroweak observ-ables through the combination of four LEP experiments and state-of-the-art radiative correction calculations, prior to its direct discovery at the Tevatron proton-antiproton 11 collider at √s = 1 .8 TeV in 1995 [35 ? ]. We adopt this historically grounded prob-lem as a controlled benchmark. Given identical data and an incomplete information of particles, can Albert autonomously arrive at the same conclusion? The setup is as follows. Albert is given the SM gauge structure SU(3) C ×SU(2) L ×
+
+U(1) Y as a fixed prompt, together with the set of electric charge, color charge, and mass of each particle experimentally confirmed prior to 1990, with no information regarding multiplet organization, Yukawa structure, or electroweak symmetry breaking. The experimental dataset consists exclusively of the LEP-II precision measurement of the 
+
+W boson mass, mW = 80 .447 ± 0.042 GeV [26]. This measurement is theory-agnostic. The W mass is extracted directly from the reconstructed invariant mass distribution of its decay products, requiring no prior assumption regarding the top quark or the Higgs sector. Critically, no information concerning the top quark, tau neutrino, or complex scalars in the Higgs doublet is provided. The agent must determine autonomously whether additional particles are required to achieve consistency with the data, and if so, must infer their gauge quantum numbers, representations, and masses entirely from the structure of the reward signal. 
+
+Fig. 5 : Joint posterior distribution of the top quark mass mt and Higgs boson mass mh
+
+for the SM rediscovered by Albert . Filled contours denote the 1 σ, 2 σ, and 3 σ credible regions of the joint posterior obtained via Markov Chain Monte Carlo (MCMC) sam-pling over the free parameters. The red marker with error bars denotes the mean and standard deviation of best-fit parameter pairs ( mt, m h) obtained from an ensemble of 100 independent differential evolution optimizations over the discretized parameter space, yielding mt = 178 .9 ± 5.0 GeV and mh = 146 .9 ± 17 .4 GeV. The orange marker denotes the current precision measurements from the LHC, mt = 172 .52 ± 0.33 GeV and mh = 125 .20 ± 0.11 GeV [19]. Both inferred values are consistent with the LHC measurements at 1 σ and 1 .2σ of Albert ’s posterior uncertainty, respectively. 12 The theory search space for this problem contains on the order of 10 50 candidate theories, encompassing a broad range of BSM extensions. No prior constraint on the direction of exploration is imposed. Albert is free to organize the known particles into multiplets under different representations of the gauge groups, add additional fermions or scalars, or other renormalizable extension consistent with the theory grammar. After 10 GRPO iterations encompassing a total of 320 candidate theories, the policy already discovers 6 structurally distinct theories at the level of multiplets and interaction terms. All 6 share a common structural feature: a color-triplet fermion in the ( 3, 2, +1 /6) representation, corresponding to an SU(2) L doublet carrying the quantum numbers of the left-handed top-bottom pair, together with a right-handed singlet in the ( 3, 1, +2 /3) representation and a Yukawa coupling to the Higgs. The optimal theory achieves a minimum χ2 ≈ 0.13 against the LEP measurement mW =80 .447 ± 0.042 GeV, indicating excellent agreement between the theoretical prediction and the experimental observable within the precision of the available data. It arises from the simultaneous pressure of anomaly cancellation, which constrains the hypercharge and color representation of any new fermion, and the χ2 reward, which selects for theories whose radiative corrections reproduce the measured preci-sion observables. The reward further disfavors unnecessary field content, effectively implementing Occam’s razor as an emergent optimization pressure. The incomplete SM without the top quark is excluded by the requirement of anomaly cancellation, confirming that the agent has correctly identified the missing particle as necessary rather than optional. No single constraint is individually sufficient to identify the top quark. Anomaly cancellation fixes the admissible hypercharge and color representations of the miss-ing field. The χ2 reward selects the mass scale. The parsimony pressure suppresses unnecessary extensions. It is the combination of these requirements, all enforced simul-taneously through the RL training objective, that renders the solution essentially unique, and the agent learns this multi-constraint structure entirely from the reward signal without any explicit instruction. A critical distinction separates Albert from approaches that fine-tune frontier LLMs on physics literature: the policy network is trained entirely from scratch on domain-specific token sequences, ensuring that the framework possesses no implicit knowledge of the Standard Model inherited from pretraining. Its successful rediscovery of the SM particle content and its autonomous inference of the top quark mass from indirect electroweak observables therefore constitute genuine theoretical reasoning, not pattern matching against memorized literature. 
+
+# 6 Conclusion and Outlook 
+
+The framework presented here demonstrates that an AI agent, Albert can construct complete QFTs from experimental data. As a proof-of-concept we rediscovered the top quark from precision electroweak measurements by the LEP experiment alone. This serves as a direct analogy to the situation confronting particle physics today. The LHC operates at sufficient energy to probe the TeV scale directly, yet no unambiguous signal of new physics has emerged from its high-energy searches. The imprints of heavy 13 BSM states, however, need not manifest as direct production. They appear as subtle deviations in precision electroweak observables, encoded in radiative corrections that are sensitive to virtual contributions from particles far above the kinematic threshold. The forthcoming High-Luminosity LHC (HL-LHC) [36] and the proposed Future Circular Collider in electron-positron mode (FCC-ee) [37] are precision experiments of precisely this character, designed to measure electroweak observables at a level of accuracy surpassing LEP by one to two orders of magnitude. The parallel is direct. Although the LEP experiments could not produce the top quark, it nonetheless encoded its existence in mW and oblique correction parameters. 
+
+Albert extracted that information without human guidance, converging on the cor-rect quantum numbers and mass scale from a search space of order 10 50 candidate theories. If the framework can perform this inference from LEP-era data, there is sub-stantive reason to expect that, when trained against a richer precision dataset, it can potentially identify the virtual imprints of dark matter candidates, extended scalar sectors, or other heavy BSM states that lie beyond the direct reach of any foreseeable collider. The present demonstration relies on a single precision observable, the mW , which limits the model-selection power of the χ2 reward to fixing the mass scale of parti-cles whose quantum numbers are already constrained by anomaly cancellation. The forthcoming FCC-ee precision programme will transform this landscape. With O(100) electroweak, Higgs, and flavour observables measured at sub-percent or sub-permille accuracy [37], the χ2 reward will acquire genuine discriminating power across both the particle content and the parameter space of candidate theories. Albert represents not merely a proof of concept in historical reconstruction, but a scalable framework for autonomous theory discovery whose resolving power will grow with the precision and breadth of the experimental dataset. Extending the grammar to higher-dimensional operators would connect Albert to the SMEFT programme [38] currently being pursued at the LHC, while incorporating gravitational and cosmological observables would open it to dark matter and early-universe physics. More broadly, the novel approach introduced here, which encodes the principles of a scientific discipline as a formal grammar and trains an agent to construct theories within it, is not specific to particle physics, and could be adapted to any domain where the space of consistent theories is vast, structured, and underdetermined by available data. 
+
+Limitations of HEP Software. A further limitation concerns the scope of observ-able coverage accessible through the Sarah /Spheno pipeline. Although this toolchain provides robust one-loop electroweak precision calculations for general renormalizable gauge theories, its support for the Universal FeynRules Output (UFO) format [39] is limited, precluding direct interfacing with Monte Carlo event generators such as 
+
+MadGraph5 aMC@NLO [40] and preventing evaluation of collider-level observ-ables including differential cross sections and direct production rates. The alternative 
+
+FeynRules /MadGraph [41] toolchain provides comprehensive collider simulation but is restricted to tree-level matrix elements. The NLOCT [42] extension covers QCD counter-terms but its treatment of QED renormalization is insufficiently reli-able for sub-percent electroweak precision comparisons. No single automated pipeline 14 currently provides both one-loop electroweak precision and full collider simulation capability for arbitrary renormalizable BSM theories. Developing such unified infras-tructure, encompassing reliable loop-level calculations across the electroweak and QED sectors and standardized interfaces to modern event generators, is a prerequisite for extending Albert to the full range of experimental constraints available at the LHC and its successors. 
+
+Computation Cost. A practical advantage of the present framework is its compu-tational accessibility. Because Albert operates over a vocabulary of approximately 200 tokens within a well-defined formal grammar, the policy network requires neither the parameter scale nor the computational resources associated with frontier LLMs. The complete pipeline executes on a single NVIDIA H100 GPU. Supervised pretrain-ing on 100 ,000 synthetic theory sequences completes in approximately 10 minutes, RL fine-tuning requires a further 20 minutes, and inference over 10 GRPO iterations completes in an additional 20 minutes, bringing the total time to under one hour. The theory grammar eliminates the need for general LLM and long inference time. The resulting 25-million-parameter Transformer achieves provably hallucination-free theory generation with quantitatively validated phenomenological predictions at a computational cost accessible to a single research group. 
+
+Acknowledgment. We thank Savvas Koushiappas, Fabio Maltoni, Marco Zaro, Ansgar Denner, and Luka Lambrecht for valuable discussions. C. N. and S. A. are supported by the Simons Foundation Award No. 896696, and L. G. is supported by the DOE, Office of Science, Office of High Energy Physics under Award No. DE-SC0010010 and the Early Career Research program under Award No. DE-SC0026288. The neural networks in this study have been trained on the Oscar cluster at Brown University. 
+
+# References 
+
+[1] Aad, G. et al. Observation of a new particle in the search for the Standard Model Higgs boson with the ATLAS detector at the LHC. Phys. Lett. B 716 , 1–29 (2012). [2] Chatrchyan, S. et al. Observation of a New Boson at a Mass of 125 GeV with the CMS Experiment at the LHC. Phys. Lett. B 716 , 30–61 (2012). [3] Silver, D. et al. Mastering the game of go with deep neural networks and tree search. Nature 529 , 484–489 (2016). URL https://doi.org/10.1038/nature16961. [4] Jumper, J. et al. Highly accurate protein structure prediction with alphafold. 
+
+Nature 596 , 583–589 (2021). URL https://doi.org/10.1038/s41586-021-03819-2. [5] Xu, F. et al. Toward large reasoning models: A survey of reinforced reasoning with large language models. Patterns 6 (2025). 15 [6] Zhao, W. X. et al. A survey of large language models. arXiv preprint arXiv:2303.18223 1, 1–124 (2023). [7] Cranmer, M. Interpretable machine learning for science with pysr and symboli-cregression. jl. arXiv preprint arXiv:2305.01582 (2023). [8] Sousa, T., Bartlett, D. J., Desmond, H. & Ferreira, P. G. Optimal inflationary potentials. Phys. Rev. D 109 , 083524 (2024). [9] Udrescu, S.-M. & Tegmark, M. AI Feynman: a Physics-Inspired Method for Symbolic Regression. Sci. Adv. 6, eaay2631 (2020). [10] Wojcik, G. N., Eu, S. T. & Everett, L. L. Graph reinforcement learning for exploring model spaces beyond the standard model. Phys. Rev. D 111 , 035007 (2025). [11] Baretz, J. B. et al. Towards AI-assisted Neutrino Flavor Theory Design (2025). [12] Ke, Y. et al. Towards solving the gilbert-pollak conjecture via large language models. arXiv preprint arXiv:2601.22365 (2026). [13] Bubeck, S. et al. Early science acceleration experiments with gpt-5. arXiv preprint arXiv:2511.16072 (2025). [14] Agrawal, P., Craig, N., Madden, A. & Lombera, I. V. The fermiacc: Agents for particle theory (2026). URL https://arxiv.org/abs/2603.22538. arXiv:2603.22538. [15] Bakshi, S. D. et al. Argoloom: agentic ai for fundamental physics from quarks to cosmos (2025). URL https://arxiv.org/abs/2510.02426. arXiv:2510.02426. [16] Qiu, S. et al. An end-to-end architecture for collider physics and beyond (2026). URL https://arxiv.org/abs/2603.14553. arXiv:2603.14553. [17] Moreno, E. A., Bright-Thonney, S., Novak, A., Garcia, D. & Harris, P. AI Agents Can Already Autonomously Perform Experimental High Energy Physics (2026). [18] Schael, S. et al. Electroweak Measurements in Electron-Positron Collisions at W-Boson-Pair Energies at LEP. Phys. Rept. 532 , 119–244 (2013). [19] Particle Data Group. Review of particle physics. Physical Review D 110 , 030001 (2024). [20] Alloul, A., Christensen, N. D., Degrande, C., Duhr, C. & Fuks, B. Feyn-rules 2.0—a complete toolbox for tree-level phenomenology. Computer Physics Communications 185 , 2250–2300 (2014). 16 [21] FeynRules Collaboration. FeynRules model database. https://cp3.irmp.ucl.ac. be/projects/feynrules/wiki/ModelDatabaseMainPage. Accessed: March 2026. [22] Staub, F. Exploring new models in all detail with SARAH. Adv. High Energy Phys. 2015 , 840780 (2015). [23] Porod, W. SPheno, a program for calculating supersymmetric spectra, SUSY particle decays and SUSY particle production at e+ e- colliders. Comput. Phys. Commun. 153 , 275–315 (2003). [24] Peskin, M. E. & Schroeder, D. V. An Introduction to quantum field theory 
+
+(Addison-Wesley, Reading, USA, 1995). [25] Schwartz, M. D. Quantum Field Theory and the Standard Model (Cambridge University Press, 2014). [26] Combined Preliminary Results on the Mass and Width of the W Boson Measured by the LEP Experiments (2002). [27] Storn, R. & Price, K. Differential evolution – a simple and efficient heuristic for global optimization over continuous spaces. Journal of Global Optimization 11 ,341–359 (1997). URL https://doi.org/10.1023/A:1008202821328. [28] Virtanen, P. et al. SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python. Nature Methods 17 , 261–272 (2020). [29] Vaswani, A. et al. Attention is all you need. CoRR abs/1706.03762 (2017). URL http://arxiv.org/abs/1706.03762. [30] Radford, A., Narasimhan, K., Salimans, T. & Sutskever, I. Improving lan-guage understanding by generative pre-training (2018). URL https://api. semanticscholar.org/CorpusID:49313245. [31] Su, J. et al. Roformer: Enhanced transformer with rotary position embedding (2023). URL https://arxiv.org/abs/2104.09864. arXiv:2104.09864. [32] Pope, R. et al. Efficiently scaling transformer inference (2022). URL https: //arxiv.org/abs/2211.05102. arXiv:2211.05102. [33] Shao, Z. et al. Deepseekmath: Pushing the limits of mathematical reason-ing in open language models (2024). URL https://arxiv.org/abs/2402.03300. arXiv:2402.03300. [34] Schulman, J., Wolski, F., Dhariwal, P., Radford, A. & Klimov, O. Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347 (2017). [35] Abe, F. et al. Observation of top quark production in ¯ pp collisions. Phys. Rev. Lett. 74 , 2626–2631 (1995). 17 [36] High-Luminosity Large Hadron Collider (HL-LHC): Technical Design Report V. 0.1 4/2017 (2017). [37] Abada, A. et al. FCC-ee: The Lepton Collider: Future Circular Collider Conceptual Design Report Volume 2. Eur. Phys. J. ST 228 , 261–623 (2019). [38] Isidori, G., Wilsch, F. & Wyler, D. The standard model effective field theory at work. Rev. Mod. Phys. 96 , 015006 (2024). [39] Degrande, C. et al. UFO - The Universal FeynRules Output. Comput. Phys. Commun. 183 , 1201–1214 (2012). [40] Alwall, J., Herquet, M., Maltoni, F., Mattelaer, O. & Stelzer, T. MadGraph 5 : Going Beyond. JHEP 06 , 128 (2011). [41] Alloul, A., Christensen, N. D., Degrande, C., Duhr, C. & Fuks, B. FeynRules 2.0 - A complete toolbox for tree-level phenomenology. Comput. Phys. Commun. 
+
+185 , 2250–2300 (2014). [42] Degrande, C. Automatic evaluation of UV and R2 terms for beyond the Standard Model Lagrangians: a proof-of-principle. Comput. Phys. Commun. 197 , 239–262 (2015). [43] Witten, E. An SU(2) Anomaly. Phys. Lett. B 117 , 324–328 (1982). 18 A Architecture and Training 
+
+A.1 Pretraining 
+
+The policy network is pretrained via supervised next-token prediction on a synthetic corpus of 100 ,000 complete theory sequences sampled from the theory grammar. Train-ing employs the AdamW optimizer with a learning rate of 1 × 10 −4 and a batch size of 64 sequences.              
+
+> Hyperparameter Value
+> Embedding Dimension 512 Attention Heads 8Feed-Forward Dimension 1024 Dropout 0.1Maximum Length 512 Vocab Size 211 Activation Function GELU Position Encoding RoPE Use KV Cache True Number of Parameters 25 ,299 ,456
+
+Table 1: Hyperparameters of the Policy Network 
+
+A.2 GRPO Training Hyperparameters 
+
+The reinforcement learning fine-tuning stage employs Group Relative Policy Opti-mization with the hyperparameters reported in Table 2.                              
+
+> Hyperparameter Value (Consistency) Value (Experimental Data)
+> Group size G64 32 Batch size 64 32 Learning rate 1×10 −45×10 −5
+> Maximum episodes 100 10 Clip range ε0.2 0.2 KL coefficient β0.05 0.05 Entropy coefficient 0.02 0.02 Diversity coefficient η2.0 2.0 Temperature T1.0 1.5
+
+Table 2 : Hyperparameters of the GRPO reinforcement learning stages. 
+
+A.3 Free Parameter Scan 
+
+The χ2 minimization over the continuous free parameter space of each candidate theory is performed via differential evolution. To ensure that the optimizer returns a reliable 19 fitness estimate within the computational budget available at each RL training step, early stopping criteria are imposed on both the number of function evaluations and the wall-clock time.           
+
+> Hyperparameter Value Description
+> maxiter 10 Maximum number of generations
+> popsize 5Population size multiplier
+> max evals 1000 Early-stop: maximum function evaluations
+> max time 60 s Early-stop: maximum wall-clock time
+
+Table 3 : Hyperparameters for the differential evolution optimizer 
+
+A.4 Consistency Reward Functions 
+
+The total consistency reward is the sum of three sub-rewards, each corresponding to a distinct physical constraint: gauge anomaly cancellation, perturbative unitarity, and absence of detector-accessible exotic particles. For the Standard Model gauge group SU(3) C ×SU(2) L ×U(1) Y , the cancellation of gauge anomalies imposes restrictions on the hypercharge assignments and group rep-resentations of the matter content. Denoting the anomaly coefficient of representation 
+
+r under SU( N ) as A(r) and the Dynkin index as T (r), these conditions require: [SU(3) C ]3 : X
+
+> i
+
+A(r(3)  
+
+> i
+
+) = 0 (12) [SU(2) L]3 : X
+
+> i
+
+A(r(2)  
+
+> i
+
+) = 0 (13) [SU(3) C ]2 U(1) Y : X
+
+> i
+
+Yi T (r(3)  
+
+> i
+
+) = 0 (14) [SU(2) L]2 U(1) Y : X
+
+> i
+
+Yi T (r(2)  
+
+> i
+
+) = 0 (15) [U(1) Y ]3 : X
+
+> i
+
+Y 3 
+
+> i
+
+= 0 (16) [gravity] 2 U(1) Y : X
+
+> i
+
+Yi = 0 (17) Witten Anomaly : nd ≡ 0 (mod 2) (18) where the sums run over all left-handed Weyl fermions, with right-handed fermions contributing with opposite sign, and Yi denotes the hypercharge of the i-th fermion under U(1) Y . The cubic SU( N ) conditions vanish automatically for SU(2) L since all representations of SU(2) are real or pseudoreal and carry zero anomaly coefficient, leaving five non-trivial constraints. The Witten anomaly [43] imposes an additional global consistency condition on any theory containing an SU(2) gauge factor. Since π4(SU(2)) = Z2, a large gauge 20 transformation that is topologically non-trivial maps the fermion path integral to itself multiplied by ( −1) nd , where nd denotes the total number of SU(2) L doublets contributed by left-handed Weyl fermions.                            
+
+> Consistency Check Reward Function
+> Gauge Anomaly Cancellation rA=−ln(1 + |A|) + 5 Θ( A= 0) Perturbative Unitarity rU=−ln |λ4|Θ( λ4>1) Absence of Exotic Particles rE=−| log 10 (m/m thr )|Θ( m < m thr )Total Consistency Reward rtotal =rA+rU+rE
+
+Table 4 : Reward functions for the three physical consistency constraints imposed during reinforcement learning training. Θ( ·) denotes the Heaviside step function. A denotes the total anomaly coefficient, λ4 the largest dimensionless quartic cou-pling, and mthr ∼ 100 GeV the LEP kinematic threshold. 
+
+A.5 χ2 Reward 
+
+We map method maps a χ2-based statistical significance σ onto a reward in the range (0 , 10] using a sigmoid (logistic) function. The reward is defined as 
+
+R = 10 1 + e(σopt −σtarget ) , (19) where the desired significance level is set at σtarget = 1, and σopt is the significance achieved by the current theory. When the model performs well, the reward saturates at 
+
+R = 10. When it performs poorly, the reward collapses to R = 0. To avoid numerical overflow, the exponent is clamped to [ −50 , 50]. 
+
+# B Full Vocabulary 
+
+Table 5 : Grammar vocabulary tokens organized by category. 
+
+Category Token(s) Description 
+
+Gauge Group 
+
+GAUGE GROUP BLOCK , END GAUGE Block delimiters 
+
+g 1 , . . . , g 3 Group identifiers 
+
+GAUGE U , GAUGE SU Group type: U (N ) or SU (N )
+
+rank 1 , rank 2 , rank 3 Group rank 
+
+Continued on next page 
+
+21 Table 5 : Grammar vocabulary tokens organized by category (Continued) 
+
+Category Token(s) Description 
+
+Symmetry Breaking 
+
+SSB BLOCK Block delimiter 
+
+VEV , END VEV VEV entry delimiters 
+
+v 1 VEV identifier 
+
+SM VEV Standard Model Higgs VEV 
+
+VEC , 0, 1, END VEC VEV direction vector entries Particle 
+
+PARTICLE BLOCK , END PARTICLE BLOCK Block delimiters 
+
+PTCL FERMION , PTCL CSCALAR , PTCL RSCALAR Particle spin type 
+
+charge -6 , . . . , charge 6 Electric charge 
+
+SM E , SM MU , SM TAU , SM VE , SM VM , Known particle tags 
+
+SM U , SM C , SM D , SM S , SM B COLOR , NO COLOR Color charge 
+
+NUM 1 , . . . , NUM 4 Particle copy count 
+
+END PTCL Particle entry delimiter Multiplet 
+
+MULTIPLET BLOCK , END MULTIPLET Block delimiters 
+
+ACQUIRE VEV acquisition flag 
+
+MPLT CSCALAR , MPLT RSCALAR , MPLT FERMION Multiplet spin type 
+
+m 1 , . . . , m 15 Multiplet identifiers 
+
+NULL , LEFT , RIGHT Chirality 
+
+gen 1 , . . . , gen 4 Generation number 
+
+dim 1 , dim 2 , dim 3 Gauge representation dimension 
+
+singlet , fnd , adj Representation type 
+
+hypercharge -9 , . . . , hypercharge 9 Hypercharge value 
+
+REPS , END REPS Representation list delimiters Interaction 
+
+INTERACTION BLOCK , END INTERACTION Block delimiters 
+
+TERM SELF PHI , TERM SELF CHI , TERM YUKAWA Interaction type 
+
+i 1 , . . . , i 30 Interaction identifiers 
+
+param 1e-2 , . . . , param 5e1 Coupling parameters ( {1, 2, 5} × 10 n)
+
+mass 0 , mass 1e-6 , . . . , mass 5e4 Mass parameters ( {1, 2, 5} × 10 n GeV) 
+
+MPLTS , END MPLT , PARAMS , END PARAM Multiplet/parameter list delimiters Anomaly ANOMALY BLOCK Block delimiter 
+
+ZERO , POS SMALL , POS BIG Gauge anomaly coefficient 
+
+NEG SMALL , NEG BIG 
+
+Error 
+
+TOO MANY INTERACTIONS Too many interaction terms 
+
+TOO MANY PARAMS Too many free parameters 
+
+THEORY TOO LONG Token sequence too long Special BOS , EOS , PAD Sequence begin/end/padding 22

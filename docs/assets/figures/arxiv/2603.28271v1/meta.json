@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-001.webp",
+      "caption": "Fig. 9 RViz Visualization of an Actual Hierarchical Planning Result. A real global route produced by the deployed Hierarchical osmAG planner and visualized in RViz for a multi-building, multi-floor mission. The route connects the start and goal across buildings, traverses the outdoor connector, and uses elevator transitions as explicit vertical passages. The highlighted passage nodes reveal the sparse topological decision sequence underlying the route, showing that cross-floor and cross-building navigation are handled within one unified hierarchical planning process rather than by separate floor-switching logic.",
+      "page": 30,
+      "index": 1,
+      "width": 627,
+      "height": 427
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-002.webp",
+      "caption": "Fig. 8 Scalability Analysis of Global Planning. Scatter plot of planning latency versus topological path length on the 696 same-floor queries for which all three planners are applicable. Each point is aggregated as the median over six execution orders, and the Y-axis is shown in log scale. Grid A* (red) exhibits rapid growth with route complexity, Flat osmAG (green) remains in the low-millisecond regime, and Hierarchical osmAG (blue) overtakes the flat baseline at roughly four hops before maintaining a nearly flat latency profile thereafter.",
+      "page": 29,
+      "index": 2,
+      "width": 709,
+      "height": 403
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-003.webp",
+      "caption": "Fig. 6 Localization Robustness Pipeline. Preprocessed LiDAR observations first pass through an initialization check. If the system is uninitialized or requires recovery, the global-localization branch uses the Area Graph map together with an initial guess or reinitialization prior to perform global search and to bootstrap tracking. Once initialized, the system enters continuous pose tracking, where corridor-aware scan matching and odometry prediction run in parallel, the resulting ICP pose and matching score are fused adaptively with wheel odometry, and the fused pose is published to the Nav2 stack.",
+      "page": 22,
+      "index": 3,
+      "width": 725,
+      "height": 394
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-004.webp",
+      "caption": "Table 1 Minimum canonical field set of the core osmAG standard.",
+      "page": 10,
+      "index": 4,
+      "width": 763,
+      "height": 421
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-005.webp",
+      "caption": "Fig. 1 Hierarchical Multi-Floor Navigation with osmAG-Nav. The proposed system leverages the osmAG standard to abstract complex environments into a semantic hierarchy (bottom right tree), where atomic locations (Rooms, blue nodes) are logically grouped into Sectors (teal nodes). This structural abstraction enables efficient global routing across large-scale facilities. The visualization demonstrates an autonomous cross-floor mission: the planner generates a topology-centric path (orange trajectory) that navigates from a 2nd-floor Start pose, identifies and utilizes the elevator (highlighted vertical shaft) as a semantic passage, and seamlessly proceeds to the 1st-floor End goal. By defining the environment through permanent vector structures (walls) and topological connections rather than dense metric grids, the system maintains scalability while keeping the runtime local metric map memory footprint bounded independently of the total mapped area.",
+      "page": 3,
+      "index": 5,
+      "width": 676,
+      "height": 440
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-006.webp",
+      "caption": "Fig. 5 Attach-Lift-Common-Parent Hierarchical Planning. (a) The osmAG hierarchy (Building → Floors → Sectors → Rooms) with start area As and goal area Ag highlighted, showing their ancestry paths to the common parent Ac. (b) The planner injects virtual passage s and attaches it to the leaf compact graph via multi-source Dijkstra. (c) The frontier is lifted upward through parent lift graphs until reaching the common parent. (d) A* runs on the assembled common-parent compact graph to find the compact trace. (e) The compact trace is expanded back to the full passage sequence.",
+      "page": 18,
+      "index": 6,
+      "width": 731,
+      "height": 180
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-007.webp",
+      "caption": "Table 3 Quantitative benchmark of global planning efficiency on the common comparable same-floor subset. The original benchmark contains 1,000 fixed queries, but the three-way comparison is restricted to the 696 same-floor queries for which Grid A*, Flat osmAG, and Hierarchical osmAG are all applicable. Reported times are end-to-end planning latencies, aggregated as case-level medians across six execution orders and then averaged within each task bucket. Overhead denotes the mean path-length increase relative to Grid A*.",
+      "page": 28,
+      "index": 7,
+      "width": 743,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-008.webp",
+      "caption": "Fig. 3 System architecture of osmAG-Nav. The stack follows a decoupled “system of systems” design. The environment layer maintains the global semantic-topological map and serves a bounded Rolling Window raster through /local AGgridmap. The deliberative layer combines structure-based localization with hierarchical passage-centric planning in the global semantic frame. The execution layer remains standard Nav2, consuming the injected metric map and intermediate goals through ROS2-native interfaces.",
+      "page": 12,
+      "index": 8,
+      "width": 752,
+      "height": 419
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-009.webp",
+      "caption": "Fig. 2 Rendered example of an osmAG map in an OSM-compatible indoor renderer.",
+      "page": 9,
+      "index": 9,
+      "width": 666,
+      "height": 432
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-010.webp",
+      "caption": "Fig. 10 Localization Comparison in a Geometrically Degenerate Corridor. (a) Baseline AGLoc exhibits substantial drift relative to the reference trajectory on the corridor sequence TK-Corr-01, as shown by the large-error APE heatmap. (b) AGLoc++, as used in osmAG-Nav, remains tightly aligned with the reference and markedly suppresses longitudinal slip. These results indicate that corridor-aware constraint handling and adaptive odometry fusion materially improve localization robustness in degenerate indoor scenes.",
+      "page": 31,
+      "index": 10,
+      "width": 606,
+      "height": 464
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28271v1/fig-011.webp",
+      "caption": "Fig. 4 Topology-to-Metric Bridging with Rolling Window and Segmented Execution. (a) The planner reasons over the full semantic-topological map in AGmap, while only a bounded Rolling Window is rasterized and published as /local AGgridmap in the map frame for Nav2. (b) Within the local window, area interiors are filled as free space, non-passage boundaries are marked occupied, and passage segments are explicitly reopened to preserve traversability. (c) The planner dispatches intermediate passage goals through NavigateToPose; when the desired passage lies beyond the current local map, a proxy goal is projected to the local boundary and refreshed as the window advances.",
+      "page": 16,
+      "index": 11,
+      "width": 674,
+      "height": 216
+    }
+  ]
+}

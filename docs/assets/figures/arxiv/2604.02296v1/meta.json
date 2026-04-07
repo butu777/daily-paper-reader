@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-001.webp",
+      "caption": "Table 4: Ablation study evaluated by VLM judge on 75 real-world test cases.",
+      "page": 11,
+      "index": 1,
+      "width": 894,
+      "height": 188
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-002.webp",
+      "caption": "Figure 7: User interface for mask generation. The user selects sparse points on the target object, and the VLM generates the removal mask.",
+      "page": 15,
+      "index": 2,
+      "width": 979,
+      "height": 825
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-003.webp",
+      "caption": "Figure 5: Qualitative comparisons on real-world videos. VOID maintains object structure and produces plausible motion over time, while the baselines exhibit deformation (the kettlebell on the pillow, and the floaty deforming), incomplete removal (two cars crashing), or implausible outputs (paint appearing after the roller is removed).",
+      "page": 7,
+      "index": 3,
+      "width": 976,
+      "height": 985
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-004.webp",
+      "caption": "Table 2: VLM-as-a-judge evaluation on real-world videos. Each criterion is scored in [0, 5]. Best per judge and column is green; second best is orange.",
+      "page": 10,
+      "index": 4,
+      "width": 939,
+      "height": 209
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-005.webp",
+      "caption": "Table 3: Synthetic benchmark evaluation on 10 classic shadow/reflection removal cases and 30 dynamic interaction cases (Kubric + HUMOTO) capturing a wide range of effects. All metrics measure fidelity to the ground-truth counterfactual targets.",
+      "page": 10,
+      "index": 5,
+      "width": 939,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-006.webp",
+      "caption": "Figure 6: Generalization on various object interactions. VOID removes the target object and resolves downstream physical consequences (e.g., released objects fall; prevented collisions do not occur; shadows/reflections disappear).",
+      "page": 8,
+      "index": 6,
+      "width": 976,
+      "height": 1217
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-007.webp",
+      "caption": "Figure 2: Counterfactual supervision examples. Top: videos V where O is outlined in red. Bottom: re-simulated counterfactuals V̂ generated without O. In Kubric scenes, downstream motion changes when the initiating object is removed. In HUMOTO scenes, supported objects transition naturally under gravity.",
+      "page": 4,
+      "index": 7,
+      "width": 976,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-008.webp",
+      "caption": "Figure 9: Examples where standard video similarity metrics favor visually implausible results.",
+      "page": 17,
+      "index": 8,
+      "width": 976,
+      "height": 773
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-009.webp",
+      "caption": "Figure 4: Frames from generated videos featuring a guitar entering free-fall and a thrown ball following a new trajectory. Pass 1 (left) produces correct counterfactual trajectories but exhibits structural deformation. Pass 2 (right) better preserves object rigidity by using motion-aligned warped noise.",
+      "page": 5,
+      "index": 9,
+      "width": 481,
+      "height": 420
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-010.webp",
+      "caption": "Figure 3: Void: Interaction-Aware Counterfactual Video Generation. A user provides an input video and clicks on an object to mask it for removal. A VLM-based pipeline expands the mask to identify other areas that will be affected. VOID’s first pass then predicts a counterfactual trajectory. The optional second pass stabilizes object deformation using flow-warped noise derived from the initially predicted motion.",
+      "page": 5,
+      "index": 10,
+      "width": 976,
+      "height": 476
+    },
+    {
+      "url": "assets/figures/arxiv/2604.02296v1/fig-011.webp",
+      "caption": "Figure 8: Interface used in the human evaluation study.",
+      "page": 16,
+      "index": 11,
+      "width": 976,
+      "height": 1127
+    }
+  ]
+}

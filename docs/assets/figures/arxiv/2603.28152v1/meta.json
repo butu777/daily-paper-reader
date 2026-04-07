@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28152v1/fig-001.webp",
+      "caption": "Figure 5. Qualitative comparisons. We show results on 8 subjects (rows) across 5 methods (columns). Our method (Ours) is the only one that faithfully follows the non-rigid user guidance while maintaining photorealism. 2D methods fail to perform the 3D-aware edit, producing results nearly identical to the origin.",
+      "page": 6,
+      "index": 1,
+      "width": 1015,
+      "height": 1154
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28152v1/fig-002.webp",
+      "caption": "Table 1. Quantitative evaluation. RI represents real-time interaction and MT represents model inference time.(∗DragDiffusion often edits images with minimal modifications.)",
+      "page": 7,
+      "index": 2,
+      "width": 496,
+      "height": 250
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28152v1/fig-003.webp",
+      "caption": "Figure 2. Overview of our image editing pipeline. The object is lifted from 2D pixels to high-fidelity 3DGS. Real-time editing with local rigidity is applied based on user input. The object is then repositioned, and a generative model refines the edits for harmonious results.",
+      "page": 3,
+      "index": 3,
+      "width": 983,
+      "height": 325
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28152v1/fig-004.webp",
+      "caption": "Figure 8. Ablation on the deformation constraints.",
+      "page": 8,
+      "index": 4,
+      "width": 485,
+      "height": 285
+    }
+  ]
+}

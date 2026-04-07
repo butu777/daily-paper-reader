@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28888v1/fig-001.webp",
+      "caption": "Fig. 1: Qualitative results on the Hazard Perception Test Dataset [8] using Cosmos-Reason1-7B [9]. Top row (Samples 11–12): correctly classified normal frames. Bottom row (Samples 13–14): a normal frame and a detected anomaly, demonstrating context-aware semantic reasoning.",
+      "page": 1,
+      "index": 1,
+      "width": 512,
+      "height": 297
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28888v1/fig-002.webp",
+      "caption": "TABLE III: Confusion matrices for top-performing Cosmos configurations. Positive class = Anomaly (road damage). NF4+Verbose is the optimal static image configuration: highest F1 (60.0%), best recall (47.0%), and fastest inference, demonstrating that aggressive quantization succeeds only when paired with verbose structured prompts.",
+      "page": 6,
+      "index": 2,
+      "width": 510,
+      "height": 243
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28888v1/fig-003.webp",
+      "caption": "Fig. 3: High-level architecture of Cosmos-Reason1-7B for anomaly detection. Visual features from the vision encoder are projected into the language embedding space and jointly processed with prompt tokens by a decoder-only transformer backbone (see Fig. 4 for block details).",
+      "page": 3,
+      "index": 3,
+      "width": 512,
+      "height": 302
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28888v1/fig-004.webp",
+      "caption": "Fig. 4: Architecture used in Cosmos-Reason1-7B. Visual tokens extracted by the Qwen2.5-VL vision encoder are projected into the language embedding space via a two-layer MLP merger and concatenated with prompt tokens. NVFP4 quantization is applied to the backbone weight matrices, and FlashAttention2 accelerates attention computation. CosmosReason1-7B retains the Qwen2.5-VL architecture and is further fine-tuned on robotics and embodied reasoning data for physical AI tasks.",
+      "page": 4,
+      "index": 4,
+      "width": 512,
+      "height": 325
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28888v1/fig-005.webp",
+      "caption": "Fig. 6: FCDD training metrics across 5 iterations. (a) Both class errors converge near 0.0 after 100 epochs with maintained separation. (b) Combined error decreases under step learning rate decay (10−3 → 2× 10−4 at epoch 100).",
+      "page": 5,
+      "index": 5,
+      "width": 512,
+      "height": 462
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28888v1/fig-006.webp",
+      "caption": "Fig. 7: FCDD global heatmaps. Red regions indicate high anomaly scores. (a) Clean roads receive uniformly low scores. (b) Damaged sections trigger pronounced activations.",
+      "page": 5,
+      "index": 6,
+      "width": 512,
+      "height": 407
+    }
+  ]
+}

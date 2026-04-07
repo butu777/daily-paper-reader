@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-001.webp",
+      "caption": "Figure 6. Space–time heatmaps of horizontal velocity obtained from PIV measurements",
+      "page": 11,
+      "index": 1,
+      "width": 664,
+      "height": 1021
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-002.webp",
+      "caption": "Table 1. Fitting parameters for the power-Gaussian velocity profile applied to three represen-",
+      "page": 15,
+      "index": 2,
+      "width": 640,
+      "height": 194
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-003.webp",
+      "caption": "Table 2. Dimensional flow and particle parameters for the three identified regions (I–III) of",
+      "page": 21,
+      "index": 3,
+      "width": 764,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-004.webp",
+      "caption": "Figure 2. Image processing workflow for velocity and particle size extraction. (a) Prepro-",
+      "page": 7,
+      "index": 4,
+      "width": 829,
+      "height": 273
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-005.webp",
+      "caption": "Table 3. Dimensionless numbers characterizing flow regimes in Regions I–III of avalanche",
+      "page": 22,
+      "index": 5,
+      "width": 792,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-006.webp",
+      "caption": "Figure 5. Space-time visualization of the avalanche flow recorded by the high-speed camera",
+      "page": 10,
+      "index": 6,
+      "width": 829,
+      "height": 781
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-007.webp",
+      "caption": "Figure 8. Selected frames from the high-speed camera array at 41 s, 51 s, and 66 s, illustrat-",
+      "page": 14,
+      "index": 7,
+      "width": 664,
+      "height": 792
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-008.webp",
+      "caption": "Figure 3. (a) MTI plot from the GEODAR of avalanche #20243024. (b) Front velocities ex-",
+      "page": 8,
+      "index": 8,
+      "width": 746,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-009.webp",
+      "caption": "Figure 11. Stability analysis based on velocity measurements. Symbols show calculated val-",
+      "page": 19,
+      "index": 9,
+      "width": 664,
+      "height": 499
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-010.webp",
+      "caption": "Figure 10. Wavelet scalograms of velocity fluctuations at three vertical positions: a) 10.5 m,",
+      "page": 17,
+      "index": 10,
+      "width": 829,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-011.webp",
+      "caption": "Figure 7. a) Time series of vertically averaged horizontal velocity (blue) and image concentra-",
+      "page": 12,
+      "index": 11,
+      "width": 746,
+      "height": 692
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-012.webp",
+      "caption": "Figure 4. a) Zoomed section of the GEODAR derived MTI plot focused around the position",
+      "page": 9,
+      "index": 12,
+      "width": 746,
+      "height": 794
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-013.webp",
+      "caption": "Figure 12. Probability density functions of particle diameters for Regions I–III of avalanche",
+      "page": 20,
+      "index": 13,
+      "width": 829,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-014.webp",
+      "caption": "Figure 1. a) Artificially released PSA at VdlS from winter 2015, shown for illustration only.",
+      "page": 5,
+      "index": 14,
+      "width": 829,
+      "height": 752
+    },
+    {
+      "url": "assets/figures/arxiv/2603.28144v1/fig-015.webp",
+      "caption": "Figure 9. Temporal evolution of the integral length scale (Lint) at three heights above ground: 10.5 m (blue), 7.5 m (orange), and 5.5 m (yellow). Lint characterizes the size of the largest turbulent eddies in the avalanche flow. Dashed lines indicate positions outside the active",
+      "page": 16,
+      "index": 15,
+      "width": 829,
+      "height": 433
+    }
+  ]
+}

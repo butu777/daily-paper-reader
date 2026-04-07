@@ -1,0 +1,812 @@
+Title: DSERT-RoLL: Robust Multi-Modal Perception for Diverse Driving Conditions with Stereo Event-RGB-Thermal Cameras, 4D Radar, and Dual-LiDAR
+
+URL Source: https://arxiv.org/pdf/2604.03685v1
+
+Published Time: Tue, 07 Apr 2026 00:41:31 GMT
+
+Number of Pages: 32
+
+Markdown Content:
+# DSERT-RoLL: Robust Multi-Modal Perception for Diverse Driving Conditions with Stereo Event-RGB-Thermal Cameras, 4D Radar, and Dual-LiDAR 
+
+# Hoonhee Cho ∗ Jae-Young Kang ∗ Yuhwan Jeong ∗ Yunseo Yang Wonyoung Lee Youngho Kim Kuk-Jin Yoon 
+
+Visual Intelligence Lab, KAIST 
+
+* equal contribution 
+
+https://jeongyh98.github.io/dsert-roll Sensors Weather Condition 
+
+Light Condition 
+
+Clear    
+
+> N
+> o
+> r
+> m
+> a
+> l
+> L
+> o
+> w
+> L
+> i
+> g
+> htO
+> v
+> e
+> r
+> E
+> x
+> p
+> o
+> s
+> e
+> d
+> H
+> D
+> R
+> 3
+> D
+> R
+> a
+> n
+> g
+> e
+> S
+> e
+> n
+> s
+> o
+> r
+> L
+> o
+> n
+> g
+> R
+> a
+> n
+> g
+> e
+> Li
+> D
+> A
+> R
+> S
+> h
+> o
+> r
+> t
+> R
+> a
+> n
+> g
+> e
+> L
+> i
+> D
+> A
+> R
+> 4
+> D
+> R
+> a
+> d
+> a
+> r
+> L
+> i
+> g
+> htConditi
+> o
+> n
+> W
+> e
+> a
+> t
+> h
+> e
+> r
+> C
+> o
+> n
+> d
+> i
+> t
+> i
+> o
+> n
+> C
+> l
+> e
+> a
+> r
+> H
+> e
+> a
+> v
+> y
+> R
+> a i n Lig
+> ht
+> R
+> a
+> i
+> n
+> H
+> e
+> a
+> v
+> y
+> S
+> n
+> o
+> w
+> L
+> i
+> g
+> h
+> t
+> S
+> n
+> o
+> w
+> F
+> o
+> g
+> C
+> a
+> m
+> e
+> r
+> a
+> S
+> e
+> n
+> s
+> o
+> r
+> T h
+> e
+> r
+> m
+> a
+> l
+> E
+> v
+> e
+> n
+> t
+> R
+> G
+> B
+
+Heavy Rain  Light Rain 
+
+Heavy Snow  Light Snow  Fog 
+
+Normal  Over Exposed 
+
+Low Light  HDR 
+
+> Short Range
+> LiDAR
+> Long Range
+> LiDAR
+> 4D Radar
+> Right Thermal
+> Right RGB
+> Right Event
+> Left Thermal
+> Left RGB
+> Left Event
+
+Long Range LiDAR  Short Range LiDAR  4D Radar 
+
+RGB  Event  Thermal 
+
+> 3D Range Camera
+
+Figure 1. The proposed DSERT-RoLL dataset comprises stereo event, RGB, and thermal cameras, together with 4D radar and dual LiDAR, collected in on-road driving across a wide range of weather and illumination conditions, and provided with precise 3D annotations. 
+
+# Abstract 
+
+In this paper, we present DSERT-RoLL, a driving dataset that incorporates stereo event, RGB, and thermal cameras together with 4D radar and dual LiDAR, collected across diverse weather and illumination conditions. The dataset provides precise 2D and 3D bounding boxes with track IDs and ego vehicle odometry, enabling fair comparisons within and across sensor combinations. It is designed to alleviate data scarcity for novel sensors such as event cameras and 4D radar and to support systematic studies of their behav-ior. We establish unified 3D and 2D benchmarks that enable direct comparison of characteristics and strengths across sensor families and within each family. We report baselines for representative single modality and multimodal methods and provide protocols that encourage research on different fusion strategies and sensor combinations. In addition, we propose a fusion framework that integrates sensor specific cues into a unified feature space and improves 3D detection robustness under varied weather and lighting. 
+
+# 1. Introduction 
+
+Perception underpins autonomous driving, enabling safe decision-making and control. Early unimodal systems [64, 146] suffered from limited accuracy and incomplete scene       
+
+> arXiv:2604.03685v1 [cs.CV] 4 Apr 2026 LiDAR 4D Radar RGB Event Thermal
+> (a)
+> (b)
+> (c)
+> (d)
+> (e)
+> 3D Range Sensors Camera Sensors Figure 2. Complementary scenarios across sensor families. (a–b) 3D range sensors: (a) LiDAR-dominant, effective in clear conditions and at long range with accurate geometry; (b) 4D radar-dominant, reliable in adverse weather ( e.g ., fog and snow) using Doppler. (c–e) Camera-based sensors: (c) RGB-dominant, strong in daylight and textured scenes; (d) Event-dominant, responsive to small and rapid motions and robust in high dynamic range; (e) Thermal-dominant, informative at night or in low light. Together, (a)–(e) illustrate complementary strengths across sensor types.
+
+coverage, motivating multimodal approaches. Fusing cam-eras and LiDAR [81, 130] has become standard, combining image semantics with point-cloud geometry to boost robust-ness and accuracy. Nonetheless, extending these gains to varied weather and lighting remains challenging. Conventional RGB cameras are widely used in au-tonomous driving due to their rich semantic informa-tion [54, 76, 96, 112, 126, 128]. However, they are sen-sitive to illumination changes and often degrade under high dynamic range or low light. To mitigate these issues, two alternative sensing modalities have gained attention: 
+
+• Thermal Cameras operate in the infrared spectrum and are effective in night-time environments where RGB cam-eras often struggle. They provide complementary cues be-yond visible light, thereby enhancing perception robustness under challenging conditions [13, 61, 108]. 
+
+• Event Cameras [36] asynchronously capture changes in brightness at the pixel level, enabling high temporal resolu-tion and low-latency perception. Unlike frame-based cam-eras, they naturally handle high dynamic range scenes and fast motions, providing complementary information that en-hances robustness in challenging environments. From the perspective of 3D sensing, LiDAR oper-ates independently of illumination but remains sensitive to weather conditions [3, 44, 71], where sensing range may decrease, and measurements can become noisy. To mitigate these issues, alternative sensors have been explored. 
+
+• 4D Radar is a 3D range sensor that emits radio waves and can acquire data even through adverse conditions such as heavy rain or snow. In contrast to LiDAR, which often suffers from reduced range and noise in adverse weather, 4D radar offers more stable perception [91, 101], serving as a useful complement for all-weather operation. Research leveraging novel sensors, including event cam-eras and 4D radar, and, to a lesser extent, thermal cameras, for perception under adverse conditions has accelerated in recent years. However, existing benchmarks [25, 37, 91] that include these sensors are typically modality-specific and primarily compare against conventional RGB cameras and LiDAR, leaving direct cross-sensor comparisons and systematic studies of their fusion relatively underexplored. To advance research in this direction, we present the 
+
+DSERT-RoLL dataset: Driving with Stereo Event-RGB-
+
+Thermal Cameras, 4D Radar, and Dua L L iDAR/ As shown in Fig. 1, we collected multi-modal data across diverse driv-ing scenarios, including night, high dynamic range (HDR), rain, snow, fog, and other challenging conditions. Through DSERT-RoLL, we provide a comprehensive multi-modal benchmark that supports robust perception and fusion stud-ies under diverse driving conditions. Our dataset and ap-proach differ from existing works in the following key as-pects: • While recent datasets have analyzed the advantages of novel sensors, the evaluation of various sensors in the same environment remains largely unexplored. In contrast, the DSERT-RoLL dataset includes widely re-searched emerging sensors and data collected from ex-treme environments. By providing a fair benchmark for training and evaluation across multiple sensors in the same setting, DSERT-RoLL enables a deeper analysis of each sensor’s strengths and characteristics. • Although there are numerous benchmarks and datasets based on widely used sensors like frame cameras and Li-DAR, benchmarks based on emerging sensors, such as event cameras, thermal cameras, and 4D radar, are rel-atively scarce. The proposed DSERT-RoLL dataset con-Table 1. Comparison of object detection datasets in autonomous driving. Upper rows use conventional sensors; lower rows include novel sensors. The symbol △ marks annotations not officially provided but added by other authors. If 3D boxes exist, ‘Num Data’ counts samples with 3D boxes; otherwise, it counts all samples. Additional comparisons with more datasets are provided in the supple .                                                   
+
+> Dataset Num Adverse Weather 3D Range Sensor Camera Sensor Ground-truth Data Clear Rain Fog Snow LiDAR Radar RGB Event Thermal 3D Bbox. Tr. ID Odom KITTI [39] 15k Stereo Waymo [109] 230k Multi-view NuScenes [8] 40k 3D Multi-view Argoverse 2 [121] 150k Multi-view K-Radar [91] 35k 4D Multi-view TJ4DRadSet [142] 7.8k Mono DSEC [37] 5.4k Stereo Stereo △△
+> 1Mpx [98] 32M Mono Mono SeeingThroughFog [5] 13.5k 3D Stereo Mono KAIST [25] 8.9k Stereo Mono
+> DSERT-RoLL (Ours) 22k 4D Stereo Stereo Stereo
+
+tributes to enhancing data richness and is expected to sup-port a wide range of studies, including domain adaptation, domain generalization, and more. • While differences between camera sensors and 3D range sensors are well documented, Fig. 2 shows that comple-mentary strengths also exist within each sensor type, for example among cameras such as RGB, event, and ther-mal, and among 3D range sensors such as LiDAR and 4D radar. Each type excels under different failure modes, which suggests synergy rather than simple substitution. Building on this, we propose a framework that leverages these complementary strengths to achieve robust 3D ob-ject detection under varying weather and illumination. By integrating cues into a unified feature space, our method improves perception reliability across conditions. 
+
+# 2. Related Works 
+
+Traditional Driving Datasets. Numerous datasets [8, 26, 39, 109, 121] have demonstrated the potential for safe au-tonomous driving perception [12, 69, 122, 136] through the use of RGB and LiDAR-based data [84, 99, 124], hu-man annotations, and extensive training with large-scale datasets. Subsequent research [30, 100] has incorporated more diverse driving scenes under various conditions, and by expanding the scale of data, it has enabled the devel-opment of more robust perception algorithms. However, due to the inherent limitations of RGB and LiDAR sen-sors, their robustness in extreme environments ( e.g ., fog, snow) remains insufficient. Consequently, research in this area is advancing with the emergence of novel sen-sors [5, 93, 139, 143], fostering additional fusion studies. 
+
+Thermal Camera-based Driving Datasets. Thermal imaging captures emitted infrared radiation rather than re-flected visible light, providing illumination-invariant cues that complement RGB, especially in darkness and adverse weather. This is particularly valuable for object detection in road scenes, where nighttime and inclement conditions demand robust perception across diverse environments. Re-cent RGB–thermal benchmarks [25, 40, 50, 107, 108, 113] have catalyzed research on multimodal detection, segmen-tation [43, 63], and tracking [4, 32] under challenging il-lumination and weather [5, 78, 111]. Alongside dataset growth, fusion methodologies have matured from early fea-ture concatenation to more principled designs [29, 31, 51, 65, 90, 115, 125, 144]. 
+
+Event Camera-based Driving Datasets. Event cam-eras asynchronously report per-pixel brightness changes with microsecond latency and extremely high dynamic range, producing motion-blur-free signals [22, 60] that complement frame-based RGB and LiDAR under fast ego-motion [7, 45, 86, 88], low light [23, 59, 66, 77, 123, 129], and glare [87, 149]. These properties make them well suited for autonomous-driving perception in road scenes, where rapid maneuvers and abrupt illumination transitions demand temporally precise, HDR sensing. Recent event-driven driving benchmarks with single [6, 27] or stereo sen-sors [24, 37, 97, 147], aligned RGB cameras, and vehicle telemetry have supported progress across a broad range of perception tasks [11, 20, 21, 24, 38, 52, 56, 57, 98, 102, 110, 119]. Despite these advantages, multimodal fusion be-yond fusion with RGB [18, 19, 140] remains underexplored in event-based vision, and annotations for 3D perception are still scarce. By providing additional modalities along-side events and 3D annotations, this work serves as a strong foundation for subsequent research on event cameras. 
+
+4D Radar-based Driving Datasets. Automotive 4D radar measures range, azimuth, elevation, and radial ve-locity (Doppler), delivering long-range, illumination- and weather-robust cues that complement RGB and LiDAR with direct motion observables [34]. These properties are attractive for perception [91, 127] in adverse conditions, such as fog, rain, snow, and nighttime, where temporally stable velocity estimates and extended detection ranges are critical. Recent 4D radar driving datasets [2, 48, 92, 104, 133, 133, 142] provide synchronized radar point clouds to-gether with LiDAR and cameras, and have demonstrated Low Light    
+
+> 1802
+> Normal
+> 2029
+> Over
+> Expose
+> 956
+> HDR
+> 850
+> Low Light
+> 6781
+> Normal
+> 5615
+> Over
+> Expose
+> 2423
+> HDR
+> 1223
+> Clear
+> 8629
+> Fog
+> 2674
+> Light Rain
+> 1638
+> Heavy Rain
+> 1402
+> Light Snow
+> 959
+> Heavy Snow
+> 740
+> Train Test
+> Distribution of light conditions
+> Train Test
+> Distribution of classes
+> Vehicle
+> 22649
+> Pedestrain
+> 4496
+> Bike
+> 704
+> Vehicle
+> 9303
+> Pedestrain
+> 1192
+> Bike
+> 214
+> Train Test
+> Distribution of weather conditions
+> Clear
+> 3248
+> Fog
+> 608
+> Light Rain
+> 576
+> Heavy Rain
+> 496
+> Light Snow
+> 469
+> Heavy Snow
+> 240
+
+Figure 3. Distribution of training and testing data with respect to weather conditions, lighting conditions, and object classes. Table 2. Sensor suit details.                                                              
+
+> Sensors Model Name Resolution FoV FPS RGB 2×BFS-U3-51S5C 2448 ×2048 82.2 ◦×66.5 ◦10 Event 2×Prophesee EVK4 1280 ×720 76.7 ◦×65.5 ◦>10k Thermal 2×FLIR A65 640 ×512 90 ◦×69 ◦30 Sensors Model Name Max. Range FoV FPS 4D Radar RETINA-4FN 100m 100 ◦×24 ◦20 Long-range Livox HAP 150m 120 ◦×25 ◦10 LiDAR Short-range os0-128 100m 360 ◦×90 ◦20 LiDAR GPS/IMU Microstrain N/A N/A 10/100 3DM-GX5-45
+
+successful perception under these adverse conditions. As LiDAR datasets have grown, a wide range of sensor com-bination studies have emerged. By contrast, 4D radar is relatively recent and has primarily been paired with cam-eras or LiDAR. Our work aims to provide a foundation for exploring richer 4D radar-based multimodal configu-rations, including event cameras and thermal cameras, en-abling broader research on these combinations. 
+
+Multi-modal 3D Object Detection. 3D object detec-tion [53, 72, 94, 117] aims to estimate 3D bounding boxes and object orientations. Unimodal LiDAR approaches [17, 55, 70, 82, 83, 135, 137] leverage the depth accuracy of point clouds to regress 3D boxes. Recently, multimodal fusion has been actively explored to exploit the comple-mentary strengths of different sensors under diverse con-ditions. The most common setup fuses RGB images with LiDAR [14, 33, 120, 131]. This pairing adds color and tex-ture to precise depth and improves small object recall and 3D localization. To improve robustness in adverse weather and low light, radar [49, 75, 145] has also been incorpo-rated. With the advent of a 4D radar that provides range, Doppler, azimuth, and elevation information, camera and radar fusion [9, 10] has advanced further. Moreover, recent architectures [14, 93] enable fusion of two or more modal-ities within a unified framework. 
+
+# 3. DSERT-RoLL Dataset 
+
+## 3.1. Sensor Configuration 
+
+As illustrated in Fig. 1, we equipped the vehicle with the multi-modal sensor setting described in Table 2. We first mounted LiDAR sensors, which are widely adopted 3D range sensors for object detection, including a long-range LiDAR and a high-resolution short-range LiDAR. The long-range LiDAR is used to obtain reliable object an-notations over extended distances, whereas the short-range LiDAR provides high-resolution fine-grained point mea-surements with an enlarged vertical field of view, thereby offering dense geometric coverage. To further ensure per-ception performance under extreme weather such as fog or snow, we additionally equipped the vehicle with a 4D Radar. All cameras were deployed in stereo configurations to fully cover the frontal field of view, and we extended the setup beyond RGB sensors by incorporating a thermal cam-era and an event camera. These complementary modalities enhance robustness against challenging lighting conditions and motion blur, providing reliable perception in adverse environments. Finally, a GPS antenna and IMU sensors were mounted near the camera suite on the vehicle to en-able precise localization of the ego-vehicle. 
+
+## 3.2. Data Distribution 
+
+The DSERT-RoLL dataset encompasses diverse driving scenarios, including highways, urban streets, suburban roads, and narrow alleys. In total, the data collection pro-cess results in 22K frames of multi-modal sensor measure-ments captured under various environmental conditions. The DSERT-RoLL dataset is categorized into six weather conditions: clear, fog, light rain, heavy rain, light snow, and heavy snow. This design allows a fair compar-ison of the strengths of different sensor modalities under diverse weather conditions. A key advantage of DSERT-RoLL is that multiple modalities are captured simultane-ously in the same environment, enabling deeper research on multi-sensor fusion, particularly for 3D range sensors. While 3D range sensors ( e.g ., LiDAR and Radar) are largely unaffected by illumination, camera-based percep-tion can vary significantly depending on lighting. To facili-tate fusion research in such scenarios, we further categorize the data into four lighting conditions: normal, low light, overexposed, and HDR. The dataset defines three object categories, namely vehi-cle , pedestrian , and bike , which represent the most common types of driving datasets. We split the dataset into training and test sets with a 7:3 ratio. As shown in Fig. 3, the distri-butions of weather, lighting, and object classes are balanced LiDAR 4D  Radar Event Thermal  RGB         
+
+> Initial bounding box
+> Bbox
+> Voxel feature
+> Box Refinement Voxel Features
+> Final Prediction
+> BEV Features Fused
+> BEV Features
+> Camera -3D Range
+> Sensor Fusion
+> Camera -3D Range
+> Sensor Fusion
+> Camera -3D Range
+> Sensor Fusion
+> Confidence -based Voxel Fusion
+> Union
+> ෠𝐅 𝑉
+> 𝐸
+> ෠𝐅 𝑉
+> 𝑅
+> ෠𝐅 𝑉
+> 𝑇
+> ෠𝐅 𝑉
+> Camera -3D Range Sensor Fusion
+> 𝐅 𝑉
+> 𝐅 𝐼
+> 𝐸
+> 𝐅 𝐼
+> 𝑅
+> 𝐅 𝐼
+> 𝑇
+> 𝐅 𝑉
+> 𝐅 BEV
+> 𝐿
+> 𝐅 BEV
+> 4𝑅
+> 𝐅 BEV
+> 𝐅 𝐼
+> 𝑚
+> ෠𝐅 𝑉
+> 𝑚
+> 𝑚 ∈{𝑅 ,𝑇 ,𝐸 }
+> Linear
+> Learnable
+> Offset
+> C
+> f𝑽 𝒋
+> መf𝑗 𝑚
+> Q
+> K
+> V
+> Cross -Attention
+> 𝓕 V
+> 4R
+> 𝓕 V
+> L
+
+Figure 4. Overview of the proposed multi-modal 3D detection framework. LiDAR and 4D Radar features are voxelized and fused to generate initial 3D box proposals. RGB, thermal, and event features are then projected into 3D space via voxel-centric sampling and integrated through confidence-based fusion. The refined fused features are used for final bounding box prediction. 
+
+across both splits. This balanced coverage across diverse scenarios and environmental conditions makes DSERT-RoLL a reliable benchmark for evaluating the robustness of perception models in challenging real-world settings. 
+
+# 4. Multi-modal Approach on 3D Detection 
+
+To demonstrate the benefits of leveraging multi-modality, we propose a method that effectively fuses diverse sen-sor modalities into a unified feature space. This in-depth methodology is made possible by the strength of our DSERT-RoLL benchmark dataset, which incorporates mul-tiple modalities within a single collection. In this section, we elaborate on the design and implementation of the pro-posed approach and highlight how multi-modal fusion con-tributes to robust perception performance. 
+
+Overall Framework. As illustrated in Fig. 4, the inputs to our framework consist of 3D range sensors and multi-modal single-view images. For the 3D range sensor, we use a Li-DAR ( L) and a 4D Radar ( 4R) providing point sets PL =
+
+{(xi, y i, z i)|f Li }NL 
+
+> i=1
+
+and P4R = {(xj , y j , z j )|f 4Rj }N4R 
+
+> j=1
+
+.Here, (x, y, z ) denotes the 3D spatial coordinate of each point, and f ∈ RCp represents point-wise features such as intensity (LiDAR) or Doppler velocity (4D Radar). NL
+
+and N4R denote the number of points from LiDAR and 4D Radar, respectively. Each point cloud is processed by a 3D voxel-based backbone [146] to obtain voxel features FLV
+
+and F4RV , with FV ∈ RX×Y ×Z×CV , where CV denotes the number of channels and (X, Y, Z ) represents the voxel grid size. For the camera sensors, we incorporate three modali-ties: an RGB image IR ∈ RH×W ×3, a thermal image IT ∈
+
+RH×W ×1, and a voxel grid [148] of events IE ∈ RH×W ×5,which are processed by a 2D backbone [79] to extract fea-tures FRI , FTI , FEI ∈ RH/ 4×W/ 4×CI , where CI denotes the number of channels for RGB, thermal, and event features. We first generate initial 3D bounding boxes from the range sensors and then refine them by incorporating com-plementary cues from the camera sensors, where confidence is taken into account during the fusion. Finally, all hetero-geneous inputs are processed through our proposed multi-modal fusion strategy to produce unified representations for 3D object detection. 
+
+Initial 3D Box Proposal from Range Sensors. To per-form effective and efficient computation in 3D space, the voxel features FLV and F4RV are collapsed along the verti-cal axis and transformed by 2D convolutions on the ground plane into bird’s-eye-view (BEV) features FL
+
+> BEV
+
+, F4R 
+
+> BEV
+
+∈
+
+R Xs × Ys ×CB , where X and Y are the voxel grid dimensions in the horizontal plane, s is the stride, and CB is the channel dimension. Given the BEV features FL 
+
+> BEV
+
+and F4R
+
+> BEV
+
+, we concatenate the two modality features along the channel di-mension and apply a convolutional layer to fuse them. This simple yet effective fusion produces cross-modally enriched BEV representations while maintaining computational effi-ciency. Through the detector [132], we obtain the initial set of bounding boxes B = {b1, b 2, . . . , b n}, where n is a pre-defined box number. 
+
+Camera-3D Range Sensor Fusion. We aim to leverage the camera features, which contain multiple strengths and rich semantic information, to gain additional performance. To integrate image features into the 3D space in a multi-Table 3. Ablation study across sensor modalities on the DSERT-RoLL dataset for 3D detection. For the modalities, we use the following notation: R: RGB, E: Event, T: Thermal, 4R: 4D Radar, and L: LiDAR.                                                                                      
+
+> Modality Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose L82.90 65.67 89.62 62.97 77.26 54.14 74.71 86.10 75.82 74.51 R+L 84.67 66.14 90.29 72.82 78.40 59.43 76.26 87.41 77.55 79.31 4R+L 88.26 67.41 91.43 67.41 77.43 69.96 79.43 88.73 82.85 82.98 R+4R+L 88.35 67.38 91.79 79.03 84.39 70.26 81.31 91.04 80.34 83.93 R+E+4R+L 88.70 71.45 92.94 80.11 82.75 71.64 81.92 91.43 83.37 86.55
+> R+T+4R+L 89.48 71.00 93.94 79.77 84.02 71.32 82.26 92.20 83.20 85.66 R+E+T+4R+L 90.30 71.42 95.10 80.26 85.59 72.94 82.93 92.65 85.47 86.33
+
+modal manner, we propose a voxel-centric sampling strat-egy. Specifically we extract non-empty voxel indices from the LiDAR and 4D Radar voxel features FLV and F4RV to obtain FLV and F4RV . We then combine the features on the union of these indices to form a unified sparse voxel feature space. We denote the resulting set as 
+
+FV = FLV ∪ F4RV = {(Vj , fVj )}NV
+
+> j=1
+
+, (1) where Vj is the voxel index, fVj ∈ RCV is the fused feature of a non-empty voxel, and NV is the number of non-empty voxels. Let ΩL and Ω4R denote the sets of non-empty vox-els for the LiDAR and 4D Radar, respectively. For each Vj
+
+in the union Ω = Ω L ∪ Ω4R, the fused feature is defined by 
+
+fVj =
+
+
+
+f LVj if Vj ∈ ΩL \ Ω4R,
+
+f 4RVj if Vj ∈ Ω4R \ ΩL,
+
+Pf LVj | f 4RVj
+
+ if Vj ∈ ΩL ∩ Ω4R,
+
+(2) where [· | · ] denotes channel-wise concatenation and P is a per-scale linear projector that maps the concatenated 2CV
+
+channels back to CV . Thus, voxels with neither modality remain absent, voxels with exactly one modality keep that feature as-is, and voxels with both modalities are concate-nated and projected to preserve dimensionality while en-abling cross-modal fusion. For each non-empty voxel Vj , we obtain modality-specific projections onto the image planes of the RGB, ther-mal, and event cameras as uRj = MR · Vj , uTj = MT ·
+
+Vj , uEj = ME ·Vj , where MR, MT , and ME are the pro-jection matrices, which are the products of the intrinsic and extrinsic matrices for each modality. The projected loca-tions uRj , u Tj , u Ej are used to sample nearby image features from FRI , FTI , and FEI , respectively. Given the modality-specific projections uRj , u Tj , u Ej , aggregated image features are obtained by sampling feature values in the neighborhood of each projection. For modality m ∈ R, T, E , the sam-pling process for the number of sampled point, Q, yields the following aggregated features. 
+
+ˆf mj =
+
+> Q
+
+X
+
+> q=1
+
+wq · FmI (umj + ∆ um,q j ), (3) where ∆um,q j and wq are the learnable offset and aggre-gation weight for the q-th sampling point. Both the offsets 
+
+∆um,q j and the weights wq are predicted from the voxel fea-ture, fVj . Each voxel feature fVj is treated as the query, while the aggregated image features ˆf mj serve as keys and values. The deformable cross-attention [114] for voxel Vj
+
+is formulated as ˆf mVj = Attn (Q = fVj , K = ˆf mj , V = ˆf mj ).
+
+Confidence-based Voxel Fusion. We concatenate the image-enhanced voxel features from all modalities ( m ∈{R, T, E }) to form 
+
+ˆFcam  
+
+> V
+
+=  ˆFRV | ˆFTV | ˆFEV
+
+ ∈ RNV ×(KC V ), K=3 , (4) where ˆFRV , ˆFTV , and ˆFEV denote the RGB, thermal, and event branches, respectively. For camera-axis attention, we view 
+
+ˆFcam  
+
+> V
+
+as a 3D tensor, RNV ×K×CV . We compute the camera-wise gates using a global summary as 
+
+w = σ 1
+
+NV CVNVX
+
+> i=1
+> CV
+
+X
+
+> c=1
+
+ˆFcam  
+
+> V
+
+(i, :, c )
+
+!
+
+∈ [0 , 1] 1×K×1,
+
+(5) where σ denotes the sigmoid activation. Each camera branch is reweighted by its corresponding scalar gate as: 
+
+¯Fcam V = w ⊙ ˆFcam V ∈ RNV ×K×CV ,
+
+where ⊙ denotes element-wise multiplication. Finally, we concatenate the image-enhanced voxel features with the original voxel features. A feed-forward network is then ap-plied to reduce the channel dimension and yield the final fused features ˜FV ∈ RNV ×CV .
+
+Bounding Box Refinement. Given the initial bounding box proposals B = {b1, b 2, . . . , b n} from the range sensors, we further perform refinement using the final fused voxel fea-tures ˜FV ∈ RNV ×CV . For each proposal bi, we divide the 3D region into S × S × S regular sub-voxels and ap-ply ROI pooling [28, 46] to extract proposal-aligned fea-tures from both the fused image-enhanced voxel features 
+
+˜FV and the original voxel features. This produces grid fea-tures ˜FiV ∈ RS3×CV for each initial bounding box, which are then passed through a multi-layer perceptron (MLP) to estimate the refined boxes, ˜B = {˜b1, ˜b2, . . . , ˜bn}.Table 4. 3D object detection performance comparison on the DSERT-RoLL dataset. We categorize the methods into three groups: stereo-based, 3D range sensor–based, and multi-modal fusion-based approaches. For the modalities, we use the following notation: R: RGB, E: Event, T: Thermal, 4R: 4D Radar, and L: LiDAR.                                                                                                                                                                                                                                             
+
+> Modality Methods Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose
+> Stereo-based
+> RDSGN [15] 31.08 43.66 42.48 20.51 25.94 0.01 29.99 25.68 22.55 40.69 RLIGA [42] 35.52 41.67 37.52 20.57 26.02 0.00 31.31 30.06 22.44 42.80 EDSGN [15] 24.23 22.06 26.93 31.38 23.12 0.01 21.41 21.42 15.58 36.44 ELIGA [42] 27.11 22.53 23.43 22.84 24.61 0.00 23.10 23.20 15.30 34.92 TDSGN [15] 28.49 25.98 37.50 28.74 36.52 0.02 16.89 36.07 25.83 36.03 TLIGA [42] 28.96 31.87 36.87 25.72 39.83 0.00 17.02 34.62 23.28 40.50
+> 3D Range Sensor-based
+> LVoxelNeXt [16] 86.06 59.51 90.19 71.82 82.86 54.75 78.93 88.76 71.06 80.93 LHEDNet [138] 79.27 48.41 84.74 68.36 70.29 55.98 71.64 83.34 63.97 73.33 LSAFDNet [134] 79.30 43.83 82.82 57.33 65.07 49.30 66.28 81.62 58.38 76.19 4R RTNH [91] 23.49 37.30 43.40 27.86 36.96 21.70 28.70 26.28 24.69 27.00 4R VoxelNeXt [16] 25.03 44.03 48.78 27.91 37.42 32.79 31.82 24.02 32.50 35.03 4R HEDNet [138] 24.10 43.51 41.16 28.57 31.28 25.67 28.92 22.28 37.01 30.82
+> Multi-modal Fusion-based
+> R+L LoGoNet [67] 87.18 64.96 91.41 79.12 79.74 66.20 79.01 90.56 80.49 82.78 R+L BEVFusion [81] 85.20 62.40 90.91 73.30 75.22 57.61 76.86 87.55 78.07 78.90 R+L DeepFusion [68] 87.19 63.94 91.91 75.61 81.77 57.26 79.19 90.81 78.66 80.10 R+4R HGSFusion [41] 25.74 46.49 49.62 28.49 37.87 34.02 32.66 24.31 34.47 35.96 4R+L InterFusion [118] 84.52 66.94 94.31 76.56 74.13 64.82 79.31 87.49 75.55 79.95 4R+L RL3DOD [9] 85.05 63.15 88.39 76.17 81.41 65.87 77.77 87.26 78.32 81.50 R+T+4R+L SAMFusion [93] 87.03 65.13 91.69 78.02 79.81 70.59 80.54 89.93 80.16 82.50 R+E+T+4R+L Ours 90.30 71.42 95.10 80.26 85.59 72.94 82.93 92.65 85.47 86.33
+
+Loss Functions. We train the entire framework in an end-to-end manner. The overall loss consists of three terms: the RPN loss [28, 46] LRPN , the confidence prediction loss [28] Lconf , and the box regression loss [28, 106] Lreg :
+
+L = LRPN + λ1Lconf + λ2Lreg . (6) 
+
+# 5. Experiments on Multi-modal Approach 
+
+## 5.1. Experimental Settings 
+
+We train the entire framework in an end-to-end manner using four NVIDIA Quadro RTX 8000 GPUs. The loss weights for both λ1 and λ2 are set to 1. For evaluation, to align with the front camera’s field of view, we constrain the point cloud along the X-axis to the range [0, 70] meters. We set the sampled points K as 4 for feature aggregation in the camera-3D range sensor fusion module. Following prior work [28, 46], the bounding-box refinement grid size, 
+
+S, is set to 6. We evaluate all models using the official Waymo Open Dataset metrics [109]. We report Average Precision (AP) with a 3D IoU threshold of 0.5. Following prior work [5, 58, 91] under the standard challenge condi-tions for 3D perception, our main tables emphasize the ve-hicle class. The results for additional classes are provided in the supplementary material. We use a long-range LiDAR for the LiDAR modality, and for all camera modalities, we use only the left camera from the stereo setup. 
+
+## 5.2. 3D Object Detection Results Across Modalities 
+
+The proposed method operates adaptively across diverse modality combinations, providing a framework that high-lights the strengths of multi-modal fusion. To study these effects, we conduct ablations over different sensor combi-nations and report the results in Table 3. We begin with the most fundamental 3D range sensor, LiDAR, which serves as the base for initial bounding box estimation. From this foundation, we incrementally incor-porate additional modalities to evaluate how each sensor contributes to detection robustness and accuracy under var-ious environmental conditions. Adding RGB introduces richer semantics and contextual cues, improving category discrimination and boundary localization under moderate conditions. However, its impact is limited in extreme light-ing and weathers, so the overall gains remain modest in the most challenging scenarios. Introducing 4D Radar further enhances spatial consistency and stability, especially in ad-verse weather ( e.g . heavy snow) where LiDAR signals may degrade. The fusion of LiDAR and 4D Radar yields no-ticeable gain across most conditions, confirming the com-plementary nature of their geometric cues. When event and thermal modalities are integrated, the model becomes more Table 5. 2D object detection performance on the DSERT-RoLL dataset, focusing on camera-based methods. For the modalities, we use the following notation: R: RGB, E: Event, and T: Thermal                                                                                                                               
+
+> Modality Methods Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose RYOLOv10 [116] 76.47 72.99 84.95 76.68 58.76 2.84 71.98 67.69 76.25 76.15 RDEIM [47] 81.85 82.99 91.48 73.60 65.07 13.37 77.76 72.74 85.14 79.50 ERT-DETR [141] 73.77 83.17 83.57 58.93 47.28 0.023 69.89 58.28 78.87 77.83 EDEIM [47] 65.56 85.67 80.77 64.36 50.00 0.075 69.31 53.94 57.20 69.38 TYOLOv10 [116] 78.31 83.84 92.16 76.75 75.30 0.619 69.48 74.15 73.93 81.03 TDEIM [47] 81.84 85.56 83.21 77.75 77.04 0.576 66.07 76.69 84.91 86.19 R+E GM-DETR [125] 84.24 87.54 95.07 80.92 59.44 15.62 83.32 73.61 86.04 81.90 R+T GM-DETR [125] 84.10 86.64 92.18 77.99 79.44 1.48 71.87 77.41 86.12 88.70 T+E GM-DETR [125] 85.44 92.13 88.35 79.64 81.19 11.20 71.00 78.96 87.74 93.04 R+T+E GM-DETR [125] 90.36 93.66 96.28 82.29 81.60 16.56 82.07 82.60 94.93 93.52
+
+resilient to dynamic illumination changes and low-visibility environments. In particular, R+E+T+4R+L, which lever-ages all modalities, achieves the highest performance over-all, demonstrating the framework’s ability to adaptively fuse heterogeneous inputs and fully exploit the advantages of multi-modal perception. 
+
+# 6. Benchmarks on the DSERT-RoLL Dataset 
+
+DSERT-RoLL enables fair, like-for-like evaluation across multiple modalities on the same scenes. With both 3D and 2D manual annotations and diverse weather and light-ing conditions, it offers a rigorous testbed for robustness and generalization. Accordingly, we establish benchmarks for both 3D Object Detection and 2D Object Detection on DSERT-RoLL dataset. 
+
+## 6.1. 3D Object Detection Benchmark Results 
+
+The selected 3D detector models, organized by sensor-configuration groups, are categorized into three types: stereo-based, 3D range sensor–based, and multi-modal fu-sion–based approaches. 
+
+Stereo camera-based methods. We select two existing methods, LIGA [42] and DSGN [15]. To isolate the effect of the sensor type, we keep the architectures and training settings identical and simply replace the camera input with event or thermal data. 
+
+3D range sensor-based methods. We select 3D range sensor–based methods, VoxelNeXt [16], HEDNet [138], and SAFDNet [134], for our evaluation, and additionally adopted RTNH [91] for the 4D Radar modality. Since the LiDAR pipeline naturally extends to 4D Radar, these meth-ods enable fair and consistent evaluation across 3D range-sensor modalities. 
+
+Multi-modal fusion methods. We include the following multi-modal methods as comparisons: LoGoNet [67], BEV-Fusion [81], DeepFusion [68], HGSFusion [41], InterFu-sion [118], RL3DOD [9], and SAMFusion [93]. As shown in Table 4, we observe that limited informa-tion settings, specifically stereo without explicit 3D depth and 4D radar only, tend to underperform, whereas LiDAR is generally strong thanks to accurate geometric cues. How-ever, LiDAR performance drops in adverse weather such as fog and snow. In contrast, multi-modal methods compen-sate: cameras provide missing semantic detail and 4D radar adds weather robustness. Our approach adaptively fuses all available sensor types, delivering consistently strong results across weather and illumination conditions. 
+
+## 6.2. 2D Object Detection Benchmark Results 
+
+Although this paper focuses on 3D detection, DSERT-RoLL also supports 2D detection research and provides a foun-dation for future multi-modal studies. To facilitate sub-sequent work, we establish a 2D benchmark and report baseline results using existing methods only. Specifically, we evaluate the camera-based methods YOLOv10 [116], RT-DETR [141], and DEIM [47] for the single-modality setting, and GM-DETR [125] for the multi-modal setting. Consistent with our 3D evaluation, we report Average Pre-cision (AP) at a 2D IoU threshold of 0.5 with an empha-sis on the Vehicle category; results for additional categories are available in the supplementary material. For 2D de-tection, we use the left camera images for each modality. As shown in Table 5, and in line with our 3D results, the multi-modal setting demonstrates greater robustness across diverse weather and illumination conditions. 
+
+# 7. Conclusion 
+
+We present DSERT-RoLL, a comprehensive multi-modal perception dataset featuring stereo Event–RGB–Thermal cameras, 4D radar, and dual LiDAR sensors. We establish benchmarks on DSERT-RoLL for both 3D and 2D object detection and introduce a modality-adaptive fusion base-line that strengthens detection under challenging weather and lighting conditions. We believe DSERT-RoLL will serve as a valuable foundation for future research, promot-ing progress in robust multi-modal perception and enabling more reliable 3D and 2D understanding under diverse real-world conditions. Supplementary Material 
+
+This supplemental document provides additional information on the proposed dataset, DSERT-RoLL , additional details, results and comparisons. • The license for the DSERT-RoLL dataset is provided in Section 8; • More extensive comparisons with existing datasets, along with additional details, are provided in Section 9; • The criteria for distinguishing weather and lighting conditions are described in Section 10; • Data statistics of the proposed dataset are presented in Section 11; • Detailed information on the calibration between sensors of different modalities in Section 12; • Details on the annotation procedure and the provided annotations in Section 13; • Pixel-level alignment between cameras with different axes for the 2D detection is described in Section 14; • The anonymization of sensitive personal information is described in Section 15; • The implementation details of the proposed multi-modal 3D detection model are provided in Section 16; • Additional dataset samples are presented in Section 17; • Qualitative comparisons with other methods are provided in Section 18; • Experiment on sensitivity to extrinsic calibration errors in Section 19; • Evaluation results across multiple classes are presented in Section 20; 
+
+# 8. Dataset License 
+
+The DSERT-RoLL dataset and accompanying code are provided strictly for research purposes and are distributed under the CC BY-NC 4.0 license, allowing use solely for non-commercial activities. 
+
+# 9. Dataset Comparison 
+
+Table 9 provides additional comparisons with other datasets that could not be fully covered in the main paper. Although many autonomous driving datasets have been introduced recently, to the best of our knowledge there is no dataset that simultaneously includes multiple novel sensors while also covering a wide range of weather and lighting conditions. This highlights and further emphasizes the unique advantages of our proposed dataset, which provides a unified benchmark for studying different sensor modalities across diverse environmental conditions. 
+
+# 10. Weather and Lighting Conditions Descriptions             
+
+> Table 6. Detailed criteria for weather and light conditions.
+> Condition Name Description and criteria Weather Condition Clear Clear weather that does not meet the five weather conditions below. Fog Weather conditions in which distant objects are dimly visible due to omnidirectional fog, corresponding to regions and periods under officially issued weather advisories. Light Rain Weather conditions with a precipitation rate of up to 5 mm per hour. Heavy Rain Weather conditions with a precipitation rate ranging from 10 to 15 mm per hour. Light Snow Weather condition with a snowfall accumulation rate of less than 1 cm per hour. Heavy Snow Weather condition with a snowfall accumulation rate of greater than 1 cm per hour. Light Condition Normal Standard lighting condition with balanced illumination and no significant overexposure or underexposure. Low Light Condition with insufficient illumination, typically resulting in reduced visibility and increased image noise. Over Expose Condition in which excessive brightness causes loss of detail in highlighted regions. HDR Condition where multiple exposure levels are combined to capture both dark and bright areas with enhanced contrast and detail.
+
+The proposed DSERT-RoLL dataset includes a wide range of weather conditions, such as clear, fog, rain, and snow, as well as diverse light conditions, including normal, low-light, overexposed, and HDR scenarios. These variations allow the dataset to cover autonomous driving scenes across highly diverse environmental settings. All sequences are categorized according to the criteria we defined for each condition, and the dataset is organized following the detailed definitions presented in Table 6. 11. Dataset Statistics 
+
+We analyze the distributions of object classes and weather conditions across distance intervals in both the training and test sets, as shown in Figs. 5 and 6. The results show broad coverage over the full distance range and similar tendencies between the two splits, indicating a limited distribution gap between training and evaluation. As shown in Fig. 5, the three object categories, Bike, Pedestrian, and Vehicle, are distributed across all distance bins in both splits. Although their proportions vary by interval, no class is concentrated within only a narrow distance range, which suggests balanced coverage over near, middle, and far regions. 0    
+
+> 0.1
+> 0.2
+> Bike Pedestrian Vehicle
+> 0
+> 0.1
+> 0.2
+> Bike Pedestrian Vehicle
+
+a) Train set  b) Test set 
+
+Figure 5. Class distribution across distance bins for the Bike, Pedestrian, and Vehicle categories. Panel a) shows the distribution in the training set, and panel b) shows the distribution in the test set. 
+
+A similar pattern is observed for weather conditions in Fig. 6. Clear, Fog, Heavy Rain, Heavy Snow, Light Rain, and Light Snow are all represented across the analyzed distance bins, and the train and test sets exhibit comparable trends. This indicates that the dataset remains reasonably balanced with respect to both semantic categories and environmental conditions over distance. Overall, these statistics support fair training and reliable evaluation under diverse real-world scenarios. a) Train set  b) Test set                       
+
+> 0
+> 0.05
+> 0.1
+> 0.15
+> 0.2
+> 0.25
+> 0.3
+> 0.35
+> 0-10 10-20 20-30 30-40 40-50 50-60 60-70
+> Clear Fog Heavy_Rain Heavy_Snow Light_Rain Light_Snow
+> 0
+> 0.05
+> 0.1
+> 0.15
+> 0.2
+> 0.25
+> 0.3
+> 0.35
+> 0-10 10-20 20-30 30-40 40-50 50-60 60-70
+> Clear Fog Heavy_Rain Heavy_Snow Light_Rain Light_Snow
+
+Figure 6. Weather condition distribution across distance bins. Each bar represents the proportion of Clear, Fog, Heavy Rain, Heavy Snow, Light Rain, and Light Snow in each distance interval. Panel a) shows the distribution in the training set, and panel b) shows the distribution in the test set. 
+
+# 12. Details of calibration 
+
+In a multi-modal sensor system, calibration is essential for fusing and jointly using measurements from different sensors. To make this process convenient and effective, we use the RGB cameras as the reference modality and perform pairwise calibration with the other sensors in the following order: [Sec. 12.1] calibration between RGB and the event stereo cameras, [Sec. 12.2] calibration between RGB and the thermal stereo cameras, [Sec. 12.3] calibration between RGB and the LiDAR, and [Sec. 12.4] calibration between RGB and the 4D radar. 12.1. Calibration of the RGB and Event Stereo Cameras 
+
+To robustly calibrate the event cameras, we first collect a large amount of data from diverse viewpoints. Following prior work [37, 89], we employ an event-to-image reconstruction model [102] to convert the raw event streams into dense intensity images. As shown in Fig. 7, this yields four synchronized image pairs from two RGB cameras and two event cameras, from which we construct multiple image pairs for calibration. Using the widely adopted calibration toolbox Kalibr [35], we estimate the intrinsic parameters of each of the four cameras and jointly optimize the extrinsic parameters between all camera pairs in a single optimization step. This procedure allows us to obtain accurate intrinsic and extrinsic calibration for the four cameras. Left Event Camera  Left RGB Camera  Right RGB Camera  Right Event Camera 
+
+> Figure 7. Sample data used for calibration, captured simultaneously by all four cameras observing the calibration pattern. The event data were reconstructed into intensity images using previous method [102].
+
+## 12.2. Calibration of the RGB and Thermal Stereo Cameras 
+
+Because the standard calibration pattern is hardly visible in the thermal images, we resort to a manual RGB–thermal cali-bration procedure. To this end, we design a novel calibration target in which a grid of copper wires is mounted on a board so that the wires maintain a different temperature from the background surface and can be clearly captured by the thermal cameras. As shown in Fig. 8, this setup yields four synchronized images from two RGB cameras and two thermal cameras, from which we construct multiple image pairs for calibration. We then place points sequentially at the grid intersections and use them to construct the corresponding RGB–thermal point pairs. Left Thermal Camera  Left RGB Camera  Right RGB Camera  Right Thermal Camera  RGB Point Select  Thermal Point Select 
+
+> Figure 8. Sample data used for calibration, captured simultaneously by all four cameras observing the calibration pattern. We place points sequentially at the grid intersections and use them to construct the corresponding RGB-thermal point pairs.
+
+## 12.3. Calibration between RGB camera and LiDAR 
+
+We use a recent LiDAR-camera extrinsic calibration toolbox [62] to estimate accurate transformations between each LiDAR and the reference RGB camera. As shown in Fig. 9, the toolbox first constructs a dense LiDAR point cloud and derives an initial alignment with the camera using geometric correspondences. It then refines the extrinsic parameters through error-based optimization, yielding a precise calibration. The same procedure is applied to both the long-range and short-range LiDARs in our setup. 
+
+## 12.4. Calibration between RGB camera and 4D Radar 
+
+We calibrate the left RGB camera and radar by placing a corner reflector target in front of the sensor rig, causing the radar returns to collapse into a single high-intensity point. We record radar point clouds with 3D location, power, and Doppler attributes together with time-synchronized RGB images. Using an in-house annotation tool, we manually click the reflector Left RGB Camera  LiDAR Point Cloud Figure 9. Example of a scene used by the calibration toolbox [62] for computing the extrinsic parameters between the RGB camera and the LiDAR. 
+
+in the radar point cloud and the corresponding pixel in the RGB image for each synchronized pair, yielding a set of 3D–2D correspondences. Since the reflector concentrates the incident energy, the radar return power becomes significantly higher. We therefore select, in the 3D radar point cloud, the point with the highest return power as its 3D counterpart, as shown in Fig. 10 at the location indicated by the light-blue circle. From these correspondences, we solve for the rigid transformation between the radar and camera coordinate systems, enabling accurate projection of radar point clouds onto the image plane, while the remaining sensing modalities are tied to the radar via their pre-calibrated extrinsic parameters. Corner Reflector  2D Image Point Select  3D Radar Point Select  Projection Example 
+
+> Figure 10. Example scene used for RGB–4D Radar calibration. Using the 4D Radar reflector target, we obtain 2D–3D point correspon-dences at various distances.
+
+## 12.5. Stereo Camera Rectification 
+
+The proposed DSERT-RoLL dataset provides stereo data for all camera modalities. For stereo rectification, we process each modality (RGB, event, and thermal) independently. Given the intrinsic matrices KL, K R, the distortion coefficients, and the relative pose (R, t ) obtained from our calibration, we compute the rectifying rotations RL, R R and the new pro-jection matrices PL, P R using OpenCV’s stereoRectify . We then undistort and warp the left and right images with 
+
+initUndistortRectifyMap and remap , so that corresponding points in each stereo pair lie on the same scanline and the epipolar lines become approximately horizontal. The same procedure is applied to the RGB, event, and thermal stereo pairs. We provide sample stereo-rectified images in Fig. 11, where the rectification quality can be visually inspected. As shown in the figure, corresponding points between the left and right cameras of the same modality lie on the same horizontal scanline, confirming proper stereo rectification. RGB Pair  Event Pair  Thermal Pair 
+
+> Figure 11. Example of stereo rectification results for the RGB, event, and thermal modalities. The green horizontal lines visualize the epipolar lines, which become well aligned after calibration.
+
+## 12.6. Calibration Results of All Sensors 
+
+Through the calibration steps described above, we obtain a consistent extrinsic calibration that links all sensing modalities. Figure 15 shows a representative scene demonstrating the quality of this calibration: 3D points from the range sensors are pro-jected onto the image planes of the six camera modalities (left and right images of RGB, event, and thermal), demonstrating good spatial alignment across all views. 
+
+# 13. Details of Annotation 
+
+## 13.1. Annotation Procedure   
+
+> Figure 12. Multi-modal annotation tool. 4D Radar points are shown in red, and LiDAR points are color-coded by timestamp using a viridis colormap. 3D sensor data and 3D annotations can be projected onto camera sensor images, ensuring consistent annotations across modalities under diverse driving conditions..
+
+As shown in Fig. 12, to obtain reliable annotations under diverse adverse weather and lighting conditions, we jointly exploited multiple sensor modalities during the labeling process. Specifically, we used two complementary 3D range sensors, LiDAR and 4D Radar, to provide accurate geometric information, while RGB and thermal images were employed to verify the alignment and validity of the bounding boxes. This multi-modal setup improves the accuracy of the ground-truth bounding boxes and helps ensure that no objects are missed during annotation. All multi-modal data were imported into a dedicated professional annotation tool [1], and labeling was carried out by hired expert annotators. Fig. 12 illustrates the annotation tool interface used by annotators to label multi-modal sensor data. In the main view, LiDAR and RADAR points are plotted in different colors, providing reliable 3D information even under adverse weather conditions ( e.g ., snow, fog). The 3D sensor data and 3D bounding boxes are projected onto the images, assisting annotators during labeling and enabling consistent annotations across modalities. Each video sequence was subsequently reviewed by at least three annotators to guarantee high-quality labels. For 2D bounding box annotation, 3D annotations are projected onto the image plane and subsequently refined. Odometry is defined as the relative pose with respect to the first sample of each video sequence and is estimated using an IMU–LiDAR-coupled SLAM algorithm [105], with GNSS signals used to aid pose estimation when 3D sensors are unreliable due to weather condition. 
+
+## 13.2. Types of Annotations 
+
+Table 7 summarizes the annotation types provided in the DSERT-RoLL dataset. Odometry is defined as the relative pose with respect to the first frame of each video sequence. The weather and lighting conditions are annotated once per sequence, meaning that a single sequence-level label is assigned rather than frame-level labels. The 3D annotations follow the Waymo Open Dataset (WOD) [109] format, while the 2D annotations are provided in the COCO [73] format. Table 7. Provided annotation types and descriptions. 
+
+Type Format Description 3D 3D Bbox (center x, center y, center z, l, w, h, yaw, class )
+
+2D 2D Bbox (umin , v min , w, h, class )
+
+Odometry pose p = [ R | t] where R ∈ SO (3) and t ∈ R3
+
+Weather Condition text Sequence-level weather condition Lighting Condition text Sequence-level lighting condition 
+
+# 14. Image Homography for 2D Detection RGB  Event  Thermal  Overlap 
+
+> Before alignment After alignment
+> Figure 13. Example of RGB–event–thermal alignment using the homography. The top row shows the three modalities before alignment, and the bottom row shows the event and thermal images after being warped onto the RGB image plane and cropped to the common field of view, with the last column visualizing their overlap.
+
+The proposed multi-modal 3D object detection framework operates by projecting 3D information onto each camera and sampling in the image space, and therefore does not require the images themselves to be mutually aligned. However, for fair comparison in 2D object detection and to enable a pixel-level multi-modal fusion approach, pixel-wise alignment between the different image modalities is necessary. To this end, we align thermal and event images to the RGB camera using a rotation-based image homography derived from the calibrated intrinsics and extrinsics of all sensors, following the prior work [37]. We do not perform any additional dedicated calibration for this alignment step; instead, we reuse the existing calibration parameters and treat the resulting homography as an approximate alignment. From the LiDAR-to-camera extrinsic matrices, we extract the 3 × 3 rotation matrices and compute the relative rotation between each source camera (thermal or event) and the RGB camera. After rescaling each camera’s intrinsic matrix to the target resolution, we construct the homography using the infinite-plane approximation 
+
+H = KRGB RRGB ,src K−1src , (7) where each K denotes the intrinsic parameters of the corresponding camera, and R represents the extrinsic parameters that transform points from the source camera to the RGB camera coordinate system. We apply homography to warp the thermal and event images onto the RGB image plane, followed by cropping the overlapping field of view shared by all three modalities. An example scene is following Fig. 13. The event image exhibits a grid-like appearance because the sparse events are forward-warped and dispersed over the RGB image plane. 
+
+# 15. Privacy Concerns 
+
+To address privacy concerns, we ensure that all privacy-sensitive information in the dataset is properly anonymized. In particular, all human faces and vehicle license plates are blurred to prevent any form of personal identification, as illustrated in Fig. 14. 
+
+# 16. Implementation Details 
+
+We train our multi-modal 3D object detection model in an end-to-end manner for a total of 20 epochs. The batch size is set to 8 per GPU, and all experiments are conducted using four NVIDIA Quadro RTX 8000 GPUs. We set the 3D detection range License Plate Number  Human Face Figure 14. Example images in which privacy-sensitive information, such as license plate numbers and human faces, has been blurred. 
+
+to [0 , 75 .2 m] along the X axis, [−75 .2 m, 75 .2 m] along the Y axis, and [−2 m, 4 m] along the Z axis. For each attention operation, we sample Q = 4 points (Eq. (3) in the main paper). Following [28], the grid size S for the box refinement is set to 6. For the each image branch, we use a Swin-Tiny [80] backbone together with an FPN [74]. We perform feature fusion using only the left cameras. The event data are converted into a tensor-based voxel grid representation [148] with a bin size of 5, while the thermal data are used as single-channel images. To reduce computational cost, we downsample the RGB, thermal, and event inputs to 1/4, 1, and 1/2 of their original resolution, respectively. During training, we adopt common data augmentation techniques: random flips along the horizontal axis, global scaling with factors drawn from [0 .95 , 1.05] , and rotations about the Z axis sampled from [−π/ 4, π/ 4] . After prediction, we apply non-maximum suppression (NMS) with an IoU threshold of 0.7 to filter out overlapping detections and keep a single bounding box per object. 
+
+# 17. More Dataset Samples 
+
+We provide additional dataset samples in Figs. 16 and 17 to illustrate the diversity of weather conditions. Figure 16 presents scenes under clear, fog, and light snow, whereas Fig. 17 includes samples from heavy snow, light rain, and heavy rain. Moreover, we illustrate dataset samples of varying light conditions in Fig. 18. 
+
+# 18. Qualitative Results 
+
+Fig. 19 presents qualitative 3D detection results on the DSERT-RoLL dataset. For comparison, we include Radar-based RTNH [91], LiDAR-based VoxelNeXt [16], and LiDAR–RGB fusion LoGoNet [67]. Our method leverages all available sen-sors (RGB, event, thermal, 4D Radar, and LiDAR), and the proposed multi-modal approach demonstrates robust performance across a wide range of weather conditions. 
+
+Normal. Under normal conditions, all methods show reasonable performance and successfully detect distant objects as well as objects in the opposite lane. However, RTNH suffers from degraded detection performance when 4D Radar returns are sparse or only partially observed. VoxelNeXt also fails to detect the bus in this scenario. LoGoNet successfully detects all objects by exploiting sensor fusion, but the estimated object sizes are inaccurate. In contrast, our model accurately predicts both the positions and sizes of all objects. 
+
+Fog. In foggy scenes, the range and quality of LiDAR measurements degrade significantly, causing VoxelNeXt and Lo-GoNet—both heavily dependent on LiDAR—to miss the object. RTNH, which relies on robust 4D Radar, detects the targets but produces several false positives due to sensor noise. Our model, on the other hand, leverages 4D Radar for object detection and is effectively guided by image sensors, resulting in more accurate and stable predictions. 
+
+Rain. In the rainy-condition example, only our model successfully detects the bike. Radar is inherently weak at capturing small objects, and LiDAR performance also degrades under rain, which increases noise and introduces ambiguity into the detection, making it difficult to detect a small and fast-moving bike. In contrast, our method leverages the complementary advantages of different sensors, enabling reliable detection even under such adverse conditions. 
+
+Snow. Under snowy conditions, RTNH fails to detect stationary objects due to the inherent characteristics of radar, which is more sensitive to moving targets. VoxelNeXt detects all objects, but LiDAR noise induced by snow leads to uncertain predictions, producing multiple ambiguous bounding boxes around the vehicle’s LiDAR cluster center. LoGoNet also fails to detect some objects because the RGB images are partially occluded by snow. In this snow scenario, thermal sensing provides more reliable cues than RGB and LiDAR, and our model effectively exploits high-confidence thermal responses while down-weighting noisy measurements from other sensors, resulting in accurate and stable detections. 19. Sensitivity of Extrinsic Calibration 
+
+We perturb the extrinsic calibrations between modalities by adding random noise to evaluate the sensitivity of our model to calibration errors. Table 8 shows that the performance decreases under noisy calibration as expected. However, the degrada-tion is not substantial, indicating that our model remains fairly robust even under realistic levels of calibration noise. These results suggest that the model does not rely excessively on precise extrinsic calibration and can maintain stable performance in the presence of moderate calibration perturbations.                                                 
+
+> Table 8. Detection performance sensitivity to calibration errors.
+> Noise (translation, rotate) Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose
+> 0cm, 0◦90.30 71.42 95.10 80.26 85.59 72.94 82.93 92.65 85.47 86.33
+> 3cm, 3◦89.96 70.19 94.60 79.50 84.78 72.22 82.51 92.33 84.81 85.90
+> 5cm, 5◦88.98 68.46 93.75 79.42 83.67 71.72 82.02 92.02 84.16 85.75
+
+# 20. Quantitative Results for Multiple Classes 
+
+Following previous works [5, 58, 91], the main paper focuses on reporting results for the Vehicle category. In this supple-mentary material, we additionally provide results for the Pedestrian and Bike categories. For 3D object detection, Table 10 presents the results of stereo-based and 3D range sensor–based approaches, while Table 11 summarizes the performance of multi-modal fusion–based methods. For 2D object detection, Table 12 reports the multi-class results of the methods discussed in the main paper. 
+
+# 21. Acknowledgments 
+
+This work was supported by the InnoCORE program of the Ministry of Science and ICT(N10250156), and by the Technology Innovation Program (2410013617, 20024355, Development of autonomous driving connectivity technology based on sensor-infrastructure cooperation) funded by the Ministry of Trade, Industry & Energy(MOTIE, Korea). References 
+
+[1] Segments.ai: Building high-quality training data for computer vision. https://segments.ai/ . Accessed: 2025-11-20. 13 [2] Mina Alibeigi, William Ljungbergh, Adam Tonderski, Georg Hess, Adam Lilja, Carl Lindstr¨ om, Daria Motorniuk, Junsheng Fu, Jenny Widahl, and Christoffer Petersson. Zenseact open dataset: A large-scale and diverse multimodal dataset for autonomous driving. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 20178–20188, 2023. 3, 24 [3] Jens Behley, Martin Garbade, Andres Milioto, Jan Quenzel, Sven Behnke, Cyrill Stachniss, and Jurgen Gall. Semantickitti: A dataset for semantic scene understanding of lidar sequences. In Proceedings of the IEEE/CVF international conference on computer vision , pages 9297–9307, 2019. 2 [4] Amanda Berg, J¨ orgen Ahlberg, and Michael Felsberg. A thermal object tracking benchmark. In 2015 12th IEEE International Conference on Advanced Video and Signal Based Surveillance (AVSS) , pages 1–6. IEEE, 2015. 3 [5] Mario Bijelic, Tobias Gruber, Fahim Mannan, Florian Kraus, Werner Ritter, Klaus Dietmayer, and Felix Heide. Seeing through fog without seeing fog: Deep multimodal sensor fusion in unseen adverse weather. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 11682–11692, 2020. 3, 7, 16, 24 [6] Jonathan Binas, Daniel Neil, Shih-Chii Liu, and Tobi Delbruck. Ddd17: End-to-end davis driving dataset. arXiv preprint arXiv:1711.01458 , 2017. 3 [7] Levi Burner, Anton Mitrokhin, Cornelia Ferm¨ uller, and Yiannis Aloimonos. Evimo2: an event camera dataset for motion segmen-tation, optical flow, structure from motion, and visual inertial odometry in indoor scenes with monocular or stereo algorithms. arXiv preprint arXiv:2205.03467 , 2022. 3 [8] Holger Caesar, Varun Bankiti, Alex H Lang, Sourabh Vora, Venice Erin Liong, Qiang Xu, Anush Krishnan, Yu Pan, Giancarlo Baldan, and Oscar Beijbom. nuscenes: A multimodal dataset for autonomous driving. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11621–11631, 2020. 3, 24 [9] Yujeong Chae, Hyeonseong Kim, and Kuk-Jin Yoon. Towards robust 3d object detection with lidar and 4d radar fusion in various weather conditions. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 15162–15172, 2024. 4, 7, 8, 31 [10] Yujeong Chae, Heejun Park, Hyeonseong Kim, and Kuk-Jin Yoon. Doppler-aware lidar-radar fusion for weather-robust 3d detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 27197–27208, 2025. 4 [11] Kenneth Chaney, Fernando Cladera, Ziyun Wang, Anthony Bisulco, M. Ani Hsieh, Christopher Korpela, Vijay Kumar, Camillo J. Taylor, and Kostas Daniilidis. M3ed: Multi-robot, multi-sensor, multi-environment event dataset. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops , pages 4015–4022, 2023. 3, 24 [12] Gyusam Chang, Jiwon Lee, Donghyun Kim, Jinkyu Kim, Dongwook Lee, Daehyun Ji, Sujin Jang, and Sangpil Kim. Unified domain generalization and adaptation for multi-view 3d object detection. Advances in Neural Information Processing Systems , 37: 58498–58524, 2024. 3 [13] Tianxiang Chen, Zhentao Tan, Qi Chu, Yue Wu, Bin Liu, and Nenghai Yu. Tci-former: Thermal conduction-inspired transformer for infrared small target detection. In Proceedings of the AAAI Conference on Artificial Intelligence , pages 1201–1209, 2024. 2 [14] Xuanyao Chen, Tianyuan Zhang, Yue Wang, Yilun Wang, and Hang Zhao. Futr3d: A unified sensor fusion framework for 3d detection. In proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 172–181, 2023. 4 [15] Yilun Chen, Shu Liu, Xiaoyong Shen, and Jiaya Jia. Dsgn: Deep stereo geometry network for 3d object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 12536–12545, 2020. 7, 8, 30 [16] Yukang Chen, Jianhui Liu, Xiangyu Zhang, Xiaojuan Qi, and Jiaya Jia. Voxelnext: Fully sparse voxelnet for 3d object detection and tracking. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 21674–21683, 2023. 7, 8, 15, 29, 30 [17] Yilun Chen, Zhiding Yu, Yukang Chen, Shiyi Lan, Anima Anandkumar, Jiaya Jia, and Jose M Alvarez. Focalformer3d: focusing on hard instance for 3d object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 8394–8405, 2023. 4 [18] Hoonhee Cho and Kuk-Jin Yoon. Event-image fusion stereo using cross-modality feature propagation. In Proceedings of the AAAI Conference on Artificial Intelligence , pages 454–462, 2022. 3 [19] Hoonhee Cho and Kuk-Jin Yoon. Selection and cross similarity for event-image deep stereo. In European Conference on Computer Vision , pages 470–486. Springer, 2022. 3 [20] Hoonhee Cho, Jegyeong Cho, and Kuk-Jin Yoon. Learning adaptive dense event stereo from the image domain. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 17797–17807, 2023. 3 [21] Hoonhee Cho, Yuhwan Jeong, Taewoo Kim, and Kuk-Jin Yoon. Non-coaxial event-guided motion deblurring with spatial alignment. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 12492–12503, 2023. 3 [22] Hoonhee Cho, Taewoo Kim, Yuhwan Jeong, and Kuk-Jin Yoon. A benchmark dataset for event-guided human pose estimation and tracking in extreme conditions. Advances in Neural Information Processing Systems , 37:134826–134840, 2024. 3 [23] Hoonhee Cho, Sung-Hoon Yoon, Hyeokjun Kweon, and Kuk-Jin Yoon. Finding meaning in points: Weakly supervised semantic segmentation for event cameras. In European Conference on Computer Vision , pages 266–286. Springer, 2024. 3 [24] Hoonhee Cho, Jae-young Kang, Youngho Kim, and Kuk-Jin Yoon. Ev-3dod: Pushing the temporal boundaries of 3d object detection with event cameras. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 27197–27210, 2025. 3 [25] Yukyung Choi, Namil Kim, Soonmin Hwang, Kibaek Park, Jae Shin Yoon, Kyounghwan An, and In So Kweon. Kaist multi-spectral day/night data set for autonomous and assisted driving. IEEE Transactions on Intelligent Transportation Systems , 19(3):934–948, 2018. 2, 3, 24 [26] Marius Cordts, Mohamed Omran, Sebastian Ramos, Timo Rehfeld, Markus Enzweiler, Rodrigo Benenson, Uwe Franke, Stefan Roth, and Bernt Schiele. The cityscapes dataset for semantic urban scene understanding. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 3213–3223, 2016. 3 [27] Pierre De Tournemire, Davide Nitti, Etienne Perot, Davide Migliore, and Amos Sironi. A large scale event-based detection dataset for automotive. arXiv preprint arXiv:2001.08499 , 2020. 3 [28] Jiajun Deng, Shaoshuai Shi, Peiwei Li, Wengang Zhou, Yanyong Zhang, and Houqiang Li. Voxel r-cnn: Towards high performance voxel-based 3d object detection. In Proceedings of the AAAI conference on artificial intelligence , pages 1201–1209, 2021. 6, 7, 15 [29] Chaitanya Devaguptapu, Ninad Akolekar, Manuj M Sharma, and Vineeth N Balasubramanian. Borrow from anywhere: Pseudo multi-modal object detection in thermal imagery. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops , pages 0–0, 2019. 3 [30] Carlos A Diaz-Ruiz, Youya Xia, Yurong You, Jose Nino, Junan Chen, Josephine Monica, Xiangyu Chen, Katie Luo, Yan Wang, Marc Emond, et al. Ithaca365: Dataset and driving perception under repeated and challenging weather conditions. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 21383–21392, 2022. 3, 24 [31] Wassim El Ahmar, Yahya Massoud, Dhanvin Kolhatkar, Hamzah AlGhamdi, Mohammad Alja’Afreh, Riad Hammoud, and Robert Laganiere. Enhanced thermal-rgb fusion for robust object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 365–374, 2023. 3 [32] Wassim El Ahmar, Angel Sappa, and Riad Hammoud. Thermal pedestrian multiple object tracking challenge (tp-mot). In Proceed-ings of the Computer Vision and Pattern Recognition Conference , pages 4602–4609, 2025. 3 [33] Baojie Fan, Xiaotian Li, Yuhan Zhou, Caixia Xia, Huijie Fan, Fengyu Xu, and Jiandong Tian. Mgaf: Lidar-camera 3d object detection with multiple guidance and adaptive fusion. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025. 4 [34] Lili Fan, Junhao Wang, Yuanmeng Chang, Yuke Li, Yutong Wang, and Dongpu Cao. 4d mmwave radar for autonomous driving perception: A comprehensive survey. IEEE Transactions on Intelligent Vehicles , 9(4):4606–4620, 2024. 3 [35] Paul Furgale, Joern Rehder, and Roland Siegwart. Unified temporal and spatial calibration for multi-sensor systems. In 2013 IEEE/RSJ International Conference on Intelligent Robots and Systems , pages 1280–1286. IEEE, 2013. 11 [36] Guillermo Gallego, Tobi Delbr¨ uck, Garrick Orchard, Chiara Bartolozzi, Brian Taba, Andrea Censi, Stefan Leutenegger, Andrew J Davison, J¨ org Conradt, Kostas Daniilidis, et al. Event-based vision: A survey. IEEE transactions on pattern analysis and machine intelligence , 44(1):154–180, 2020. 2 [37] Mathias Gehrig, Willem Aarents, Daniel Gehrig, and Davide Scaramuzza. Dsec: A stereo event camera dataset for driving scenarios. 
+
+IEEE Robotics and Automation Letters , 6(3):4947–4954, 2021. 2, 3, 11, 14, 24 [38] Mathias Gehrig, Mario Millh¨ ausler, Daniel Gehrig, and Davide Scaramuzza. E-raft: Dense optical flow from event cameras. In 
+
+2021 International Conference on 3D Vision (3DV) , pages 197–206. IEEE, 2021. 3 [39] Andreas Geiger, Philip Lenz, and Raquel Urtasun. Are we ready for autonomous driving? the kitti vision benchmark suite. 2012 IEEE Conference on Computer Vision and Pattern Recognition , pages 3354–3361, 2012. 3, 24 [40] Alejandro Gonz´ alez, Zhijie Fang, Yainuvis Socarras, Joan Serrat, David V´ azquez, Jiaolong Xu, and Antonio M L´ opez. Pedestrian detection at day/night time with visible and fir cameras: A comparison. Sensors , 16(6):820, 2016. 3 [41] Zijian Gu, Jianwei Ma, Yan Huang, Honghao Wei, Zhanye Chen, Hui Zhang, and Wei Hong. Hgsfusion: Radar-camera fusion with hybrid generation and synchronization for 3d object detection. In Proceedings of the AAAI Conference on Artificial Intelligence ,pages 3185–3193, 2025. 7, 8, 31 [42] Xiaoyang Guo, Shaoshuai Shi, Xiaogang Wang, and Hongsheng Li. Liga-stereo: Learning lidar geometry aware representations for stereo-based 3d detector. In Proceedings of the IEEE/CVF international conference on computer vision , pages 3153–3163, 2021. 7, 8, 30 [43] Qishen Ha, Kohei Watanabe, Takumi Karasawa, Yoshitaka Ushiku, and Tatsuya Harada. Mfnet: Towards real-time semantic seg-mentation for autonomous vehicles with multi-spectral scenes. In 2017 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , pages 5108–5115. IEEE, 2017. 3 [44] Martin Hahner, Christos Sakaridis, Dengxin Dai, and Luc Van Gool. Fog simulation on real lidar point clouds for 3d object detection in adverse weather. In Proceedings of the IEEE/CVF international conference on computer vision , pages 15283–15292, 2021. 2 [45] Javier Hidalgo-Carri´ o, Guillermo Gallego, and Davide Scaramuzza. Event-aided direct sparse odometry. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5781–5790, 2022. 3 [46] Jordan SK Hu, Tianshu Kuai, and Steven L Waslander. Point density-aware voxels for lidar 3d object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 8469–8478, 2022. 6, 7 [47] Shihua Huang, Zhichao Lu, Xiaodong Cun, Yongjun Yu, Xiao Zhou, and Xi Shen. Deim: Detr with improved matching for fast convergence. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 15162–15171, 2025. 8, 32 [48] Xun Huang, Jinlong Wang, Qiming Xia, Siheng Chen, Bisheng Yang, Xin Li, Cheng Wang, and Chenglu Wen. V2x-r: Cooperative lidar-4d radar fusion with denoising diffusion for 3d object detection. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 27390–27400, 2025. 3 [49] Jyh-Jing Hwang, Henrik Kretzschmar, Joshua Manela, Sean Rafferty, Nicholas Armstrong-Crews, Tiffany Chen, and Dragomir Anguelov. Cramnet: Camera-radar fusion with ray-constrained cross-attention for robust 3d object detection. In European confer-ence on computer vision , pages 388–405. Springer, 2022. 4 [50] Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In So Kweon. Multispectral pedestrian detection: Benchmark dataset and baseline. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 1037–1045, 2015. 3 [51] Junbo Jang, Chanyeong Park, Heegwang Kim, Jiyoon Lee, and Joonki Paik. Multispectral object detection enhanced by cross-modal information complementary and cosine similarity channel resampling modules. In 2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) , pages 9437–9446. IEEE, 2025. 3 [52] Yuhwan Jeong, Hoonhee Cho, and Kuk-Jin Yoon. Towards robust event-based networks for nighttime via unpaired day-to-night event translation. In European Conference on Computer Vision , pages 286–306. Springer, 2024. 3 [53] Haoxuanye Ji, Pengpeng Liang, and Erkang Cheng. Enhancing 3d object detection with 2d detection-guided query anchors. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 21178–21187, 2024. 4 [54] Xiaohui Jiang, Shuailin Li, Yingfei Liu, Shihao Wang, Fan Jia, Tiancai Wang, Lijin Han, and Xiangyu Zhang. Far3d: Expanding the horizon for surround-view 3d object detection. In Proceedings of the AAAI conference on artificial intelligence , pages 2561–2569, 2024. 2 [55] Xin Jin, Haisheng Su, Cong Ma, Kai Liu, Wei Wu, Fei Hui, and Junchi Yan. Geoformer: Geometry point encoder for 3d object detection with graph-based transformer. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 26879–26889, 2025. 4 [56] Jae-Young Kang, Hoonhee Cho, and Kuk-Jin Yoon. Temporal stereo matching from event cameras via joint learning with stereo-scopic flow. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025. 3 [57] Jae-Young Kang, Hoonhee Cho, and Kuk-Jin Yoon. Unleashing the temporal potential of stereo event cameras for continuous-time 3d object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 6869–6881, 2025. 3 [58] Daniel Kent, Mohammed Alyaqoub, Xiaohu Lu, Hamed Khatounabadi, Kookjin Sung, Cole Scheller, Alexander Dalat, Asma bin Thabit, Roberto Whitley, and Hayder Radha. Msu-4s-the michigan state university four seasons dataset. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 22658–22667, 2024. 7, 16 [59] Taewoo Kim, Jaeseok Jeong, Hoonhee Cho, Yuhwan Jeong, and Kuk-Jin Yoon. Towards real-world event-guided low-light video enhancement and deblurring. In European Conference on Computer Vision , pages 433–451. Springer, 2024. 3 [60] Youngho Kim, Hoonhee Cho, and Kuk-Jin Yoon. From sharp to blur: Unsupervised domain adaptation for 2d human pose estimation under extreme motion blur using event cameras. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 9406–9417, 2025. 3 [61] Yeong-Hyeon Kim, Ukcheol Shin, Jinsun Park, and In So Kweon. Ms-uda: Multi-spectral unsupervised domain adaptation for thermal image semantic segmentation. IEEE Robotics and Automation Letters , 6(4):6497–6504, 2021. 2 [62] Kenji Koide, Shuji Oishi, Masashi Yokozuka, and Atsuhiko Banno. General, single-shot, target-less, and automatic lidar-camera extrinsic calibration toolbox. arXiv preprint arXiv:2302.05094 , 2023. 11, 12 [63] Z¨ ulfiye K¨ ut¨ uk and G¨ orkem Algan. Semantic segmentation for thermal images: A comparative survey. In proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 286–295, 2022. 3 [64] Alex H Lang, Sourabh Vora, Holger Caesar, Lubing Zhou, Jiong Yang, and Oscar Beijbom. Pointpillars: Fast encoders for object detection from point clouds. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 12697– 12705, 2019. 1 [65] Chengyang Li, Dan Song, Ruofeng Tong, and Min Tang. Multispectral pedestrian detection via simultaneous detection and segmen-tation. arXiv preprint arXiv:1808.04818 , 2018. 3 [66] Hebei Li, Jin Wang, Jiahui Yuan, Yue Li, Wenming Weng, Yansong Peng, Yueyi Zhang, Zhiwei Xiong, and Xiaoyan Sun. Event-assisted low-light video object segmentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition , pages 3250–3259, 2024. 3 [67] Xin Li, Tao Ma, Yuenan Hou, Botian Shi, Yuchen Yang, Youquan Liu, Xingjiao Wu, Qin Chen, Yikang Li, Yu Qiao, et al. Logonet: Towards accurate 3d object detection with local-to-global cross-modal fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 17524–17534, 2023. 7, 8, 15, 29, 31 [68] Yingwei Li, Adams Wei Yu, Tianjian Meng, Ben Caine, Jiquan Ngiam, Daiyi Peng, Junyang Shen, Yifeng Lu, Denny Zhou, Quoc V Le, et al. Deepfusion: Lidar-camera deep fusion for multi-modal 3d object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 17182–17191, 2022. 7, 8, 31 [69] Yingyan Li, Lue Fan, Yang Liu, Zehao Huang, Yuntao Chen, Naiyan Wang, and Zhaoxiang Zhang. Fully sparse fusion for 3d object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence , 46(11):7217–7231, 2024. 3 [70] Zhenxin Li, Shiyi Lan, Jose M Alvarez, and Zuxuan Wu. Bevnext: Reviving dense bev frameworks for 3d object detection. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 20113–20123, 2024. 4 [71] Yiyi Liao, Jun Xie, and Andreas Geiger. Kitti-360: A novel dataset and benchmarks for urban scene understanding in 2d and 3d. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(3):3292–3310, 2022. 2 [72] Hongbin Lin, Yifan Zhang, Shuaicheng Niu, Shuguang Cui, and Zhen Li. Monotta: Fully test-time adaptation for monocular 3d object detection. In European Conference on Computer Vision , pages 96–114. Springer, 2024. 4 [73] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll´ ar, and C Lawrence Zitnick. Microsoft coco: Common objects in context. In European conference on computer vision , pages 740–755. Springer, 2014. 13 [74] Tsung-Yi Lin, Piotr Doll´ ar, Ross Girshick, Kaiming He, Bharath Hariharan, and Serge Belongie. Feature pyramid networks for object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 2117–2125, 2017. 15 [75] Zhiwei Lin, Zhe Liu, Zhongyu Xia, Xinhao Wang, Yongtao Wang, Shengxiang Qi, Yang Dong, Nan Dong, Le Zhang, and Ce Zhu. Rcbevdet: Radar-camera fusion in bird’s eye view for 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 14928–14937, 2024. 4 [76] Feng Liu, Tengteng Huang, Qianjing Zhang, Haotian Yao, Chi Zhang, Fang Wan, Qixiang Ye, and Yanzhao Zhou. Ray denoising: Depth-aware hard negative sampling for multi-view 3d object detection. In European Conference on Computer Vision , pages 200– 217. Springer, 2024. 2 [77] Haoyue Liu, Shihan Peng, Lin Zhu, Yi Chang, Hanyu Zhou, and Luxin Yan. Seeing motion at nighttime with an event camera. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 25648–25658, 2024. 3 [78] Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and Zhongxuan Luo. Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 5802–5811, 2022. 3, 24 [79] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. 2021 IEEE/CVF International Conference on Computer Vision (ICCV) , pages 9992– 10002, 2021. 5 [80] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In Proceedings of the IEEE/CVF international conference on computer vision , pages 10012–10022, 2021. 15 [81] Zhijian Liu, Haotian Tang, Alexander Amini, Xinyu Yang, Huizi Mao, Daniela Rus, and Song Han. Bevfusion: Multi-task multi-sensor fusion with unified bird’s-eye view representation. arXiv preprint arXiv:2205.13542 , 2022. 2, 7, 8, 31 [82] Zhe Liu, Jinghua Hou, Xinyu Wang, Xiaoqing Ye, Jingdong Wang, Hengshuang Zhao, and Xiang Bai. Lion: Linear group rnn for 3d object detection in point clouds. Advances in Neural Information Processing Systems , 37:13601–13626, 2024. 4 [83] Zhe Liu, Jinghua Hou, Xiaoqing Ye, Tong Wang, Jingdong Wang, and Xiang Bai. Seed: A simple and effective 3d detr in point clouds. In European Conference on Computer Vision , pages 110–126. Springer, 2024. 4 [84] Jiageng Mao, Minzhe Niu, Chenhan Jiang, Hanxue Liang, Xiaodan Liang, Yamin Li, Chaoqiang Ye, Wei Zhang, Zhenguo Li, Jie Yu, et al. One million scenes for autonomous driving: Once dataset. NeurIPS , 2021. 3, 24 [85] Michael Meyer and Georg Kuschk. Automotive radar dataset for deep learning based 3d object detection. In 2019 16th european radar conference (EuRAD) , pages 129–132. IEEE, 2019. 24 [86] Anton Mitrokhin, Chengxi Ye, Cornelia Ferm¨ uller, Yiannis Aloimonos, and Tobi Delbruck. Ev-imo: Motion segmentation dataset and learning pipeline for event cameras. in 2019 ieee. In RSJ International Conference on Intelligent Robots and Systems (IROS) ,pages 6105–6112. 3 [87] Mohammad Mostafavi, Lin Wang, and Kuk-Jin Yoon. Learning to reconstruct hdr images from events, with applications to depth and flow prediction. International Journal of Computer Vision , 129(4):900–920, 2021. 3 [88] Elias Mueggler, Henri Rebecq, Guillermo Gallego, Tobi Delbruck, and Davide Scaramuzza. The event-camera dataset and simulator: Event-based data for pose estimation, visual odometry, and slam. The International journal of robotics research , 36(2):142–149, 2017. 3 [89] Manasi Muglikar, Mathias Gehrig, Daniel Gehrig, and Davide Scaramuzza. How to calibrate your event camera. In IEEE Conf. Comput. Vis. Pattern Recog. Workshops (CVPRW) , 2021. 11 [90] Farzeen Munir, Shoaib Azam, and Moongu Jeon. Sstn: Self-supervised domain adaptation thermal object detection for autonomous driving. In 2021 IEEE/RSJ international conference on intelligent robots and systems (IROS) , pages 206–213. IEEE, 2021. 3 [91] Dong-Hee Paek, Seung-Hyun Kong, and Kevin Tirta Wijaya. K-radar: 4d radar object detection for autonomous driving in various weather conditions. Advances in Neural Information Processing Systems , 35:3819–3829, 2022. 2, 3, 7, 8, 15, 16, 24, 29, 30 [92] Andras Palffy, Ewoud Pool, Srimannarayana Baratam, Julian FP Kooij, and Dariu M Gavrila. Multi-class road user detection with 3+ 1d radar in the view-of-delft dataset. IEEE Robotics and Automation Letters , 7(2):4961–4968, 2022. 3, 24 [93] Edoardo Palladin, Roland Dietze, Praveen Narayanan, Mario Bijelic, and Felix Heide. Samfusion: Sensor-adaptive multimodal fusion for 3d object detection in adverse weather. In European Conference on Computer Vision , pages 484–503. Springer, 2024. 3, 4, 7, 8, 31 [94] Seongmin Park, Minjae Lee, Junwon Choi, and Jungwook Choi. Selectively dilated convolution for accuracy-preserving sparse pillar-based embedded 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion , pages 8104–8113, 2024. 4 [95] Abhishek Patil, Srikanth Malla, Haiming Gang, and Yi-Ting Chen. The h3d dataset for full-surround 3d multi-object detection and tracking in crowded urban scenes. In 2019 International Conference on Robotics and Automation (ICRA) , pages 9552–9557. IEEE, 2019. 24 [96] Liang Peng, Junkai Xu, Haoran Cheng, Zheng Yang, Xiaopei Wu, Wei Qian, Wenxiao Wang, Boxi Wu, and Deng Cai. Learning occupancy for monocular 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10281–10292, 2024. 2 [97] Shihan Peng, Hanyu Zhou, Hao Dong, Zhiwei Shi, Haoyue Liu, Yuxing Duan, Yi Chang, and Luxin Yan. Cosec: A coaxial stereo event camera dataset for autonomous driving. arXiv preprint arXiv:2408.08500 , 2024. 3 [98] Etienne Perot, Pierre De Tournemire, Davide Nitti, Jonathan Masci, and Amos Sironi. Learning to detect objects with a 1 megapixel event camera. Advances in Neural Information Processing Systems , 33:16639–16652, 2020. 3 [99] Quang-Hieu Pham, Pierre Sevestre, Ramanpreet Singh Pahwa, Huijing Zhan, Chun Ho Pang, Yuda Chen, Armin Mustafa, Vijay Chandrasekhar, and Jie Lin. A* 3d dataset: Towards autonomous driving in challenging environments. In 2020 IEEE International conference on Robotics and Automation (ICRA) , pages 2267–2273. IEEE, 2020. 3, 24 [100] Matthew Pitropov, Danson Evan Garcia, Jason Rebello, Michael Smart, Carlos Wang, Krzysztof Czarnecki, and Steven Waslander. Canadian adverse driving conditions dataset. The International Journal of Robotics Research , 40(4-5):681–690, 2021. 3, 24 [101] Kun Qian, Shilin Zhu, Xinyu Zhang, and Li Erran Li. Robust multimodal vehicle detection in foggy weather using complementary lidar and radar signals. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 444–453, 2021. 2 [102] Henri Rebecq, Ren´ e Ranftl, Vladlen Koltun, and Davide Scaramuzza. High speed and high dynamic range video with an event camera. IEEE transactions on pattern analysis and machine intelligence , 43(6):1964–1980, 2019. 3, 11 [103] Julien Rebut, Arthur Ouaknine, Waqas Malik, and Patrick P´ erez. Raw high-definition radar for multi-task learning. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 17021–17030, 2022. 24 [104] Ole Schumann, Markus Hahn, Nicolas Scheiner, Fabio Weishaupt, Julius F Tilly, J¨ urgen Dickmann, and Christian W¨ ohler. Radarscenes: A real-world radar point cloud data set for automotive applications. In 2021 IEEE 24th International Conference on Information Fusion (FUSION) , pages 1–8. IEEE, 2021. 3 [105] Tixiao Shan and Brendan Englot. Lego-loam: Lightweight and ground-optimized lidar odometry and mapping on variable terrain. In IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , pages 4758–4765. IEEE, 2018. 13 [106] Shaoshuai Shi, Chaoxu Guo, Li Jiang, Zhe Wang, Jianping Shi, Xiaogang Wang, and Hongsheng Li. Pv-rcnn: Point-voxel feature set abstraction for 3d object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 10529–10538, 2020. 7 [107] Ukcheol Shin and Jinsun Park. Deep depth estimation from thermal image: Dataset, benchmark, and challenges. arXiv preprint arXiv:2503.22060 , 2025. 3 [108] Ukcheol Shin, Jinsun Park, and In So Kweon. Deep depth estimation from thermal image. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1043–1053, 2023. 2, 3 [109] Pei Sun, Henrik Kretzschmar, Xerxes Dotiwalla, Aurelien Chouard, Vijaysai Patnaik, Paul Tsui, James Guo, Yin Zhou, Yuning Chai, Benjamin Caine, et al. Scalability in perception for autonomous driving: Waymo open dataset. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 2446–2454, 2020. 3, 7, 13, 24 [110] Zhaoning Sun, Nico Messikommer, Daniel Gehrig, and Davide Scaramuzza. Ess: Learning event-based semantic segmentation from still images. In European Conference on Computer Vision , pages 341–357. Springer, 2022. 3 [111] Karasawa Takumi, Kohei Watanabe, Qishen Ha, Antonio Tejero-De-Pablos, Yoshitaka Ushiku, and Tatsuya Harada. Multispectral object detection for autonomous vehicles. In Proceedings of the on Thematic Workshops of ACM Multimedia 2017 , pages 35–43, 2017. 3, 24 [112] Yingqi Tang, Zhaotie Meng, Guoliang Chen, and Erkang Cheng. Simpb: A single model for 2d and 3d object detection from multiple cameras. In European conference on computer vision , pages 1–17. Springer, 2024. 2 [113] Teledyne FLIR. Thermal datasets for adas algorithm training. https://oem.flir.com/solutions/automotive/ dataset/ . Accessed: 2025-09-24. 3 [114] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. Advances in neural information processing systems , 30, 2017. 6 [115] Vibashan Vs, Domenick Poster, Suya You, Shuowen Hu, and Vishal M Patel. Meta-uda: Unsupervised domain adaptive thermal object detection using meta-learning. In proceedings of the IEEE/CVF winter conference on applications of computer vision , pages 1412–1423, 2022. 3 [116] Ao Wang, Hui Chen, Lihao Liu, Kai Chen, Zijia Lin, Jungong Han, et al. Yolov10: Real-time end-to-end object detection. Advances in Neural Information Processing Systems , 37:107984–108011, 2024. 8, 32 [117] Jiabao Wang, Qiang Meng, Guochao Liu, Liujiang Yan, Ke Wang, Ming-Ming Cheng, and Qibin Hou. Towards stable 3d object detection. In European conference on computer vision , pages 197–213. Springer, 2024. 4 [118] Li Wang, Xinyu Zhang, Baowei Xv, Jinzhao Zhang, Rong Fu, Xiaoyu Wang, Lei Zhu, Haibing Ren, Pingping Lu, Jun Li, et al. Interfusion: Interaction-based 4d radar and lidar fusion for 3d object detection. In 2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , pages 12247–12253. IEEE, 2022. 7, 8, 31 [119] Xiao Wang, Shiao Wang, Chuanming Tang, Lin Zhu, Bo Jiang, Yonghong Tian, and Jin Tang. Event stream-based visual object tracking: A high-resolution benchmark dataset and a novel baseline. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 19248–19257, 2024. 3 [120] Zitian Wang, Zehao Huang, Yulu Gao, Naiyan Wang, and Si Liu. Mv2dfusion: Leveraging modality-specific object semantics for multi-modal 3d detection. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025. 4 [121] Benjamin Wilson, William Qi, Tanmay Agarwal, John Lambert, Jagjeet Singh, Siddhesh Khandelwal, Bowen Pan, Ratnesh Kumar, Andrew Hartnett, Jhony Kaesemodel Pontes, et al. Argoverse 2: Next generation datasets for self-driving perception and forecasting. 
+
+arXiv preprint arXiv:2301.00493 , 2023. 3, 24 [122] Qiming Xia, Wei Ye, Hai Wu, Shijia Zhao, Leyuan Xing, Xun Huang, Jinhao Deng, Xin Li, Chenglu Wen, and Cheng Wang. Hinted: Hard instance enhanced detector with mixed-density feature fusion for sparsely-supervised 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 15321–15330, 2024. 3 [123] Ruihao Xia, Chaoqiang Zhao, Meng Zheng, Ziyan Wu, Qiyu Sun, and Yang Tang. Cmda: Cross-modality domain adaptation for nighttime semantic segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 21572– 21581, 2023. 3 [124] Pengchuan Xiao, Zhenlei Shao, Steven Hao, Zishuo Zhang, Xiaolin Chai, Judy Jiao, Zesong Li, Jian Wu, Kai Sun, Kun Jiang, et al. Pandaset: Advanced sensor suite dataset for autonomous driving. In 2021 IEEE international intelligent transportation systems conference (ITSC) , pages 3095–3101. IEEE, 2021. 3, 24 [125] Yiming Xiao, Fanman Meng, Qingbo Wu, Linfeng Xu, Mingzhou He, and Hongliang Li. Gm-detr: Generalized muiltispectral detection transformer with efficient fusion encoder for visible-infrared detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5541–5549, 2024. 3, 8, 32 [126] Longfei Yan, Pei Yan, Shengzhou Xiong, Xuanyu Xiang, and Yihua Tan. Monocd: Monocular 3d object detection with comple-mentary depths. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10248–10257, 2024. 2 [127] Lei Yang, Xinyu Zhang, Jun Li, Chen Wang, Jiaqi Ma, Zhiying Song, Tong Zhao, Ziying Song, Li Wang, Mo Zhou, et al. V2x-radar: A multi-modal dataset with 4d radar for cooperative perception. arXiv preprint arXiv:2411.10962 , 2024. 3 [128] Lei Yang, Tao Tang, Jun Li, Kun Yuan, Kai Wu, Peng Chen, Li Wang, Yi Huang, Lei Li, Xinyu Zhang, et al. Bevheight++: Toward robust visual centric 3d object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025. 2 [129] Zhen Yao and Mooi Choo Chuah. Event-guided low-light video semantic segmentation. In 2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) , pages 3330–3341. IEEE, 2025. 3 [130] Junbo Yin, Jianbing Shen, Runnan Chen, Wei Li, Ruigang Yang, Pascal Frossard, and Wenguan Wang. Is-fusion: Instance-scene collaborative fusion for multimodal 3d object detection. 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 14905–14915, 2024. 2 [131] Junbo Yin, Jianbing Shen, Runnan Chen, Wei Li, Ruigang Yang, Pascal Frossard, and Wenguan Wang. Is-fusion: Instance-scene collaborative fusion for multimodal 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 14905–14915, 2024. 4 [132] Tianwei Yin, Xingyi Zhou, and Philipp Krahenbuhl. Center-based 3d object detection and tracking. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11784–11793, 2021. 5 [133] Ao Zhang, Farzan Erlik Nowruzi, and Robert Laganiere. Raddet: Range-azimuth-doppler based radar object detection for dynamic road users. In 2021 18th Conference on Robots and Vision (CRV) , pages 95–102. IEEE, 2021. 3 [134] Gang Zhang, Junnan Chen, Guohuan Gao, Jianmin Li, Si Liu, and Xiaolin Hu. Safdnet: A simple and effective network for fully sparse 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) ,pages 14477–14486, 2024. 7, 8, 30 [135] Gang Zhang, Junnan Chen, Guohuan Gao, Jianmin Li, Si Liu, and Xiaolin Hu. Safdnet: A simple and effective network for fully sparse 3d object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 14477–14486, 2024. 4 [136] Guowen Zhang, Junsong Fan, Liyi Chen, Zhaoxiang Zhang, Zhen Lei, and Lei Zhang. General geometry-aware weakly supervised 3d object detection. In European Conference on Computer Vision , pages 290–309. Springer, 2024. 3 [137] Guowen Zhang, Lue Fan, Chenhang He, Zhen Lei, Zhaoxiang Zhang, and Lei Zhang. Voxel mamba: Group-free state space models for point cloud based 3d object detection. Advances in Neural Information Processing Systems , 37:81489–81509, 2024. 4 [138] Gang Zhang, Chen Junnan, Guohuan Gao, Jianmin Li, and Xiaolin Hu. Hednet: A hierarchical encoder-decoder network for 3d object detection in point clouds. Advances in Neural Information Processing Systems , 36, 2024. 7, 8, 30 [139] Jiaming Zhang, Ruiping Liu, Hao Shi, Kailun Yang, Simon Reiß, Kunyu Peng, Haodong Fu, Kaiwei Wang, and Rainer Stiefelhagen. Delivering arbitrary-modal semantic segmentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1136–1147, 2023. 3 [140] Fengan Zhao, Qianang Zhou, and Junlin Xiong. Edge-guided fusion and motion augmentation for event-image stereo. In European Conference on Computer Vision , pages 190–205. Springer, 2024. 3 [141] Yian Zhao, Wenyu Lv, Shangliang Xu, Jinman Wei, Guanzhong Wang, Qingqing Dang, Yi Liu, and Jie Chen. Detrs beat yolos on real-time object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16965–16974, 2024. 8, 32 [142] Lianqing Zheng, Zhixiong Ma, Xichan Zhu, Bin Tan, Sen Li, Kai Long, Weiqi Sun, Sihan Chen, Lu Zhang, Mengyue Wan, et al. Tj4dradset: A 4d radar dataset for autonomous driving. In 2022 IEEE 25th International Conference on Intelligent Transportation Systems (ITSC) , pages 493–498. IEEE, 2022. 3, 24 [143] Xu Zheng, Yuanhuiyi Lyu, and Lin Wang. Learning modality-agnostic representation for semantic segmentation from any modali-ties. In European Conference on Computer Vision , pages 146–165. Springer, 2024. 3 [144] Kailai Zhou, Linsen Chen, and Xun Cao. Improving multispectral pedestrian detection by addressing modality imbalance problems. In European conference on computer vision , pages 787–803. Springer, 2020. 3 [145] Taohua Zhou, Junjie Chen, Yining Shi, Kun Jiang, Mengmeng Yang, and Diange Yang. Bridging the view disparity between radar and camera features for multi-modal fusion 3d object detection. IEEE Transactions on Intelligent Vehicles , 8(2):1523–1535, 2023. 4[146] Yin Zhou and Oncel Tuzel. Voxelnet: End-to-end learning for point cloud based 3d object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 4490–4499, 2018. 1, 5 [147] Alex Zihao Zhu, Dinesh Thakur, Tolga ¨ Ozaslan, Bernd Pfrommer, Vijay Kumar, and Kostas Daniilidis. The multivehicle stereo event camera dataset: An event camera dataset for 3d perception. IEEE Robotics and Automation Letters , 3(3):2032–2039, 2018. 3 [148] Alex Zihao Zhu, Liangzhe Yuan, Kenneth Chaney, and Kostas Daniilidis. Unsupervised event-based learning of optical flow, depth, and egomotion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 989–997, 2019. 5, 15 [149] Yunhao Zou, Ying Fu, Tsuyoshi Takatani, and Yinqiang Zheng. Eventhdr: From event to high-speed hdr videos and beyond. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024. 3 Table 9. Comparison of datasets and benchmarks for perception in autonomous driving. The upper rows of the table list datasets built with conventional sensors, while the lower rows present datasets that include novel sensors. The symbol △ indicates annotations that are not officially provided in the dataset but were annotated by other paper authors. If 3D bounding boxes are available, the column ‘Num Data’ reports the number of samples that include 3D bounding boxes; otherwise, it reports the total number of data samples. 
+
+Dataset Num Adverse Weather 3D Range Sensor Camera Sensor Ground-truth Data Clear Rain Fog Snow LiDAR Radar Frame Event Thermal 3D Bbox. Tr. ID Odom KITTI [39] 15k Stereo Waymo [109] 230k Multi-view NuScenes [8] 40k 3D Multi-view H3D [95] 27k Multi-view A*3D [99] 39k Stereo PandaSet [124] 8.2k Multi-view Once [84] 1M Multi-view Argoverse 2 [121] 150k Multi-view CADC [100] 8k Multi-View Ihtaca365 [30] 14.8k Multi-view K-Radar [91] 35k 4D Multi-view TJ4DRadSet [142] 7.8k 4D Mono VoD [92] 8.7k 4D Stereo RADIal [103] 25k 3D Mono Astyx [85] 0.5k 4D Mono ZOD [2] 100k 4D Mono SeeingThroughFog [5] 13.5k 3D Stereo Mono Multispectral [111] 3.0k Mono Mono M3FD [78] 4.2k Mono Mono KAIST [25] 8.9k Stereo Mono DSEC [37] 5.4k Stereo Stereo △ △
+
+M3ED [11] 122k Stereo Stereo 
+
+DSERT-RoLL (Ours) 22k 4D Stereo Stereo Stereo Long Range LiDAR  Short Range LiDAR  4D Radar 
+
+> Right Event Left Thermal Right Thermal  Left  RGB Right RGB Left Event
+
+Figure 15. Calibration results for all sensors, accompanied by an example scene illustrating the projection of 3D range sensor measurements onto the image planes of all six modalities. Clear Fog Light  Snow 
+
+RGB  Event  Thermal  LiDAR  Radar Figure 16. More data samples for clear, fog and, light snow weather conditions. All 2D camera images are from the left camera. We project 3D range sensor data onto the left RGB camera image. Heavy Snow Light  Rain Heavy  Rain 
+
+RGB  Event  Thermal  LiDAR  Radar Figure 17. More data samples for heavy snow, light rain and, heavy rain weather conditions. All 2D camera images are from the left camera. We project 3D range sensor data onto the left RGB camera image. RGB  Event  Thermal  LiDAR  Radar 
+
+> Normal Low Light HDR  Over Exposed
+
+Figure 18. More data samples for light conditions. All 2D camera images are from the left camera. We project 3D range sensor data onto the left RGB camera image. (a) Normal (b) Fog (b) Snow  (b) Rain 
+
+-40  -15  10 
+
+Doppler (m/s) 
+
+RTNH (4D Radar)  VoxelNeXt (LiDAR)  LoGoNet (LiDAR+RGB ) Ours (all) 
+
+Reference 
+
+Images Figure 19. Qualitative comparison of 3D detection results on the DSERT-RoLL dataset in the BEV (bird’s-eye-view) plane. 4D Radar-based (RTNH [91]), LiDAR-based (VoxelNeXt [16]), and LiDAR–RGB fusion (LoGoNet [67]) methods are shown for comparison, and Ours uses all available sensors (RGB, event, thermal, 4D Radar, and LiDAR). Regions containing objects are highlighted and zoomed in for better visibility. We visualize only the 3D range sensor used by each method. LiDAR measurements are shown as gray point clouds, while 4D radar points are colored according to their Doppler velocities. Blue boxes denote the 3D ground truth, and red boxes denote the predicted 3D bounding boxes. Table 10. 3D object detection performance comparison on the DSERT-RoLL dataset for vehicle (IoU = 0.5), bike (IoU = 0.3), and pedestrian (IoU = 0.3) detection. R, E, T, 4R, and L represent the RGB, Event, and Thermal cameras, as well as the 4D Radar and LiDAR, respectively. In addition, VEH and PED denote the vehicle and pedestrian classes, respectively. N/A indicates that the corresponding class is not present under the given adverse weather condition. 
+
+Modality Methods Class Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose 
+
+Stereo-based 
+
+RDSGN [15] VEH 31.08 43.66 42.48 20.51 25.94 0.01 29.99 25.68 22.55 40.69 BIKE 0.18 N/A 0.00 N/A N/A N/A 0.00 0.00 N/A 0.84 PED 0.00 N/A 1.88 N/A 0.00 N/A 1.84 0.00 0.00 0.00 LIGA [42] VEH 35.52 41.67 37.52 20.57 26.02 0.00 31.31 30.06 22.44 42.80 BIKE 0.15 N/A 0.76 N/A N/A N/A 0.00 0.40 N/A 0.47 PED 0.04 N/A 0.42 N/A 0.00 N/A 0.37 0.01 0.06 0.01 EDSGN [15] VEH 24.23 22.06 26.93 31.38 23.12 0.01 21.41 21.42 15.58 36.44 BIKE 0.06 N/A 0.23 N/A N/A N/A 0.00 0.24 N/A 0.10 PED 0.25 N/A 0.36 N/A 0.00 N/A 0.22 0.06 0.70 0.00 LIGA [42] VEH 27.11 22.53 23.43 22.84 24.61 0.00 23.10 23.20 15.30 34.92 BIKE 0.35 N/A 0.11 N/A N/A N/A 0.87 0.07 N/A 0.43 PED 0.17 N/A 0.74 N/A 0.00 N/A 1.07 0.08 1.01 0.03 TDSGN [15] VEH 28.49 25.98 37.50 28.74 36.52 0.02 16.89 36.07 25.83 36.03 BIKE 0.08 N/A 0.00 N/A N/A N/A 0.00 0.00 N/A 0.21 PED 1.62 N/A 0.36 N/A 0.15 N/A 0.22 2.50 0.97 0.07 LIGA [42] VEH 28.96 31.87 36.87 25.72 39.83 0.00 17.02 34.62 23.28 40.50 BIKE 1.02 N/A 0.00 N/A N/A N/A 0.48 0.02 N/A 2.77 PED 0.77 N/A 0.84 N/A 1.98 N/A 0.55 1.98 0.50 0.23 
+
+3D Range Sensor-based 
+
+LVoxelNeXt [16] VEH 86.06 59.51 90.19 71.82 82.86 54.75 78.93 88.76 71.06 80.93 BIKE 65.24 N/A 47.12 N/A N/A N/A 88.50 12.73 N/A 85.14 PED 26.51 N/A 61.14 N/A 72.54 N/A 40.15 33.56 21.39 15.90 HEDNet [138] VEH 79.27 48.41 84.74 68.36 70.29 55.98 71.64 83.34 63.97 73.33 BIKE 56.76 N/A 4.28 N/A N/A N/A 79.59 17.12 N/A 53.86 PED 10.91 N/A 35.26 N/A 93.33 N/A 16.39 18.10 28.69 9.24 SAFDNet [134] VEH 79.30 43.83 82.82 57.33 65.07 49.30 66.28 81.62 58.38 76.19 BIKE 58.68 N/A 0.81 N/A N/A N/A 78.77 8.24 N/A 65.23 PED 9.78 N/A 33.30 N/A 72.63 N/A 14.90 12.07 25.78 6.75 4R RTNH [91] VEH 23.49 37.30 43.40 27.86 36.96 21.70 28.70 26.28 24.69 27.00 BIKE 0.71 N/A 0.00 N/A N/A N/A 6.99 0.00 N/A 0.00 PED 0.13 N/A 1.36 N/A 1.30 N/A 1.39 0.30 0.47 0.00 VoxelNeXt [16] VEH 25.03 44.03 48.78 27.91 37.42 32.79 31.82 24.02 32.50 35.03 BIKE 0.24 N/A 0.25 N/A N/A N/A 0.03 1.35 N/A 0.00 PED 0.16 N/A 4.85 N/A 7.93 N/A 0.25 3.71 0.32 0.00 HEDNet [138] VEH 24.10 43.51 41.16 28.57 31.28 25.67 28.92 22.28 37.01 30.82 BIKE 0.29 N/A 0.04 N/A N/A N/A 0.40 0.02 N/A 0.71 PED 0.02 N/A 0.62 N/A 0.23 N/A 0.17 0.09 0.13 0.00 Table 11. 3D object detection performance comparison on the DSERT-RoLL dataset for vehicle (IoU = 0.5), bike (IoU = 0.3), and pedestrian (IoU = 0.3) detection. R, E, T, 4R, and L represent the RGB, Event, and Thermal cameras, as well as the 4D Radar and LiDAR, respectively. In addition, VEH and PED denote the vehicle and pedestrian classes, respectively. N/A indicates that the corresponding class is not present under the given adverse weather condition. 
+
+Modality Methods Class Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose 
+
+Multi-modal Fusion-based 
+
+R+L LoGoNet [67] VEH 87.18 64.96 91.41 79.12 79.74 66.20 79.01 90.56 80.49 82.78 BIKE 58.52 N/A 2.86 N/A N/A N/A 64.87 10.88 N/A 79.29 PED 24.77 N/A 48.70 N/A 81.38 N/A 36.70 30.82 44.65 11.52 BEVFusion [81] VEH 85.20 62.40 90.91 73.30 75.22 57.61 76.86 87.55 78.07 78.90 BIKE 52.80 N/A 0.00 N/A N/A N/A 72.22 6.10 N/A 67.95 PED 8.99 N/A 32.72 N/A 74.84 N/A 17.90 12.75 32.00 14.72 DeepFusion [68] VEH 87.19 63.94 91.91 75.61 81.77 57.26 79.19 90.81 78.66 80.10 BIKE 53.36 N/A 11.55 N/A N/A N/A 77.15 2.55 N/A 69.04 PED 16.33 N/A 48.06 N/A 71.34 N/A 33.14 19.94 40.21 9.19 R+4R HGSFusion [41] VEH 25.74 46.49 49.62 28.49 37.87 34.02 32.66 24.31 34.47 35.96 BIKE 0.20 N/A 0.39 N/A N/A N/A 0.00 1.50 N/A 0.00 PED 0.19 N/A 5.28 N/A 8.44 N/A 0.31 4.10 0.35 0.00 4R+L InterFusion [118] VEH 84.52 66.94 94.31 76.56 74.13 64.82 79.31 87.49 75.55 79.95 BIKE 32.03 N/A 5.70 N/A N/A N/A 79.43 10.01 N/A 16.93 PED 7.45 N/A 19.74 N/A 69.53 N/A 24.20 6.80 18.24 6.16 RL3DOD [9] VEH 85.05 63.15 88.39 76.17 81.41 65.87 77.77 87.26 78.32 81.50 BIKE 59.85 N/A 13.86 N/A N/A N/A 75.51 13.94 N/A 69.73 PED 19.25 N/A 55.23 N/A 51.49 N/A 42.26 22.00 35.63 13.22 R+T+4R+L SAMFusion [93] VEH 87.03 65.13 91.69 78.02 79.81 70.59 80.54 89.93 80.16 82.50 BIKE 40.05 N/A 2.70 N/A N/A N/A 72.95 2.78 N/A 41.32 PED 21.09 N/A 43.60 N/A 64.34 N/A 38.37 17.49 41.13 11.51 R+E+T+4R+L Ours 
+
+VEH 90.30 71.42 95.10 80.26 85.59 72.94 82.93 92.65 85.47 86.33 BIKE 66.33 N/A 19.26 N/A N/A N/A 83.73 17.25 N/A 85.41 PED 28.67 N/A 55.64 N/A 55.09 N/A 50.28 25.40 42.39 45.46 Table 12. 2D object detection performance comparison on the DSERT-RoLL dataset for vehicle (IoU = 0.5), bike (IoU = 0.3), and pedestrian (IoU = 0.3) detection. R, E, and, T represent the RGB, Event, and Thermal cameras respectively. In addition, VEH and PED denote the vehicle and pedestrian classes, respectively. N/A indicates that the corresponding class is not present under the given adverse weather condition. 
+
+Modality Methods Class Weather Condition Light Condition Clear Fog Light Heavy Light Heavy Normal Low Over HDR Rain Rain Snow Snow Light Expose 
+
+Multi-modal Fusion-based 
+
+RYOLOv10 [116] VEH 76.47 72.99 84.95 76.68 58.76 2.84 71.98 67.69 76.25 76.15 BIKE 43.13 N/A 24.74 N/A N/A N/A 73.50 10.32 N/A 32.76 PED 12.36 N/A 19.97 N/A 0.691 N/A 15.59 6.59 23.22 1.98 DEIM [47] VEH 81.85 82.99 91.48 73.60 65.07 13.37 77.76 72.74 85.14 79.50 BIKE 68.47 N/A 4.86 N/A N/A N/A 87.84 2.25 N/A 74.23 PED 22.47 N/A 38.59 N/A 13.25 N/A 39.90 19.91 32.79 25.77 ERT-DETR [141] VEH 73.77 83.17 83.57 58.93 47.28 0.023 69.89 58.28 78.87 77.83 BIKE 49.99 N/A 0.983 N/A N/A N/A 72.26 10.07 N/A 39.25 PED 4.88 N/A 8.79 N/A 0.204 N/A 2.35 5.28 16.15 0.346 DEIM [47] VEH 65.56 85.67 80.77 64.36 50.00 0.075 69.31 53.94 57.20 69.38 BIKE 63.30 N/A 1.30 N/A N/A N/A 82.91 25.08 N/A 53.44 PED 10.52 N/A 2.90 N/A 0.05 N/A 4.44 5.19 22.27 0.837 TYOLOv10 [116] VEH 78.31 83.84 92.16 76.75 75.30 0.619 69.48 74.15 73.93 81.03 BIKE 54.29 N/A 78.37 N/A N/A N/A 64.29 59.54 N/A 67.50 PED 43.93 N/A 30.35 N/A 43.62 N/A 27.07 49.90 31.81 51.66 DEIM [47] VEH 81.84 85.56 83.21 77.75 77.04 0.576 66.07 76.69 84.91 86.19 BIKE 72.01 N/A 47.17 N/A N/A N/A 89.77 70.90 N/A 58.30 PED 44.38 N/A 27.77 N/A 29.43 N/A 20.66 49.47 23.78 70.42 R+E GM-DETR [125] VEH 84.24 87.54 95.07 80.92 59.44 15.62 83.32 73.61 86.04 81.90 BIKE 78.68 N/A 1.94 N/A N/A N/A 93.07 26.03 N/A 72.02 PED 26.75 N/A 29.22 N/A 9.11 N/A 23.54 27.99 5.35 44.16 R+T GM-DETR [125] VEH 84.10 86.64 92.18 77.99 79.44 1.48 71.87 77.41 86.12 88.70 BIKE 75.33 N/A 38.63 N/A N/A N/A 97.67 38.49 N/A 63.12 PED 42.37 N/A 39.68 N/A 43.92 N/A 38.36 44.38 36.67 76.19 E+T GM-DETR [125] VEH 85.44 92.13 88.35 79.64 81.19 11.20 71.00 78.96 87.74 93.04 BIKE 76.45 N/A 81.47 N/A N/A N/A 95.92 73.82 N/A 63.94 PED 52.42 N/A 51.46 N/A 48.40 N/A 43.64 60.65 34.90 71.11 R+E+T GM-DETR [125] VEH 90.36 93.66 96.28 82.29 81.60 16.56 82.07 82.60 94.93 93.52 BIKE 82.05 N/A 7.63 N/A N/A N/A 97.87 9.88 N/A 86.40 PED 76.90 N/A 61.98 N/A 53.41 N/A 64.07 71.53 72.60 84.96

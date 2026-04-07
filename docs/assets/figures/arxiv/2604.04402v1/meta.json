@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-001.webp",
+      "caption": "Fig. 3: Comparison of rain synthesis between SynNightRain [24] (top row) and our dataset (bottom row). Each pair shows a ground-truth frame alongside its rainy counterpart. SynNightRain overlays rain as a global white layer that uniformly covers the entire frame, without responding to scene geometry or lighting. Our dataset simulates rain within a virtual scene: raindrops are correctly occluded by scene objects, form volumetric rain curtains, and refract local artificial light to produce colorful, spatially varying streaks.",
+      "page": 6,
+      "index": 1,
+      "width": 716,
+      "height": 222
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-002.webp",
+      "caption": "Table 3: Multi-way comparison of deraining results on real nighttime rain videos, where a VLM selects the best result among all eight methods trained on the same dataset. Pretrained: model was pretrained on large-scale video data before finetuning. Our baseline, the only pretrained method, dominates in both settings: 94.4% when trained on our dataset and 69.4% when trained on SynNightRain.",
+      "page": 11,
+      "index": 2,
+      "width": 581,
+      "height": 222
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-003.webp",
+      "caption": "Table 2: Pairwise comparison of deraining results on real nighttime rain videos, where a VLM selects the better result based on rain removal and detail preservation. For each method, the version trained on our dataset competes against the version trained on SynNightRain [24]; bold indicates the preferred training dataset. Input Size is the spatial resolution each method processes during training and inference. Training on our dataset yields preferred results for all methods with input sizes ≥128×128, covering all architecture families. The two exceptions, WeatherDiff and NightRain, use 64×64 inputs (less than 1% of a 1280×720 frame), which limits their ability to distinguish localized rain from clean dark regions in our data.",
+      "page": 11,
+      "index": 3,
+      "width": 723,
+      "height": 193
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-004.webp",
+      "caption": "Table 6: Inference time on the Ours test set (1,800 frames at 1280×720) using a single GPU. Non-diffusion methods complete within minutes to hours, while diffusionbased methods (NightRain, WeatherDiff) require significantly longer due to iterative denoising over many patches. Our baseline processes full-resolution frames without patch decomposition.",
+      "page": 25,
+      "index": 4,
+      "width": 523,
+      "height": 255
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-005.webp",
+      "caption": "Fig. 4: Our baseline architecture, adapted from the Wan 2.2 Video DiT. The rainy input is encoded into condition tokens (blue) and concatenated with generation tokens (red); the DiT denoises only the generation tokens while using the condition tokens as context. A unidirectional attention mask prevents condition tokens from attending to generation tokens, keeping the input uncorrupted. Only LoRA adapters on the QKV projections are trained; all other parameters stay frozen.",
+      "page": 7,
+      "index": 5,
+      "width": 716,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-006.webp",
+      "caption": "Fig. 1: Example of a multi-way VLM evaluation item. The VLM receives the rainy input (top-left) and eight candidate derained images labeled A through H. Methodto-label assignments are randomized per evaluation item, so the VLM cannot learn positional patterns. For this example, the VLM selected Candidate C with the justification: “Candidate C produces the cleanest rain removal with natural color and detail preservation, free of the haze artifacts seen in H and the residual streaks in A and F.”",
+      "page": 22,
+      "index": 6,
+      "width": 719,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-007.webp",
+      "caption": "Fig. 5: Qualitative comparison of all eight methods on four real nighttime rain scenes. All methods trained on our dataset. Red annotations highlight regions for comparison. Existing restoration methods (ESTINet through UConNet) reduce rain to varying degrees but leave visible streaks in heavy rain regions. The two 64×64 diffusion models (WeatherDiff, NightRain) introduce haze or darken the scene. Our baseline, leveraging its pretrained generative prior, removes rain almost completely without introducing artifacts, demonstrating that the sim-to-real gap is effectively bridged.",
+      "page": 10,
+      "index": 7,
+      "width": 710,
+      "height": 925
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-008.webp",
+      "caption": "Table 1: Overview of deraining datasets. Among the datasets surveyed, our dataset is the only one providing video data of in-scene nighttime rain.",
+      "page": 4,
+      "index": 8,
+      "width": 723,
+      "height": 432
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04402v1/fig-009.webp",
+      "caption": "Fig. 6: Our baseline finetuned on SynNightRain (middle) versus our dataset (right) across six real nighttime rain scenes from Pexels [25]. The SynNightRain-finetuned baseline struggles with chromatic rain near colored lighting (row 1), localized rain around streetlamps (row 4), and rain-induced haze (rows 5 and 6; see red crops). The version finetuned on our dataset handles all these conditions effectively.",
+      "page": 12,
+      "index": 9,
+      "width": 717,
+      "height": 836
+    }
+  ]
+}

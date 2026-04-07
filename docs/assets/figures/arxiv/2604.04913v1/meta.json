@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.04913v1/fig-001.webp",
+      "caption": "Figure 1. Outline of DeltaWorld. Unlike large existing generative world models that require many forward passes and represent each frame with many spatial tokens, our small DeltaWorld generates multiple futures in a single forward pass by using a single delta token to encode the difference between consecutive frames.",
+      "page": 1,
+      "index": 1,
+      "width": 496,
+      "height": 249
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04913v1/fig-002.webp",
+      "caption": "Figure 2. Performance comparison. Compared to the generative world model Cosmos [1], our DeltaWorld forecasts futures that better align with real-world outcomes while having over 35× fewer parameters and using 2,000× fewer FLOPs.",
+      "page": 1,
+      "index": 2,
+      "width": 414,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04913v1/fig-003.webp",
+      "caption": "Figure 4. Overview of DeltaWorld. The predictor operates entirely on delta tokens (Fig. 3) rather than spatial tokens, enabling efficient generation of future hypotheses. Best-of-Many training (top) backpropagates only through the best predicted delta token, so that diverse futures can be sampled in a single forward pass at inference (bottom). Shown with two context frames and two queries for illustration.",
+      "page": 6,
+      "index": 3,
+      "width": 925,
+      "height": 453
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04913v1/fig-004.webp",
+      "caption": "Table 3. Dense forecasting. Reporting short (∼0.2 s, direct) and mid (∼0.6 s, 3-step rollout) prediction horizons. Generative models report best-of-20 evaluation (mean in parentheses). GFLOPs reflect generating all 20 samples for generative models and a single prediction for DINO-world. Using 512× 512 crops. †Our reimplementation. ‡Both variants use another 7B diffusion decoder, dominating FLOPs.",
+      "page": 8,
+      "index": 4,
+      "width": 1036,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04913v1/fig-005.webp",
+      "caption": "Figure 3. Overview of DeltaTok. Given two frames encoded by a frozen vision foundation model (VFM) into grids of patch tokens xt−1 and xt, the DeltaTok encoder takes both as input and compresses them into a single delta token zt. The decoder reconstructs x̂t from xt−1 and zt. Both encoder and decoder are Vision Transformers (ViT) [18] trained with a Mean Squared Error (MSE) loss.",
+      "page": 5,
+      "index": 5,
+      "width": 919,
+      "height": 418
+    }
+  ]
+}

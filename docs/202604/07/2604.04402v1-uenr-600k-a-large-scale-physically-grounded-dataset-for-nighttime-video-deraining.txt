@@ -1,0 +1,617 @@
+Title: UENR-600K: A Large-Scale Physically Grounded Dataset for Nighttime Video Deraining
+
+URL Source: https://arxiv.org/pdf/2604.04402v1
+
+Published Time: Tue, 07 Apr 2026 01:40:38 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+# UENR-600K: A Large-Scale Physically Grounded Dataset for Nighttime Video Deraining 
+
+Pei Yang 1*, Hai Ci 1*, Beibei Lin 2, Yiren Song 1, and Mike Zheng Shou 1B 
+
+> 1
+
+Show Lab, National University of Singapore 
+
+yangpei@u.nus.edu, cihai03@gmail.com, yiren@u.nus.edu, mike.zheng.shou@gmail.com  
+
+> 2
+
+National University of Singapore 
+
+beibei.lin@u.nus.edu  
+
+> *
+
+Equal contribution. B Corresponding author. 
+
+https://showlab.github.io/UENR-600K/ Night Rain  Paired Ground Truth  
+
+> Video Video
+> Simulation
+
+600,000 
+
+> 1080p Frame Pairs
+
+Video DiT  
+
+> 90-frame 1280 ×720
+> Our Dataset Our Baseline  Input Video Output Video
+> Finetune
+
+Fig. 1: Paper Overview. Top: We use Unreal Engine 5 to simulate rain as 3D particles within virtual environments, producing 600,000 paired 1080p frames with physically grounded nighttime rain. Left: a rainy video frame; right: the paired ground truth. 
+
+Bottom: We finetune a video Diffusion Transformer on our dataset for nighttime video deraining. Given a real nighttime rain video (left), our baseline removes rain and rain-induced fog near the streetlamp while preserving scene detail (right; see red crop). 
+
+Abstract. Nighttime video deraining is uniquely challenging because raindrops interact with artificial lighting. Unlike daytime white rain, nighttime rain takes on various colors and appears locally illuminated. Existing small-scale synthetic datasets rely on 2D rain overlays and fail to capture these physical properties, causing models to generalize poorly to real-world night rain. Meanwhile, capturing real paired night-time videos remains impractical because rain effects cannot be isolated from other degradations like sensor noise. To bridge this gap, we in-troduce UENR-600K , a large-scale, physically grounded dataset con-taining 600,000 1080p frame pairs. We utilize Unreal Engine to simulate rain as 3D particles within virtual environments. This approach guar-antees photorealism and physically real raindrops, capturing correct de-tails like color refractions, scene occlusions, rain curtains. Leveraging this  
+
+> arXiv:2604.04402v1 [cs.CV] 6 Apr 2026 2P. Yang et al. high-quality data, we establish a new state-of-the-art baseline by adapt-ing the Wan 2.2 video generation model. Our baseline treat deraining as a video-to-video generation task, exploiting strong generative priors to almost entirely bridge the sim-to-real gap. Extensive benchmarking demonstrates that models trained on our dataset generalize significantly better to real-world videos.
+
+## 1 Introduction 
+
+Nighttime video deraining is critical for autonomous surveillance and navigation, yet it remains a major challenge compared to its daytime counterpart [18, 37]. This difficulty stems from the complex optical properties of nighttime rain that differ significantly from daytime conditions [11]. First, nighttime rain is chro-matic : raindrops refract colored artificial ( e.g . neon) light rather than appear-ing as the white streaks typical of daytime rain [11, 36]. Second, rain visibil-ity is localized near light sources, unlike the uniform patterns in daytime videos [37]. Third, nighttime rain exhibits a glimmer effect , producing sud-den high-intensity flashes as raindrops pass through focused light [10]. Fourth, wind-driven rain forms volumetric rain curtains that shift across the scene, vis-ible especially under illumination [16]. These properties are absent in daytime rain, where uniform sunlight instead produces globally visible, colorless streaks. Current research struggles to address these challenges due to a severe lack of high-quality data [18]. Nighttime models could not be trained using day-time datasets [6, 13, 32] because they lack these specific lighting interactions, and single-image datasets [17,29,36] fail to provide either temporal rain dynam-ics or scene consistency. Furthermore, capturing large-scale real-world paired videos at night is impractical due to prohibitive collection costs and entangled degradations ( e.g ., severe sensor noise) that make isolating the rain effect im-possible [2,18]. Consequently, for nighttime video deraining, existing studies rely on limited synthetic datasets [24,30]. However, these datasets essentially overlay rain as a global layer onto 2D video frames, without modeling scene content or lighting. Therefore, the resulting rain appears as floating, repetitive foggy patterns rather than realistic, localized, chromatic streaks. To bridge this gap, we present UENR-600K, a large-scale dataset for night-time video deraining. Unlike previous overlay methods, we utilize Unreal Engine 5 to simulate rain within a virtual raining environment. In this environment, we use cinematic cameras to capture paired videos, in which raindrops and rain cur-tains are correctly occluded by scene objects and exhibit accurate chromaticity. We generate 600,000 pairs of 1080p frames with extensive diversity. We dynam-ically control parameters such as wind direction, rain intensity, motion blur, camera parameters, and color grading. To demonstrate the utility of this dataset, we retrain eight deraining methods on both our dataset and SynNightRain [24], and conduct extensive benchmark-ing on real and synthetic videos. The models span CNN, RNN, Transformer, and diffusion architectures. We also establish a strong baseline by adapting the Wan 2.2 video generation model for deraining, and evaluate all methods on real UENR-600K 3
+
+nighttime rain videos using a vision-language model (VLM) as judge. Training on our dataset leads to better real-world deraining than SynNightRain for most methods, with our baseline judged best in 94% of test videos. On real videos, our baseline, by leveraging Wan’s strong generative prior, almost entirely bridges the sim-to-real gap, allowing it to effectively handle night rain-specific phenomena such as chromatic rain, localized streaks, and rain-induced fog. Our contributions are summarized as follows: 
+
+– Dataset. We propose UENR-600K, the first large-scale, physically grounded dataset for nighttime video deraining, containing 600,000 1080p frame pairs rendered in Unreal Engine. 
+
+– Baseline. We adapt the Wan 2.2 video generation model into a video-to-video architecture for nighttime video deraining. Finetuned on our dataset, this model achieves a dominating 94% preference rate on real videos. 
+
+– Benchmarking. We conduct a comprehensive analysis of eight diverse de-raining methods across synthetic and real domains, demonstrating the nov-elty of our dataset compared to existing synthetic datasets. Furthermore, for most methods, training on our data produces better deraining results, demonstrating that physically grounded rain data improves real-world gen-eralization. 
+
+## 2 Related Works 
+
+Video deraining aims to remove rain streaks and raindrops from video se-quences while preserving scene content and temporal consistency. Existing meth-ods address this task through supervised temporal modeling [6, 20, 28, 40], self-supervised or semi-supervised learning [31, 33, 35], and general video restoration architectures [12]. Notably, nearly every method introduces a new dataset tai-lored to its target scenario [6, 18, 20, 24, 28, 30], reflecting the tight coupling be-tween data quality and model performance. This pattern highlights the critical role of training data, particularly for underexplored conditions such as nighttime. 
+
+Nighttime deraining datasets. While numerous datasets (summarized in Tab. 1) target daytime deraining [2, 5, 7, 9, 15–17, 29, 32, 38], nighttime data re-main scarce [18]. Many nighttime data contain images only [17, 29, 36], which cannot be used to train video models. Existing nighttime video datasets include SynNightRain [24], RealRain-1K [17], and RAVD [30], with only SynNightRain open-sourced nighttime video data. Although RAVD [30] uses a Direct3D par-ticle system for rain rendering, essentially, all three datasets are constructed by overlaying synthesized rain globally onto the original footage. Such overlayed rain could not respond to scene objects or artificial lighting. As a result, they fail to produce nighttime rain properties such as chromaticity (raindrops refracting colored artificial light) or the glimmer effect (sudden high-intensity flashes near focused light sources) [18,36,37]. These properties are also why daytime datasets cannot be used for nighttime settings. To align with nighttime rain properties, GTAV-NightRain [36] explore using a game engine (GTA-V) to capture paired data by toggling rain, but this dataset contains only 14,146 image pairs with no video data. 4 P. Yang et al. 
+
+Table 1: Overview of deraining datasets. Among the datasets surveyed, our dataset is the only one providing video data of in-scene nighttime rain. 
+
+Dataset Year Venue Rain Type a
+
+GT Type b
+
+#Rainy Frames c
+
+#GT Frames c Resolution Night d Video e Raining In-Scene f
+
+Rain200L/H [32] 2017 CVPR Synth. Real 4,000 4,000 435 ×366 DDN-Data [9] 2017 CVPR Synth. Real 13,000 13,000 489 ×428 DID-Data [38] 2018 CVPR Synth. Real 13,200 13,200 512 ×512 NTURain g [6] 2018 CVPR Synth. Real - - 640 ×480 ✓
+
+RainSynAll25 [20] 2018 CVPR Synth. Real - - - ✓
+
+Rain800 [39] 2017 - Synth. Real 800 800 518 ×419 SPA-Data [29] 2019 CVPR Real Derived 29,500 29,500 256 ×256 ✓
+
+Outdoor-Rain [16] 2019 CVPR Synth. Real 10,500 10,500 720 ×480 RainCityscapes [14] 2019 CVPR Synth. Real 10,620 10,620 2048 ×1024 Rain13k [15] 2020 CVPR Synth. Real 13,700 13,700 482 ×419 RainDirection [21] 2021 ICCV Synth. Real 3,300 3,300 1945 ×1444 RainDS [26] 2021 CVPR Both Real 5,800 5,800 818 ×460 GT-Rain [2] 2022 ECCV Real Real 31,500 31,500 666 ×339 SynNightRain [24] 2022 ECCV Synth. Real 6,000 6,000 1920 ×1080 ✓ ✓
+
+RealRain-1K [17] 2022 - Real Derived 1,120 1,120 1512 ×973 ✓
+
+GTAV-NightRain [36] 2022 - Synth. Synth. 14,146 14,146 1920 ×1080 ✓ ✓
+
+LHP-Rain h [13] 2023 ICCV Real Derived 1,000,000 1,000,000 256 ×256 ✓
+
+3,000 3,000 1920 ×1080 ✓
+
+HQ-Rain [7] 2023 - Synth. Real 5,000 5,000 1367 ×931 4K-Rain13k [5] 2024 AAAI Synth. Real 13,000 13,000 3840 ×2160 RAVD i [30] 2025 PR Synth. Real 1,147 1,147 640 ×480 ✓ ✓
+
+AllWeatherNight [22] 2026 AAAI Both Real 10,000 10,000 640 ×360 ✓
+
+UENR-600K (Ours) 2026 - Synth. Synth. 600,000 600,000 1920 ×1080 ✓ ✓ ✓ 
+
+> a
+
+Rain Type : Synth. = synthetically generated, Real = captured in real rain, Both = mixture.  
+
+> b
+
+GT Type : the source of clean counterparts; Real = separately captured clean images, Synth. = rendered clean frames, Derived = estimated from rainy inputs ( e.g. , via temporal aggregation).  
+
+> c
+
+#Rainy/GT Frames : total number of rainy and clean frames.  
+
+> d
+
+Night : includes nighttime rain data. e Video : provides video sequences (not just individual images).  
+
+> f
+
+Raining In-Scene : rain is simulated within a virtual scene where it interacts with scene objects and lighting, as opposed to being overlaid onto existing footage.  
+
+> g
+
+Contains 4,667 rain videos and 2,677 ground-truth videos. h Only counted open-sourced partitions.  
+
+> i
+
+Only counted the open-sourced partition. This partition does not contain nighttime deraining data. 
+
+Furthermore, capturing real-world paired nighttime video is fundamentally impractical for two reasons: first, collecting large-scale paired videos is pro-hibitively costly; second, nighttime environments introduce entangled degrada-tions (such as severe sensor noise), making it nearly impossible to isolate the rain effect. To date, no large-scale, physically grounded nighttime video derain-ing dataset exists, constraining progress in this field. 
+
+Video generation and editing. Beyond paired training data, generative pri-ors from large-scale models offer another avenue for restoration. Diffusion-based video generation models [3, 4, 27, 34] synthesize videos from text or image inputs and learn strong priors about scene appearance and motion dynamics. These models, however, are designed for generation rather than editing; adapting them for specific restoration tasks such as deraining [19, 23, 42] requires high-quality, physically grounded paired data to steer their capabilities correctly. This further motivates our dataset construction. UENR-600K 5Localization  Rain Curtains Glimmer Effect Chromaticity  
+
+> Blue
+> Yellow
+> Green
+> Red
+> Less Rain
+> More Rain Sudden Flashes
+> Curtains
+
+Fig. 2: Properties of nighttime rain illustrated with frames from our dataset. Chro-maticity: raindrops refract colored artificial light (blue, yellow, green, red) rather than appearing white. Localization: rain is visible near light sources but fades in unlit re-gions. Glimmer effect: raindrops produce sudden high-intensity flashes as they pass through focused light beams. Rain curtains: wind-driven sheets of rain form volu-metric, shifting patterns. 
+
+## 3 The UENR-600K Dataset 
+
+3.1 Defining Nighttime Video Deraining 
+
+Nighttime rain is fundamentally more complex than daytime rain due to inter-actions with scene geometry and artificial lighting. We define the unique fea-tures of nighttime rain across four key aspects. Chromaticity: Raindrops act as refractive lenses. For example, rain passing near colored light sources like neon signs correctly refracts the local color rather than appearing white. Lo-calization: Rain visibility is highly dependent on artificial light sources, such as the light cones of street lamps. Glimmer Effect: As raindrops rapidly pass through focused beams of light, they exhibit sudden and high-intensity flashes. 
+
+Rain Curtains: Wind and heavy precipitation create shifting and volumet-ric sheets of rain. Based on these features, we define nighttime video deraining 
+
+as the removal of rain streaks and rain-induced effects, including rain curtains, rain-induced fogs, and the glimmer effect, while ensuring all other video content remains unchanged. 
+
+3.2 Rain Simulation and Rendering 
+
+To capture these nighttime rain phenomena, we abandon the standard practice of 2D rain overlays [24]. Instead, we utilize Unreal Engine 5 to construct a true 3D virtual raining environment. In this environment, rain exists as physical particles rather than a global layer. This particle-based approach guarantees physical realism. Because the rain exists in the 3D space, raindrops are naturally occluded by scene objects. Furthermore, the rain dynamically responds to the environment by refracting nearby artificial light colors and becoming illuminated by specific light sources to produce localized rain effects. We capture the paired clear and raining videos within this environment using virtual cinematic cameras. 
+
+3.3 Dataset Diversity and Parameterization 
+
+To prevent models from overfitting to specific camera views or specific types of rain, we introduce extensive variance into our rendering pipeline. We generate continuous camera movement through the 3D environments to capture numerous 6 P. Yang et al. Ground Truth  Rain  Ground Truth  Rain 
+
+> SynNightRain Our Data
+> Global White Rain Overlay
+> Local-illuminated
+> Colorful
+> Rain
+> Global
+> White Rain
+> Overlay
+> Correct
+> Occlusions
+> Rain
+> Curtains
+
+Fig. 3: Comparison of rain synthesis between SynNightRain [24] (top row) and our dataset (bottom row). Each pair shows a ground-truth frame alongside its rainy coun-terpart. SynNightRain overlays rain as a global white layer that uniformly covers the entire frame, without responding to scene geometry or lighting. Our dataset simulates rain within a virtual scene: raindrops are correctly occluded by scene objects, form volumetric rain curtains, and refract local artificial light to produce colorful, spatially varying streaks. 
+
+perspectives, including tracking, aerial, and backward-facing angles. This cam-era motion also introduces temporal dynamics to the captured video. Alongside camera movement, we randomize variables across three main categories: 
+
+– Weather dynamics: Rain intensity, rain curtain density, gust amount, wind speed, and wind direction. 
+
+– Rain streak optical effects: Motion blur intensity and glimmer intensity. 
+
+– Cinematography: Aperture ( f /2.8 to f /5.6), focal length (8mm to 120mm), and white balance (3500K to 6000K). Using this pipeline, we render a total of 600,000 paired frames divided into two subsets. The primary subset "City Sample" contains 500,000 frames cap-tured as a single continuous camera trajectory to provide extensive view di-versity. The secondary subset "Kyoto" contains 100,000 frames captured in a detailed alleyway environment with colorful illuminations to provide additional variations. 
+
+## 4 Methodology 
+
+4.1 Model Architecture 
+
+We establish a baseline for nighttime video deraining by adapting the Wan 2.2 video generation model [27] into a video-to-video architecture. As illustrated in Fig. 4, we begin by encoding the input rainy video into a sequence of condition tokens . We then concatenate these condition tokens with a parallel sequence of 
+
+generation tokens . To ensure strict spatial and temporal correspondence between the input and output videos, we apply identical positional embeddings to both sets of tokens. During the subsequent denoising process, the model must not cor-rupt the input condition. To ensure this, we introduce a unidirectional mask into UENR-600K 7Video DiT   
+
+> (Based on Wan 2.2)
+> DiT Block
+> DiT Block
+> Self-Attention
+> Feed Forward
+> Cross-Attention
+> DiT Block
+> ⋯
+> ⋯
+> QKV Proj LoRA
+> Attention Map
+> Generation
+> Generation
+> Condition
+> Condition
+> Query
+> Key
+> Masked out
+> Frozen
+> Trainable
+> No Rain
+> No Rain Rainy
+> Condition Tokens Generation Tokens
+
+Fig. 4: Our baseline architecture, adapted from the Wan 2.2 Video DiT. The rainy input is encoded into condition tokens (blue) and concatenated with generation tokens (red); the DiT denoises only the generation tokens while using the condition tokens as context. A unidirectional attention mask prevents condition tokens from attending to generation tokens, keeping the input uncorrupted. Only LoRA adapters on the QKV projections are trained; all other parameters stay frozen. 
+
+the self attention maps of the diffusion transformer blocks. This mask actively prevents the condition tokens from attending to the generation tokens. Finally, we isolate the denoised generation tokens and decode them to produce the clean video output. 
+
+4.2 Finetuning and Inference Objectives 
+
+We finetune this model using a flow matching objective [27]. This objective trains a network vθ to predict a ground truth velocity vt. We define this velocity along a linear path xt interpolating between pure noise x0 ∼ N (0 , I ) and the clean latent tokens x1 [8]. Because the path xt = tx 1 + (1 − t)x0 is linear, the ground truth vt is the exact derivative of the path: 
+
+vt = dx t
+
+dt = x1 − x0. (1) We optimize the model using a mean squared error loss to predict this exact velocity. Let xcon denote condition tokens (input video) and xgen denote gener-ation tokens (output video), and ctext be a fixed text prompt’s embedding ("No rain video"). The loss function is then defined as: 
+
+L = Excon   
+
+> 1,x gen
+> t,t
+
+∥vθ (xcon  
+
+> 1
+
+, x gen  
+
+> t
+
+, c text , t ) − vt∥2. (2) During inference, we produce the final derained video by integrating the pre-dicted velocity from t = 0 to 1:
+
+xgen  
+
+> 1
+
+= x0 +
+
+Z 10
+
+vθ (xcon  
+
+> 1
+
+, x gen  
+
+> t
+
+, c text , t )dt.  (3) 8 P. Yang et al. 
+
+## 5 Experiment 
+
+5.1 Experiment Setup  
+
+> 5.1.1 Datasets and Deraining Models
+
+Datasets. We train all methods on two nighttime rain datasets: our UENR-600K (the City Sample subset, 498,200 training / 1,800 test frames) and Syn-NightRain [24] (11,915 / 1,600 frames), the only publicly available nighttime video deraining dataset (Tab. 1). For real-world evaluation without ground truth, following [18], we collect 124 nighttime rain videos (11,160 frames) from Pex-els [25], a large-scale video sharing platform whose diverse contributor base pro-vides footage videos, including diverse real nighttime rain scenes. All frames are at 1280 ×720 resolution. Dataset splits are summarized in Tab. 1 (Appendix A). 
+
+Baseline deraining models. We train eight methods on both datasets, span-ning four architecture families. CNN-based: UConNet [43] and RDD-Net [28]. 
+
+RNN-based: ESTINet [40]. Transformer-based: RLP [37] and Turtle [12]. 
+
+Diffusion-based: WeatherDiff [23], NightRain [18], and our baseline. The seven existing methods learn deraining from scratch, while our baseline finetunes a pre-trained video generation model. All methods take video inputs except Weath-erDiff, which processes single images. 
+
+Training and inference. All methods follow their original training configura-tions, with total gradient updates matched for fair comparison. Existing methods process fixed-size patches via non-overlapping sliding windows; our baseline oper-ates at full 1280 ×720 resolution on 90-frame clips without patch decomposition. Full details are in Appendix B.  
+
+> 5.1.2 Evaluation and Metrics
+
+Evaluating real nighttime rain deraining. We collect 124 real nighttime rain videos from Pexels [25] (90 frames each, 1280 ×720) and run all eight meth-ods on them. Since no ground truth exists, we use a vision-language model (VLM; 
+
+claude-sonnet-4-6 [1]) as an automated judge. Given output frames from com-peting methods, the VLM selects the best result based on rain removal, detail preservation, artifact absence, and overall quality, with a required written jus-tification. Method labels are randomized per evaluation to avoid position bias (prompt used and full protocol are in Appendix C). 
+
+Evaluating synthetic nighttime rain deraining. On synthetic test sets (1,800 frames for our dataset, 1,600 for SynNightRain), ground-truth clean frames are available. We report PSNR (pixel-level fidelity, in dB) and SSIM (structural similarity) in RGB space between derained outputs and ground-truth frames. 
+
+Evaluating video temporal consistency. We measure temporal consistency with two complementary metrics. Average frame difference (AFD) com-putes the mean LPIPS [41] between all pairs of consecutive output frames; lower values indicate smoother transitions. VLM temporal rating uses a VLM (claude-opus-4-6 [1]) to rate each method’s output on a 1 to 5 scale (5 = best). For each video clip, the VLM views four consecutive output frames together with UENR-600K 9
+
+pre-computed inter-frame difference maps that highlight pixel changes between adjacent frames. Bright regions in the difference maps reveal flickering or in-consistent rain removal, while a temporally consistent output produces mostly dark difference maps (full protocol in Appendix D). All VLM evaluations costed $225.55 in total (Tab. 5). 
+
+5.2 Dataset Comparison Training on our dataset improves real-world deraining. For each method, we train two versions (one on our dataset, one on SynNightRain) and ask a VLM [1] to select the better result on real nighttime rain videos (Tab. 2). Train-ing on our dataset yields preferred results for all CNN, RNN, and Transformer methods, as well as our diffusion-based baseline. The two exceptions, Weath-erDiff and NightRain, are diffusion models operating on 64 ×64 inputs that cover less than 1% of a 1280 ×720 frame (see Input Size column). Without sufficient spatial context, the two models cannot distinguish localized rain phenomena (such as rain curtains near light sources) from clean dark regions, producing spurious white haze at inference; SynNightRain’s globally uniform rain does not create this ambiguity. For all methods with sufficient receptive fields, training on our dataset consistently improves real-world deraining across all architecture families. Additionally, models trained on SynNightRain tend to suppress scene content in dark regions, because SynNightRain overlays rain as a global bright layer and models learn to remove brightness across the entire frame. 
+
+Our dataset enables the baseline to handle diverse nighttime rain con-ditions. Fig. 6 compares our baseline finetuned on each dataset across six real scenes. The baseline finetuned on SynNightRain struggles with chromatic rain near colored lighting (row 1), localized rain around streetlamps (row 4), and rain-induced fog under direct illumination (rows 5 and 6; see red crops). The version finetuned on our dataset handles all these conditions effectively. Our dataset simulates these nighttime-specific phenomena through 3D particle ren-dering (Sec. 3.2), while SynNightRain does not model nighttime rain properties like chromaticity or localization. 
+
+5.3 Deraining Method Comparison Quantitatively, our baseline achieves the best deraining preference among all methods. We conduct a VLM-driven multi-way comparison where all eight methods, trained on the same dataset, compete on each real nighttime rain video. The VLM selects the best result (Tab. 3). Our baseline dominates both settings: 94.4% preference when trained on our dataset and 69.4% on Syn-NightRain. The performance is followed by ESTINet and RDD-Net (9.3% and 5.2% average preference), and then the remaining five methods (below 2%). Our baseline, as the only pretrained method, benefits from both its strong generative prior and our physically grounded data, which together raise the preference rate from 69.4% to 94.4%. 
+
+Qualitatively, on real videos, most methods still leave visible rain or introduce artifacts. Fig. 5 compares all eight methods trained on our dataset. 10 P. Yang et al. ESTINet RDD-Net RLP Turtle UConNet WeatherDiff NightRain Our Baseline   
+
+> Real rain videos from pexels.com , no ground-truth available. Red = highlighted for comparison.
+> Input
+
+Fig. 5: Qualitative comparison of all eight methods on four real nighttime rain scenes. All methods trained on our dataset. Red annotations highlight regions for comparison. Existing restoration methods (ESTINet through UConNet) reduce rain to varying de-grees but leave visible streaks in heavy rain regions. The two 64 ×64 diffusion models (WeatherDiff, NightRain) introduce haze or darken the scene. Our baseline, leveraging its pretrained generative prior, removes rain almost completely without introducing artifacts, demonstrating that the sim-to-real gap is effectively bridged. UENR-600K 11 
+
+Table 2: Pairwise comparison of deraining results on real nighttime rain videos, where a VLM selects the better result based on rain removal and detail preservation. For each method, the version trained on our dataset competes against the version trained on SynNightRain [24]; bold indicates the preferred training dataset. Input Size is the spatial resolution each method processes during training and inference. Training on our dataset yields preferred results for all methods with input sizes ≥128 ×128, covering all architecture families. The two exceptions, WeatherDiff and NightRain, use 64 ×64 inputs (less than 1% of a 1280 ×720 frame), which limits their ability to distinguish localized rain from clean dark regions in our data.                                       
+
+> Input Size SynNightRain [24] Tie Our Data ESTINet [40] 224 ×224 16.4% 6.5% 77.2% RDD-Net [28] 128 ×128 32.3% 1.6% 66.1% RLP [37] 256 ×256 27.7% 8.6% 63.7% Turtle [12] 128 ×128 16.1% 6.2% 77.7% UConNet [43] 128 ×128 3.2% 1.3% 95.4% WeatherDiff [23] 64 ×64 91.7% 3.0% 5.4%
+> NightRain [18] 64 ×64 85.2% 1.6% 13.2%
+> Our Baseline Full 19.6% 15.1% 65.3% Average –36.5% 5.5% 58.0%
+
+Table 3: Multi-way comparison of deraining results on real nighttime rain videos, where a VLM selects the best result among all eight methods trained on the same dataset. Pretrained : model was pretrained on large-scale video data before finetuning. Our baseline, the only pretrained method, dominates in both settings: 94.4% when trained on our dataset and 69.4% when trained on SynNightRain.                                  
+
+> Architecture Pretrained SynNightRain [24] Our Data Average ESTINet [40] CNN+RNN 12.9% 5.6% 9.3%
+> RDD-Net [28] CNN 10.5% 0.0% 5.2%
+> RLP [37] Transformer 4.0% 0.0% 2.0%
+> Turtle [12] Transformer 0.8% 0.0% 0.4%
+> UConNet [43] CNN 0.0% 0.0% 0.0%
+> WeatherDiff [23] Diffusion 1.6% 0.0% 0.8%
+> NightRain [18] Diffusion 0.8% 0.0% 0.4%
+> Our Baseline Diffusion ✓69.4% 94.4% 81.9%
+
+Restoration methods (ESTINet, RDD-Net, RLP, Turtle, UConNet) reduce rain but leave visible streaks in heavy-rain regions such as under streetlamps (col-umn 1) and in close-up rain (column 2), because they learn pixel-level mappings without a generative prior to hallucinate missing content. The two 64 ×64 dif-fusion models behave differently: WeatherDiff introduces severe patchy artifacts from independently denoising small tiles, while NightRain darkens the scene and loses detail in already dim regions (column 4). Our baseline removes rain almost completely across all four scenes, including chromatic streaks and rain-induced fog, without suppressing scene detail or introducing artifacts. 12 P. Yang et al. Input 
+
+Finetuned on 
+
+SynNightRain 
+
+Finetuned on 
+
+Our Dataset 
+
+Fig. 6: Our baseline finetuned on SynNightRain (middle) versus our dataset (right) across six real nighttime rain scenes from Pexels [25]. The SynNightRain-finetuned baseline struggles with chromatic rain near colored lighting (row 1), localized rain around streetlamps (row 4), and rain-induced haze (rows 5 and 6; see red crops). The version finetuned on our dataset handles all these conditions effectively. 
+
+Our baseline also achieves the best temporal consistency. Tab. 4 reports AFD and VLM temporal ratings for all methods. Our baseline achieves the lowest AFD and highest VLM rating (AFD 2.47, VLM 4.46 when trained on our data). UENR-600K 13 
+
+Table 4: Temporal consistency of deraining results on real nighttime rain videos, evaluated by two complementary metrics. AFD ↓: average inter-frame LPIPS ( ×10 2;lower is better), measuring perceptual difference between consecutive output frames. 
+
+VLM ↑: VLM-rated temporal smoothness on a 1 to 5 scale (higher is better). Our baseline achieves the best temporal consistency under both metrics and both training datasets.                                                        
+
+> SynNightRain Our Data Average
+> AFD ↓VLM ↑AFD ↓VLM ↑AFD ↓VLM ↑
+> ESTINet [40] 6.40 3.22 5.70 3.32 6.05 3.27
+> RDD-Net [28] 7.04 3.37 9.93 2.37 8.49 2.87
+> RLP [37] 7.75 3.11 10.11 2.60 8.93 2.86
+> Turtle [12] 8.55 2.71 8.08 3.07 8.32 2.89
+> UConNet [43] 7.94 2.47 9.34 3.03 8.64 2.75
+> WeatherDiff [23] 10.56 2.13 22.79 1.04 16.68 1.59
+> NightRain [18] 7.75 2.63 9.13 2.03 8.44 2.33
+> Our Baseline 6.88 3.56 2.47 4.46 4.68 4.01
+
+Table 5: Same-dataset benchmarking: each method is trained and tested on the same dataset. ∆PSNR = Our Data PSNR minus SynNightRain PSNR; positive values in-dicate that SynNightRain is easier to fit, while the negative value (bold) indicates the opposite. All seven existing methods achieve higher PSNR on SynNightRain, confirm-ing its simpler degradation patterns. Our baseline is the only method that scores higher on our dataset, because its pretrained generative prior aligns better with rendering-based rain.                                              
+
+> Our Data SynNightRain [24] ∆PSNR PSNR ↑SSIM ↑PSNR ↑SSIM ↑
+> ESTINet [40] 24.88 0.845 26.89 0.867 −2.01
+> RDD-Net [28] 24.34 0.835 25.03 0.851 −0.69
+> RLP [37] 24.34 0.833 25.23 0.835 −0.89
+> Turtle [12] 19.35 0.712 24.40 0.838 −5.05
+> UConNet [43] 18.82 0.713 21.85 0.778 −3.03
+> WeatherDiff [23] 23.88 0.848 27.52 0.896 −3.64
+> NightRain [18] 16.50 0.667 19.03 0.777 −2.53
+> Our Baseline 25.49 0.834 23.31 0.755 +2.18
+
+The key distinction is whether a method processes multiple frames jointly or each frame independently. Single-image methods and small-patch diffusion models score worst because each frame or patch is processed independently, producing visible flickering. Our baseline achieves both the best deraining quality and the smoothest temporal output. 
+
+5.4 Analysis on Synthetic Data Our dataset is more challenging for existing methods, but easier for finetuning our baseline. As shown in Tab. 5, existing methods achieve an average of 2.55 dB higher PSNR on SynNightRain than on our dataset, indicat-14 P. Yang et al. SNR Ours               
+
+> Tested on
+> SNR
+> Ours
+> Trained on  26.9
+> dB 16.7
+> dB
+> 14.0
+> dB 24.9
+> dB
+> ESTINet
+> SNR Ours
+> Tested on
+> 25.0
+> dB 15.4
+> dB
+> 13.3
+> dB 24.3
+> dB
+> RDD-Net
+> SNR Ours
+> Tested on
+> 25.2
+> dB 17.6
+> dB
+> 14.8
+> dB 24.3
+> dB
+> RLP
+> SNR Ours
+> Tested on
+> 24.4
+> dB 17.2
+> dB
+> 12.3
+> dB 19.4
+> dB
+> Turtle
+> SNR Ours
+> Tested on
+> 23.3
+> dB 18.3
+> dB
+> 13.1
+> dB 25.5
+> dB
+> Our Baseline
+> 15
+> 20
+> 25
+> PSNR (dB)
+
+Fig. 7: Cross-dataset evaluation of five representative methods. Each method is trained on one dataset and tested on both. Diagonal cells represent same-dataset performance, while off-diagonal cells show cross-dataset performance in PSNR. All methods experi-ence a substantial performance drop when tested on a different dataset than their train-ing source, highlighting the significant domain gap between our physically grounded data and the algorithmically synthesized SynNightRain. 
+
+ing SynNightRain’s algorithmic rain presents a simpler degradation pattern to fit. In contrast, our baseline achieves a 2.18 dB higher PSNR on our dataset. This divergence occurs because our baseline builds upon a video generation model pretrained on large-scale natural video [27]. With this strong generative prior, our baseline inherently understands real physical interactions and lighting, and adapts easily to our physically simulated rain. Conversely, SynNightRain’s algorithm-generated rain overlay deviates from natural physics, making it harder for the generative model to adapt. This performance difference validates the su-perior realism of our proposed data. 
+
+Cross-dataset evaluation shows a large domain gap, highlighting our data’s novelty. To measure the domain gap between datasets, we train the models on one dataset and evaluate them on both. In Fig. 7, the off-diagonal cells display significantly lower PSNR values (7 to 11 dB drop) when testing across datasets. This mutual failure confirms a large domain gap: models optimized for the 2D overlays of SynNightRain cannot handle our physically grounded 3D rain, and vice versa. This contrast establishes the novelty of UENR-600K as a fundamentally different degradation domain that existing synthetic nighttime rain data does not capture. 
+
+## 6 Conclusion 
+
+We presented UENR-600K, a large-scale physically real nighttime deraining dataset rendered in Unreal Engine. Training on our data generalizes much better to real-world nighttime deraining, with our introduced new baseline achieving the best performance. 
+
+Limitations and Future Analysis. (1) We did not tune hyperparameters for our baseline; systematic tuning may further improve performance. (2) The Ky-oto subset (100,000 frames) remains unused. It offers additional scene diversity with dense colorful illuminations, which could benefit future work’s training and benchmarking. UENR-600K 15 
+
+## References 
+
+1. Anthropic: The Claude model card. https://docs.anthropic.com/en/docs/ about-claude/models (2025) 2. Ba, Y., Zhang, H., Yang, E., Suzuki, A., Pfahnl, A., Chandrappa, C.C., de Melo, C., You, S., Soatto, S., Wong, A., Kadambi, A.: Not just streaks: Towards ground truth for single image deraining. In: Proceedings of the European Conference on Computer Vision (ECCV) (2022) 3. Blattmann, A., Dockhorn, T., Kulal, S., Mendelevitch, D., Kilian, M., Lorenz, D., Levi, Y., English, Z., Voleti, V., Letts, A., Jampani, V., Rombach, R.: Stable video diffusion: Scaling latent video diffusion models to large datasets. arXiv preprint arXiv:2311.15127 (2023) 4. Brooks, T., Peebles, B., Holmes, C., DePue, W., Guo, Y., Jing, L., Schnurr, D., Taylor, J., Luhman, T., Luhman, E., Ng, C., Wang, R., Ramesh, A.: Video gener-ation models as world simulators. Technical Report (2024) 5. Chen, H., Chen, X., Wu, C., Zheng, Z., Pan, J., Fu, X.: Towards ultra-high-definition image deraining: A benchmark and an efficient method. arXiv preprint arXiv:2405.17074 (2024) 6. Chen, J., Tan, C.H., Hou, J., Chau, L.P., Li, H.: Robust video content alignment and compensation for rain removal in a cnn framework. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2018) 7. Chen, X., Pan, J., Dong, J., Tang, J.: Towards unified deep image deraining: A survey and a new benchmark. IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI) (2025) 8. Esser, P., Kulal, S., Blattmann, A., Entezari, R., Müller, J., Saini, H., Levi, Y., Lorenz, D., Sauer, A., Boesel, F., Podell, D., Dockhorn, T., English, Z., Lacey, K., Goodwin, A., Marek, Y., Rombach, R.: Scaling rectified flow transformers for high-resolution image synthesis (2024), https://arxiv.org/abs/2403.03206 
+
+9. Fu, X., Huang, J., Zeng, D., Huang, Y., Ding, X., Paisley, J.: Removing rain from single images via a deep detail network. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2017) 10. Garg, K., Nayar, S.K.: Photorealistic rendering of rain streaks. ACM Transactions on Graphics (Proceedings of SIGGRAPH) 25 (3), 996–1002 (2006) 11. Garg, K., Nayar, S.K.: Vision and rain. International Journal of Computer Vision 
+
+75 (1), 3–27 (2007) 12. Ghasemabadi, A., Janjua, M.K., Salameh, M., Niu, D.: Learning truncated causal history model for video restoration. In: Advances in Neural Information Processing Systems (NeurIPS) (2024) 13. Guo, Y., Xiao, X., Chang, Y., Deng, S., Yan, L.: From sky to the ground: A large-scale benchmark and simple baseline towards real rain removal. In: Proceedings of the IEEE International Conference on Computer Vision (ICCV) (2023) 14. Hu, X., Fu, C.W., Zhu, L., Heng, P.A.: Depth-attentional features for single-image rain removal. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2019) 15. Jiang, K., Wang, Z., Yi, P., Chen, C., Huang, B., Luo, Y., Ma, J., Jiang, J.: Multi-scale progressive fusion network for single image deraining. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2020) 16. Li, R., Cheong, L.F., Tan, R.T.: Heavy rain image restoration: Integrating physics model and conditional adversarial learning. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2019) 16 P. Yang et al. 17. Li, W., Zhang, Q., Zhang, J., Huang, Z., Tian, X., Tao, D.: Toward real-world single image deraining: A new benchmark and beyond. arXiv preprint arXiv:2206.05514 (2022) 18. Lin, B., Jin, Y., Yan, W., Ye, W., Yuan, Y., Zhang, S., Tan, R.T.: Nightrain: Nighttime video deraining via adaptive-rain-removal and adaptive-correction. In: Proceedings of the AAAI Conference on Artificial Intelligence (AAAI) (2024) 19. Lin, X., He, J., Chen, Z., Lyu, Z., Dai, B., Yu, F., Qiao, Y., Ouyang, W., Dong, C.: Diffbir: Towards blind image restoration with generative diffusion prior. In: Proceedings of the European Conference on Computer Vision (ECCV) (2024) 20. Liu, J., Yang, W., Yang, S., Guo, Z.: Erase or fill? deep joint recurrent rain removal and reconstruction in videos. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2018) 21. Liu, Y., Yue, Z., Pan, J., Su, Z.: Unpaired learning for deep image deraining with rain direction regularizer. In: Proceedings of the IEEE International Conference on Computer Vision (ICCV) (2021) 22. Liu, Y., Xu, Y., Wei, Y., Bi, X., Xiao, B.: Clear nights ahead: Towards multi-weather nighttime image restoration. arXiv preprint arXiv:2505.16479 (2025) 23. Özdenizci, O., Legenstein, R.: Restoring vision in adverse weather conditions with patch-based denoising diffusion models. IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI) (2023) 24. Patil, P.W., Gupta, S., Rana, S., Venkatesh, S.: Video restoration framework and its meta-adaptations to data-poor conditions. In: Proceedings of the European Conference on Computer Vision (ECCV) (2022) 25. Pexels: Pexels: Free stock videos. https://www.pexels.com/videos/ (2026) 26. Quan, R., Yu, X., Liang, Y., Yang, Y.: Removing raindrops and rain streaks in one go. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2021) 27. Wan Team, Alibaba Group: Wan: Open and advanced large-scale video generative models. arXiv preprint arXiv:2503.20314 (2025) 28. Wang, S., Zhu, L., Fu, H., Qin, J., Schönlieb, C.B., Feng, W., Wang, S.: Rethinking video rain streak removal: A new synthesis model and a deraining network with video rain prior. In: Proceedings of the European Conference on Computer Vision (ECCV) (2022) 29. Wang, T., Yang, X., Xu, K., Chen, S., Zhang, Q., Lau, R.W.H.: Spatial attentive single-image deraining with a high quality real rain dataset. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2019) 30. Xue, X., He, J., Ma, L., Meng, X., Li, W., Liu, R.: Asf-net: Robust video deraining via temporal alignment and online adaptive learning. Pattern Recognition (2025) 31. Yan, W., Tan, R.T., Yang, W., Dai, D.: Self-aligned video deraining with transmission-depth consistency. In: Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition (CVPR) (2021) 32. Yang, W., Tan, R.T., Feng, J., Liu, J., Guo, Z., Yan, S.: Deep joint rain detec-tion and removal from a single image. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2017) 33. Yang, W., Tan, R.T., Wang, S., Liu, J.: Self-learning video rain streak removal: When cyclic consistency meets temporal correspondence. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2020) 34. Yang, Z., Teng, J., Zheng, W., Ding, M., Huang, S., Xu, J., Yang, Y., Hong, W., Zhang, X., Feng, G., Yin, D., Gu, X., Zhang, Y., Zeng, W., Tang, J.: Cogvideox: Text-to-video diffusion models with an expert transformer. In: arXiv preprint arXiv:2408.06072 (2024) UENR-600K 17 35. Yue, Z., Xie, J., Zhao, Q., Meng, D.: Semi-supervised video deraining with dynam-ical rain generator. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2021) 36. Zhang, F., You, S., Li, Y., Fu, Y.: Gtav-nightrain: Photometric realistic large-scale dataset for night-time rain streak removal. arXiv preprint arXiv:2210.04708 (2022) 37. Zhang, F., You, S., Li, Y., Fu, Y.: Learning rain location prior for nighttime de-raining. In: Proceedings of the IEEE International Conference on Computer Vision (ICCV) (2023) 38. Zhang, H., Patel, V.M.: Density-aware single image de-raining using a multi-stream dense network. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2018) 39. Zhang, H., Sindagi, V., Patel, V.M.: Image de-raining using a conditional generative adversarial network. arXiv preprint arXiv:1701.05957 (2017) 40. Zhang, K., Li, D., Luo, W., Ren, W., Liu, W.: Enhanced spatio-temporal interac-tion learning for video deraining: Faster and better. IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI) (2022) 41. Zhang, R., Isola, P., Efros, A.A., Shechtman, E., Wang, O.: The unreasonable effectiveness of deep features as a perceptual metric. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2018) 42. Zhou, S., Yang, P., Wang, J., Luo, Y., Loy, C.C.: Upscale-a-video: Temporal-consistent diffusion model for real-world video super-resolution. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2024) 43. Zhuang, J., Luo, Y., Zhao, X., Jiang, T., Guo, B.: Uconnet: Unsupervised con-trollable network for image and video deraining. In: Proceedings of the 30th ACM international conference on multimedia. pp. 5436–5445 (2022) Supplementary Material for UENR-600K: A Large-Scale Physically Grounded Dataset for Nighttime Video Deraining 
+
+## A Data Processing Details 
+
+Our dataset. We use the City Sample subset of UENR-600K, which consists of 500,000 frames rendered as a single continuous camera trajectory in Unreal Engine 5. All frames are pre-rendered at 1280 ×720 resolution. We designate frames 0 through 1,799 (1,800 frames) as the test set and frames 1,800 through 500,000 (498,200 frames) as the training set. Because the frames come from a continuous trajectory, adjacent frames maintain temporal coherence and can be grouped for video models. For testing, we segment the 1,800 test frames into 20 non-overlapping clips of 90 frames each. 
+
+SynNightRain. SynNightRain [24] contains 68 videos across two subsets: Nigh-tRain (34 videos) and NightRainVeiling (34 videos). Each video contains 200 frames with paired rainy inputs and ground-truth clean frames. The videos have mixed native resolutions (3840 ×2160, 1920 ×1080, 1280 ×720, and 1080 ×1920 portrait). We follow the original train/test split: videos 002, 003, 005, and 007 from both subsets (8 videos, 1,600 frames) form the test set, and the remain-ing 60 videos (11,915 frames) form the training set. All frames are resized to 1280 ×720 using bicubic interpolation. 
+
+Real-world evaluation set. We collect 124 real-world nighttime rain videos from Pexels [25] for out-of-domain evaluation. Each video is resized to 1280 ×720 and trimmed to 90 frames, yielding 11,160 test frames. These videos have no ground-truth clean counterparts and are used exclusively for VLM preference evaluation. 
+
+## B Training Details 
+
+All existing methods are trained from scratch on each dataset following their original training configurations. To ensure a fair comparison, we match the total number of gradient updates to each method’s original setting by adjusting the number of epochs according to our dataset size. Tab. 2 summarizes the key hyperparameters for each method. 
+
+Our baseline. We finetune Wan 2.2-TI2V-5B [27] using rank-96 LoRA for 1,400 steps on four NVIDIA H200 GPUs. Each training sample is a 1280 ×720 video of 90 frames, with a batch size of 1 per GPU. We use the AdamW opti-mizer with a learning rate of 1e-4, a 50-step linear warmup, weight decay of 1e-2, and betas of 0.9 and 0.95. This finetuning completes in approximately 35 hours and consumes roughly one epoch of training data. Unlike existing methods, our baseline operates at full 1280 ×720 resolution without patch decomposition. 2
+
+Table 1: Dataset splits used in our experiments. All frames are at 1280 ×720. UENR-600K and SynNightRain provide paired rainy/clean frames for training and synthetic evaluation. The Pexels set has no ground truth and is used exclusively for VLM-based evaluation. 
+
+UENR-600K (Ours) SynNightRain [24] Pexels [25] 
+
+Rain type Synth. Synth. Real Total frames 600,000 † 13,515 11,160 Train frames 498,200 11,915 –Test frames 1,800 (20 clips) 1,600 (8 clips) 11,160 (124 clips) Ground truth ✓ ✓ – 
+
+> †
+
+600,000 frames across two subsets (City Sample: 500,000; Kyoto: 100,000). Only the City Sample subset is used in this benchmark. 
+
+Table 2: Training hyperparameters for each method. All existing methods are trained from scratch; our baseline finetunes a pretrained video generation model using LoRA. Input type indicates whether the method processes single images (Img) or video clips of N consecutive frames (Vid-N ). Patch size is the spatial crop used during training. Total iterations (Iters) are matched to each method’s original setting (see Tab. 4).                                                                            
+
+> Architecture Input Patch Batch Iters Optimizer LR Loss ESTINet [40] ResNet18 + R-CLSTM + BiLSTM Vid-5 224 579.7K Adam 1e-4 MSE
+> RDD-Net [28] RDD-Net Vid-7 128 8320K Adam 1e-4 L1
+> RLP [37] Uformer-T + RLP/RPIM Img 256 20 74.7K AdamW 2e-4 Charbonnier
+> Turtle [12] Transformer Vid-5 128 1200K Adam 4e-4 L1
+> UConNet [43] UConNet + AngleNet Img 128 16 375K Adam 1e-3 MSE
+> WeatherDiff [23] DDPM UNet (83M) Img 64 80 †697K Adam 2e-5 ϵ-pred
+> NightRain [18] 3D DiT (109M) Vid-4 64 8†200K Adam 2e-5 ϵ-pred
+> Our Baseline Wan2.2-TI2V-5B (LoRA r=96) Vid-90 Full 41.4K AdamW 1e-4 Flow matching
+> †Effective samples per step (batch size ×patches per sample). NightRain: 2×4 = 8 . WeatherDiff: 5×16 = 80 .
+
+Sliding window configuration. Since existing methods operate on fixed-size patches rather than full 1280 ×720 frames, we apply a non-overlapping sliding window strategy at both training and inference time. Each frame is padded with zeros (at the bottom and right edges) to the nearest multiple of the patch size, then partitioned into non-overlapping tiles. After processing, the tiles are stitched back and cropped to the original 1280 ×720 resolution. For video models, consecutive frames are grouped into non-overlapping temporal windows match-ing each method’s input length. WeatherDiff uses an overlapping grid with stride 
+
+r=16 instead of non-overlapping patches, following its original inference proce-dure. Tab. 3 lists the patch sizes, padded resolutions, and number of patches per frame for each method. 
+
+Iteration matching. Tab. 4 shows how we match training iterations between the original settings and our setup. For each method, we compute the total gradient updates from the original paper (original dataset size × original epochs / original batch size) and reproduce a comparable number using our dataset by adjusting the number of epochs. Supplementary Material for UENR-600K 3
+
+Table 3: Sliding window configuration for inference at 1280 ×720 resolution. Since each method operates on fixed-size patches, the original frame must first be enlarged to fit an exact grid of patches. Padded Size is the resulting resolution after zero-padding the bottom and right edges of the 1280 ×720 frame to the nearest multiple of the 
+
+Patch Size ; for example, with 224 ×224 patches, 1280 ×720 is padded to 1344 ×896 (= 6×224 by 4 ×224). The padded frame is then partitioned into a non-overlapping grid of tiles. WeatherDiff uses overlapping patches with stride r=16 instead of non-overlapping tiling, following its original inference procedure. Our baseline processes full-resolution frames without patch decomposition. 
+
+Patch Size Padded Size Grid Patches/Frame ESTINet [40] 224 ×224 1344 ×896 6×4 24 
+
+RDD-Net [28] 128 ×128 1280 ×768 10 ×6 60 
+
+RLP [37] 256 ×256 1536 ×768 6×3 18 
+
+Turtle [12] 128 ×128 1280 ×768 10 ×6 60 
+
+UConNet [43] 128 ×128 1280 ×768 10 ×6 60 
+
+WeatherDiff [23] 64 ×64 ( r=16) Overlapping 77 ×42 3,234 
+
+NightRain [18] 64 ×64 1280 ×768 20 ×12 240 
+
+Our Baseline Full frame N/A 1×1 1
+
+Table 4: Iteration matching between original training settings and our setup. For each method, we compute the total gradient updates from the original paper (dataset size 
+
+× epochs / batch size) and reproduce a comparable number on our dataset by adjust-ing the number of epochs. Our baseline is finetuned for only 1,400 steps, consuming approximately one epoch of training data.                                                                         
+
+> Original Setting Our Setting (UENR-600K) Dataset Size Epochs Iters Size/Epoch Batch Epochs Iters ESTINet [40] NTU-derain [6] 3,023 120 ∼181K 99,640 54∼79.7K
+> RDD-Net [28] RainMotion [28] ∼5,000 500 ∼2.5M 71,171 836 ∼320K
+> RLP [37] GTAV-NightRain [36] 5,000 250 ∼312K 498,201 20 3∼74.7K
+> Turtle [12] (iter-based) –200K iter 200K 99,640 1(iter) 200K
+> UConNet [43] Rain100/800 [32, 39] 40,000 ∗150 ∼375K 40,000 ∗16 150 ∼375K
+> WeatherDiff [23] AllWeather [23] 1,771 1,775 ∼197K 498,201 80 †7∼697K
+> NightRain [18] SynNightRain [24] ∼1,000 clips (iter) 200K 100,000 8†(iter) 200K
+> Our Baseline ––––498,201 4∼11.4K
+> ∗UConNet subsamples 40,000 images per epoch from the full dataset.
+> †Effective samples per step (see Tab. 2). WeatherDiff iterations are matched by total patch count rather than gradient steps.
+
+## C Deraining Quality Evaluation Using VLM as a Judge 
+
+We use claude-sonnet-4-6 [1] as the VLM judge for deraining quality evalu-ation on the 124 real nighttime rain videos from Pexels [25] (90 frames each). The VLM receives sampled frames from competing methods and selects the best result. To ensure reproducibility, we provide the complete evaluation prompt below. 
+
+Evaluation prompt. For each comparison, the VLM receives the rainy input image and N candidate derained images labeled with randomized anonymous letters (A, B, ...). The prompt instructs: 4          
+
+> You are conducting a blind evaluation of image deraining quality. For
+> ,→each comparison, you will view a rainy input image and N
+> ,→candidate derained images labeled with letters. Your job is to
+> ,→pick the candidate with the best deraining quality. Compare candidates on the following criteria: (1) Rain removal: how effectively are rain streaks, rain drops, rain
+> ,→curtains, and rain-induced fog removed? (2) Detail preservation: are scene structures, textures, edges, and
+> ,→fine details maintained? (3) Artifact avoidance: does the result avoid introducing blocking
+> ,→artifacts, color distortions, excessive blurring, or visual
+> ,→hallucinations? (4) Overall quality: considering all factors, which result looks most
+> ,→natural and visually clean? For each comparison, view the input image first for context, then view
+> ,→all candidates, choose the best one based on the criteria above,
+> ,→and provide a one-sentence justification.
+
+The VLM must provide a written justification before making its selection to encourage careful analysis. Method labels are randomized per evaluation item using a fixed seed to mitigate position bias. 
+
+Multi-way comparison. The VLM views results from all eight methods for the same frame and selects the single best output. We evaluate one frame per video across all 124 videos, yielding 124 comparisons per experiment (covering 1.1% of the 11,160 total test frames). Each comparison presents 9 images to the VLM: 1 rainy input and 8 candidate outputs. 
+
+Pairwise comparison. For comparing models trained on different datasets (e.g., our dataset versus SynNightRain), the VLM views two results side by side for three frames per video across all 124 videos, yielding 372 comparisons per experiment (covering 3.3% of test frames). A tie option is available when the two results are visually indistinguishable. For pairwise evaluations, the preference rate is computed as wins /(wins + losses ), excluding ties from the denominator. 
+
+Parallelization and batching. Evaluations are distributed across multiple independent VLM instances (up to 4 concurrent), each processing a disjoint batch of evaluation items. Each instance is self-contained and receives the full prompt with its assigned images. This parallelization does not affect evaluation quality since each item is evaluated independently. 
+
+## D Temporal Consistency Evaluation Using VLM as a Judge 
+
+We use claude-opus-4-6 [1] as the VLM judge for temporal consistency eval-uation, rating each method’s output independently on a 1 to 5 scale. Unlike the pairwise deraining evaluation above, which compares methods against each Supplementary Material for UENR-600K 5Rainy Input Candidate A Candidate B     
+
+> Candidate C Candidate D Candidate E
+> Candidate F Candidate G Candidate H
+
+Fig. 1: Example of a multi-way VLM evaluation item. The VLM receives the rainy input (top-left) and eight candidate derained images labeled A through H. Method-to-label assignments are randomized per evaluation item, so the VLM cannot learn positional patterns. For this example, the VLM selected Candidate C with the justifi-cation: “Candidate C produces the cleanest rain removal with natural color and detail preservation, free of the haze artifacts seen in H and the residual streaks in A and F.” 
+
+other, the temporal evaluation rates each (model, video clip) pair independently to avoid conflating spatial quality with temporal smoothness. 
+
+Frame selection and difference maps. For each video clip, we select 4 con-secutive frames from the temporal midpoint (e.g., frames 44 to 47 for 90-frame clips). In addition to raw frames, we pre-compute 3 inter-frame difference maps by taking the per-pixel absolute difference between consecutive output frames, converting to grayscale, and amplifying by a factor of 10. In a temporally con-sistent result, only regions with real scene motion appear bright in the difference maps; flickering artifacts appear as bright patches in regions that should be static (e.g., building facades, sky, parked cars). 
+
+Evaluation prompt. Each evaluation item presents the VLM with 11 images: 4 rainy input frames (for scene context), 4 derained output frames (to evaluate), and 3 inter-frame difference maps. The prompt instructs: 
+
+You are evaluating the temporal consistency of video deraining results. 
+
+,→ Rate the following video sequence on a 1 to 5 scale: 5 (Excellent): No visible temporal artifacts. Smooth, natural frame-to-
+
+,→ frame transitions. 4 (Good): Very minor temporal inconsistencies, barely noticeable. 6Input                       
+
+> Frames
+> Input tInput t+1 Input t+2 Input t+3
+> Output
+> Frames
+> Output tOutput t+1 Output t+2 Output t+3
+> Difference
+> Maps
+> Diff tt+1 Diff t+1 t+2 Diff t+2 t+3
+
+Fig. 2: Example of a temporal consistency VLM evaluation item. Top: four consec-utive rainy input frames providing scene context. Middle: four consecutive derained output frames to evaluate. Bottom: three inter-frame difference maps (amplified 10 ×), where bright regions indicate large pixel changes between adjacent output frames. In a temporally consistent result, only regions with real scene motion (e.g., swaying leaves) appear bright, while static regions (e.g., lamp post, sky) remain dark. Flickering arti-facts would manifest as bright patches in static areas. 
+
+3 (Fair): Noticeable temporal artifacts. Some flickering, inconsistent 
+
+,→ deraining across frames, or minor ghosting. 2 (Poor): Significant temporal artifacts. Obvious flickering, prominent 
+
+,→ frame-to-frame inconsistencies. 1 (Very Poor): Severe temporal artifacts. Extreme flickering, frames 
+
+,→ appear unrelated. What to look for: flickering (unexpected brightness or color changes in 
+
+,→ static regions), inconsistent rain removal across consecutive 
+
+,→ frames, ghosting or bleeding artifacts, and whether real scene 
+
+,→ motion appears smooth and continuous. Use the difference maps to 
+
+,→ detect subtle flickering: bright patches in regions that should 
+
+,→ be static indicate temporal artifacts. Read all images (input frames, output frames, difference maps), then 
+
+,→ rate 1 to 5 and give a one-sentence reason. 
+
+Batching and scale. Items are grouped into batches of 4 (44 images per batch) and shuffled with a fixed seed so that consecutive batches contain a mix of differ-ent models. Up to 4 VLM instances process batches in parallel. We evaluate all 124 clips per model across both training datasets (8 methods × 2 datasets = 16 configurations), yielding 1,984 total evaluations. Per-model scores are aggregated as the mean rating across all evaluated clips. Supplementary Material for UENR-600K 7
+
+Table 5: API cost for reproducing all VLM evaluations using claude-opus-4-6 [1]. Each 1280 ×720 image consumes 1,229 input tokens; the 5,208 evaluations use 41.7M input tokens and 0.7M output tokens in total. The temporal evaluation is the most expensive because each item requires 11 images (4 input frames, 4 output frames, and 3 difference maps).             
+
+> Input (MTok) Output (MTok) Cost ($)
+> Pairwise quality (Tab. 2) 11.57 0.45 69.00 Multi-way quality (Tab. 3) 2.82 0.04 15.00 Temporal consistency (Tab. 4) 27.32 0.20 141.55
+> Total 41.71 0.69 225.55
+
+Evaluation cost. Tab. 5 reports the API cost for reproducing all VLM eval-uations in this paper. Each 1280 ×720 image consumes 1,229 input tokens, and the 5,208 evaluations use 41.7M input tokens and 0.7M output tokens in total. The temporal consistency evaluation accounts for 63% of the total cost because each evaluation item presents 11 images to the VLM. 
+
+## E Inference Time 
+
+Tab. 6 reports the per-frame and total inference time for each method on the Ours test set (1,800 frames at 1280 ×720). All existing methods are measured on a single NVIDIA A5000 GPU. Non-diffusion methods complete within 24 minutes (UConNet) to 185 minutes (Turtle). Diffusion-based methods require significantly longer due to iterative denoising over many patches: WeatherDiff takes 5.50 hours and NightRain takes 37.41 hours. Our baseline processes full 1280 ×720 frames without patch decomposition, completing 1,800 frames in 12.31 hours on a single NVIDIA H200 GPU; based on FP32 throughput scaling, the estimated A5000-equivalent time is approximately 29.5 hours. 8
+
+Table 6: Inference time on the Ours test set (1,800 frames at 1280 ×720) using a single GPU. Non-diffusion methods complete within minutes to hours, while diffusion-based methods (NightRain, WeatherDiff) require significantly longer due to iterative denoising over many patches. Our baseline processes full-resolution frames without patch decomposition.                   
+
+> s/frame Total Time ESTINet [40] 4.34 130.2 min
+> RDD-Net [28] 2.79 83.7 min
+> RLP [37] 1.09 32.7 min
+> Turtle [12] 6.18 185.4 min
+> UConNet [43] 0.81 24.3 min
+> WeatherDiff [23] 11.00 5.50 h
+> NightRain [18] 74.81 37.41 h
+> Our Baseline 24.61 12.31 h ††
+
+Measured on NVIDIA H200; all others on A5000. Scaled by FP32 throughput (2.4 ×), est. ∼29.5 h on A5000.

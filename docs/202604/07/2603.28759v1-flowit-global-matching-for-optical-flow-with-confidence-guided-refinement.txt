@@ -1,0 +1,536 @@
+Title: FlowIt: Global Matching for Optical Flow with Confidence-Guided Refinement
+
+URL Source: https://arxiv.org/pdf/2603.28759v1
+
+Published Time: Tue, 31 Mar 2026 02:39:57 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+# FlowIt: Global Matching for Optical Flow with Confidence-Guided Refinement 
+
+Sadra Safadoust 1, Fabio Tosi 2, Matteo Poggi 2, and Fatma Güney 1
+
+> 1
+
+KUIS AI Center, Koç University 2University of Bologna 
+
+WAFT FlowIt 
+
+Fig. 1: Qualitative comparison between WAFT [70] and our FlowIt model. 
+
+Both models are fine-tuned on FlyingThings and evaluated zero-shot on Sintel Final training set. FlowIt can generalize much better to this unseen domain. 
+
+Abstract. We present FlowIt, a novel architecture for optical flow esti-mation designed to robustly handle large pixel displacements. At its core, FlowIt leverages a hierarchical transformer architecture that captures ex-tensive global context, enabling the model to effectively model long-range correspondences. To overcome the limitations of localized matching, we formulate the flow initialization as an optimal transport problem. This formulation yields a highly robust initial flow field, alongside explicitly derived occlusion and confidence maps. These cues are then seamlessly integrated into a guided refinement stage, where the network actively propagates reliable motion estimates from high-confidence regions into ambiguous, low-confidence areas. Extensive experiments across the Sin-tel, KITTI, Spring, and LayeredFlow datasets validate the efficacy of our approach. FlowIt achieves state-of-the-art results on the compet-itive Sintel and KITTI benchmarks, while simultaneously establishing new state-of-the-art cross-dataset zero-shot generalization performance on Sintel, Spring, and LayeredFlow. 
+
+Keywords: Optical Flow · Motion Estimation · Dense Correspondence 
+
+## 1 Introduction 
+
+Optical flow estimation, the task of determining the 2D motion of pixels between consecutive frames, is a cornerstone of dynamic scene understanding, crucial for many downstream applications such as video action recognition [51, 66, 82], autonomous driving [14, 25, 45], frame interpolation [18, 39, 78, 82], and video  
+
+> arXiv:2603.28759v1 [cs.CV] 30 Mar 2026 2S. Safadoust et al.
+
+in-painting [13, 32, 77]. In recent years, the landscape of deep learning-based optical flow has been heavily dominated by iterative local search architectures [28,48,67,71]. While these recurrent refinement models achieve impressive scores on constrained benchmarks by iteratively updating a flow field using local corre-lation lookups, their fundamental reliance on local search mechanisms inherently limits their ability to enforce long-range global consistency. This limitation of-ten leads to sub-optimal generalization, particularly in scenarios involving large displacements, severe occlusions, or textureless regions. Conversely, global matching architectures [27, 74, 81] provide a theoretically more robust alternative by explicitly capturing long-range dependencies and utilizing comprehensive context to resolve local ambiguities. However, the pro-hibitive computational and memory costs associated with dense 4D correlation volumes restrict these models to heavily downsampled feature maps, often at  
+
+> 18
+
+of the original resolution. Compounding this issue, the subsequent iterative refinement modules typically rely on localized search, leaving them susceptible to local minima and limiting their ability to correct large-displacement errors. In response to these challenges, we propose FlowIt , a new global match-ing network for optical flow estimation. The backbone of our framework relies on a hierarchical transformer design that facilitates rich context sharing, both horizontally within individual resolution stages and vertically across multiple scales. This feature exchange ensures that the model retains global coherence and effectively maps distant correspondences, critically enabling operations at a higher spatial scale. Drawing inspiration from recent advances in stereo match-ing that demonstrate the efficacy of Optimal Transport for disparity initializa-tion [46, 47], we formulate our initial flow extraction from the cost volume as an Optimal Transport problem [9], which yields a highly stable global flow prior for subsequent refinement. Beyond architectural enhancements, we introduce a confidence-aware refine-ment module that jointly estimates occlusion masks and confidence maps. These auxiliary predictions are leveraged to actively steer the refinement process, ex-plicitly encouraging reliable motion cues to propagate from regions of high cer-tainty into ambiguous, low-confidence zones. Supervised by a dedicated loss for-mulation, this guided propagation significantly improves the accuracy of the predicted flow field, particularly in visually challenging areas. We demonstrate the critical advantage of this approach on challenging scenes, where our model exhibits robust performance and substantial accuracy gains even in the presence of challenging visual phenomena such as transparent and reflective surfaces [73]. We comprehensively validate the performance of FlowIt across standard op-tical flow datasets, namely Sintel [7], KITTI [14], Spring [44], and Layered-Flow [73]. Our model achieves state-of-the-art results on established benchmarks, while also demonstrating very competitive zero-shot generalization capabilities. In summary, our contributions are as follows: 
+
+– We introduce FlowIt, a novel transformer-based global matching architecture for optical flow estimation that robustly resolves large pixel displacements. FlowIt 3
+
+To accommodate diverse computational constraints, we offer multiple model variants that optimize the trade-off between parameter size and performance. 
+
+– We propose a specialized loss formulation that significantly enhances flow ac-curacy. Coupled with the joint estimation of confidence and occlusion maps, this approach guarantees the high reliability of the final motion predictions. 
+
+– We establish new state-of-the-art zero-shot generalization capabilities across the Sintel, Spring, and LayeredFlow datasets, while simultaneously demon-strating superior performance on the Sintel and KITTI benchmarks. 
+
+## 2 Related Work 
+
+The evolution of optical flow estimation has transitioned from traditional energy minimization frameworks [5,16,80] to the current dominance of deep neural net-works. Among classical approaches, some introduced the coarse-to-fine spatial pyramid [2] to address large displacements where gradient-based optimization typically fails, which estimates motion across multiple resolutions. This is cou-pled with a warping mechanism [6] that iteratively aligns the source image to the target to resolve residual motion. Additionally, the use of discrete cost volumes storing matching costs across a search window provided robust global optimiza-tion, often enhanced by high-dimensional feature descriptors [4, 36]. These design choices now form the structural blueprint for modern deep learn-ing architectures. The shift to end-to-end deep models started with FlowNet [12], introducing a correlation layer used to compute a cost volume, followed by FlowNet 2 [22], which added multiple refinement stages making use of warp-ing. Similarly, another pillar of traditional methods, i.e., coarse-to-fine spatial pyramid, has been adopted by SpyNet [53], while PWC-Net [63] combined spa-tial pyramid with warping and cost volumes. Further advancements still built on these three pillars to optimize volumetric efficiency [79], achieve lightweight footprints [19–21], while also progressively improving the training strategies to attain optimal performance from existing architectures [64]. In the twenties, a paradigm shift in network design occurred with RAFT [67], casting flow estimation into an optimization-inspired iterative process guided by an all-pairs correlation volume, followed by further works [61] that assessed the separate contributions of architecture and training. This approach has become the cornerstone for subsequent architectures [10, 49], some of which focused on high-resolution processing [23, 24, 83], or on simplifying the iterative process to reduce complexity, at first with SEA-RAFT [71] running fewer iterations and, lately, with WAFT [70] by replacing the need for a cost volume with a warping-based iterative refinement stage. On a parallel track, the increasing popularity of vision transformers led to the development of transformer-based architectures for optical flow, such as Flow-Former [17], FlowFormer++ [58], CRAFT [60], GMFlowNet [81], and efficient high-resolution approaches [34] leveraging various forms of attention for global context. WAFT [70] exploits a vision transformer to guide the warping-based iterative refinement. Built on these two new design pillars, more architectures 4 S. Safadoust et al. … 4D                  
+
+> Correlation
+> volume
+> Optimal
+> Transport
+> Initial Optical Flow
+> Initial Occlusion Map
+> Initial Confidence Map
+> …
+> Global Local ×𝑇
+> Final Optical Flow
+> Final Occlusion Map
+> Final Confidence Map
+> CNN Encoder
+> FPN
+> FPN
+> MRT ×𝑁
+> Refinement
+> 𝐻
+> 4×𝑊
+> 4×𝐻
+> 4×𝑊
+> 4
+> 𝐻
+> 4×𝑊
+> 4×𝐻
+> 4×𝑊
+> 4
+> 4D
+> Probability
+> Map
+> Image 1
+> Image 2
+
+Fig. 2: Architecture Overview. FlowIt extracts multi-scale features from images using a CNN encoder followed by a Feature Pyramid Network (FPN). These features are processed with one or more Multi-Resolution Transformer (MRT) blocks. A 4D correlation volume is constructed using the 14 resolution features, and optimal transport is applied to produce a 4D probability map. Initial flow, occlusion, and confidence maps are derived using the probability map. These predictions are refined through a global refinement step, followed by three local refinement iterations to obtain the final outputs. 
+
+focused on specific challenges typical of optical flow, such as handling occlu-sions [27, 42, 65], exploiting the affinities with other matching tasks, such as stereo [74, 75], or matching pretraining [11], as well as the power of pre-trained depth foundation models [52]. On a side track, the use of diffusion models [56] also unveiled surprising effectiveness even in the absence of task-specific designs. Finally, other works explored directions orthogonal to the more classical, supervised optical flow setting, considering unsupervised approaches [30,37] as a possible solution to data scarcity, sometimes in synergy with stereo matching [29, 38], or developing alternatives for automatically generating training data [1, 15, 26, 62]. Beyond the two-frame setting, multi-frame approaches have also been explored [3, 8, 57, 68]. 
+
+## 3 Method 
+
+Given a pair of input images I1, I 2 ∈ RH×W ×3, our objective is to estimate a dense optical flow field F ∈ RH×W ×2 that represents the pixel-wise displacement between the two frames. Our approach is structured into four sequential stages, as illustrated in Fig. 2. In the following, we describe each stage in detail. 
+
+3.1 Feature Extraction 
+
+Recent state-of-the-art methods [70] employ large-scale Vision Transformers for feature extraction. While effective, such models are computationally expensive for dense optical flow estimation, particularly at high resolutions. To achieve a more efficient design, we adopt a CNN-based backbone to extract low-level visual representations. These features are then processed by a Feature Pyramid Network (FPN) to construct a multi-scale feature pyramid features. Formally, for each image Ii in the input pair, where i ∈ { 1, 2}, we define the feature extraction pipeline as F(Ii) = {f 4 
+
+> i
+
+, f 8 
+
+> i
+
+, f 16  
+
+> i
+
+, f 32  
+
+> i
+
+} where f si represents the feature maps of image i at 1 
+
+> s
+
+of the original resolution. The resulting multi-scale FlowIt 5      
+
+> (a) (b) (c) Fig. 3: Correlation and probability visualizations for a single pixel. (a) and
+> (b) show the correlation values in the pixel’s neighborhood for SEA-RAFT and FlowIt, respectively. (c) shows the corresponding probability map obtained by applying opti-mal transport to FlowIt’s correlation volume.
+
+features are subsequently fed into the Multi-Resolution Transformer (MRT) for further contextual refinement. The MRT follows a design similar to [47], processing all pyramid levels in parallel while enabling cross-scale interaction through an Adaptive Gated Fu-sion mechanism [47], which promotes effective information exchange across reso-lutions. Ultimately, the MRT aggregates these hierarchical inputs into a unified feature representation at 14 resolution, denoted as G(f 4 
+
+> i
+
+, f 8 
+
+> i
+
+, f 16  
+
+> i
+
+, f 32  
+
+> i
+
+) = gi, where 
+
+gi represents the final, contextually enriched feature map for image i.
+
+3.2 Initial Matching 
+
+To obtain the initial flow estimate, we utilize the 14 -resolution feature maps, 
+
+g1 and g2, to construct an all-pairs correlation volume C ∈ R H       
+
+> 4×W
+> 4×H
+> 4×W
+> 4
+
+.
+
+We cast correspondence estimation as a global matching problem over this cor-relation volume. Specifically, we employ entropy-regularized optimal transport and solve it using the Sinkhorn algorithm [9]. This formulation enforces soft mutual-consistency constraints between the two images and produces a globally consistent transport plan that is robust to matching ambiguities, where a locally optimal match from one image may not be optimal from the other. We adopt the standard dustbin strategy [46, 55] to account for occlusions and unmatched regions. The optimal transport solver produces a probabilistic matching tensor 
+
+P ∈ R H       
+
+> 4×W
+> 4×H
+> 4×W
+> 4
+
+, where P(u, v, u ′, v ′) denotes the probability of matching pixel (u, v ) in g1 to pixel (u′, v ′) in g2. Figure 3 illustrates examples of corre-lation and probability volumes. Compared to SEA-RAFT [71], the correlation volume is notably smoother, highlighting the effect of global matching. The initial flow field is computed using a localized soft expectation around the most confident match. For a source pixel (u, v ), let (u∗, v ∗) denote the target coordinate with the highest matching probability. We define a local window W
+
+of radius r centered at this peak: 
+
+W = {(u∗ + i, v ∗ + j) | − r ≤ i ≤ r, −r ≤ j ≤ r}. (1) 6 S. Safadoust et al. 
+
+We then compute the target coordinate (ˆ u, ˆv) as the probability-weighted centroid within this window: 
+
+ˆu =
+
+P 
+
+> (u′,v ′)∈W
+
+P(u, v, u ′, v ′) u′
+
+P 
+
+> (u′,v ′)∈W
+
+P(u, v, u ′, v ′) + ϵ , ˆv =
+
+P 
+
+> (u′,v ′)∈W
+
+P(u, v, u ′, v ′) v′
+
+P 
+
+> (u′,v ′)∈W
+
+P(u, v, u ′, v ′) + ϵ . (2) where ϵ is a small positive number. Finally, the initial optical flow F0 at location 
+
+(u, v ) is defined as the displacement between the expected target coordinate and the source coordinate: 
+
+F0(u, v ) = 
+
+ˆu − u
+
+ˆv − v
+
+
+
+. (3) In addition to the initial flow, we derive an initial occlusion map and initial confidence map from P. The confidence of the flow prediction for a given pixel is calculated as the sum of the matching probabilities within the local window surrounding the peak. Specifically, the initial confidence map Γ0 is derived as: 
+
+Γ0(u, v ) = X
+
+> (u′,v ′)∈W
+
+P(u, v, u ′, v ′) (4) where high matching probabilities in the window lead to a high confidence. The initial occlusion map O0 is derived as marginal sum over all target candidates: 
+
+O0(u, v ) = 
+
+> W
+> 4
+
+X
+
+> u′=1
+> H
+> 4
+
+X
+
+> v′=1
+
+P(u, v, u ′, v ′) (5) This quantity measures the total probability mass assigned to valid correspon-dences for pixel (u, v ). When the pixel has a clear match in the second image, the transport plan concentrates significant probability mass on the corresponding lo-cations, resulting in a high marginal sum. Conversely, if the pixel is occluded or unmatched, most of the mass is assigned to the dustbin [55], producing a lower marginal value. Together, the initial flow, occlusion, and confidence maps form a robust ini-tialization that will be subsequently refined in the next stage. 
+
+3.3 Refinement 
+
+The refinement stage consists of two key steps: a global flow correction followed by iterative local refinements. The global step targets low-confidence regions, such as occluded areas, by propagating motion information from nearby high-confidence pixels. Formally, given the initial flow field F0 and its confidence map Γ0, the global refinement produces an updated flow field [46]: 
+
+F′ 
+
+> 0
+
+= M ⊙ F0 + (1 − M) ⊙ Φ(g1, Γ0, F0). (6) Here, Φ is a confidence-guided aggregation function, implemented as a UNet. By conditioning on the confidence map, the network propagates flow vectors FlowIt 7
+
+from reliable areas to neighboring low-confidence pixels. The update is governed by a binary mask M, which is set to 1 for all pixels where the confidence Γ0
+
+exceeds a threshold, and 0 otherwise. This allows the model to preserve trusted initial estimates while reconstructing the motion in low-confidence regions via the aggregation function. We set the confidence threshold to 0.2 in our experiments. Following a single step of global refinement, the flow field undergoes itera-tive local refinements, similar to RAFT [67], to further sharpen the estimates. During each iteration t, a refinement network predicts residual updates for the optical flow ∆Ft, the confidence map ∆Γt, and the occlusion mask ∆Ot. The re-finements are conditioned on the predicted flow, occlusion, confidence, and local feature correlations. To guarantee numerical stability and enforce the valid [0 , 1] 
+
+bounds for occlusion and confidence maps, their respective residual updates are accumulated in the logit space: 
+
+Ft+1 = Ft + ∆Ft (7) 
+
+Γt+1 = σ  σ−1  Γt + ∆Γt (8) 
+
+Ot+1 = σ  σ−1  Ot + ∆Ot (9) where σ denotes the sigmoid function and σ−1 represents its inverse (the logit function). In practice, we estimate the optical flow residuals ∆Ft independently for the horizontal ( u) and vertical ( v) components with two separate networks. As demonstrated in Sec. 4.5, this axis-wise refinement strategy is critical for achieving high performance. Up to this point, all predicted flow, occlusion, and confidence maps are com-puted at 14 resolution. Following prior work [47, 67], we employ convex upsam-pling to obtain full-resolution predictions. Specifically, each high-resolution flow vector is expressed as a convex combination of its corresponding 3 × 3 neighbor-hood in the coarse-resolution grid, where the combination weights are learned feature maps. The same upsampling strategy is applied to the occlusion and confidence maps. 
+
+3.4 Supervision 
+
+The predicted initial flow F0, occlusion map O0, and confidence map Γ0, along with their refinements {Ft, Ot, Γt}Tt=1 , where t denotes the refinement iteration, are supervised as follows. 
+
+Occlusion Loss. The occlusion maps are trained using an L1 loss over all N
+
+pixels: 
+
+LO = 1
+
+N
+
+> T
+
+X
+
+> t=0
+
+Ot − Otgt 1 , (10) The ground-truth occlusion map Ogt is obtained via a forward–backward consis-tency check: a pixel is considered non-occluded if the forward–backward warping error is below 2 pixels. 8 S. Safadoust et al. 
+
+Confidence Loss. For the confidence map, the initial prediction is supervised using an L1 loss over non-occluded pixels only, while subsequent refinements are supervised over the full image: 
+
+LΓ = 1
+
+|Ogt | Ogt ⊙ (Γ0 − Γ0
+
+> gt
+
+) 1 + 1
+
+N
+
+> T
+
+X
+
+> t=1
+
+Γt − Γtgt 1 . (11) Note that Ogt equals 1 for non-occluded pixels and 0 otherwise, and |Ogt | denotes the number of non-occluded pixels. The ground-truth confidence map Γgt is defined as an indicator function selecting pixels whose endpoint error is below 4 pixels at full resolution (equivalent to 1 pixel at 14 resolution). 
+
+Optical Flow Loss. For the flow, the initial estimate is supervised using a Smooth-L1 loss restricted to non-occluded pixels, while refinement stages employ a standard L1 loss across all pixels: 
+
+LF = 1
+
+|Ogt | Smooth-L1
+
+ Ogt ⊙ (F0 − Fgt ) + 1
+
+N
+
+> T
+
+X
+
+> t=1
+
+Ft − Fgt 1 . (12) The overall training objective is defined as a weighted combination of the flow, confidence, and occlusion losses: 
+
+L = λFLF + λΓLΓ + λOLO. (13) In all experiments, we set the hyperparameters to λF = 1 , and λΓ = λO = 0 .1.
+
+## 4 Experiments 
+
+We evaluate FlowIt on Sintel [7], KITTI [14], and Spring [44]. Following prior work [70, 71], TartanAir [69], FlyingChairs [12], and FlyingThings [43] are also used for training. 
+
+4.1 Architecture Details 
+
+Input images are first encoded using a CNN backbone, and multi-scale features are extracted via a U-Net–style feature pyramid network (FPN). These pyra-mid features are processed by a series of multi-resolution transformer blocks. By varying the number of transformer blocks and the channel dimensions in the encoder, we define different model variants: (S) with 128 channels and 1 transformer block, (M) with 192 channels and 2 blocks, (L) with 256 channels and 3 blocks, and (XL) with 384 channels and 3 blocks. Both the global and local refinement modules employ U-Net–style networks to further process fea-tures. The global refinement predicts adjustments via a final convolutional layer, whereas the local refiner applies a convolutional GRU, similar to RAFT [67], to iteratively update flow, confidence, and occlusion maps. FlowIt 9
+
+Table 1: Results on Sintel [7] and KITTI [14] benchmarks. FlowIt (XL) ranks first on Sintel (Clean) and achieves performance comparable to state-of-the-art methods on Sintel (Final). On KITTI, it establishes a new state-of-the-art on non-occluded pixels, while remaining competitive with top-performing methods on other metrics. Extra Data Method Sintel KITTI Clean ↓ Final ↓ Fl-all ↓ Non-Occ ↓ Fl-bg ↓ Fl-fg ↓                                                                                                                                                                                                               
+
+> VIPER [54] CCMR+ [23] 1.07 2.10 3.86 2.07 3.39 6.21 MegaDepth [35] MatchFlow(G) [11] 1.16 2.37 4.63 2.77 4.33 6.11 YouTube-VOS [76] Flowformer++ [58] 1.07 1.94 4.52 ---CroCo-Pretrain CroCoFlow [72] 1.09 2.44 3.64 2.40 3.18 5.94 DDVM-Pretrain DDVM [56] 1.75 2.48 3.26 2.24 2.90 5.05 AF [62] FlowDiffuser [41] 1.02 2.03 4.17 2.82 3.68 6.64 SpyNet [53] 6.64 8.36 35.07 26.71 33.36 43.62 FlowNet2 [22] 4.16 5.74 10.41 6.94 10.75 8.75 GMFlow [74] 1.74 2.90 9.32 3.80 9.67 7.57 PWC-Net+ [64] 3.45 4.60 7.72 4.91 7.69 7.88 RAFT [67] 1.61 2.86 5.10 3.07 4.74 6.87 GMA [27] 1.39 2.47 5.15 ---DIP [83] 1.44 2.83 4.21 2.43 3.86 5.96 GMFlowNet [81] 1.39 2.65 4.79 2.75 4.39 6.87 CRAFT [60] 1.45 2.42 4.79 3.02 4.58 5.85 FlowFormer [17] 1.20 2.12 4.68 2.69 4.37 6.18 SKFlow [65] 1.28 2.23 4.85 -4.55 6.39 GMFlow+ [75] 1.03 2.37 4.49 2.40 4.27 5.60 EMD-L [10] 1.32 2.51 4.49 -4.16 6.15 RPKNet [49] 1.31 2.65 4.64 2.71 4.63 4.69
+> AnyFlow [31] 1.23 2.44 4.41 2.69 4.15 5.76 SAMFlow [84] 1.00 2.08 4.49 ---DPFlow [48] 1.04 1.97 3.56 2.12 3.29 4.93 TartanAir [69] SEA-RAFT(L) [71] 1.31 2.60 4.30 -4.08 5.37 TartanAir [69] WAFT-DAv2-a1 [70] 1.09 2.34 3.42 2.04 --TartanAir [69] WAFT-Twins-a2 [70] 1.02 2.39 3.53 2.12 3.18 5.28 TartanAir [69] WAFT-DAv2-a2 [70] 0.95 2.33 3.31 2.03 2.98 4.94 TartanAir [69] WAFT-DINOv3-a2 [70] 0.94 2.02 3.56 2.13 3.16 5.56 TartanAir [69] FlowIt (S) 1.14 2.67 4.61 2.59 4.42 5.57 TartanAir [69] FlowIt (M) 1.10 2.41 4.42 2.41 4.29 5.08 TartanAir [69] FlowIt (L) 0.99 2.45 4.47 2.37 4.37 4.97 TartanAir [69] FlowIt (XL) 0.93 2.29 3.81 1.94 3.54 5.18
+
+4.2 Implementation Details 
+
+FlowIt is implemented in PyTorch [50] and trained with the AdamW opti-mizer [40] using a 1cycle learning rate scheduler [59], peaking at 10 −5, and with gradients clipped to [−1, 1] . All experiments perform three local refinement iter-ations during both training and inference. A key advantage of our architecture is its compatibility with the pretrained weights from [47]; while the tasks are different and the architectures are not identical, we can initialize similar layers using their pretrained weights. As shown in Sec. 4.5, this initialization accelerates convergence and significantly improves overall performance. 
+
+Training Schedule. We train FlowIt on four NVIDIA H100/A100 GPUs with 64GB memory each. Our training schedule follows SEA-RAFT [71]. We first pretrain FlowIt on TartanAir [69] for 300K iterations at a resolution of 480 ×640 ,using a batch size of 8 for the (S) model and 4 for the larger variants. We then train on FlyingChairs [12] at 352 × 480 resolution, with batch sizes of 16 for the (S) and (M) models and 8 for the (L) and (XL) models. Next, we train on FlyingThings [43] (denoted as “C+T” following prior work) with a batch size of 10 S. Safadoust et al. 
+
+> Image 1 AnyFlow [31]
+
+Fl-all: 2.34 Fl-all: 1.53 Fl-all: 3.63 
+
+> RPKNet [49]
+
+Fl-all: 2.30 Fl-all: 1.70 Fl-all: 3.55 
+
+> DPFlow [48]
+
+Fl-all: 2.36 Fl-all: 1.36 Fl-all: 2.75 
+
+> WAFT [70]
+
+Fl-all: 2.69 Fl-all: 1.48 Fl-all: 2.70 
+
+> FlowIt (XL)
+
+Fl-all: 1.62 Fl-all: 0.76 Fl-all: 2.47 
+
+Fig. 4: Qualitative Results on KITTI [14] Test Set. Visualizations and error metrics are obtained directly from the official evaluation server. For WAFT, we report results using the DAv2-a2 variant, which achieves the best performance among WAFT models on the KITTI benchmark. 
+
+4 and resolution 416 × 896 . Subsequently, we train on a mixture of FlyingThings [43], Sintel [7], KITTI [14], and HD1K [33] (denoted as “C+T+S+K+H”), and use this model for submission to the Sintel benchmark. For KITTI [14], we further fine-tune the “C+T+S+K+H” models on the KITTI training set for 10K iterations with a batch size of 4. 
+
+4.3 Benchmark Results 
+
+We report results on the Sintel and KITTI benchmarks in Table 1. The FlowIt (XL) model achieves the best performance on Sintel (Clean). On Sintel (Final), it outperforms all WAFT [70] variants, except for the DINOv3 backbone. The smaller variants remain competitive with WAFT and other state-of-the-art meth-ods on this dataset. On KITTI, the (XL) model achieves the best performance on non-occluded pixels. Moreover, our (M), (L), and (XL) models outperform all WAFT variants on foreground pixels except for WAFT-DAv2-a2, while the (L) model performs on par with WAFT-DAv2-a2 and surpasses the remaining vari-ants. Figure 4 shows qualitative results on the KITTI benchmark, comparing the predictions by representative methods – WAFT [70], DPFlow [48], AnyFlow [31], and RPKNet [49] – with those by FlowIt. FlowIt 11 
+
+EPE: 0.819 EPE: 0.525 
+
+EPE: 0.851 EPE: 0.347 
+
+EPE: 1.85 EPE: 0.596 
+
+EPE: 0.474 EPE: 0.299 
+
+Image WAFT-DAv2-a2 [70] FlowIt (XL) Ground-truth 
+
+Fig. 5: Qualitative Results on Sintel [7] Training Set. From left to right: first frame, flow by WAFT-DAv2-a2 and FlowIt (XL), ground-truth flow. 
+
+4.4 Zero-Shot Generalization Results 
+
+Table 2: Generalization on Sintel.                                                       
+
+> Method Sintel (train) Clean ↓Final ↓
+> PWC-Net [63] 2.55 3.93 FlowNet2 [22] 2.02 3.14 RAFT [67] 1.43 2.71 GMA [27] 1.30 2.74 SKFlow [65] 1.22 2.46 DIP [83] 1.30 2.82 EMD-L [10] 0.88 2.55 CRAFT [60] 1.27 2.79 RPKNet [49] 1.12 2.45 GMFlowNet [81] 1.14 2.71 FlowFormer [17] 1.01 2.40 Flowformer++ [58] 0.90 2.30 CCMR+ [23] 0.98 2.36 MatchFlow(G) [11] 1.03 2.45 SEA-RAFT(L) [71] 1.19 4.11 AnyFlow [31] 1.10 2.52 SAMFlow [84] 0.87 2.11
+> FlowDiffuser [41] 0.86 2.19 DPFlow [48] 1.02 2.26 WAFT-Twins-a2 1.02 2.46 WAFT-DAv2-a2 1.01 2.49 WAFT-DINOv3-a2 1.28 2.56
+> FlowIt (S) 0.98 2.24
+> FlowIt (M) 0.99 2.29
+> FlowIt (L) 0.90 2.11 FlowIt (XL) 0.89 2.24
+
+Sintel. To assess the generalization capability of our models, we evaluate the zero-shot performance of FlowIt on the training splits of Sintel [7], us-ing the “C+T” models for all meth-ods. The results are summarized in Table 2. On the Final split of Sintel (train), FlowIt (L) achieves state-of-the-art performance, while our (XL) and (S) variants outperform all other methods except SAMFlow [84] and FlowDiffuser [41]. On the Clean split of Sintel, all FlowIt variants outper-form the WAFT variants, with the (XL) model achieving performance very close to state of the art – i.e., 0.89 vs 0.86. The superiority of FlowIt against WAFT is confirmed qualita-tively in Fig. 5. In particular, we can appreciate the much finer details in the flow fields predicted by our model, or some very subtle motion patterns that WAFT fails to perceive, whereas FlowIt successfully models – i.e., the snow on the ground shown in the second row, being moved by the mallet. 12 S. Safadoust et al. 
+
+Table 3: Generalization on Spring.                                                     
+
+> Extra Data Method Spring (train) 1px ↓EPE ↓
+> RAFT [67] 4.788 0.448 GMA [27] 4.763 0.443 RPKNet [49] 4.472 0.416 DIP [83] 4.273 0.463 SKFlow [65] 4.521 0.408 GMFlow [74] 29.49 0.930 GMFlow +[75] 4.292 0.433 Flowformer [17] 4.508 0.470 CRAFT [60] 4.803 0.448 WAFT-Twins-a2 5.611 0.557 WAFT-DAv2-a2 5.340 0.487 WAFT-DINOv3-a2 4.006 0.458 TartanAir [69] SEA-RAFT (S) 4.161 0.410 SEA-RAFT (M) 3.888 0.406 SEA-RAFT (L) 3.842 0.426
+> FlowIt (S) 4.331 0.487
+> FlowIt (M) 4.200 0.411
+> FlowIt (L) 3.835 0.403
+> FlowIt (XL) 3.827 0.390
+> MegaDepth [35] MatchFlow(G) [11] 4.504 0.407 YT-VOS [76] Flowformer ++ [58] 4.482 0.447 VIPER [54] MS- RAFT+ [24] 3.577 0.397
+
+Spring. Following [71], we also evaluate generalization performance on the Spring (train) dataset us-ing the “C+T+S+K+H” models, as shown in Table 3. For WAFT, we use the publicly available checkpoints re-leased for zero-shot evaluations. Our FlowIt (XL) and (L) variants outper-form all SEA-RAFT and WAFT mod-els, as well as all other methods, ex-cept MS-RAFT+, whose training pro-tocol deviates from ours and involves additional training data. The FlowIt (M) variant also surpasses WAFT and most competing approaches, trailing only SEA-RAFT (M) and (S), as well as MS-RAFT+, due to the additional training data it uses. This further con-firms the good generalization capabil-ity achieved by FlowIt. 
+
+LayeredFlow. We conclude our evaluation by conducting a further zero-shot generalization experiment on the recent LayeredFlow dataset [73], which features challenging transparent and reflective surfaces. 
+
+Table 4: Zero-shot Generalization –LayeredFlow (train) first layer eval-uation. Images down-sampled to 18 .                                                                                                        
+
+> Method All EPE ↓1px ↓3px ↓5px ↓
+> FlowNet-C [12] 9.71 89.07 61.51 43.93 FlowNet2 [22] 10.07 77.56 54.22 42.13 PWC-Net [63] 9.49 74.93 50.47 39.05 GMA [27] 9.77 72.46 46.93 36.97 SKFlow [65] 9.86 72.02 47.44 36.88 CRAFT [60] 10.36 72.34 47.54 37.00 GMFlow [74] 9.09 81.99 51.79 37.75 GMFlow+ [75] 9.46 82.71 53.14 39.70 FlowFormer [17] 10.20 73.59 48.97 38.56 RAFT [67] 9.38 71.98 46.46 36.15 SEA-RAFT (S) 10.05 71.48 46.90 36.32 SEA-RAFT (M) 10.17 69.73 45.94 34.78 SEA-RAFT (L) 10.99 69.46 45.59 34.78 FlowSeek (T) 9.09 70.82 43.74 32.36 FlowSeek (S) 9.16 69.99 43.67 31.90 FlowSeek (M) 8.30 68.85 41.81 32.09 FlowSeek (L) 8.30 68.98 41.49 31.64 WAFT-DAv2-a1 9.88 70.88 44.70 33.81 WAFT-Twins-a2 12.35 70.93 47.11 36.51 WAFT-DAv2-a2 10.75 73.06 51.40 40.85 WAFT-DINOv3-a2 9.30 73.05 48.25 38.22 FlowIt (S) 8.60 69.39 43.83 33.39 FlowIt (M) 9.32 70.44 45.19 35.75 FlowIt (L) 9.12 69.25 42.60 32.75 FlowIt (XL) 8.01 67.47 40.67 31.15
+
+Following [52], similar to the eval-uation on the Spring, we use the “C+T+S+K+H” models, except for WAFT, where we again use the mod-els specific for zero-shot evaluation. Evaluation is conducted on the vali-dation split, with input images down-sampled to 18 of their original resolu-tion. We report performance on the first layer (i.e., the surfaces closest to the camera). Results are presented in Table 4. Our (XL) model achieves the best results across all metrics. Fur-thermore, each variant of our model outperforms all WAFT variants, with the exception of FlowIt (M), which performs slightly worse than WAFT-DINOv3-a2 on the EPE metric. Fig. 6 shows qualitative comparisons be-tween WAFT–DAv2-a1 and FlowIt (XL), highlighting finer details and more accurate flow in the latter. FlowIt 13    
+
+> Image WAFT-DAv2-a1 [70] FlowIt (XL) Fig. 6: Qualitative Results on LayeredFlow [73]. From left to right: first frame, flow by WAFT-DAv2-a1 and FlowIt (XL).
+
+4.5 Ablation Study 
+
+We analyze the impact of our key design choices for FlowIt. All variants are trained on FlyingChairs [12] and evaluated on its validation split. Results are summarized in Table 5. 
+
+Model Size. By varying the feature channel dimensions and the number of transformer blocks (see Section 4.1), we define four model variants. Although (S) and (M) variants perform similarly, we observe significant improvements with larger variants (L) and (XL). 
+
+Loss Function. We evaluate the contribution of our loss formulation by com-paring it to a baseline that uses exponentially increasing weights, similar to RAFT [67]. In that baseline, confidence and occlusion maps are not directly supervised, preventing the flow predictions from effectively leveraging these sig-nals. Our proposed loss yields clear performance improvements, highlighting the benefit of explicit supervision on confidence and occlusion maps in addition to flow. 
+
+Transfer Learning. We initialize compatible layers using pretrained weights from [47], originally trained for stereo depth estimation. This initialization sig-nificantly improves convergence behavior and leads to better final performance, demonstrating the effectiveness of transfer learning despite the task mismatch. 
+
+Axis-wise Flow Refinement. We investigate two strategies for refining the optical flow components. In our default axis-wise refinement, the horizontal ( u)and vertical ( v ) components are refined independently, each with its own refine-ment head and update step as mentioned in Sec. 3.3. In contrast, coupled refine-14 S. Safadoust et al. 
+
+Table 5: Ablation study on FlyingChairs validation set. We ablate model size, loss function, transferring learning by using pre-trained weights from stereo [47], cou-pled refinement, and the number of refinement steps. Latencies are measured on an NVIDIA L40S GPU. Experiment Variant #Steps EPE ↓ 3px ↓ #GMACS latency (ms) FlowIt (S) 30.633 2.348 375 102 (M) 0.644 2.368 833 124 (L) 0.547 1.729 1535 152 (XL) 0.526 1.585 3368 227 Different Loss (S) 3 0.645 2.471 375 102 w/o Transfer Learning (S) 3 2.889 14.06 375 102 Coupled Refinement (S) 3 5.047 25.920 242 88 Refinement Steps (S) 0 1.720 7.622 179 80 1 0.694 2.674 244 88 3 0.633 2.348 375 102 5 0.640 2.349 505 116 
+
+ment predicts a two-channel update and jointly refines both components within a single head. We observe that the coupled design leads to unstable optimization and fails to converge properly, resulting in significantly degraded performance. Axis-wise refinement, on the other hand, enables stable training with substan-tially better accuracy, indicating that decoupling the two motion directions is crucial for effective refinement. 
+
+Number of Refinement Steps. We study the effect of varying the number of local refinement iterations. Omitting refinement leads to substantially lower performance, while increasing the number of iterations improves accuracy up to three steps. Beyond this point, additional iterations yield little benefit and can even slightly degrade performance. Balancing accuracy and computational cost, we adopt three refinement steps as the optimal configuration. 
+
+## 5 Conclusion 
+
+We presented FlowIt, a global matching network for optical flow that lever-ages optimal transport for robust initialization and confidence-aware refinement to propagate reliable motion cues into ambiguous regions. Rather than relying solely on local iterative updates, the model uses its own reliability estimates to selectively correct low-confidence predictions. This proves beneficial under occlu-sions and with transparent or reflective surfaces. Results across Sintel, KITTI, Spring, and LayeredFlow validate fine-tuned and zero-shot performance, while multiple model variants offer flexibility across computational budgets. Future work will focus on improving FlowIt capabilities to efficiently process high-resolution images, as well as extending it to process multiple consecutive frames and thus perform multi-frame optical flow estimation. FlowIt 15 
+
+## Supplementary Material 
+
+This document provides additional qualitative results. Figures S1 and S2 present zero-shot cross-dataset generalization results on the clean and final splits of the Sintel training set [7], respectively. Figures S3 and S4 show zero-shot cross-dataset generalization results on the Spring dataset [44]. Figures S5 and S6 demonstrate results on the clean and final splits of the Sintel test set [7], respec-tively. Finally, Figure S7 provides generalization results on LayeredFlow [73]. 
+
+> Image 1 SEA-RAFT
+
+EPE: 1.235 EPE: 0.429 EPE: 1.146 
+
+> WAFT
+
+EPE: 1.010 EPE: 0.326 EPE: 1.238 
+
+> FlowIt (XL)
+
+EPE: 0.676 EPE: 0.240 EPE: 0.895 
+
+> GT
+
+Fig. S1: Qualitative Results of Zero-Shot Generalization on Sintel (clean) [7] Training Set. From top to bottom: first frame, flow by SEA-RAFT (M) [71], WAFT-DAv2-a2 [70], FlowIt (XL) and ground-truth. 16 S. Safadoust et al. 
+
+> Image 1 SEA-RAFT
+
+EPE: 0.355 EPE: 0.172 EPE: 0.581 
+
+> WAFT
+
+EPE: 0.353 EPE: 0.157 EPE: 0.479 
+
+> FlowIt (XL)
+
+EPE: 0.224 EPE: 0.141 EPE: 0.329 
+
+> GT
+
+Fig. S2: Qualitative Results of Zero-Shot Generalization on Sintel (final) [7] Training Set. From top to bottom: first frame, flow by SEA-RAFT (M) [71], WAFT-DAv2-a2 [70], FlowIt (XL) and ground-truth. FlowIt 17 
+
+> Image 1 WAFT [70]
+
+EPE: 0.510 EPE: 1.153 EPE: 1.349 
+
+> SEA-RAFT [71]
+
+EPE: 0.306 EPE: 1.616 EPE: 0.918 
+
+> FlowIt (XL)
+
+EPE: 0.072 EPE: 0.848 EPE: 0.814 
+
+> Ground-Truth
+
+Fig. S3: Qualitative Results of Zero-Shot Generalization on Spring [44] Training Set. From top to bottom: first frame, flow by WAFT-DINOv3-a2 [70], SEA-RAFT (M) [71], FlowIt (XL) and ground-truth. 18 S. Safadoust et al. 
+
+> Image 1 WAFT [70]
+
+EPE: 1.537 EPE: 0.471 EPE: 0.162 
+
+> SEA-RAFT [71]
+
+EPE: 1.413 EPE: 0.475 EPE: 0.176 
+
+> FlowIt (XL)
+
+EPE: 0.907 EPE: 0.289 EPE: 0.159 
+
+> Ground-Truth
+
+Fig. S4: Additional Qualitative Results of Zero-Shot Generalization on Spring [44] Training Set. From top to bottom: first frame, flow by WAFT-DINOv3-a2 [70], SEA-RAFT (M) [71], FlowIt (XL) and ground-truth. FlowIt 19 
+
+> Image 1 SEA-RAFT
+
+EPE: 0.478 EPE: 3.040 EPE: 0.356 
+
+> WAFT
+
+EPE: 0.398 EPE: 2.974 EPE: 0.331 
+
+> FlowIt (XL)
+
+EPE: 0.384 EPE: 2.378 EPE: 0.322 
+
+> SEA-RAFT WAFT FlowIt (XL)
+
+Fig. S5: Qualitative Results on Sintel (clean) [7] Test Set. From top to bottom: first frame, flow predicted by SEA-RAFT (L) [71], WAFT-DINOv3-a2 [70], and FlowIt (XL), followed by the corresponding error maps. Results are obtained directly from the official Sintel evaluation server. 20 S. Safadoust et al. 
+
+> Image 1 SEA-RAFT
+
+EPE: 0.532 EPE: 0.379 EPE: 1.077 
+
+> WAFT
+
+EPE: 0.467 EPE: 0.398 EPE: 0.836 
+
+> FlowIt (XL)
+
+EPE: 0.387 EPE: 0.203 EPE: 0.859 
+
+> SEA-RAFT WAFT FlowIt (XL)
+
+Fig. S6: Qualitative Results on Sintel (final) [7] Test Set. From top to bottom: first frame, flow predicted by SEA-RAFT (L) [71], WAFT-DINOv3-a2 [70], and FlowIt (XL), followed by the corresponding error maps. Results are obtained directly from the official Sintel evaluation server. FlowIt 21 
+
+> Image 1 SEA-RAFT [71] WAFT [70] FlowIt (XL)
+
+Fig. S7: Qualitative Results of Zero-Shot Generalization on Layered-Flow [73]. From top to bottom: first frame, flow by SEA-RAFT (M) [71], WAFT-DAv2-a1 [70], and FlowIt (XL). 22 S. Safadoust et al. 
+
+## References 
+
+1. Aleotti, F., Poggi, M., Mattoccia, S.: Learning optical flow from still images. In: CVPR (2021) 2. Anandan, P.: A computational framework and an algorithm for the measurement of visual motion. IJCV 2, 283–310 (1989) 3. Bargatin, V., Chistov, E., Yakovenko, A., Vatolin, D.: MEMFOF: High-resolution training for memory-efficient multi-frame optical flow estimation. In: ICCV (2025) 4. Besse, F., Rother, C., Fitzgibbon, A., Kautz, J.: PMBP: Patchmatch belief prop-agation for correspondence problems. In: CVPR (2014) 5. Black, M.J., Anandan, P.: A framework for the robust estimation of optical flow. In: ICCV (1993) 6. Brox, T., Bruhn, A., Papenberg, N., Weickert, J.: High accuracy optical flow esti-mation based on a theory for warping. In: ECCV (2004) 7. Butler, D.J., Wulff, J., Stanley, G.B., Black, M.J.: A naturalistic open source movie for optical flow evaluation. In: ECCV. Springer (2012) 8. Cho, S., Huang, J., Kim, S., Lee, J.Y.: FlowTrack: Revisiting optical flow for long-range dense tracking. In: CVPR (2024) 9. Cuturi, M.: Sinkhorn distances: Lightspeed computation of optimal transport. In: NeurIPS (2013) 10. Deng, C., Luo, A., Huang, H., Ma, S., Liu, J., Liu, S.: Explicit motion disentangling for efficient optical flow estimation. In: ICCV (2023) 11. Dong, Q., Cao, C., Fu, Y.: Rethinking optical flow from geometric matching con-sistent perspective. In: CVPR (2023) 12. Dosovitskiy, A., Fischer, P., Ilg, E., Hausser, P., Hazirbas, C., Golkov, V., Van Der Smagt, P., Cremers, D., Brox, T.: FlowNet: Learning optical flow with convo-lutional networks. In: ICCV (2015) 13. Gao, C., Saraf, A., Huang, J.B., Kopf, J.: Flow-edge guided video completion. In: ECCV. Springer (2020) 14. Geiger, A., Lenz, P., Stiller, C., Urtasun, R.: Vision meets robotics: The KITTI dataset. IJCV 32 (11), 1231–1237 (2013) 15. Han, Y., Luo, K., Luo, A., Liu, J., Fan, H., Luo, G., Liu, S.: RealFlow: EM-based realistic optical flow dataset generation from videos. In: ECCV (2022) 16. Horn, B.K., Schunck, B.G.: Determining optical flow. Artificial intelligence 17 (1-3), 185–203 (1981) 17. Huang, Z., Shi, X., Zhang, C., Wang, Q., Cheung, K.C., Qin, H., Dai, J., Li, H.: FlowFormer: A transformer architecture for optical flow. In: ECCV (2022) 18. Huang, Z., Zhang, T., Heng, W., Shi, B., Zhou, S.: Real-time intermediate flow estimation for video frame interpolation. In: ECCV. pp. 624–642. Springer (2022) 19. Hui, T.W., Loy, C.C.: LiteFlowNet3: Resolving Correspondence Ambiguity for More Accurate Optical Flow Estimation. In: ECCV (2020) 20. Hui, T.W., Tang, X., Loy, C.C.: LiteFlowNet: A Lightweight Convolutional Neural Network for Optical Flow Estimation. In: CVPR (2018) 21. Hui, T.W., Tang, X., Loy, C.C.: A Lightweight Optical Flow CNN —Revisiting Data Fidelity and Regularization . IEEE TPAMI 43 (08), 2555–2569 (2021) 22. Ilg, E., Mayer, N., Saikia, T., Keuper, M., Dosovitskiy, A., Brox, T.: FlowNet 2.0: Evolution of optical flow estimation with deep networks. In: CVPR (2017) 23. Jahedi, A., Luz, M., Rivinius, M., Bruhn, A.: CCMR: High resolution optical flow estimation via coarse-to-fine context-guided motion reasoning. In: WACV (2024) FlowIt 23 24. Jahedi, A., Luz, M., Rivinius, M., Mehl, L., Bruhn, A.: MS-RAFT+: high resolu-tion multi-scale raft. IJCV 132 (5), 1835–1856 (2024) 25. Janai, J., Güney, F., Behl, A., Geiger, A., et al.: Computer vision for autonomous vehicles: Problems, datasets and state of the art. Foundations and trends ® in computer graphics and vision 12 (1–3), 1–308 (2020) 26. Jeong, J., Cai, H., Garrepalli, R., Porikli, F.: DistractFlow: Improving optical flow estimation via realistic distractions and pseudo-labeling. In: CVPR (2023) 27. Jiang, S., Campbell, D., Lu, Y., Li, H., Hartley, R.: Learning to estimate hidden motions with global motion aggregation. arXiv preprint arXiv:2104.02409 (2021) 28. Jiang, S., Lu, Y., Li, H., Hartley, R.: Learning optical flow from a few matches. In: CVPR (2021) 29. Jiao, Y., Tran, T.D., Shi, G.: EffiScene: Efficient per-pixel rigidity inference for unsupervised joint learning of optical flow, depth, camera pose and motion seg-mentation. In: CVPR (2021) 30. Jonschkowski, R., Stone, A., Barron, J.T., Gordon, A., Konolige, K., Angelova, A.: What matters in unsupervised optical flow. In: ECCV (2020) 31. Jung, H., Hui, Z., Luo, L., Yang, H., Liu, F., Yoo, S., Ranjan, R., Demandolx, D.: AnyFlow: Arbitrary scale optical flow with implicit neural representation. In: CVPR (2023) 32. Kim, D., Woo, S., Lee, J.Y., Kweon, I.S.: Deep video inpainting. In: CVPR (2019) 33. Kondermann, D., Nair, R., Honauer, K., Krispin, K., Andrulis, J., Brock, A., Gusse-feld, B., Rahimimoghaddam, M., Hofmann, S., Brenner, C., et al.: The HCI bench-mark suite: Stereo and flow ground truth with uncertainties for urban autonomous driving. In: CVPRW (2016) 34. Leroy, V., Revaud, J., Lucas, T., Weinzaepfel, P.: Win-Win: Training high-resolution vision transformers from two windows. arXiv preprint arXiv:2310.00632 (2023) 35. Li, Z., Snavely, N.: MegaDepth: Learning single-view depth prediction from internet photos. In: CVPR (2018) 36. Liu, C., Yuen, J., Torralba, A.: SIFT flow: Dense correspondence across scenes and its applications. IEEE TPAMI 33 (5), 978–994 (2010) 37. Liu, L., Zhang, J., He, R., Liu, Y., Wang, Y., Tai, Y., Luo, D., Wang, C., Li, J., Huang, F.: Learning by analogy: Reliable supervision from transformations for unsupervised optical flow estimation. In: CVPR (2020) 38. Liu, P., King, I., Lyu, M.R., Xu, J.: Flow2Stereo: Effective self-supervised learning of optical flow and stereo matching. In: CVPR (2020) 39. Liu, X., Liu, H., Lin, Y.: Video frame interpolation via optical flow estimation with image inpainting. IJCV 35 (12), 2087–2102 (2020) 40. Loshchilov, I., Hutter, F.: Decoupled weight decay regularization. arXiv preprint arXiv:1711.05101 (2017) 41. Luo, A., Li, X., Yang, F., Liu, J., Fan, H., Liu, S.: FlowDiffuser: Advancing optical flow estimation with diffusion models. In: CVPR (2024) 42. Luo, A., Yang, F., Luo, K., Li, X., Fan, H., Liu, S.: Learning optical flow with adaptive graph reasoning. In: AAAI (2022) 43. Mayer, N., Ilg, E., Hausser, P., Fischer, P., Cremers, D., Dosovitskiy, A., Brox, T.: A large dataset to train convolutional networks for disparity, optical flow, and scene flow estimation. In: CVPR (2016) 44. Mehl, L., Schmalfuss, J., Jahedi, A., Nalivayko, Y., Bruhn, A.: Spring: A high-resolution high-detail dataset and benchmark for scene flow, optical flow and stereo. In: CVPR (2023) 24 S. Safadoust et al. 45. Menze, M., Geiger, A.: Object scene flow for autonomous vehicles. In: CVPR (2015) 46. Min, J., Jeon, Y.: Confidence aware stereo matching for realistic cluttered scenario. In: ICIP. IEEE (2024) 47. Min, J., Jeon, Y., Kim, J., Choi, M.: S2M2: Scalable stereo matching model for reliable depth estimation. In: ICCV (2025) 48. Morimitsu, H., Zhu, X., Cesar Jr, R.M., Ji, X., Yin, X.C.: DPFlow: Adaptive optical flow estimation with a dual-pyramid framework. arXiv preprint arXiv:2503.14880 (2025) 49. Morimitsu, H., Zhu, X., Ji, X., Yin, X.C.: Recurrent partial kernel network for efficient optical flow estimation. In: AAAI (2024) 50. Paszke, A., Gross, S., Chintala, S., Chanan, G., Yang, E., DeVito, Z., Lin, Z., Desmaison, A., Antiga, L., Lerer, A.: Automatic differentiation in PyTorch. In: NeurIPS (2017) 51. Piergiovanni, A., Ryoo, M.S.: Representation flow for action recognition. In: CVPR (2019) 52. Poggi, M., Tosi, F.: FlowSeek: Optical flow made easier with depth foundation models and motion bases. In: ICCV (2025) 53. Ranjan, A., Black, M.J.: Optical flow estimation using a spatial pyramid network. In: CVPR (2017) 54. Richter, S.R., Hayder, Z., Koltun, V.: Playing for benchmarks. In: ICCV (2017) 55. Sarlin, P.E., DeTone, D., Malisiewicz, T., Rabinovich, A.: SuperGlue: Learning feature matching with graph neural networks. In: CVPR (2020) 56. Saxena, S., Herrmann, C., Hur, J., Kar, A., Norouzi, M., Sun, D., Fleet, D.J.: The surprising effectiveness of diffusion models for optical flow and monocular depth estimation. In: NeurIPS (2023) 57. Shi, X., Huang, Z., Bian, W., Li, D., Zhang, M., Cheung, K.C., See, S., Qin, H., Dai, J., Li, H.: VideoFlow: Exploiting temporal cues for multi-frame optical flow estimation. In: ICCV (2023) 58. Shi, X., Huang, Z., Li, D., Zhang, M., Cheung, K.C., See, S., Qin, H., Dai, J., Li, H.: Flowformer++: Masked cost volume autoencoding for pretraining optical flow estimation. In: CVPR (2023) 59. Smith, L.N., Topin, N.: Super-convergence: Very fast training of neural networks using large learning rates. In: Artificial intelligence and machine learning for multi-domain operations applications. vol. 11006, pp. 369–386. SPIE (2019) 60. Sui, X., Li, S., Geng, X., Wu, Y., Xu, X., Liu, Y., Goh, R., Zhu, H.: CRAFT: Cross-attentional flow transformer for robust optical flow. In: CVPR (2022) 61. Sun, D., Herrmann, C., Reda, F., Rubinstein, M., Fleet, D.J., Freeman, W.T.: Disentangling architecture and training for optical flow. In: ECCV (2022) 62. Sun, D., Vlasic, D., Herrmann, C., Jampani, V., Krainin, M., Chang, H., Zabih, R., Freeman, W.T., Liu, C.: AutoFlow: Learning a better training set for optical flow. In: CVPR (2021) 63. Sun, D., Yang, X., Liu, M.Y., Kautz, J.: PWC-Net: CNNs for optical flow using pyramid, warping, and cost volume. In: CVPR (2018) 64. Sun, D., Yang, X., Liu, M.Y., Kautz, J.: Models matter, so does training: An empirical study of CNNs for optical flow estimation. IEEE TPAMI 42 (6), 1408– 1423 (2019) 65. Sun, S., Chen, Y., Zhu, Y., Guo, G., Li, G.: SKFlow: Learning optical flow with super kernels. In: NeurIPS (2022) 66. Sun, S., Kuang, Z., Sheng, L., Ouyang, W., Zhang, W.: Optical flow guided feature: A fast and robust motion representation for video action recognition. In: CVPR (2018) FlowIt 25 67. Teed, Z., Deng, J.: RAFT: Recurrent all-pairs field transforms for optical flow. In: ECCV. Springer (2020) 68. Wang, Q., Chang, Y.Y., Cai, R., Li, Z., Hariharan, B., Holynski, A., Snavely, N.: Tracking everything everywhere all at once. In: ICCV (2023) 69. Wang, W., Zhu, D., Wang, X., Hu, Y., Qiu, Y., Wang, C., Hu, Y., Kapoor, A., Scherer, S.: TartanAir: A dataset to push the limits of visual SLAM. In: IROS. IEEE (2020) 70. Wang, Y., Deng, J.: WAFT: Warping-alone field transforms for optical flow. arXiv preprint arXiv:2506.21526 (2025) 71. Wang, Y., Lipson, L., Deng, J.: SEA-RAFT: Simple, efficient, accurate RAFT for optical flow. In: ECCV. Springer (2024) 72. Weinzaepfel, P., Lucas, T., Leroy, V., Cabon, Y., Arora, V., Brégier, R., Csurka, G., Antsfeld, L., Chidlovskii, B., Revaud, J.: CroCo v2: Improved cross-view com-pletion pre-training for stereo matching and optical flow. In: ICCV (2023) 73. Wen, H., Liang, E., Deng, J.: Layeredflow: A real-world benchmark for non-lambertian multi-layer optical flow. In: ECCV. pp. 477–495. Springer (2024) 74. Xu, H., Zhang, J., Cai, J., Rezatofighi, H., Tao, D.: GMFlow: Learning optical flow via global matching. In: CVPR (2022) 75. Xu, H., Zhang, J., Cai, J., Rezatofighi, H., Yu, F., Tao, D., Geiger, A.: Unifying flow, stereo and depth estimation. IEEE TPAMI (2023) 76. Xu, N., Yang, L., Fan, Y., Yue, D., Liang, Y., Yang, J., Huang, T.: Youtube-VOS: A large-scale video object segmentation benchmark. arXiv preprint arXiv:1809.03327 (2018) 77. Xu, R., Li, X., Zhou, B., Loy, C.C.: Deep flow-guided video inpainting. In: CVPR (2019) 78. Xu, X., Siyao, L., Sun, W., Yin, Q., Yang, M.H.: Quadratic video interpolation. In: NeurIPS (2019) 79. Yang, G., Ramanan, D.: Volumetric correspondence networks for optical flow. In: NeurIPS (2019) 80. Zach, C., Pock, T., Bischof, H.: A duality based approach for realtime tv-l1 optical flow. In: Joint Pattern Recognition Symposium (2007) 81. Zhao, S., Zhao, L., Zhang, Z., Zhou, E., Metaxas, D.: Global matching with over-lapping attention for optical flow estimation. In: CVPR (2022) 82. Zhao, Y., Man, K.L., Smith, J., Siddique, K., Guan, S.U.: Improved two-stream model for human action recognition. EURASIP Journal on Image and Video Pro-cessing 2020 (1), 1–9 (2020) 83. Zheng, Z., Nie, N., Ling, Z., Xiong, P., Liu, J., Wang, H., Li, J.: DIP: Deep inverse patchmatch for high-resolution optical flow. In: CVPR (2022) 84. Zhou, S., He, R., Tan, W., Yan, B.: SamFlow: Eliminating any fragmentation in optical flow with segment anything model. In: AAAI (2024)

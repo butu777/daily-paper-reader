@@ -1,0 +1,861 @@
+Title: EgoMind: Activating Spatial Cognition through Linguistic Reasoning in MLLMs
+
+URL Source: https://arxiv.org/pdf/2604.03318v1
+
+Published Time: Tue, 07 Apr 2026 00:05:13 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+## EgoMind: Activating Spatial Cognition through Linguistic Reasoning in MLLMs 
+
+Zhenghao Chen 1,2 Huiqun Wang 1,2 Di Huang 1,2*
+
+> 1
+
+State Key Laboratory of Complex and Critical Software Environment, Beihang University 
+
+> 2
+
+School of Computer Science and Engineering, Beihang University   
+
+> {zhenghao.chen, hqwangscse, dhuang }@buaa.edu.cn
+
+Abstract 
+
+Multimodal large language models (MLLMs) are in-creasingly being applied to spatial cognition tasks, where they are expected to understand and interact with complex environments. Most existing works improve spatial rea-soning by introducing 3D priors or geometric supervision, which enhances performance but incurs substantial data preparation and alignment costs. In contrast, purely 2D approaches often struggle with multi-frame spatial reason-ing due to their limited ability to capture cross-frame spa-tial relationships. To address these limitations, we propose 
+
+EgoMind , a Chain-of-Thought framework that enables geometry-free spatial reasoning through Role-Play Cap-tion, which jointly constructs a coherent linguistic scene graph across frames, and Progressive Spatial Analysis, which progressively reasons toward task-specific questions. With only 5K auto-generated SFT samples and 20K RL sam-ples, EgoMind achieves competitive results on VSI-Bench, SPAR-Bench, SITE-Bench, and SPBench, demonstrating its effectiveness in strengthening the spatial reasoning capabil-ities of MLLMs and highlighting the potential of linguistic reasoning for spatial cognition. Code and data are released at https://github.com/Hyggge/EgoMind .
+
+1. Introduction 
+
+With the rapid advancement of multimodal large language models (MLLMs), these models have been increasingly adopted in embodied intelligence, virtual reality (VR), and augmented reality (AR). Consequently, enhancing their spa-tial reasoning capabilities has become critical for enabling intelligent perception, reasoning, and interaction within complex environments. To this end, most concurrent approaches integrate ex-plicit 3D inputs into MLLMs pretrained on vision–language modalities. Researchers have explored diverse 3D informa-tion sources, including 3D point clouds [6, 7, 17, 31, 42, 43, 
+
+> *Corresponding author.
+
+54], bird’s-eye-view (BEV) representations [34, 62], depth maps [8, 10, 30], camera parameters [13, 15, 60], egocen-tric trajectories [23], and geometric features [9, 11, 19, 44] distilled from pretrained 3D backbones [38, 39]. Facili-tated by these geometry-based priors and alignment strate-gies, MLLMs acquire a global, metrically consistent under-standing of scenes, achieving stronger spatial comprehen-sion than vanilla counterparts. Despite these advancements, such approaches rely heav-ily on additional modalities or geometric supervision. In-tegrating 3D priors into MLLMs typically requires paired multimodal data [6, 17, 31, 43, 54] or geometry-guided pro-jection of 2D features into 3D space [13, 15, 60] during pre-training. Moreover, additional embedding alignment mech-anisms [9, 11, 19, 44] are needed to fuse heterogeneous 2D and 3D representations. These requirements introduce sub-stantial data preparation and alignment burdens, leading to high training costs and limited generalization. A few recent studies [4, 32, 44, 57] have sought to enhance spatial rea-soning using purely image–language inputs. Nevertheless, despite the strong performance of recent models on single-frame scene understanding [2, 3, 29, 36, 40, 53], these ap-proaches still struggle to internalize spatial understanding in complex multi-frame scenarios. Without explicit 3D priors, MLLMs must infer the underlying spatial structure solely from 2D frames. However, as illustrated in Fig. 1, they of-ten fail to establish the cross-frame spatial associations re-quired for accurate reasoning: direct inference frequently leads to incorrect answers due to disrupted viewpoint con-tinuity and limited awareness of implicit objects that act as spatial bridges. Although handcrafted progressive prompt-ing can sometimes steer the model toward a correct reason-ing chain, such a process is neither scalable nor reliable. To further examine this gap, we identify two underly-ing challenges. First, many existing methods process multi-view inputs on a frame-by-frame basis, without explic-itly modeling the continuous spatio-temporal transforma-tions and geometric relationships across viewpoints, result-ing in fragmented cross-frame spatial understanding. Sec-ond, MLLMs tend to focus exclusively on objects explic-1
+
+> arXiv:2604.03318v1 [cs.CV] 1 Apr 2026 pan 90 degrees to my right
+
+Question: 
+
+I'm standing in the middle of a 
+
+room, facing an office desk , so 
+
+where is the TV in relation to me? 
+
+Options: 
+
+A. front B. back 
+
+C. left D. r ight 
+
+EgoMind CoT 
+
+Guided Questioning          
+
+> I am facing the TV , so in which direction is the
+> dining table relative to me?
+> I am faci ng the white office desk , so where is
+> the dining table relative to me?
+> So if I'm standing in the middle of a room, facing
+> an office desk , where is the TV in relation to me?
+
+Directly Questioning 
+
+> According to the provided video, answer
+> the given questions and simply provide
+> the final answer.
+
+Spatial Task 
+
+Summary 
+
+Role-Play Caption 
+
+Progressive Spatial Analysis 
+
+Reasoning              
+
+> panning 90 degrees to the right,
+> passing the sofa
+> panning another 90 degrees to the right,
+> passing the wardrobe
+> My task is to determine the location of a TV relative to an observer
+> who is standing in the middle of a room and facing an office desk.
+> 1. Identify the objects directly mentioned in the task
+> [TV-0], [OFFICE-DESK-0]
+> 2. Identify the surrounding objects.
+> [SOFA-0], [WARDROBE-0],
+> [DINING-TABLE-0]
+> 3. Describe the absolute and relative positions of each object
+> ......
+> Based on the information above, ...... , therefore, the TV is behind
+> the observer, so the final answer is B.
+> I'm standing in the center of a room. As I look forward, I see a
+> large, black flat-screen TV on a low, white media console. To its left
+> stand a guitar and a mirror. I then pan 90 degrees to my right,
+> with my view sweeping past a sofa . My view shifts to a small, wooden
+> dining table with a single matching chair. On the table sits a vase
+> with flowers, and behind it is a window with dark blue curtains. I
+> continue panning another 90 degrees to the right, with my v iew
+> sweeping past the wardrobe . I'm now facing a white office desk
+> with a blue chair. On the desk, there is a closed, dark-colore d
+> laptop. And the bed is on the right of the desk. Right.
+> Left.
+> Back. C. Left.
+
+Figure 1. Illustration of the differences among spatial reasoning approaches. Direct questioning often fails because of missing cross-frame correlations and limited awareness of implicit objects needed for spatial bridging. Guided questioning helps the model gradually establish these associations. In contrast, EgoMind CoT explicitly models viewpoint transitions and implicit spatial bridges, builds a coherent global scene representation, and reliably produces the correct answer. 
+
+itly mentioned in the query, while overlooking implicit yet crucial contextual elements needed to bridge observations across frames, resulting in incomplete or erroneous rea-soning chains. Together, these issues hinder pure vision– language MLLMs from constructing coherent spatial repre-sentations and performing robust multi-frame reasoning. To address these challenges, we enhance MLLMs’ spa-tial reasoning through carefully structured linguistic sig-nals, enabling them to bridge cross-frame viewpoint discon-tinuities and reason more effectively about implicit object relations. Specifically, the Role-Play Caption (RPC) com-ponent simulates an agent navigating an environment from a first-person perspective, generating coherent descriptions of frame-wise observations and viewpoint transitions to build a consistent global understanding of the scene. In paral-lel, the Progressive Spatial Analysis (PSA) component first localizes objects explicitly mentioned in the query, then ex-pands its attention to surrounding entities, and finally rea-sons about their spatial relationships in an integrated man-ner. By combining these two components, we propose a novel chain-of-thought (CoT) framework, termed Ego-Mind, that jointly models inter-frame dependencies and im-plicit object relations, thereby substantially improving spa-tial understanding without relying on geometric inputs or explicit 3D priors. Benefiting from the flexibility and abstraction capabili-ties of linguistic reasoning, EgoMind remains highly cost-efficient to train while delivering strong spatial reasoning performance. Using only 5K automatically generated sam-ples for supervised fine-tuning, without handcrafted an-notations, and 20K samples for reinforcement learning, EgoMind achieves competitive results on VSI-Bench [49], SITE-Bench [41], SPBench [21], and SPAR-Bench [55] un-der purely image–language supervision, demonstrating both the efficiency and effectiveness of the proposed framework. Our contributions are as follows: • We propose EgoMind, a novel framework with a specially designed CoT paradigm that integrates Role-Play Caption and Progressive Spatial Analysis to induce spatial under-standing through linguistic reasoning. • We develop a fully automated data generation pipeline based on the EgoMind CoT formulation, requiring no hu-man annotation and enabling cost-efficient training with reduced data overhead. • Extensive experiments on the benchmarks show that Ego-Mind achieves competitive performance among open-source MLLMs, validating the proposed framework. 
+
+2. Related Work 
+
+2.1. Multimodal Understanding and Reasoning 
+
+Recently, MLLMs have advanced rapidly, exhibiting in-creasingly strong capabilities in multimodal understanding and reasoning. Early efforts focused on architectural de-2sign. For example, BLIP-2 [22] introduced the Q-Former, while Flamingo [1] employed cross-attention to build a uni-fied vision–language embedding space. The LLaVA se-ries [25–27] further established an LLM-centric paradigm in which visual inputs are projected into the language em-bedding space through a simple MLP. Owing to its sim-plicity and effectiveness, this paradigm has been widely adopted in subsequent MLLM research. Building on this foundation, training strategies such as multi-stage alignment [3, 20, 29, 40] and instruction tun-ing [5, 61], together with large-scale visual instruction datasets [20, 37], have been proposed to develop stronger open-source multimodal models [2, 3, 20, 29, 36, 40, 53]. To further enhance multimodal reasoning, LLaVA-CoT [48] structures reasoning into four stages for step-by-step in-ference, while Mulberry [51] leverages a collective Monte Carlo tree search to learn from explicit reasoning trees. In addition, reinforcement learning methods inspired by DeepSeek-R1 [14] have been introduced to strengthen gen-eral reasoning [12, 16, 18, 28, 33, 50, 56], further pushing the reasoning capabilities of MLLMs. Despite these advancements, current MLLMs still strug-gle with spatial understanding and reasoning when relying purely on image–language inputs. In particular, capturing spatial relationships and maintaining a coherent global per-ception across multiple views remain open challenges. 
+
+2.2. Spatial Understanding and Reasoning 
+
+Driven by the growing application of MLLMs in spa-tial cognition tasks, recent studies have introduced various strategies to enhance spatial understanding capabilities. 3D prior–based approaches focus on integrating explicit 3D information into MLLMs to improve spatial reasoning and scene comprehension. LL3DA [6] and LEO [17] em-ploy additional 3D branches to incorporate point clouds for enhanced scene-level understanding. Grounded 3D-LLM [7] designs a cross-modal interaction module to im-prove fine-grained object reasoning in 3D space, while Chat3D [43] and ChatScene [54] utilize 3D detectors or segmentors to extract explicit object features from 3D modalities. Beyond point clouds, 3D-LLM [15], Scene-LLM [13], and LLaVA-3D [60] leverage camera param-eters to project multi-view 2D features into correspond-ing 3D coordinates, forming spatially consistent representa-tions. GPT4Scene [34] and Struct2D [62] introduce bird’s-eye-view (BEV) representations to capture global scene lay-outs, while SpatialPIN [30], MM-Spatial [10], and GSRea-soner [8] employ depth maps to provide crucial depth cues. To capture spatio-temporal dynamics, See&Trek [23] ex-plicitly encodes egocentric trajectory maps, aiding camera-motion understanding during video capture. Furthermore, 3D foundation models such as VGGT [38] and CUT3R [39] are integrated or distilled into MLLMs, for example, in Spatial-MLLM [44], VLM-3R [11], and 3DThinker [9], to extract 3D-reconstructive tokens from 2D imagery. Vanilla MLLM–based approaches aim to improve spatial reasoning without incorporating explicit 3D priors. Spa-tialVLM [4] leverages large-scale scene-centric datasets to enhance spatial awareness, while Video3DLLM [57] ex-tends this idea to multi-frame scenarios. SpaceR [32] in-troduces 2D grids with object-layout intermediate super-vision to guide learning, and ST-Think [46] integrates re-verse reasoning into reinforcement learning to improve spa-tial inference. R1-Zero-VSI [24] constructs a high-quality spatial reasoning dataset and fine-tunes MLLMs using an optimized GRPO algorithm, whereas Spatial-Ladder [21] adopts a three-stage training strategy to progressively en-hance spatial understanding. However, these methods de-pend on additional supervision or large-scale data, resulting in substantial training costs and limited generalization. 
+
+3. Methodology 
+
+3.1. Formulation 
+
+Given a sequence of N temporally ordered frames I =
+
+{I1, I 2, . . . , I N } sampled from a video depicting a scene, and a natural language question Q, the objective is to pre-dict the corresponding answer A using an MLLM: 
+
+A = Fθ (I, Q ) (1) where Fθ denotes an MLLM parameterized by θ.In contrast to single-frame visual reasoning, answering 
+
+Q from multi-frame observations requires the model to infer a coherent spatial context from partial views acquired across different viewpoints and time steps, while simultaneously constructing a task-relevant reasoning structure. 
+
+Global Context. Let Oi and Ri denote the sets of ob-jects and intra-frame spatial relations observed in frame Ii,respectively. Each frame induces a local relational graph 
+
+Gi = ( Oi, Ri). The task requires integrating these partial observations into a global scene context Gctx = ( O, R),where O = S 
+
+> i
+
+Oi, and R includes both intra-frame rela-tions and cross-frame relations established through object correspondences and viewpoint transitions. 
+
+Task-Relevant Context. To support question-oriented rea-soning, we identify the spatial context relevant to Q. Specif-ically, the question-relevant object set is defined as Orel =
+
+Oexp ∪ O imp , where Oexp denotes objects explicitly men-tioned in Q, and Oimp denotes implicit objects serving as intermediate spatial anchors for multi-step reasoning. Let 
+
+Rrel ⊆ R denote the corresponding question-relevant spa-tial relations. The resulting question-relevant context is de-fined as Grel = ( Orel , Rrel ).Therefore, accurate multi-frame spatial reasoning re-quires the model not only to construct a coherent global 3scene graph from distributed observations, but also to re-trieve and reason over the question-relevant subgraph. By integrating global spatial context for cross-frame scene un-derstanding with task-oriented context for question-specific reasoning, the MLLM can establish the spatial associations necessary for predicting the correct answer. 
+
+3.2. Role-Play Caption 
+
+To accurately answer spatial questions, most existing ap-proaches [34, 62] introduce additional 3D inputs to pro-vide explicit geometric priors, thereby guiding MLLMs to construct the global spatial context Gctx . Other approaches focus on predicting per-frame objects Oi [52] or estimat-ing inter-frame camera motion, i.e., the pose transforma-tion Vi→i+1 [23]. However, such methods often struggle to establish reliable inter-frame relations Rinter , resulting in fragmented and spatially inconsistent scene understanding. In contrast, EgoMind aims to construct the global spatial context Gctx purely through linguistic reasoning, without re-lying on explicit 3D priors. To form a coherent and cross-frame consistent spatial graph, two key aspects must be ad-dressed. First, viewpoint transitions across frames should be explicitly captured to ensure continuity and spatial con-sistency. Second, anchor objects must be identified to con-nect overlapping observations across frames, thereby estab-lishing a unified global representation. To this end, we first derive a linguistic description 
+
+Di for each frame Ii. Each description encapsulates the detected objects Oi and their spatial configuration, en-abling the model to reason about spatial layout and view-point transitions in purely linguistic form. The collec-tion of frame-level descriptions forms the base context 
+
+{D 1, D2, . . . , DN }, which serves as the structured linguis-tic input for subsequent reasoning. Building on these frame-level descriptions, RPC further introduces transition descriptions ∆Ti→i+1 between con-secutive frames Di and Di+1 to explicitly model viewpoint transitions from a first-person egocentric perspective. Each transition ∆Ti→i+1 linguistically approximates the unob-served relative motion Vi→i+1 (e.g., “I move forward and turn right to view the table from another side” ), allowing the model to align frame-level observations coherently in space. Formally, the enriched Role-Play Caption context is defined as: 
+
+ˆC = {D 1, ∆T1→2, D2, ∆T2→3, . . . , DN } (2) To maintain narrative coherence, redundant object de-scriptions across adjacent frames are simplified through per-spective normalization, such that each newly observed ob-ject or relation is incrementally integrated into the evolving scene context. This process yields a coherent, linguistically grounded scene representation that implicitly encodes both inter-frame correspondences and spatial continuity: 
+
+ˆGRPC = f lang RPC ( ˆC) = ( ˆO, ˆR, ˆV) (3) where ˆO and ˆR denote the linguistically reconstructed ob-jects and spatial relations, and ˆV denotes the inferred view-point transitions. Here, f lang RPC (·) represents the linguistic reasoning function performed by the model. The resulting ˆGRPC provides a unified linguistic spatial graph that captures both intra-frame and inter-frame depen-dencies, serving as the foundation for higher-level spatial reasoning in EgoMind. 
+
+3.3. Progressive Spatial Analysis 
+
+Previous attempts aim to directly extract the question-relevant objects Orel and their relations from the global con-text. However, due to inaccurate object grounding and in-complete inter-frame associations, such direct inference is often affected by missing or noisy objects and relations, re-sulting in suboptimal reasoning chains and answers. In contrast, we propose PSA as a key component of the EgoMind CoT for capturing task-relevant context. Given a question Q, PSA first identifies the explicitly mentioned tar-get object set Oexp = {o1, o 2, . . . , o k}. It then expands this initial set by iteratively exploring the corresponding spa-tial neighborhoods in the linguistic scene graph ˆGRPC con-structed by RPC. Finally, the model evaluates the spatial relations among the resulting consolidated objects. Formally, for each explicit target object oi ∈ O exp , its spatial neighborhood is defined as 
+
+N (oi) = 
+
+n
+
+oj ∈ ˆO | (oi, o j ) ∈ ˆR
+
+o
+
+(4) To ensure comprehensive coverage of potential spatial bridges, PSA aggregates these neighborhoods to form an expanded candidate set ˆOrel = S 
+
+> oi∈O exp
+
+N (oi). This ag-gregated set ˆOrel is intended to cover the question-relevant objects Orel , including both the explicitly mentioned targets 
+
+Oexp and the implicit spatial anchors Oimp .Based on the expanded candidate set ˆOrel , PSA further constructs a localized reasoning chain by exploring rela-tional paths within the global context ˆGRPC . Each step corresponds to an atomic spatial relation in ˆR, ultimately yielding the task-relevant relation set ˆRrel . The resulting reasoning process is formalized as: 
+
+ˆGPSA = f lang PSA (Q, ˆGRPC ) (5) where f lang PSA (·) denotes the linguistic reasoning function. This function leverages the global scene graph ˆGRPC to de-rive a task-specific reasoning context ˆGPSA .By progressively expanding the reasoning scope and leveraging spatial bridges, PSA enables the model to per-form fine-grained spatial reasoning without relying on ex-plicit 3D geometry, thereby complementing the global scene graph constructed by RPC. 4Question:      
+
+> I'm standing in the middle of a room,
+> facing an office desk , so where is the TV
+> in relation to me?
+> Options:
+> A. fro nt B. back
+> C. le ft D. right
+> MLLM
+> Powered by
+> EgoMind
+> Training Strategy
+> Spatial Task
+> SFT GRPO
+> x
+> ∆��→�
+> ∆��→�
+> ∆��→�
+> ∆��→�
+> ��
+> ��
+> ��
+> ��
+> ��
+> As I look forward, I see......
+> My view pans 90 degrees to the right, l find......
+> Another 90-degree turn brings into focus ......
+> ......
+> ����
+> 풍풂  
+> Summary
+> RPC
+> PSA
+> Reasoning
+> So,the answer is B.
+> Task-Relevant Objects
+> Structured CoT Data
+> Q
+> Think
+> Ans
+> Reward
+> Format
+> Accuracy
+> Q
+> Response
+> Ground Truth
+> Cross
+> Entropy
+> 1. Identify the objects directly mentioned
+> in the task: ...
+> 2. Identify the surrounding objects: ..
+> 3. Describe the absolute and relative
+> positions of each object: ...
+> Model Output
+> RPC
+> PSA
+> Implied
+
+Figure 2. Illustration of the proposed EgoMind framework. MLLMs powered by EgoMind first generate a Role-Play Caption by producing per-frame scene descriptions and inferring viewpoint transitions. The model then performs Progressive Spatial Analysis (PSA) to identify relevant objects, expand spatial dependencies via implicit spatial bridges, and form a coherent reasoning chain. Finally, the system outputs the EgoMind CoT, unifying RPC and PSA into an interpretable spatial reasoning process. 
+
+3.4. Framework 
+
+CoT Design. Building on RPC for global context construc-tion and PSA for task-relevant context extraction, we for-mulate the final chain-of-thought (CoT) structure of Ego-Mind, as illustrated in Fig. 2. The CoT begins with a Summary Field , in which the model analyzes the question Q to identify its spatial reason-ing requirements and outline a high-level reasoning plan. Next, the RPC Field generates detailed language-based scene descriptions, constructing a linguistically grounded global spatial context ˆGRPC that captures both intra-frame and inter-frame relations. The PSA Field then progressively aggregates question-relevant objects and their spatial rela-tions to derive a task-specific spatial context ˆGPSA . Finally, the Reasoning Field integrates the contextual information derived from the previous stages to produce the answer. Since the underlying 3D scene context is inherently un-observable from discrete 2D frames, the constructed ˆGRPC 
+
+and ˆGPSA serve as explicit linguistic context for spatial rea-soning. Accordingly, the final inference process is formu-lated as: 
+
+A = Fθ (I, Q | ˆGRPC , ˆGPSA ) (6) where Fθ leverages both the global spatial context ˆGRPC 
+
+and the task-specific spatial context ˆGPSA to derive the an-swer through a coherent and interpretable reasoning chain. By following this paradigm, MLLMs can systematically align multi-frame observations and perform fine-grained spatial reasoning, thereby achieving robust multi-view spa-tial understanding. 
+
+Data Generation. To enable MLLMs to follow the pro-posed CoT design, we develop a fully automated pipeline for generating EgoMind-style CoT data, as shown in Fig. 3. 
+
+RPC Generation. We first feed sampled multi-frame in-puts into GPT-4o to generate frame-level descriptions Di.To avoid question-induced attention bias, we use a prompt that encourages exhaustive and unbiased descriptions. GPT-4o is then used to infer the viewpoint transition ∆Ti→i+1 
+
+between adjacent frames. Based on these descriptions and transitions, we employ Qwen2.5-72B as f lang RPC to produce linguistically grounded representations that encode inter-frame correspondences and spatial continuity. 
+
+Spatial Context Modeling. To support PSA, we next con-struct task-relevant spatial context. Treating this as a pure VLM task, we provide GPT-4o with the sampled frames, the question, and a structured prompt that instructs it to gener-ate a task summary identifying the task type and target ob-jects, as well as visual clues describing adjacent objects and the attributes of target and neighboring entities. 
+
+EgoMind CoT Generation. Finally, the generated RPC and extracted spatial context are fed into GPT-4o, which 5Stage1: Role-Play Caption Generation     
+
+> Q&A
+> Stage2: Spatial Context Modeling
+> Stage3: EgoMind CoT Generation
+> Prompt For
+> Role-Play Caption
+> Description-1
+> Description-2
+> Description-3
+> Description-1
+> Description-2
+> Description-3
+> Transition 1-2
+> Transition 2-3
+> VLM
+> VLM Role-Play
+> Caption
+> Prompt For
+> Multi-Stage CoT
+> VLM
+> Q&A
+> Spatial Context
+> <answer> ....... </answer>
+> Merge Filter
+> <think>
+> </think>
+> Summary
+> Role-Play Caption
+> Progressive Spatial Analysis
+> Reasoning
+> Transition
+> Injection
+> LLM
+> Linguistic
+> Synthesis
+> Task Summary
+> Task
+> Type
+> Target
+> Objects
+> Visual Clues
+> Adjacent
+> Objects
+> Object
+> Attributes
+
+Figure 3. Illustration of the data generation pipeline. Randomly sampled video frames and a tailored instruction are first given to GPT-4o to produce detailed per-frame descriptions. Qwen2.5-72B then infers viewpoint transitions and synthesizes them into the Role-Play Caption (RPC). In parallel, another GPT-4o instance, guided by a structured instruction, extracts the required spatial context from the multi-frame input and question. Finally, GPT-4o merges the RPC and spatial context to generate the final EgoMind Chain-of-Thought. 
+
+produces the full EgoMind CoT through a designed prompt template, integrating the summary, RPC, PSA, and reason-ing stages. Unlike existing approaches that rely on large-scale multi-modal data collection, manual annotation, or structured ge-ometric labels, our pipeline is entirely annotation-free and highly scalable. Using this pipeline, we generate 5K high-quality CoT samples to substantially enhance the spatial reasoning capability of MLLMs. 
+
+Training Strategy. To train MLLMs to follow the Ego-Mind CoT structure, we adopt a two-stage paradigm: Su-pervised Fine-Tuning (SFT) to learn the structured CoT format, followed by Group Relative Policy Optimization (GRPO) to further improve reasoning through reward-guided refinement. For each question q, GRPO samples a group of candidate reasoning paths {o1, . . . , o G} from the old policy πθold and optimizes: 
+
+JGRPO (θ) = Eq, o i
+
+"
+
+1
+
+G
+
+> G
+
+X
+
+> i=1
+
+min 
+
+
+
+ri(θ)Ai,
+
+clip( ri(θ), 1 − ε, 1 + ε)Ai
+
+
+
+− β KL( πθ ∥ πref )
+
+!# 
+
+(7) 
+
+where 
+
+ri(θ) = πθ (oi | q)
+
+πθold (oi | q)
+
+is the importance-sampling ratio, and 
+
+Ai = Ri − mean( R1, . . . , R G)std( R1, . . . , R G)
+
+is the group-normalized advantage. The KL term regular-izes πθ toward the reference policy πref , with strength con-trolled by β. The reward is defined as: 
+
+Ri = wf Rformat (y | x) + wa Raccuracy (y | x) (8) where wf and wa balance format and accuracy rewards. Based on these reward signals, GRPO iteratively refines the model’s policy to improve both structural adherence and answer accuracy, ultimately enabling the MLLM to inter-nalize the EgoMind reasoning paradigm. 
+
+4. Experiments 
+
+4.1. Implementation 
+
+Following prior works [12, 32], we adopt Qwen2.5-VL-7B [3] as our base model for a fair comparison. To enhance spatial reasoning, we follow the two-stage training strategy described in Sec. 3.4. Specifically, supervised fine-tuning (SFT) is performed on 5K automatically generated Ego-Mind samples using the LLaMAFactory framework [58] for 3 epochs with a learning rate of 5 × 10 −6.For reinforcement learning, we randomly sample 20K examples from SpaceR-91k [32] and conduct GRPO train-ing using the EasyR1 framework [59]. During this stage, we use a batch size of 64 and generate 8 candidate reason-ing paths for each question. For both training and inference, 6Table 1. A comprehensive comparison of EgoMind with state-of-the-art vision–language models across four spatial reasoning benchmarks.                                                                                                                                                                                                                                                                                                       
+
+> Models Params Data Size VSI-Bench SPAR-Bench SITE-Bench SPBench Overall Numerical Question Multiple-Choice Question Obj. Cnt. Abs. Dist. Obj. Size Room Size Rel. Dist. Rel. Dir. Route Plan Appr. Order
+> Closed-source Models
+> GPT-4.1 --47.21 44.44 26.16 64.71 53.06 51.27 36.47 38.14 63.43 42.77 64.16 54.51 GPT-5 --51.66 45.82 32.57 69.77 46.15 57.61 41.74 47.42 67.48 54.72 67.89 54.77 Gemini 2.5 Pro --50.62 40.8 35.13 67.00 54.83 55.92 41.74 45.36 62.78 49.42 66.00 55.90
+> Pure Image–Language MLLMs
+> Qwen2.5-VL [3] 7B -30.02 23.75 10.50 36.98 35.31 38.45 37.09 28.87 28.48 33.19 53.74 41.65 InternVL3 5 [40] 7B -44.17 50.37 34.66 50.89 46.91 45.35 46.18 34.54 38.19 38.05 52.09 52.23 MiMo-VL-RL [47] 7B -33.28 16.90 20.41 45.88 30.76 41.27 28.41 31.44 46.44 31.44 40.87 33.30 Ovis2.5 [29] 7B -40.93 50.60 32.60 54.92 37.71 43.10 34.81 28.87 34.14 51.44 59.35 25.75 MiniCPM-V-4 5 [53] 7B -34.13 42.41 25.66 32.55 20.21 40.42 36.57 22.68 39.48 35.98 55.93 38.61 LLaVA-OneVision [25] 7B -32.40 47.70 20.20 47.40 12.30 42.50 35.20 29.40 24.40 30.60 -32.70
+> Models with Explicit 3D Spatial Priors (Point Clouds, Depth, BEV, Camera Pose, Trajectory)
+> GPT4Scene [34] 7B -24.87 44.04 2.4 27.12 25.94 43.10 16.01 31.96 24.43 26.53 50.04 23.52 Struct-2D [62] 7B 200k 43.60 -----------SpaceVista [35] 7B 1M 48.60 --------41.60 --SEE&TREK [23] 14B -45.60 65.90 35.70 50.50 48.40 49.00 41.00 27.80 46.80 ---Spatial-MLLM [44] 4B 120K 48.40 65.30 34.80 63.10 45.10 41.30 46.20 33.50 46.30 35.10 43.99 48.40
+> Models without Explicit 3D Inputs
+> SpaceR [32] 7B 151k 45.76 57.10 30.07 60.75 32.67 43.80 45.56 30.41 46.93 38.26 56.48 53.39 Video-R1 [12] 7B 260k 37.10 -----------Spatial-Mind [52] 7B 925K 43.90 55.00 29.50 57.30 44.00 43.50 44.30 38.30 39.20 ---R1-Zero-VSI [24] 7B 75k 40.70 59.90 29.60 50.80 48.30 35.40 35.60 34.00 31.50 ---ViLaSR [45] 7B 80k 46.35 56.58 33.67 58.57 30.49 42.11 45.76 25.26 55.02 34.98 56.09 53.16
+> EgoMind (Ours )7B 25k 50.16 54.51 37.94 67.12 40.35 44.08 47.21 31.96 58.41 39.03 58.03 55.02
+
+we uniformly sample 16 frames from each video. The vi-sual input resolution is capped at 256 × 28 × 28 , and inputs exceeding this limit are proportionally downsampled. Addi-tional implementation details are provided in the Appendix. We evaluate EgoMind on four spatial reasoning bench-marks: VSI-Bench [49], SITE-Bench [41], SPAR-Bench [55], and SPBench [21]. These benchmarks include both multiple-choice and numerical reasoning tasks, cov-ering abilities such as spatial memory, cross-view under-standing, and global scene consistency. For multiple-choice questions, we report Accuracy (ACC) based on exact match with ground truth. For numerical questions, we use Mean Relative Accuracy (MRA) [49] as the evaluation metric. 
+
+4.2. Comparison with State-of-the-Art 
+
+We compare EgoMind against four categories of models: (i) closed-source LLMs, (ii) purely image–language MLLMs, (iii) models with explicit 3D spatial priors, and (iv) models without explicit 3D inputs. Evaluations are conducted on VSI-Bench, SPAR-Bench, SITE-Bench, and SPBench, and the results are summarized in Tab. 1. As shown in Tab. 1, EgoMind achieves highly compet-itive performance across all four benchmarks. Compared with Qwen2.5-VL-7B, its base model, EgoMind improves performance from 30.02 to 50.16 on VSI-Bench and from 41.65 to 55.02 on SPBench using only 25K training samples (5K CoT-supervised and 20K RL samples). These gains indicate that the proposed CoT formulation effectively un-locks the latent spatial reasoning capabilities of MLLMs, enabling strong multi-frame spatial understanding without additional modalities. Relative to models trained without explicit 3D inputs, EgoMind consistently delivers superior or comparable per-formance, despite these baselines relying on substantially larger training sets and diverse forms of spatial or geomet-ric supervision. In particular, EgoMind outperforms Vi-LaSR, which is trained on 80K spatially annotated samples, across all benchmarks, highlighting the data efficiency and strong generalization of our linguistic reasoning paradigm. These results further validate the effectiveness of the Ego-Mind CoT formulation in enabling spatial reasoning that is both effective and data-efficient. Comparisons with methods that incorporate explicit 3D spatial priors further highlight EgoMind’s effectiveness. Al-though the data volume used by EgoMind is only 2.5% of the training data required by SpaceVista (1M samples), it achieves higher performance on VSI-Bench (50.16 vs. 48.60) and remains competitive on SPAR-Bench, demon-strating strong spatial generalization while avoiding the substantial overhead of 3D data alignment. More broadly, these findings suggest that the richer spatial context induced by linguistic reasoning may help improve the spatial gener-alization of MLLMs across diverse spatial cognition tasks, even without geometric priors or 3D supervision. 
+
+4.3. Ablation Study 
+
+CoT Components. We conduct ablation studies on RPC and PSA within the EgoMind CoT framework to evaluate their respective contributions. We assess the model on VSI-Bench at two stages: first, after SFT only, to isolate the di-rect gain brought by the CoT template itself; and second, af-ter the full pipeline including RL, to evaluate the additional 7Table 2. Ablation study of different components in EgoMind eval-uated on VSI-Bench. RPC and PSA denote Role-Play Caption and Progressive Spatial Analysis, respectively. 
+
+Exp RPC PSA VSI-Bench +SFT +RL 
+
+Baseline – – 30.02 (vanilla) 
+
+Full ✓ ✓ 42.33 50.16 
+
+w/o RPC × ✓ 41.52 47.69 w/o PSA ✓ × 41.23 45.15 improvement achieved when the model is further trained to reason with the EgoMind CoT formulation. As shown in Tab. 2, the full EgoMind CoT formulation yields substantial gains over the baseline. Under SFT alone, performance improves from 30.02 to 42.33, and the subse-quent RL stage further raises it to 50.16, demonstrating the effectiveness of combining structured linguistic reasoning with RL for multi-frame spatial understanding. The con-tribution of the core components becomes even more pro-nounced after RL. Removing RPC causes only a modest drop during SFT (42.33 → 41.52), but leads to a much larger degradation after RL (50.16 → 47.69), confirming that modeling egocentric global context is critical for con-structing a comprehensive spatial representation. Likewise, removing PSA reduces the SFT score to 41.23 and the RL score to 45.15, suggesting that PSA helps the model capture implicit spatial cues and extend the reasoning chain. 
+
+> Table 3. Ablation study on CoT modifications evaluated on VSI-Bench. MFC: Multi-Frame Caption. CVP: Camera View Predic-tion. DSA: Direct Spatial Analysis.
+
+CoT Modification VSI-Bench +SFT +RL 
+
+Full CoT 42.33 50.16 
+
+RPC → MFC 41.58 48.09 RPC → MFC + CVP 41.84 47.12 PSA → DSA 41.54 47.24 
+
+Candidate Variants. To further investigate the design choices of our CoT framework, we conduct ablation studies on alternative component designs. For RPC, which serves as a global scene modeling module, we introduce a Multi-Frame Caption (MFC) baseline that directly concatenates per-frame captions without modeling transitions, as well as an MFC variant augmented with Camera View Predic-tion (CVP), which explicitly predicts numerical viewpoint transformations between frames. For PSA, which serves as a task-oriented reasoning module, we introduce a Di-rect Spatial Analysis (DSA) variant that identifies all task-               
+
+> Table 4. Ablation on the number of input frames for Room Size Estimation on VSI-Bench, using Qwen2.5-VL-7B as the baseline. # Frames Baseline 4812 16 Score 35.31 36.14 36.59 38.88 40.35 Gain –+0.83 +1.28 +3.57 +5.04
+
+relevant objects at once rather than progressively expand-ing the search space. Comparisons are conducted on VSI-Bench after both the SFT and RL phases, and the results are reported in Tab. 3. As shown in Tab. 3, replacing RPC with MFC lowers RL performance from 50.16 to 48.09, since MFC simply con-catenates independent descriptions without modeling tran-sitions, leading to weaker cross-frame coherence. Adding CVP slightly improves SFT but further reduces RL perfor-mance to 47.12, suggesting that noisy geometric predictions can mislead the reasoning policy. This highlights the ro-bustness of RPC’s language-driven transition modeling. Re-placing PSA with DSA also degrades performance, reduc-ing the SFT and RL scores to 41.54 and 47.24, respectively. Unlike PSA, DSA focuses only on explicit objects and local relations, lacking the progressive expansion needed to iden-tify implicit spatial bridges and broader relational context. 
+
+Discussion. Although EgoMind primarily improves spa-tial reasoning through object- and relation-centric context modeling in RPC and PSA, we find that it also benefits metric-aware tasks, even without explicit geometric super-vision. To better understand this effect, we ablate the num-ber of RPC input frames in Tab. 4. As the table shows, performance on Room Size Estimation improves consis-tently with more input frames. This suggests that EgoMind supports metric-aware reasoning by accumulating implicit scale and spatial continuity cues across views within a co-herent global context. Hence, even without explicit 3D priors, linguistically structured cross-frame reasoning can facilitate scene-level metric understanding. More detailed case analysis is provided in the Appendix. 
+
+5. Conclusion 
+
+We present EgoMind, a CoT framework for geometry-free spatial reasoning in multimodal LLMs, built on RPC and PSA. By constructing a linguistic scene graph over multi-frame observations, EgoMind enables strong spatial cogni-tion without 3D priors. Experiments across multiple bench-marks demonstrate its effectiveness, establishing it as a scal-able, lightweight alternative to 3D-based methods. 
+
+Limitations. EgoMind remains limited in temporal reason-ing, synthetic trace diversity, with insufficient validation on scaling to larger MLLMs. Future work will focus on im-proving temporal consistency, enriching data diversity, and extending the framework to long-horizon embodied tasks. 8Acknowledgment 
+
+This work is supported by the National Key Research and Development Plan (2024YFB3309300). 
+
+References 
+
+[1] Jean-Baptiste Alayrac, Jeff Donahue, Pauline Luc, Antoine Miech, Iain Barr, Yana Hasson, Karel Lenc, Arthur Mensch, Katherine Millican, Malcolm Reynolds, et al. Flamingo: a visual language model for few-shot learning. NeurIPS , 35: 23716–23736, 2022. 3 [2] Lei Bai, Zhongrui Cai, Maosong Cao, Weihan Cao, Chiyu Chen, Haojiong Chen, Kai Chen, Pengcheng Chen, Ying Chen, Yongkang Chen, Yu Cheng, Yu Cheng, Pei Chu, Tao Chu, et al. Intern-s1: A scientific multimodal foundation model. arXiv preprint arXiv:2508.15763 , 2025. 1, 3 [3] Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, Sibo Song, Kai Dang, Peng Wang, Shijie Wang, Jun Tang, Humen Zhong, Yuanzhi Zhu, et al. Qwen2.5-vl tech-nical report. arXiv preprint arXiv:2502.13923 , 2025. 1, 3, 6, 7[4] Boyuan Chen, Zhuo Xu, Sean Kirmani, Brain Ichter, Dorsa Sadigh, Leonidas Guibas, and Fei Xia. Spatialvlm: Endow-ing vision-language models with spatial reasoning capabili-ties. In CVPR , pages 14455–14465, 2024. 1, 3 [5] Lin Chen, Jinsong Li, Xiaoyi Dong, Pan Zhang, Conghui He, Jiaqi Wang, Feng Zhao, and Dahua Lin. Sharegpt4v: Improving large multi-modal models with better captions. In 
+
+ECCV , pages 370–387. Springer, 2024. 3 [6] Sijin Chen, Xin Chen, Chi Zhang, Mingsheng Li, Gang Yu, Hao Fei, Hongyuan Zhu, Jiayuan Fan, and Tao Chen. Ll3da: Visual interactive instruction tuning for omni-3d understand-ing reasoning and planning. In CVPR , pages 26428–26438, 2024. 1, 3 [7] Yilun Chen, Shuai Yang, Haifeng Huang, Tai Wang, Run-sen Xu, Ruiyuan Lyu, Dahua Lin, and Jiangmiao Pang. Grounded 3d-llm with referent tokens. arXiv preprint arXiv:2405.10370 , 2024. 1, 3 [8] Yiming Chen, Zekun Qi, Wenyao Zhang, Xin Jin, Li Zhang, and Peidong Liu. Reasoning in space via grounding in the world. arXiv preprint arXiv:2510.13800 , 2025. 1, 3 [9] Zhangquan Chen, Manyuan Zhang, Xinlei Yu, Xufang Luo, Mingze Sun, Zihao Pan, Yan Feng, Peng Pei, Xunliang Cai, and Ruqi Huang. Think with 3d: Geometric imagina-tion grounded spatial reasoning from limited views. arXiv preprint arXiv:2510.18632 , 2025. 1, 3 [10] Erik Daxberger, Nina Wenzel, David Griffiths, Haiming Gang, Justin Lazarow, Gefen Kohavi, Kai Kang, Marcin Eichner, Yinfei Yang, Afshin Dehghan, et al. Mm-spatial: Exploring 3d spatial understanding in multimodal llms. In 
+
+ICCV , pages 7395–7408, 2025. 1, 3 [11] Zhiwen Fan, Jian Zhang, Renjie Li, Junge Zhang, Runjin Chen, Hezhen Hu, Kevin Wang, Huaizhi Qu, Dilin Wang, Zhicheng Yan, et al. Vlm-3r: Vision-language models aug-mented with instruction-aligned 3d reconstruction. arXiv preprint arXiv:2505.20279 , 2025. 1, 3 [12] Kaituo Feng, Kaixiong Gong, Bohao Li, Zonghao Guo, Yibing Wang, Tianshuo Peng, Junfei Wu, Xiaoying Zhang, Benyou Wang, and Xiangyu Yue. Video-r1: Reinforcing video reasoning in mllms. arXiv preprint arXiv:2503.21776 ,2025. 3, 6, 7 [13] Rao Fu, Jingyu Liu, Xilun Chen, Yixin Nie, and Wenhan Xiong. Scene-llm: Extending language model for 3d visual reasoning. In WACV , pages 2195–2206, 2025. 1, 3 [14] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, Qihao Zhu, Runxin Xu, Ruoyu Zhang, Shirong Ma, Xiao Bi, et al. Deepseek-r1: Incentivizing reasoning ca-pability in llms via reinforcement learning. arXiv preprint arXiv:2501.12948 , 2025. 3 [15] Yining Hong, Haoyu Zhen, Peihao Chen, Shuhong Zheng, Yilun Du, Zhenfang Chen, and Chuang Gan. 3d-llm: Inject-ing the 3d world into large language models. NeurIPS , 36: 20482–20494, 2023. 1, 3 [16] Jingcheng Hu, Yinmin Zhang, Qi Han, Daxin Jiang, Xiangyu Zhang, and Heung-Yeung Shum. Open-reasoner-zero: An open source approach to scaling up reinforcement learning on the base model. arXiv preprint arXiv:2503.24290 , 2025. 3[17] Jiangyong Huang, Silong Yong, Xiaojian Ma, Xiongkun Linghu, Puhao Li, Yan Wang, Qing Li, Song-Chun Zhu, Baoxiong Jia, and Siyuan Huang. An embodied generalist agent in 3d world. In ICML , pages 20413–20451, 2024. 1, 3 [18] Wenxuan Huang, Bohan Jia, Zijie Zhai, Shaosheng Cao, Zheyu Ye, Fei Zhao, Zhe Xu, Xu Tang, Yao Hu, and Shaohui Lin. Vision-r1: Incentivizing reasoning capabil-ity in multimodal large language models. arXiv preprint arXiv:2503.06749 , 2025. 3 [19] Xiaohu Huang, Jingjing Wu, Qunyi Xie, and Kai Han. Mllms need 3d-aware representation supervision for scene under-standing. arXiv preprint arXiv:2506.01946 , 2025. 1 [20] Bo Li, Yuanhan Zhang, Dong Guo, Renrui Zhang, Feng Li, Hao Zhang, Kaichen Zhang, Peiyuan Zhang, Yanwei Li, Zi-wei Liu, et al. Llava-onevision: Easy visual task transfer. 
+
+arXiv preprint arXiv:2408.03326 , 2024. 3 [21] Hongxing Li, Dingming Li, Zixuan Wang, Yuchen Yan, Hang Wu, Wenqi Zhang, Yongliang Shen, Weiming Lu, Jun Xiao, and Yueting Zhuang. Spatialladder: Progressive train-ing for spatial reasoning in vision-language models. arXiv preprint arXiv:2510.08531 , 2025. 2, 3, 7 [22] Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi. Blip-2: Bootstrapping language-image pre-training with frozen image encoders and large language models. In ICML ,pages 19730–19742, 2023. 3 [23] Pengteng Li, Pinhao Song, Wuyang Li, Weiyu Guo, Huizai Yao, Yijie Xu, Dugang Liu, and Hui Xiong. See&trek: Training-free spatial prompting for multimodal large lan-guage model. arXiv preprint arXiv:2509.16087 , 2025. 1, 3, 4, 7 [24] Zhenyi Liao, Qingsong Xie, Yanhao Zhang, Zijian Kong, Haonan Lu, Zhenyu Yang, and Zhijie Deng. Improved visual-spatial reasoning via r1-zero-like training. arXiv preprint arXiv:2504.00883 , 2025. 3, 7 
+
+9[25] Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee. Visual instruction tuning. NeurIPS , 36:34892–34916, 2023. 3, 7 [26] Haotian Liu, Chunyuan Li, Yuheng Li, and Yong Jae Lee. Improved baselines with visual instruction tuning. In CVPR ,pages 26296–26306, 2024. [27] Haotian Liu, Chunyuan Li, Yuheng Li, Bo Li, Yuanhan Zhang, Sheng Shen, and Yong Jae Lee. Llavanext: Improved reasoning, ocr, and world knowledge, 2024. 3 [28] Ziyu Liu, Zeyi Sun, Yuhang Zang, Xiaoyi Dong, Yuhang Cao, Haodong Duan, Dahua Lin, and Jiaqi Wang. Visual-rft: Visual reinforcement fine-tuning. arXiv preprint arXiv:2503.01785 , 2025. 3 [29] Shiyin Lu, Yang Li, Yu Xia, Yuwei Hu, Shanshan Zhao, Yanqing Ma, Zhichao Wei, Yinglun Li, Lunhao Duan, Jian-shan Zhao, Yuxuan Han, Haijun Li, Wanying Chen, Junke Tang, Chengkun Hou, Zhixing Du, Tianli Zhou, Wenjie Zhang, et al. Ovis2.5 technical report. arXiv preprint arXiv:2508.11737 , 2025. 1, 3, 7 [30] Chenyang Ma, Kai Lu, Ta-Ying Cheng, Niki Trigoni, and Andrew Markham. Spatialpin: Enhancing spatial reason-ing capabilities of vision-language models through prompt-ing and interacting 3d priors. NeurIPS , 37:68803–68832, 2024. 1, 3 [31] Yunze Man, Liang-Yan Gui, and Yu-Xiong Wang. Situa-tional awareness matters in 3d vision language reasoning. In 
+
+CVPR , pages 13678–13688, 2024. 1 [32] Kun Ouyang, Yuanxin Liu, Haoning Wu, Yi Liu, Hao Zhou, Jie Zhou, Fandong Meng, and Xu Sun. Spacer: Rein-forcing mllms in video spatial reasoning. arXiv preprint arXiv:2504.01805 , 2025. 1, 3, 6, 7 [33] Yi Peng, Peiyu Wang, Xiaokun Wang, Yichen Wei, Jiangbo Pei, Weijie Qiu, Ai Jian, Yunzhuo Hao, Jiachun Pan, Tianyi-dan Xie, et al. Skywork r1v: Pioneering multimodal reason-ing with chain-of-thought. arXiv preprint arXiv:2504.05599 ,2025. 3 [34] Zhangyang Qi, Zhixiong Zhang, Ye Fang, Jiaqi Wang, and Hengshuang Zhao. Gpt4scene: Understand 3d scenes from videos with vision-language models. arXiv preprint arXiv:2501.01428 , 2025. 1, 3, 4, 7 [35] Peiwen Sun, Shiqiang Lang, Dongming Wu, Yi Ding, Kaituo Feng, Huadai Liu, Zhen Ye, Rui Liu, Yun-Hui Liu, Jianan Wang, et al. Spacevista: All-scale visual spatial reasoning from mm to km. arXiv preprint arXiv:2510.09606 , 2025. 7 [36] Kimi Team, Angang Du, Bohong Yin, Bowei Xing, Bowen Qu, Bowen Wang, Cheng Chen, Chenlin Zhang, Chen-zhuang Du, Chu Wei, Congcong Wang, Dehao Zhang, Dikang Du, Dongliang Wang, Enming Yuan, Enzhe Lu, Fang Li, Flood Sung, Guangda Wei, Guokun Lai, Han Zhu, Hao Ding, Hao Hu, Hao Yang, Hao Zhang, Haoning Wu, et al. Kimi-VL technical report, 2025. 1, 3 [37] Shengbang Tong, Ellis Brown, Penghao Wu, Sanghyun Woo, Manoj Middepogu, Sai C Akula, Jihan Yang, Shusheng Yang, Adithya Iyer, Xichen Pan, et al. Cambrian-1: Afully open, vision-centric exploration of multimodal llms. 
+
+NeurIPS , 37:87310–87356, 2024. 3 [38] Jianyuan Wang, Minghao Chen, Nikita Karaev, Andrea Vedaldi, Christian Rupprecht, and David Novotny. Vggt: Vi-sual geometry grounded transformer. In CVPR , pages 5294– 5306, 2025. 1, 3 [39] Qianqian Wang, Yifei Zhang, Aleksander Holynski, Alexei A Efros, and Angjoo Kanazawa. Continuous 3d per-ception model with persistent state. In CVPR , pages 10510– 10522, 2025. 1, 3 [40] Weiyun Wang, Zhangwei Gao, Lixin Gu, Hengjun Pu, Long Cui, Xingguang Wei, Zhaoyang Liu, Linglin Jing, Sheng-long Ye, Jie Shao, et al. Internvl3.5: Advancing open-source multimodal models in versatility, reasoning, and efficiency. 
+
+arXiv preprint arXiv:2508.18265 , 2025. 1, 3, 7 [41] Wenqi Wang, Reuben Tan, Pengyue Zhu, Jianwei Yang, Zhengyuan Yang, Lijuan Wang, Andrey Kolobov, Jianfeng Gao, and Boqing Gong. Site: towards spatial intelligence thorough evaluation. In ICCV , pages 9058–9069, 2025. 2, 7 [42] Xiaoyan Wang, Zeju Li, Yifan Xu, Jiaxing Qi, Zhifei Yang, Ruifei Ma, Xiangde Liu, and Chao Zhang. Spatial 3d-llm: exploring spatial awareness in 3d vision-language models. In ICME , pages 1–6, 2025. 1 [43] Zehan Wang, Haifeng Huang, Yang Zhao, Ziang Zhang, and Zhou Zhao. Chat-3d: Data-efficiently tuning large language model for universal dialogue of 3d scenes. arXiv preprint arXiv:2308.08769 , 2023. 1, 3 [44] Diankun Wu, Fangfu Liu, Yi-Hsin Hung, and Yueqi Duan. Spatial-mllm: Boosting mllm capabilities in visual-based spatial intelligence. arXiv preprint arXiv:2505.23747 , 2025. 1, 3, 7 [45] Junfei Wu, Jian Guan, Kaituo Feng, Qiang Liu, Shu Wu, Liang Wang, Wei Wu, and Tieniu Tan. Reinforcing spatial reasoning in vision-language models with interwoven think-ing and visual drawing. arXiv preprint arXiv:2506.09965 ,2025. 7 [46] Peiran Wu, Yunze Liu, Miao Liu, and Junxiao Shen. St-think: How multimodal large language models reason about 4d worlds from ego-centric videos. In WACV , pages 5174– 5183, 2026. 3 [47] LLM-Core-Team Xiaomi. Mimo-vl technical report, 2025. 7[48] Guowei Xu, Peng Jin, Ziang Wu, Hao Li, Yibing Song, Lichao Sun, and Li Yuan. Llava-cot: Let vision language models reason step-by-step. In ICCV , pages 2087–2098, 2025. 3 [49] Jihan Yang, Shusheng Yang, Anjali W Gupta, Rilyn Han, Li Fei-Fei, and Saining Xie. Thinking in space: How mul-timodal large language models see, remember, and recall spaces. In CVPR , pages 10632–10643, 2025. 2, 7 [50] Yi Yang, Xiaoxuan He, Hongkun Pan, Xiyan Jiang, Yan Deng, Xingtao Yang, Haoyu Lu, Dacheng Yin, Fengyun Rao, Minfeng Zhu, et al. R1-onevision: Advancing gen-eralized multimodal reasoning through cross-modal formal-ization. In ICCV , pages 2376–2385, 2025. 3 [51] Huanjin Yao, Jiaxing Huang, Wenhao Wu, Jingyi Zhang, Yibo Wang, Shunyu Liu, Yingjie Wang, Yuxin Song, Haocheng Feng, Li Shen, et al. Mulberry: Empowering mllm with o1-like reasoning and reflection via collective monte 
+
+10 carlo tree search. arXiv preprint arXiv:2412.18319 , 2024. 3[52] Baiqiao Yin, Qineng Wang, Pingyue Zhang, Jianshu Zhang, Kangrui Wang, Zihan Wang, Jieyu Zhang, Keshigeyan Chan-drasegaran, Han Liu, Ranjay Krishna, et al. Spatial mental modeling from limited views. In ICCV , 2025. 4, 7 [53] Tianyu Yu, Zefan Wang, Chongyi Wang, Fuwei Huang, Wenshuo Ma, Zhihui He, Tianchi Cai, Weize Chen, Yuxi-ang Huang, Yuanqian Zhao, Bokai Xu, Junbo Cui, Yingjing Xu, Liqing Ruan, Luoyuan Zhang, Hanyu Liu, Jingkun Tang, Hongyuan Liu, Qining Guo, Wenhao Hu, Bingxiang He, Jie Zhou, Jie Cai, Ji Qi, Zonghao Guo, Chi Chen, Guoyang Zeng, Yuxuan Li, Ganqu Cui, Ning Ding, Xu Han, Yuan Yao, Zhiyuan Liu, and Maosong Sun. Minicpm-v 4.5: Cook-ing efficient mllms via architecture, data, and training recipe. 
+
+arXiv preprint arXiv:2509.18154 , 2025. 1, 3, 7 [54] Jiawei Zhang, Chejian Xu, and Bo Li. Chatscene: Knowledge-enabled safety-critical scenario generation for autonomous vehicles. In CVPR , pages 15459–15469, 2024. 1, 3 [55] Jiahui Zhang, Yurui Chen, Yanpeng Zhou, Yueming Xu, Ze Huang, Jilin Mei, Junhui Chen, Yu-Jie Yuan, Xinyue Cai, Guowei Huang, et al. From flatland to space: Teaching vision-language models to perceive and reason in 3d. arXiv preprint arXiv:2503.22976 , 2025. 2, 7 [56] Jingyi Zhang, Jiaxing Huang, Huanjin Yao, Shunyu Liu, Xikun Zhang, Shijian Lu, and Dacheng Tao. R1-vl: Learn-ing to reason with multimodal large language models via step-wise group relative policy optimization. arXiv preprint arXiv:2503.12937 , 2025. 3 [57] Duo Zheng, Shijia Huang, and Liwei Wang. Video-3d llm: Learning position-aware video representation for 3d scene understanding. In CVPR , pages 8995–9006, 2025. 1, 3 [58] Yaowei Zheng, Richong Zhang, Junhao Zhang, Yanhan Ye, Zheyan Luo, Zhangchi Feng, and Yongqiang Ma. Llamafac-tory: Unified efficient fine-tuning of 100+ language models. 
+
+arXiv preprint arXiv:2403.13372 , 2024. 6 [59] Yaowei Zheng, Junting Lu, Shenzhi Wang, Zhangchi Feng, Dongdong Kuang, and Yuwen Xiong. Easyr1: An efficient, scalable, multi-modality rl training framework. https:// github.com/hiyouga/EasyR1 , 2025. 6 [60] Chenming Zhu, Tai Wang, Wenwei Zhang, Jiangmiao Pang, and Xihui Liu. Llava-3d: A simple yet effective pathway to empowering lmms with 3d-awareness. arXiv preprint arXiv:2409.18125 , 2024. 1, 3 [61] Deyao Zhu, Jun Chen, Xiaoqian Shen, Xiang Li, and Mo-hamed Elhoseiny. Minigpt-4: Enhancing vision-language understanding with advanced large language models. In 
+
+ICLR , 2024. 3 [62] Fangrui Zhu, Hanhui Wang, Yiming Xie, Jing Gu, Tianye Ding, Jianwei Yang, and Huaizu Jiang. Struct2d: Aperception-guided framework for spatial reasoning in large multimodal models. arXiv preprint arXiv:2506.04220 , 2025. 1, 3, 4, 7 
+
+11 EgoMind: Activating Spatial Cognition through Linguistic Reasoning in MLLMs 
+
+## Supplementary Material 
+
+A. Implementation Details 
+
+A.1. Training Strategy 
+
+Our training pipeline consists of two stages: Supervised Fine-Tuning (SFT) for initializing spatial reasoning ability and aligning the model with the EgoMind CoT format, fol-lowed by Reinforcement Learning (RL) to further enhance structured reasoning quality through GRPO. 
+
+Supervised Fine-Tuning. Based on the 5K automatically generated SFT samples described in Fig. 3 of the main paper, we fine-tune Qwen2.5-VL-7B using the LLaMA-Factory framework to provide the model with initial spa-tial reasoning ability and align its outputs with the EgoMind CoT format, forming a strong foundation for the subsequent RL stage. During SFT, 16 frames are uniformly sampled from each video, and the maximum pixel budget is con-strained to 200,704 ( 256 × 28 × 28 ). Training is conducted for 3 epochs with a learning rate of 5 × 10 −6 using a cosine decay schedule and a warmup ratio of 0.1. We employ the AdamW optimizer and train in bf16 precision to improve memory efficiency and stability. The LLM and projector components are set to be trainable, while the ViT backbone remains frozen. To ensure consistency with the RL stage, we append a structured instruction prompt to each question, guiding the model to produce outputs that adhere to the EgoMind CoT format: 
+
+Task Prompt 
+
+You should first think about the reasoning pro-cess in the mind and then provide the user with the answer. The reasoning process and answer are enclosed within <think> </think> and 
+
+<answer> </answer> tags, respectively, i.e., 
+
+<think> reasoning process here </think> <answer> answer here </answer> 
+
+Reinforcement Learning. During the RL phase, we train the MLLM on 20K samples using the GRPO algorithm im-plemented in the EasyR1 framework. We set the batch size to 64, the learning rate to 1 × 10 −6, and apply a weight decay of 1.0 × 10 −2. The AdamW optimizer is adopted with bf16 precision. To balance effective policy updates with controlled divergence from the reference model, we use a KL penalty coefficient of 1 × 10 −4. For each prompt, the policy generates 8 candidate reasoning paths to compute group-wise rewards, using a temperature of 1.0 and top-p of 0.99. The maximum response length is capped at 2048 to-kens. The total reward is defined as a weighted sum of a format reward ( Rformat ) and an accuracy reward ( Raccuracy ), with weights 0.2 and 0.8, respectively. The format reward is bi-nary: Rformat = 1 if the model output strictly adheres to the required think -answer structure, and 0 otherwise. The accuracy reward Raccuracy evaluates the content con-tained within the <answer> and </answer> tags. For multiple-choice questions, we assign a discrete score of 0 or 1 based on exact matching of the predicted option (A/B/C/D). For numerical questions, we compute accuracy using the Mean Relative Accuracy (MRA) metric, which measures the relative closeness between the predicted value and the ground truth. 
+
+A.2. Inference Strategy 
+
+To ensure fair comparisons across models of varying ar-chitectures, we strictly standardize our evaluation protocol. For closed-source models (e.g., GPT-4.1, GPT-5, and Gem-ini 2.5 Pro), we apply the identical CoT prompt detailed in Section A.1. For open-source MLLMs, we report the higher score between direct generation and CoT prompt-ing to avoid penalizing models with weaker instruction-following capabilities. Furthermore, we evaluate all reason-ing models under their official default configurations (e.g., “dynamic thinking” for Gemini 2.5 Pro and “medium rea-soning effort” for GPT-5). Regarding visual inputs, we constrain the maximum im-age resolution to 256 × 28 × 28 across all benchmarks to maintain strict consistency with our training phase. Ad-ditionally, for video-based tasks specifically, we uniformly sample 16 frames per video sequence. 
+
+A.3. Data Construction 
+
+Supervised Fine-Tuning Data For the SFT stage, our goal is to construct a compact yet diverse dataset that en-ables MLLMs to learn the EgoMind CoT format under strict cost constraints. To achieve this, we sample approximately 5K instances from the SpaceR-91K dataset. During sam-pling, we filter out trivial or overly ambiguous cases and en-force a more uniform distribution across different question types and answer patterns to reduce dataset-induced bias. The corresponding EgoMind CoT annotations are automat-ically generated using the pipeline described in Sec. 3.4 of the main paper. Furthermore, to guarantee the reliability of the generated data, we employ Gemini 2.5 Pro driven 12 I am standing on the red carpet, facing the white cabinet with books, so where are the laptops located relative to me? 
+
+A. left B. right C. front D. back 
+
+EgoMind-7B 
+
+Task                  
+
+> <think>
+> To solve the problem, I will first establish the observer's position and orientation as described in the question. Then, by analyzing the visual information from the video frames, I will locate the white cabinet with books and the laptops.
+> Finally, I will determine the spatial relationship between the observer and the laptops to answer the question.
+> <ROLE_PLAY_CAPTION>
+> I am standing in a bright room. As I take two steps forward, I notice a red-patterned sofa to my left, and directly in front of me is a green armchair placed at an angle. Behind it, I see a built-in cabinet with books on its top surface. As
+> I turn my view approximately 90 degrees to the right, there is a television with audio equipment underneath. To the left of the TV, a small, low black table is cluttered with items. Continuing to pan my view another 90 degrees to the
+> right, I see a dining table with a white tablecloth and wooden chairs, which has two laptops on it. Further to the right in the background, a staircase with a white railing is visible.
+> </ROLE_PLAY_CAPTION>
+> <SPATIAL>
+> 1. **Task-relevant objects: **
+> *[OBSERVER]: The person asking the question.
+> *[WHITE-CABINET-0]: A white, low cabinet against a red wall, holding books.
+> *[LAPTOP-0], [LAPTOP-1]: Two laptops seen on a table.
+> 2. **Spatially proximate objects: **
+> *[DINING-TABLE-0]: A table with a white tablecloth.
+> *[TV-0]: A large TV on a stand.
+> 3. **Spatial relationships: **
+> *The [OBSERVER] is standing on [RED-CARPET-0].
+> *The [OBSERVER] is facing [WHITE-CABINET-0].
+> *[TV-0] is to the right of the [OBSERVER].
+> *[RED-CARPET-0] is between [WHITE-CABINET-0] and [DINING-TABLE-0].
+> *[LAPTOP-0] and [LAPTOP-1] are located on [DINING-TABLE-0].
+> </SPATIAL>
+> 1. The question establishes that the observer is standing on the [RED-CARPET-0] and facing the [WHITE-CABINET-0].
+> 2. Since [RED-CARPET-0] is between [WHITE-CABINET-0] and [DINING-TABLE-0], [DINING-TABLE-0] is located directly behind the observer's initial position.
+> 3. Since [LAPTOP-0] and [LAPTOP-1] are on [DINING-TABLE-0], the laptops are behind the observer.
+> </think>
+> <an swer> D. back </answer >
+
+Qwen2.5VL-7B 
+
+B. right Figure D. A case study of relational reasoning with the Qwen2.5-VL-7B model enhanced by the EgoMind framework. 
+
+by specifically tailored prompts to conduct comprehensive quality checks and filtering: • Hallucination Check: We verify whether the finally merged chain-of-thought content factually conflicts with the input video frames, ensuring that no erroneous infor-mation is introduced during the Merge stage. • Logical Consistency: We strictly examine the consis-tency between the PSA/RPC context and the Reasoning section. This guarantees that the reasoning conclusions are logically derived from the evidence provided by PSA and RPC. • Format & Correctness: We check whether the final extracted answer is correct by comparing it against the ground truth labels, and we ensure that the output format strictly complies with the training requirements. 
+
+Reinforcement Learning Data For the RL stage, we fur-ther sample 20K instances from the SpaceR-91K dataset. Since RL relies solely on outcome-based rewards and does not require CoT supervision, we remove extreme cases that are excessively easy or unsolvable. From the remaining pool, we select 20K moderately challenging samples to provide sufficient difficulty for policy improvement while maintaining stable reward signals. 
+
+A.4. Benchmarks 
+
+To comprehensively evaluate the spatial reasoning capa-bility of EgoMind, we consider four representative bench-marks that cover a diverse set of spatial perception and rea-soning tasks. 
+
+VSI-Bench assesses an MLLM’s ability to perceive, mem-orize, and reason about physical spaces through continu-ous visual observation. It contains 5,000 QA pairs across 288 real-world indoor videos sourced from ScanNet, Scan-Net++, and ARKitScenes, and includes tasks such as object counting, distance estimation, relative direction prediction, and route planning. 
+
+SPAR-Bench provides over 7,200 human-verified QA sam-ples spanning 20 spatial reasoning tasks, ranging from basic geometric perception to high-level relational reasoning. It uniquely employs only static images (single-view or multi-view), enabling a pure evaluation of a model’s ability to in-fer 3D spatial structure from discrete viewpoints without temporal information. 
+
+SITE-Bench integrates 30 existing spatial-intelligence datasets and augments them with newly designed tasks, of-fering a unified multiple-choice framework for systematic evaluation of spatial reasoning in MLLMs. In our exper-iments, we adopt the video-based subset of SITE-Bench, which contains 3,808 video QA tasks covering diverse spa-13 Table E. Performance evaluation of Qwen2.5-VL models at different scales (3B and 7B) on the VSIBench benchmark. The table details the step-wise performance gains, comparing the base models with their counterparts enhanced through Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL). 
+
+Models Params Version Overall Numerical Question Multiple-Choice Question Obj. Cnt. Abs. Dist. Obj. Size Room Size Rel. Dist. Rel. Dir. Route Plan Appr. Order Qwen2.5-VL-3B 3B Base 27.68 27.06 19.78 25.37 19.24 32.54 39.26 28.87 22.33 +SFT 37.08 36.48 21.74 36.88 30.66 37.04 45.14 22.68 53.56 +RL 45.44 44.96 31.29 59.07 37.60 41.69 47.52 23.20 55.66 Qwen2.5-VL-7B 7B Base 30.02 23.75 10.50 36.98 35.31 38.45 37.09 28.87 28.48 +SFT 42.33 43.20 23.87 50.34 29.03 41.41 47.42 29.38 57.44 +RL 50.16 54.51 37.94 67.12 40.35 44.08 47.21 31.96 58.41 Anchor Mismatch Abrupt Perspective Shift Improved Metric Estimation 
+
+Q: What is the size of the room? If 
+
+multiple rooms are shown, estimate the 
+
+size of the combined space. 
+
+Q: Which of these objects is the closest 
+
+to the table? 
+
+A. lamp B. bed C. sofa D. tv 
+
+Q: If I am standing by the dining table and 
+
+facing the sofa, where is the wardrobe to me? 
+
+A. back-left B. back-right C. front-left 
+
+</think> 
+
+<answer> 25 </answer> 
+
+</think> 
+
+<answer> A </answer> 
+
+</think> 
+
+<answer> A </answer> 
+
+Not the same ！
+
+<think>  
+
+> ...... (Summary)
+> <ROLE_PLAY_CAPTION>
+> ...... (RPC)
+> </ROLE_PLAY_CAPTION>
+> <SPATIAL>
+> ...... (PSA)
+> </SPATIAL>
+> ......
+> The visual tour shows a single, compact room. By
+> visually comparing the [BED-0], [DESK-0], [TV-0]
+> and [SOFA-0] to standard furniture dimensions ,
+> a reasonable estimate for the room's area is 25
+> square meters.
+
+<think>   
+
+> ......(Summary)
+> <ROLE_PLAY_CAPTION>
+> ...... and the bed is next to the room door. Then, I
+> move forward towards the bed ,and I see a white
+> wardrobe on my left......
+> </ROLE_PLAY_CAPTION>
+> <SPATIAL>
+> ...... ( PSA )
+> </SPATIAL>
+> ......
+> Therefore, if the [OBSERVER] is facing the
+> [SOFA-0], the [WARDROBE-0] is to his back-left.
+> So, the final answer is A.
+
+<think>            
+
+> ......(Summary)
+> <ROLE_PLAY_CAPTION>
+> ...... I see the [PLANT-0] next to the [LAMP-0].
+> Then, I turn around to survey the entire room,
+> finding that the [PLANT-0] is on the [TABLE-0],
+> while simultaneously observing......
+> </ROLE_PLAY_CAPTION>
+> <SPATIAL>
+> ......
+> *The [LAMP-0] is on the left of the [PLANT-0].
+> *The [PLANT-0] is on the [TABLE-0] .
+> ......
+> </SPATIAL>
+> ...... (Reasoning)
+
+(a) (b) (c) 
+
+Figure E. Case studies of EgoMind. 
+
+tial understanding scenarios. 
+
+SPBench comprises 1,328 QA pairs divided into two sub-sets: SPBench-SI (single-image, 1,009 QA) and SPBench-MV (multi-view, 319 QA). It is specifically designed to measure a model’s geometric understanding, object enu-meration ability, and multi-view spatial synthesis. All sam-ples are derived from indoor scenes in the ScanNet dataset. 
+
+B. Extended Ablation Studies 
+
+B.1. Generalization Across Model Scales 
+
+To evaluate the generalization ability of the EgoMind CoT across different MLLM scales, we fine-tune Qwen2.5-VL-3B using the proposed framework and assess its perfor-mance on VSI-Bench. The results are presented in Table E. As shown in Table E, EgoMind yields consistent im-provements on both Qwen2.5-VL-3B and Qwen2.5-VL-7B. With only the SFT stage, performance increases from 27.68 
+
+→ 37.08 on the 3B backbone and from 30.02 → 42.33 on the 7B backbone, indicating that the EgoMind CoT effec-tively equips MLLMs with structured spatial reasoning abil-ities. When reinforcement learning is further introduced, the scores improve substantially to 45.44 and 50.16 for the 3B and 7B models, respectively, demonstrating the strong synergy between CoT-based supervision and RL-driven re-finement. It is worth noting that EgoMind requires only 5K au-tomatically generated CoT samples for SFT and 20K QA-only samples for RL—significantly fewer than competing methods. These results highlight the high data efficiency of EgoMind and its ability to activate robust spatial cogni-tion purely through carefully designed linguistic reasoning, 14 If I am standing by the bed and facing the dressing table, is the hanger to my front-left, front-right, back-left, or back-right? 
+
+A. back-right B. front-left C. back-left D. front-right 
+
+Gemini-2.5-Pro (Enhanced) 
+
+<think> 
+
+My goal is to determine the position of the hanger relative to an observer who is standing by the bed and facing the dressing table. First, I will analyze the video frames to build a mental map of the bedroom, identifying the key objects: 
+
+the bed, the dressing table, and the hanger. Then, I will establish a plausible position and orientation for the observer based on the problem description. Finally, using this established viewpoint, I will determine the relative location of 
+
+the hanger and select the correct option from the choices provided. 
+
+<ROLE_PLAY_CAPTION> 
+
+I'm peeking into a bedroom from a wooden doorway. The floor is hardwood. In the center of the room is a large bed with a light-colored patterned duvet and a wooden headboard. To the left of the bed, there's a small gold-colored 
+
+metal and glass nightstand with a lamp on it. To the right of the bed, there's a patterned rug on the floor and a black mesh trash can. Against the far wall, to the right of the bed, stands a wooden chest of drawers. Between the head of 
+
+the bed and the chest of drawers, a red jacket is hanging on a wall hanger. 
+
+I step further into the room, moving along the right side of the bed. Above the bed's headboard is a large, rectangular mirror with a silver-colored frame. I pan left, getting a full view of the bed and the mirror. The reflection shows me 
+
+holding the camera. 
+
+Now I move forward, towards the corner of the room, passing the right side of the bed. The wooden chest of drawers is now directly to my left. I pan right, past the chest of drawers. There's a wooden chair with a light-colored seat 
+
+cushion next to it. Beyond the chair is a window with green, yellow, and blue patterned curtains tied back. The window has a wide wooden sill. 
+
+Continuing to pan right, past the window, I see the room opens into a corner nook. I turn into this nook. On the far wall of the nook is a white dressing table with several drawers and a collection of cosmetics and a mirror on its surface. 
+
+A black and chrome swivel chair is tucked under it. To the right of the chair, a red hairdryer is mounted on a stand. White double doors for a closet are visible on the right wall of this nook. I'm now standing directly in front of the 
+
+dressing table. 
+
+</ROLE_PLAY_CAPTION> 
+
+<SPATIAL> 
+
+1. **Task-Relevant Objects: **
+
+* `[OBSERVER]` The person standing by the bed and facing the dressing table. 
+
+* `[BED-0]` The large bed in the main area of the room. 
+
+* `[DRESSING-TABLE-0]` The white vanity located in a nook to the right side of the room. 
+
+* `[HANGER-0]` The wall hanger holding a red jacket. 
+
+2. **Surrounding Objects: **
+
+* `[CHEST-OF-DRAWERS-0]` A wooden chest of drawers against the back wall. 
+
+* `[MIRROR-0]` A large rectangular mirror mounted on the wall above `[BED-0]`. 
+
+* `[NIGHTSTAND-0]` A glass and metal nightstand to the left of `[BED-0]`. 
+
+* `[NIGHTSTAND-1]` Another nightstand to the right of `[BED-0]`. 
+
+* `[CHAIR-0]` A wooden chair between `[CHEST-OF-DRAWERS-0]` and a window. 
+
+* `[WINDOW-0]` The window on the right wall of the main room area. 
+
+* `[CHAIR-1]` A black swivel chair at `[DRESSING-TABLE-0]`. 
+
+* `[CLOSET-DOORS-0]` White doors in the dressing table nook. 
+
+3. **Positional Relationships: **
+
+* The `[OBSERVER]` is standing by `[BED-0]`, facing `[DRESSING-TABLE-0]`. A logical position for the `[OBSERVER]` is on the right side of `[BED-0]`, as this provides a clear line of sight and path to `[DRESSING-TABLE-0]`. 
+
+* `[BED-0]` is in the center of the main part of the room. 
+
+* `[HANGER-0]` is mounted on the back wall, between the head of `[BED-0]` and `[CHEST-OF-DRAWERS-0]`. 
+
+* `[CHEST-OF-DRAWERS-0]` is against the back wall, to the right of `[BED-0]` and `[HANGER-0]`. 
+
+* `[DRESSING-TABLE-0]` is located in a nook that is past the `[WINDOW-0]` on the right side of the room. To face it from the main room, one must look towards the right wall. 
+
+</SPATIAL> 
+
+1. The problem requires me to assume the identity of an `[OBSERVER]` who is "standing by the bed" and "facing the dressing table". 
+
+2. Based on the spatial analysis, `[BED-0]` is in the center of the room. `[DRESSING-TABLE-0]` is in a nook on the right side of the room. To face `[DRESSING-TABLE-0]` while being "by the bed", the `[OBSERVER]` would most 
+
+logically be standing on the right side of `[BED-0]`, looking towards the right wall where the dressing table nook is located. 
+
+3. In this position, the `[OBSERVER]`'s front is directed toward `[DRESSING-TABLE-0]`. 
+
+4. The `[OBSERVER]`'s left side would be towards the head of `[BED-0]` and the back wall. The `[OBSERVER]`'s right side would be towards the foot of `[BED-0]` and the room entrance. The `[OBSERVER]`'s back would be 
+
+towards the left side of the room. 
+
+5. The `[HANGER-0]` is located on the back wall, near the head of `[BED-0]`. 
+
+6. Therefore, from the `[OBSERVER]`'s perspective (standing on the right of the bed, facing right), the `[HANGER-0]` is located behind them and to their left. 
+
+7. This corresponds to the "back-left" quadrant relative to the `[OBSERVER]`. 
+
+</think> 
+
+<answer> C. back-left </answer> 
+
+Gemini-2.5-Pro (Original) 
+
+A. back-right 
+
+Task Figure F. A case study where Gemini 2.5 Pro is guided by an EgoMind CoT prompt to solve a complex spatial relationship problem. This case illustrates that our proposed framework can be used as a zero-shot prompting strategy to unlock the spatial understanding and reasoning capabilities of powerful closed-source models. 
+
+without relying on additional multi–modal data or explicit 3D supervision. 
+
+B.2. Intermediate Results Verification 
+
+To rigorously verify the faithfulness and reliability of our generated reasoning chains, we employ Gemini 2.5 Pro as an independent judge to audit the intermediate reasoning traces on the VSI-Bench validation set. We evaluate the intermediate results across two key di-mensions: (i) Visual Fidelity , which measures whether the generated RPC and PSA context accurately reflects the raw video frames; and (ii) Logical Consistency , which assesses whether the final answer logically stems from the reasoning chain. Specifically, we design detailed evaluation prompts that instruct the judge to assign a binary score (0 or 1) to each reasoning trace for both dimensions. These bi-nary scores are then averaged to compute the final aggre-gate percentages. Our evaluation reveals that the EgoMind CoT achieves a high visual fidelity of 98.93% for RPC and 
+
+91.60% for PSA, alongside an impressive 96.69% logi-cal consistency. This strong alignment between the inter-mediate reasoning steps and the final answer confirms that EgoMind’s performance gains arise from reliable, grounded spatial perception, effectively mitigating the risk of spurious correlations or shortcut learning. 
+
+C. Qualitative Analysis 
+
+To further investigate the qualitative improvements brought by EgoMind CoT, we evaluate the representative open-source MLLM, Qwen2.5-VL-7B, by comparing its re-15 You will solve a problem by first providing your thought process, then the final answer. 
+
+# Response Format 
+
+Your output MUST strictly follow the structure outlined below. Pay close attention to which sections use tags and which do not. 
+
+The overall layout is: 
+
+<reason> 
+
+[A concise, 3-5 sentence summary of your plan] 
+
+<ROLE_PLAY_CAPTION> 
+
+[A first-person, real-time narration of the scene] 
+
+</ROLE_PLAY_CAPTION> 
+
+<SPATIAL> 
+
+[A structured, step-by-step analysis of objects and their positions] 
+
+</SPATIAL> 
+
+[A step-by-step logical deduction leading to the answer] 
+
+</reason> 
+
+<answer> 
+
+[The final, concise answer] 
+
+</answer> 
+
+# Instructions for the Content Inside <reason> </reason> 
+
+You MUST include the following four components inside the `<reason>` block, in this exact order: 
+
+1. **Plan Summary (No Tags): **
+
+- Start immediately after the `<reason>` tag. 
+
+- **Goal: ** Briefly explain the steps to solve the problem (e.g., "I will first traverse the room to identify all X, then map their coordinates to count them."). Summarize your plan in 3-5 concise sentences. 
+
+2. **Role Play Caption (Using `<ROLE_PLAY_CAPTION>` tags): **
+
+- **Goal: ** Narrate from a first-person perspective (like a camera operator or robot) what you see and hear in real-time. Follow the chronological order of the video frames. 
+
+- **Requirements: **
+
+- **Perspective: ** Fully adopt the "Ego-centric" view. Narrate your physical movement (e.g., "I move forward 2 meters," "I pan 45 degrees left"). 
+
+- **Visuals: ** Describe the environment structure (e.g., "L-shaped room") and landmark objects. Mention colors and shapes clearly. 
+
+- **Continuity: ** Dynamically narrate changes. If an object disappears due to occlusion or frame exit, mention it (e.g., "The brown table passes out of view on my left"). 
+
+- **Object Permanence: ** If you see an object again after turning, note it (e.g., "I see the same chair I passed earlier"). 
+
+- **Example: ** "I am in an office copy room. In front of me is a large, light-gray Canon multifunction copier. A notice is taped to its front. As I pan left 90 degrees, the copier moves out of frame and I see a white door about 2 meters 
+
+away. I move forward towards the door, then turn right and look at the ceiling, finding a square air vent." 
+
+- **IMPORTANT: ** Keep descriptions factual. Focus on **Spatial Geometry ** (depth, occlusion, relative placement) rather than artistic flair. Ignore the specific question here; focus on a complete scene reconstruction. 
+
+3. **Spatial Analysis (Using `<SPATIAL>` tags): **
+
+- **Goal: ** Create a structured, **geometric ** analysis of the scene to ground your reasoning. 
+
+- **Requirements: ** Your output inside this section **MUST follow these numbered steps in order **:
+
+1. **Task-Relevant Objects: ** Identify and label all objects mentioned in or relevant to the task. Use `[OBJECT-TYPE-N]` (e.g., `[TABLE-0]`). 
+
+- **Indexing: ** Start N=0. Increment N for *distinct * instances. 
+
+- **De-duplication: ** Be careful NOT to label the same object twice if it appears in multiple frames. Treat them as one unique entity. 
+
+- **Observer: ** If applicable, label the camera/viewer as `[OBSERVER]`. 
+
+2. **Surrounding Context: ** Identify nearby reference objects that help define scale or location (e.g., "The floor tiles," "The door frame"). Label them if necessary for clarity. 
+
+3. **Positional Relationships & Metrics: ** Describe the **absolute position ** (e.g., "North-east corner") and **relative position ** (e.g., "[CHAIR-0] is ~1 meter to the left of [TABLE-0]") of all labeled objects. 
+
+- **Estimation with Priors: ** When estimating metrics (size, distance, area), **explicitly combine visual evidence with common-sense priors ** (e.g., "Standard doorways are ~2m high," "Floor tiles are typically 60cm x 60cm," "This is a 
+
+residential living room, likely 3 - 5m wide"). Use these priors as benchmarks to refine your estimates. 
+
+4. **Logical Reasoning (No Tags): **
+
+- Place this section *after * the `</SPATIAL>` closing tag. 
+
+- **Goal: ** Provide a step-by-step chain-of-thought deduction. 
+
+- **Requirements: **
+
+- **Integration: ** You MUST refer to the labels (e.g., `[TABLE-0]`) defined in the `<SPATIAL>` section. 
+
+- **Verification: ** If the task involves counting or estimation, cross-check your `<ROLE_PLAY_CAPTION>` (visual flow) with your `<SPATIAL>` list (deduplicated entities) to ensure accuracy. 
+
+- **Final Conclusion: ** Deduce the final answer based *strictly * on the evidence above. 
+
+# Instructions for the <answer> </answer> Section 
+
+- Provide ONLY the final, concise answer (e.g., a single number, a direction, or a short phrase). Do not add any extra explanation. 
+
+# Your Assignment 
+
+{{content}} Figure G. A zero-shot prompt to activate the spatial understanding and reasoning capabilities of powerful closed-source models. 
+
+sponses with and without EgoMind-style reasoning. We categorize our qualitative analysis into relational under-standing, metric consistency, and typical failure modes. 
+
+Relational Reasoning Capabilities. As visualized in Fig. D, EgoMind CoT successfully activates robust spatial cognition in Qwen2.5-VL-7B for relative position and di-rection tasks. While the vanilla model struggles to main-tain spatial awareness across multiple views, the enhanced model demonstrates the ability to construct a coherent, lin-guistically grounded spatial graph. It accurately identi-fies task-relevant objects across continuous frames and in-tegrates these visual cues into a well-structured reasoning chain to deduce complex spatial relationships seamlessly. 
+
+Insights on Metric Consistency. Beyond qualitative re-lational reasoning, EgoMind excels at bridging semantic and metric information. Through the cross-frame align-ment induced by the RPC and PSA modules, the frame-work enforces an implicit geometric consistency. As illus-trated by the successful metric case in Fig. E(a), this mech-anism allows the model to maintain stable object identities and consistent scale cues across multiple viewpoints with-out the need for explicit 3D supervision. Consequently, EgoMind can more effectively leverage the implicit spatial priors inherent in MLLMs to support complex metric rea-soning tasks, such as estimating room sizes or determining precise physical distances. 
+
+Failure Cases and Extensibility. Despite these strong spa-tial modeling capabilities, we identify two primary failure modes in highly complex scenarios. The first is anchor mis-match (Fig. Eb), which typically arises when environments contain multiple visually identical or similar objects, oc-casionally confusing the model’s cross-frame object track-ing. The second failure mode stems from abrupt perspec-tive shifts (Fig. Ec), where severe or discontinuous camera movements lead to sparse visual anchors, breaking the co-herent spatial narrative constructed by the RPC module. Nevertheless, the linguistic nature of EgoMind renders it highly extensible. While fine-grained metric precision can be challenging for pure 2D MLLMs, incorporating partial metric hints (e.g., basic object size cues) into the prompt can significantly mitigate these issues. In our exploratory experiments, providing such hints improved the Room Size 
+
+16 estimation accuracy on VSI-Bench from 40.35% to 44.72%, demonstrating the flexibility and adaptability of our CoT framework. 
+
+D. Zero-Shot Performance 
+
+Remarkably, even for Gemini 2.5 Pro—a closed-source model—simply injecting EgoMind CoT as a prompting template (Fig. G) already elicits noticeably stronger spatial reasoning. As shown in Fig. F, the guided reasoning struc-ture enables Gemini 2.5 Pro to consistently capture cross-frame correspondences, recognize implicit spatial bridges, and assemble a more coherent global scene representation. Quantitatively, applying this EgoMind CoT prompt yields a substantial zero-shot improvement on VSI-Bench for Gem-ini 2.5 Pro, boosting its overall accuracy from 50.62 to 59.73. Conversely, applying the same zero-shot prompt to Qwen2.5-VL-7B yields only marginal gains from 30.02 to 32.89. This contrast reveals that while zero-shot CoT prompting alone can activate spatial reasoning in massive closed-source models, it is insufficient for smaller open-source models due to limited instruction-following capac-ities. Consequently, our two-stage training (SFT + RL) is indispensable for smaller models to fully internalize the rea-soning paradigm, effectively driving performance to 50.16. These findings demonstrate that EgoMind CoT is not bound to a specific model architecture. Instead, it serves as a generalizable and effective reasoning paradigm that substantially enhances spatial understanding in both open-source and closed-source MLLMs. 17
