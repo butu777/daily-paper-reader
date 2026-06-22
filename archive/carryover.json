@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-21T20:48:29.971845+00:00",
-  "updated_date": "20260621",
+  "generated_at": "2026-06-22T22:47:48.388015+00:00",
+  "updated_date": "20260622",
   "carryover_days": 9,
   "tag_states": {
     "AI 3D": {
@@ -9,7 +9,7 @@
       "items": []
     },
     "WM": {
-      "updated_date": "20260621",
+      "updated_date": "20260622",
       "carryover_days": 9,
       "items": []
     },
@@ -19,7 +19,7 @@
       "items": []
     },
     "AdverseWeather": {
-      "updated_date": "20260621",
+      "updated_date": "20260622",
       "carryover_days": 9,
       "items": []
     }
